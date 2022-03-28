@@ -1,3 +1,5 @@
+# TODO: Update shell commands to use "install, update, uninstall" syntax when possible
+
 dotfiles:
   symlink:
     src: "./home"
@@ -51,7 +53,9 @@ rust_analyzer:
 
 prettier:
   shell:
-    - "npm install -g neovim prettier @fsouza/prettierd"
+    install: "npm install -g neovim prettier @fsouza/prettierd"
+    update: "npm upgrade -g neovim prettier @fsouza/prettierd"
+    uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
 
 octo:
   shell:
