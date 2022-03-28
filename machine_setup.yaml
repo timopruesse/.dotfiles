@@ -2,3 +2,8 @@ dotfiles:
   symlink:
     src: "./home"
     target: "~"
+
+terminal_setup:
+  symlink:
+    src: "./terminal"
+    target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
