@@ -156,6 +156,8 @@ inoremap = =<c-g>u
 
 nmap <C-w> :NERDTreeToggle %<CR>
 
+noremap <leader>md :Glow<CR>
+
 augroup fmt
   autocmd!
   au BufWritePre * try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry
