@@ -126,6 +126,17 @@ lua require'nvim-treesitter.configs'.setup { highlight = { enable = true }, incr
 let loaded_matchparen = 1
 let mapleader = " "
 
+" keep that goddamn cursor centered!!
+nnoremap j jzz
+nnoremap k kzz
+nnoremap G Gzz
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap * *zz
+nnoremap # #zz
+nnoremap g* g*zz
+nnoremap g# g#zz
+
 nnoremap <silent> Q <nop>
 nnoremap <leader>ghw :h <C-R>=expand("<cword>")<CR><CR>
 nnoremap <leader>bs /<C-R>=escape(expand("<cWORD>"), "/")<CR><CR>
@@ -156,6 +167,7 @@ inoremap = =<c-g>u
 
 nmap <C-w> :NERDTreeToggle %<CR>
 
+" preview markdown
 noremap <leader>md :Glow<CR>
 
 augroup fmt

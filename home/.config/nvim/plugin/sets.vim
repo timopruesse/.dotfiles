@@ -32,7 +32,7 @@ set incsearch
 set nohlsearch
 set relativenumber
 set termguicolors
-set scrolloff=8
+set scrolloff=10
 set noshowmode
 
 set cmdheight=2
