@@ -16,7 +16,7 @@ fun! ColorMyPencils()
     
     call luaeval('vim.cmd("colorscheme " .. _A[1])', [g:timopruesse_colorscheme])
 
-    highlight ColorColumn ctermbg=0 guibg=black
+    highlight ColorColumn ctermbg=0 guibg=#292929
     hi SignColumn guibg=none
     hi CursorLineNR guibg=None
     highlight Normal guibg=none

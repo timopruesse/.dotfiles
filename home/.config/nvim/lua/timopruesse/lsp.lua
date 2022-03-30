@@ -62,10 +62,12 @@ cmp.setup({
 	},
 
 	sources = {
+        { name = 'nvim_lsp_signature_help' },
+        { name = 'path' },
 		{ name = "nvim_lsp" },
 		{ name = "cmp_tabnine" },
         { name = 'vsnip' },
-        { name = 'path' },
+        { name = 'emoji' },
 		{ name = "buffer", keyword_length = 3 },
 	},
 })
