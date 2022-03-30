@@ -36,13 +36,14 @@ Plug 'ThePrimeagen/harpoon'
 " prettier
 Plug 'sbdchd/neoformat'
 
-" lsp
+" lsp + autocomplete
 Plug 'neovim/nvim-lspconfig'
 Plug 'tami5/lspsaga.nvim'
 Plug 'nvim-lua/lsp_extensions.nvim'
 Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-nvim-lsp-document-symbol'
 Plug 'hrsh7th/cmp-nvim-lsp-signature-help'
 Plug 'hrsh7th/cmp-nvim-lua'
 Plug 'hrsh7th/cmp-vsnip'
@@ -50,10 +51,12 @@ Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-calc'
 Plug 'hrsh7th/cmp-emoji'
 Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
 Plug 'simrat39/symbols-outline.nvim'
 Plug 'onsails/lspkind-nvim'
+Plug 'petertriho/cmp-git'
 
 " treesitter
 Plug 'nvim-treesitter/nvim-treesitter'

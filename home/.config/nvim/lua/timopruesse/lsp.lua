@@ -11,18 +11,6 @@ local source_mapping = {
 }
 local lspkind = require("lspkind")
 
-require'cmp'.setup.cmdline(':', {
-  sources = {
-    { name = 'cmdline' }
-  }
-})
-
-require'cmp'.setup.cmdline('/', {
-  sources = {
-    { name = 'buffer' }
-  }
-})
-
 cmp.setup({
     experimental = {
         native_menu = false,
@@ -71,6 +59,31 @@ cmp.setup({
 		{ name = "buffer", keyword_length = 3 },
 	},
 })
+
+cmp.setup.cmdline('/', {
+   sources = {
+     { name = 'nvim_lsp_document_symbol' },
+     { name = 'buffer' },
+   },
+ })
+
+cmp.setup.cmdline(':', {
+   sources = cmp.config.sources({
+     { name = 'path' },
+   }, {
+     { name = 'cmdline' },
+   }),
+})
+
+cmp.setup.filetype('gitcommit', {
+  sources = require('cmp').config.sources({
+    { name = 'cmp_git' },
+  }, {
+    { name = 'buffer' },
+  })
+})
+
+require('cmp_git').setup({})
 
 local tabnine = require("cmp_tabnine.config")
 tabnine:setup({
