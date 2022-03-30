@@ -30,6 +30,9 @@ Plug 'tpope/vim-dispatch'
 
 Plug 'preservim/nerdtree'
 
+" markdown
+Plug 'ellisonleao/glow.nvim'
+
 " harpoon
 Plug 'ThePrimeagen/harpoon'
 
