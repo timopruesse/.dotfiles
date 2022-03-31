@@ -137,6 +137,11 @@ nnoremap # #zz
 nnoremap g* g*zz
 nnoremap g# g#zz
 
+" gimme my umlauts
+inoremap <M-a> ä
+inoremap <M-o> ö
+inoremap <M-u> ü
+
 nnoremap <silent> Q <nop>
 nnoremap <leader>ghw :h <C-R>=expand("<cword>")<CR><CR>
 nnoremap <leader>bs /<C-R>=escape(expand("<cWORD>"), "/")<CR><CR>
