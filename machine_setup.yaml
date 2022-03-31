@@ -1,100 +1,100 @@
-# TODO: Update shell commands to use "install, update, uninstall" syntax when possible
+tasks:
+  # TODO: Update shell commands to use "install, update, uninstall" syntax when possible
+  dotfiles:
+    symlink:
+      src: "./home"
+      target: "~"
 
-dotfiles:
-  symlink:
-    src: "./home"
-    target: "~"
+  windows_terminal:
+    symlink:
+      src: "./terminal"
+      target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
-windows_terminal:
-  symlink:
-    src: "./terminal"
-    target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
+  tools:
+    shell:
+      - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget"
 
-tools:
-  shell:
-    - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget"
+  homebrew:
+    # TODO: Install homebrew
 
-homebrew:
-  # TODO: Install homebrew
+  vim-markdown:
+    shell: "brew install glow"
 
-vim-markdown:
-  shell: "brew install glow"
+  zsh:
+    # TODO
 
-zsh:
-  # TODO
+  omz:
+    # TODO
 
-omz:
-  # TODO
+  zsh_theme:
+    clone:
+      src: "https://github.com/romkatv/powerlevel10k.git"
+      target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k"
 
-zsh_theme:
-  clone:
-    src: "https://github.com/romkatv/powerlevel10k.git"
-    target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k"
+  zsh_syntax_highlight:
+    clone:
+      src: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+      target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
 
-zsh_syntax_highlight:
-  clone:
-    src: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-    target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+  zsh_auto_suggest:
+    clone:
+      src: "https://github.com/zsh-users/zsh-autosuggestions"
+      target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
 
-zsh_auto_suggest:
-  clone:
-    src: "https://github.com/zsh-users/zsh-autosuggestions"
-    target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+  neovim:
+    shell:
+      - "mkdir -p ~/.nvim"
+      - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+      - "chmod u+x ~/.nvim/nvim.appimage"
 
-neovim:
-  shell:
-    - "mkdir -p ~/.nvim"
-    - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
-    - "chmod u+x ~/.nvim/nvim.appimage"
+  plug:
+    shell:
+      - 'sh -c ''curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --cr   11       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
 
-plug:
-  shell:
-    - 'sh -c ''curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --cr   11       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
+  rust_analyzer:
+    shell:
+      - "mkdir -p ~/.local/bin"
+      - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
+      - "chmod +x ~/.local/bin/rust-analyzer"
 
-rust_analyzer:
-  shell:
-    - "mkdir -p ~/.local/bin"
-    - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
-    - "chmod +x ~/.local/bin/rust-analyzer"
+  prettier:
+    shell:
+      install: "npm install -g neovim prettier @fsouza/prettierd"
+      update: "npm upgrade -g neovim prettier @fsouza/prettierd"
+      uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
 
-prettier:
-  shell:
-    install: "npm install -g neovim prettier @fsouza/prettierd"
-    update: "npm upgrade -g neovim prettier @fsouza/prettierd"
-    uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
+  octo:
+    shell:
+      - "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg"
+      - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null'
+      - "sudo apt-get update && sudo apt-get install -y gh ripgrep fd-find"
 
-octo:
-  shell:
-    - "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg"
-    - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null'
-    - "sudo apt-get update && sudo apt-get install -y gh ripgrep fd-find"
+  python:
+    shell:
+      - "sudo apt-get install -y pipx python3-venv python3-pip"
+      - "python3 -m pipx ensurepath"
 
-python:
-  shell:
-    - "sudo apt-get install -y pipx python3-venv python3-pip"
-    - "python3 -m pipx ensurepath"
+  aws:
+    shell:
+      - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
+      - "unzip /tmp/awscliv2.zip -d /tmp/"
+      - "sudo /tmp/aws/install"
+      - "rm /tmp/awscliv2.zip"
+      - "rm -rf /tmp/aws"
 
-aws:
-  shell:
-    - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-    - "unzip /tmp/awscliv2.zip -d /tmp/"
-    - "sudo /tmp/aws/install"
-    - "rm /tmp/awscliv2.zip"
-    - "rm -rf /tmp/aws"
+  aws_sso:
+    shell: "pipx install aws-sso-util"
 
-aws_sso:
-  shell: "pipx install aws-sso-util"
+  php:
+    shell:
+      - "sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg"
+      - 'sudo sh -c ''echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'''
+      - "sudo apt update"
+      - "sudo apt-get install php8.1-common php8.1-cli -y"
+      - "sudo apt-get install -y php8.1-{bz2,curl,intl,xml,mbstring}"
 
-php:
-  shell:
-    - "sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg"
-    - 'sudo sh -c ''echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'''
-    - "sudo apt update"
-    - "sudo apt-get install php8.1-common php8.1-cli -y"
-    - "sudo apt-get install -y php8.1-{bz2,curl,intl,xml,mbstring}"
-
-composer:
-  shell:
-    - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
-    - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
-    - "rm -rf /tmp/composer-setup.php"
+  composer:
+    shell:
+      - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
+      - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+      - "rm -rf /tmp/composer-setup.php"
