@@ -20,8 +20,10 @@ tasks:
   vim-markdown:
     shell: "brew install glow"
 
-  # zsh:
-  # TODO
+   zsh:
+     shell:
+       - "sudo apt-get update"
+       - "sudo apt-get install -y zsh"
 
   # omz:
   # TODO
