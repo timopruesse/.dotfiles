@@ -14,17 +14,17 @@ tasks:
     shell:
       - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget"
 
-  homebrew:
-    # TODO: Install homebrew
+  # homebrew:
+  # TODO: Install homebrew
 
   vim-markdown:
     shell: "brew install glow"
 
-  zsh:
-    # TODO
+  # zsh:
+  # TODO
 
-  omz:
-    # TODO
+  # omz:
+  # TODO
 
   zsh_theme:
     clone:
