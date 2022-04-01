@@ -1,10 +1,4 @@
 tasks:
-  # TODO: Update shell commands to use "install, update, uninstall" syntax when possible
-  dotfiles:
-    symlink:
-      src: "./home"
-      target: "~"
-
   windows_terminal:
     symlink:
       src: "./terminal"
@@ -14,34 +8,43 @@ tasks:
     shell:
       - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget"
 
-  # homebrew:
-  # TODO: Install homebrew
-
-  vim-markdown:
-    shell: "brew install glow"
-
   zsh:
     shell:
       - "sudo apt-get update"
       - "sudo apt-get install -y zsh"
+      - "sudo chsh -s \"$(command -v zsh)\" \"${USER}\""
+      - "touch \"${HOME}\"/.should-restart"
 
-  # omz:
-  # TODO
+  omz:
+    shell:
+      env:
+        ZSH: "" 
+      install:
+        - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        - "chmod u+x /tmp/install-omz.sh"
+        - "/tmp/install-omz.sh"
+        - "rm /tmp/install-omz.sh"
 
   zsh_theme:
     clone:
-      src: "https://github.com/romkatv/powerlevel10k.git"
-      target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k"
+      url: "https://github.com/romkatv/powerlevel10k.git"
+      target: "~/.oh-my-zsh/custom/themes/powerlevel10k"
 
   zsh_syntax_highlight:
     clone:
-      src: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-      target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+      url: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+      target: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
 
   zsh_auto_suggest:
     clone:
-      src: "https://github.com/zsh-users/zsh-autosuggestions"
-      target: "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+      url: "https://github.com/zsh-users/zsh-autosuggestions"
+      target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+
+  dotfiles:
+    shell: "rm ~/.zshrc"
+    symlink:
+      src: "./home"
+      target: "~"
 
   neovim:
     shell:
@@ -57,6 +60,12 @@ tasks:
       - "mkdir -p ~/.local/bin"
       - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
       - "chmod +x ~/.local/bin/rust-analyzer"
+
+  # homebrew:
+  # TODO: Install homebrew
+
+  vim-markdown:
+    shell: "brew install glow"
 
   nvm: 
     shell: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
