@@ -70,8 +70,12 @@ tasks:
       - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
       - "chmod +x ~/.local/bin/rust-analyzer"
 
-  # homebrew:
-  # TODO: Install homebrew
+  brew:
+    shell: 
+      - "wget -O /tmp/install-brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+      - "chmod u+x /tmp/install-brew.sh"
+      - "/tmp/install-brew.sh"
+      - "rm /tmp/install-brew.sh"
 
   vim-markdown:
     shell: "brew install glow"
