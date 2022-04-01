@@ -57,6 +57,8 @@ tasks:
       - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
       - "chmod +x ~/.local/bin/rust-analyzer"
 
+  nvm: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+
   prettier:
     shell:
       install: "npm install -g neovim prettier @fsouza/prettierd"
