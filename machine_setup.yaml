@@ -6,7 +6,8 @@ tasks:
 
   tools:
     shell:
-      - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget"
+      - "sudo apt-get update && sudo apt-get upgrade -y"
+      - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common"
 
   zsh:
     shell:
@@ -115,11 +116,10 @@ tasks:
 
   php:
     shell:
-      - "sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg"
-      - 'sudo sh -c ''echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'''
-      - "sudo apt update"
-      - "sudo apt-get install php8.1-common php8.1-cli -y"
-      - "sudo apt-get install -y php8.1-{bz2,curl,intl,xml,mbstring}"
+      - "sudo add-apt-repository ppa:ondrej/php -y"
+      - "sudo apt-get update && sudo apt-get upgrade -y"
+      - "sudo apt-get install php8.1-cli -y"
+      - "sudo apt-get install -y php8.1-bz2 php8.1-curl php8.1-intl php8.1-xml php8.1-mbstring"
 
   composer:
     shell:
