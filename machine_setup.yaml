@@ -12,13 +12,13 @@ tasks:
     shell:
       - "sudo apt-get update"
       - "sudo apt-get install -y zsh"
-      - "sudo chsh -s \"$(command -v zsh)\" \"${USER}\""
-      - "touch \"${HOME}\"/.should-restart"
+      - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+      - 'touch "${HOME}"/.should-restart'
 
   omz:
     shell:
       env:
-        ZSH: "" 
+        ZSH: ""
       install:
         - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
         - "chmod u+x /tmp/install-omz.sh"
@@ -56,7 +56,7 @@ tasks:
     shell: 'sh -c ''curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
 
   rust:
-    shell: 
+    shell:
       install:
         - "sudo apt-get update"
         - "sudo apt-get install rustc"
@@ -71,17 +71,21 @@ tasks:
       - "chmod +x ~/.local/bin/rust-analyzer"
 
   brew:
-    shell: 
+    shell:
       - "wget -O /tmp/install-brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
       - "chmod u+x /tmp/install-brew.sh"
       - "/tmp/install-brew.sh"
       - "rm /tmp/install-brew.sh"
+      - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
+      - "brew tap homebrew/core"
 
   vim-markdown:
     shell: "brew install glow"
 
-  nvm: 
-    shell: "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+  node:
+    shell:
+      - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+      - "nvm install 17"
 
   prettier:
     shell:
@@ -107,9 +111,7 @@ tasks:
       - "sudo /tmp/aws/install"
       - "rm /tmp/awscliv2.zip"
       - "rm -rf /tmp/aws"
-
-  aws_sso:
-    shell: "pipx install aws-sso-util"
+      - "pipx install aws-sso-util"
 
   php:
     shell:
