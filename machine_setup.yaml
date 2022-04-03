@@ -72,7 +72,7 @@ tasks:
       commands:
         install:
           - "sudo apt-get update"
-          - "sudo apt-get install rustc"
+          - "sudo apt-get install -y rustc"
           - "rustup default nightly"
         update:
           - "rustup update"
