@@ -4,16 +4,16 @@
     "actions": 
     [
         {
-            "command": "paste",
-            "keys": "ctrl+v"
-        },
-        {
             "command": 
             {
                 "action": "copy",
                 "singleLine": false
             },
             "keys": "ctrl+c"
+        },
+        {
+            "command": "paste",
+            "keys": "ctrl+v"
         },
         {
             "command": "find",
@@ -31,7 +31,7 @@
     ],
     "copyFormatting": "none",
     "copyOnSelect": false,
-    "defaultProfile": "{7f586916-8357-53d4-bb2b-ca96f639898a}",
+    "defaultProfile": "{5a069d55-87bd-57cf-8a07-2726b203d3e5}",
     "focusFollowMouse": true,
     "launchMode": "maximized",
     "profiles": 
@@ -61,13 +61,10 @@
         "list": 
         [
             {
-                "commandline": "pengwin.exe",
-                "cursorShape": "vintage",
-                "guid": "{7f586916-8357-53d4-bb2b-ca96f639898a}",
+                "guid": "{5a069d55-87bd-57cf-8a07-2726b203d3e5}",
                 "hidden": false,
-                "icon": "%USERPROFILE%\\Pengwin\\pengwin.ico",
-                "name": "Pengwin",
-                "source": "Windows.Terminal.Wsl"
+                "name": "Ubuntu 20.04.4 LTS",
+                "source": "CanonicalGroupLimited.Ubuntu20.04LTS_79rhkp1fndgsc"
             },
             {
                 "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
@@ -82,7 +79,7 @@
             },
             {
                 "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
-                "hidden": false,
+                "hidden": true,
                 "name": "Azure Cloud",
                 "source": "Windows.Terminal.Azure"
             }
@@ -319,6 +316,29 @@
             "selectionBackground": "#4A5063",
             "white": "#F8F3FF",
             "yellow": "#FFE450"
+        },
+        {
+            "background": "#300A24",
+            "black": "#171421",
+            "blue": "#0037DA",
+            "brightBlack": "#767676",
+            "brightBlue": "#08458F",
+            "brightCyan": "#2C9FB3",
+            "brightGreen": "#26A269",
+            "brightPurple": "#A347BA",
+            "brightRed": "#C01C28",
+            "brightWhite": "#F2F2F2",
+            "brightYellow": "#A2734C",
+            "cursorColor": "#FFFFFF",
+            "cyan": "#3A96DD",
+            "foreground": "#FFFFFF",
+            "green": "#26A269",
+            "name": "Ubuntu20.04LTSColorScheme",
+            "purple": "#881798",
+            "red": "#C21A23",
+            "selectionBackground": "#FFFFFF",
+            "white": "#CCCCCC",
+            "yellow": "#A2734C"
         },
         {
             "background": "#000000",
