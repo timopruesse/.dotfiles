@@ -1,8 +1,18 @@
 tasks:
+  wsl_config:
+    symlink:
+      src: "./etc/wsl.conf"
+      target: "/etc/wsl.conf"
+
   windows_terminal:
     symlink:
       src: "./terminal"
       target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
+
+  winhome:
+    symlink:
+      src: "/c/Users/Timo"
+      target: "~/winhome"
 
   tools:
     shell:
@@ -14,7 +24,6 @@ tasks:
       - "sudo apt-get update"
       - "sudo apt-get install -y zsh"
       - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
-      - 'touch "${HOME}"/.should-restart'
 
   omz:
     shell:
@@ -54,7 +63,7 @@ tasks:
       - "chmod u+x ~/.nvim/nvim.appimage"
 
   plug:
-    shell: 'sh -c ''curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
+    shell: 'sh -c ''curl -fLo "${XDG_DATA_HOME:-~/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
 
   rust:
     shell:
