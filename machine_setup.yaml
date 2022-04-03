@@ -1,3 +1,5 @@
+default_shell: "zsh"
+
 tasks:
   wsl_config:
     symlink:
@@ -9,27 +11,24 @@ tasks:
       src: "./terminal"
       target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
-  winhome:
-    symlink:
-      src: "/c/Users/Timo"
-      target: "~/winhome"
-
   tools:
-    shell:
-      - "sudo apt-get update && sudo apt-get upgrade -y"
-      - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain"
+    run:
+      commands:
+        - "sudo apt-get update && sudo apt-get upgrade -y"
+        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip"
 
   zsh:
-    shell:
-      - "sudo apt-get update"
-      - "sudo apt-get install -y zsh"
-      - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+    run:
+      commands:
+        - "sudo apt-get update"
+        - "sudo apt-get install -y zsh"
+        - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
 
   omz:
-    shell:
+    run:
       env:
         ZSH: ""
-      install:
+      commands:
         - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
         - "chmod u+x /tmp/install-omz.sh"
         - "/tmp/install-omz.sh"
@@ -51,97 +50,122 @@ tasks:
       target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 
   dotfiles:
-    shell: "rm ~/.zshrc"
+    run: 
+      commands: "rm ~/.zshrc"
     symlink:
       src: "./home"
       target: "~"
 
   neovim:
-    shell:
-      - "mkdir -p ~/.nvim"
-      - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
-      - "chmod u+x ~/.nvim/nvim.appimage"
+    run:
+      commands:
+        - "mkdir -p ~/.nvim"
+        - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+        - "chmod u+x ~/.nvim/nvim.appimage"
 
   plug:
-    shell: 'sh -c ''curl -fLo "${XDG_DATA_HOME:-~/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
+    run: 
+      commands: 'sh -c ''curl -fLo "${XDG_DATA_HOME:-~/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
 
   rust:
-    shell:
-      install:
-        - "sudo apt-get update"
-        - "sudo apt-get install rustc"
-        - "rustup default nightly"
-      update:
-        - "rustup update"
+    run:
+      commands:
+        install:
+          - "sudo apt-get update"
+          - "sudo apt-get install rustc"
+          - "rustup default nightly"
+        update:
+          - "rustup update"
 
   rust_analyzer:
-    shell:
-      - "mkdir -p ~/.local/bin"
-      - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
-      - "chmod +x ~/.local/bin/rust-analyzer"
+    run:
+      commands:
+        - "mkdir -p ~/.local/bin"
+        - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
+        - "chmod +x ~/.local/bin/rust-analyzer"
 
   brew:
-    shell:
-      - "wget -O /tmp/install-brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-      - "chmod u+x /tmp/install-brew.sh"
-      - "/tmp/install-brew.sh"
-      - "rm /tmp/install-brew.sh"
-      - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
-      - "brew tap homebrew/core"
+    run:
+      commands:
+        - "wget -O /tmp/install-brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+        - "chmod u+x /tmp/install-brew.sh"
+        - "/tmp/install-brew.sh"
+        - "rm /tmp/install-brew.sh"
+        - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
+        - "brew tap homebrew/core"
 
   vim-markdown:
-    shell: "brew install glow"
+    run: 
+      commands: "brew install glow"
 
   node:
-    shell:
-      - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
-      - "nvm install 17"
+    run:
+      env:
+        NVM_DIR: "~/.nvm"
+        NODE_VERSION: "17"
+      commands:
+        install:
+          - "mkdir -p $NVM_DIR"
+          - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+        update:
+          - "nvm install node --reinstall-packages-from=node"
+        uninstall:
+          - "nvm uninstall $NODE_VERSION"
+          - "rm -rf $NVM_DIR"
 
   prettier:
-    shell:
-      install: "npm install -g neovim prettier @fsouza/prettierd"
-      update: "npm upgrade -g neovim prettier @fsouza/prettierd"
-      uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
+    run:
+      commands:
+        install: "npm install -g neovim prettier @fsouza/prettierd"
+        update: "npm upgrade -g neovim prettier @fsouza/prettierd"
+        uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
 
   octo:
-    shell:
-      - "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg"
-      - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null'
-      - "sudo apt-get update && sudo apt-get install -y gh ripgrep fd-find"
+    run:
+      commands:
+        - "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg"
+        - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null'
+        - "sudo apt-get update && sudo apt-get install -y gh ripgrep fd-find"
 
   python:
-    shell:
-      - "sudo apt-get install -y pipx python3-venv python3-pip"
-      - "python3 -m pipx ensurepath"
+    run:
+      commands:
+        - "sudo apt-get install -y pipx python3-venv python3-pip"
+        - "python3 -m pipx ensurepath"
+        - "pip install pynvim"
 
   aws:
-    shell:
-      install:
-        - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-        - "unzip /tmp/awscliv2.zip -d /tmp/"
-        - "sudo /tmp/aws/install"
-        - "rm /tmp/awscliv2.zip"
-        - "rm -rf /tmp/aws"
-        - "pipx install aws-sso-util"
-      update:
-        - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-        - "unzip /tmp/awscliv2.zip -d /tmp/"
-        - "sudo /tmp/aws/install --update"
-        - "rm /tmp/awscliv2.zip"
-        - "rm -rf /tmp/aws"
+    run:
+      commands:
+        install:
+          - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
+          - "unzip /tmp/awscliv2.zip -d /tmp/"
+          - "sudo /tmp/aws/install"
+          - "rm /tmp/awscliv2.zip"
+          - "rm -rf /tmp/aws"
+          - "pipx install aws-sso-util"
+        update:
+          - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
+          - "unzip /tmp/awscliv2.zip -d /tmp/"
+          - "sudo /tmp/aws/install --update"
+          - "rm /tmp/awscliv2.zip"
+          - "rm -rf /tmp/aws"
 
   php:
-    shell:
-      - "sudo add-apt-repository ppa:ondrej/php -y"
-      - "sudo apt-get update && sudo apt-get upgrade -y"
-      - "sudo apt-get install php8.1-cli -y"
-      - "sudo apt-get install -y php8.1-bz2 php8.1-curl php8.1-intl php8.1-xml php8.1-mbstring"
+    run:
+      commands:
+        - "sudo add-apt-repository ppa:ondrej/php -y"
+        - "sudo apt-get update && sudo apt-get upgrade -y"
+        - "sudo apt-get install php8.1-cli -y"
+        - "sudo apt-get install -y php8.1-bz2 php8.1-curl php8.1-intl php8.1-xml php8.1-mbstring"
 
   composer:
-    shell:
-      - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
-      - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
-      - "rm -rf /tmp/composer-setup.php"
+    run:
+      commands:
+        - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
+        - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+        - "rm -rf /tmp/composer-setup.php"
 
   go:
-    shell: "sudo apt-get install golang"
+    run:
+      commands: "sudo apt-get install golang"
