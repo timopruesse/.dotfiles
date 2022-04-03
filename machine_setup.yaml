@@ -176,3 +176,10 @@ tasks:
         install: "machine_setup install -c ./personal_repositories.yaml"
         update: "machine_setup update -c ./personal_repositories.yaml"
         uninstall: "machine_setup uninstall -c ./personal_repositories.yaml"
+
+  no_repos:
+    run:
+      commands: 
+        install: "machine_setup install -c ./no_repositories.yaml"
+        update: "machine_setup update -c ./no_repositories.yaml"
+        uninstall: "machine_setup uninstall -c ./no_repositories.yaml"

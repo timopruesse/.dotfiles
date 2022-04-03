@@ -1,0 +1,41 @@
+tasks:
+  entree-api:
+    clone:
+      url: "git@github.com:niceoutside/nice-outside-entree-api.git"
+      target: "~/github/nice-outside-entree-api"
+
+  entree-manager:
+    clone:
+      url: "git@github.com:niceoutside/nice-outside-entree-manager.git"
+      target: "~/github/nice-outside-entree-manager"
+
+  entree-ui:
+    clone:
+      url: "git@github.com:niceoutside/nice-outside-entree-ui.git"
+      target: "~/github/nice-outside-entree-ui"
+
+  website_2021:
+    clone:
+      url: "git@github.com:niceoutside/website_2021.git"
+      target: "~/github/website_2021"
+
+  aws-natchez:
+    clone:
+      url: "git@github.com:niceoutside/aws-natchez.git"
+      target: "~/github/aws-natchez"
+
+  beacon:
+    clone:
+      url: "git@github.com:niceoutside/nice-outside-beacon.git"
+      target: "~/github/nice-outside-beacon"
+
+  svelte-flow-diagram:
+    clone:
+      url: "git@github.com:niceoutside/svelte-flow-diagram.git"
+      target: "~/github/svelte-flow-diagram"
+
+  curtain:
+    clone:
+      url: "git@github.com:niceoutside/curtain.git"
+      target: "~/github/curtain"
+
