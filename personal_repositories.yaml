@@ -1,0 +1,13 @@
+tasks:
+  machine_setup:
+    clone:
+      url: "git@github.com:Chroma91/machine_setup.git"
+      target: "~/github/machine_setup"
+  timo-pruesse:
+    clone:
+      url: "git@github.com:Chroma91/timo-pruesse.git"
+      target: "~/github/timo-pruesse"
+  timo_pruesse_wasm_terminal:
+    clone:
+      url: "git@github.com:Chroma91/timo_pruesse_wasm_terminal.git"
+      target: "~/github/timo_pruesse_wasm_terminal"
