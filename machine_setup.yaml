@@ -57,9 +57,13 @@ tasks:
   neovim:
     run:
       commands:
-        - "mkdir -p ~/.nvim"
-        - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
-        - "chmod u+x ~/.nvim/nvim.appimage"
+        install:
+          - "mkdir -p ~/.nvim"
+          - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+          - "chmod u+x ~/.nvim/nvim.appimage"
+        update:
+          - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+          - "chmod u+x ~/.nvim/nvim.appimage"
 
   plug:
     run: 
