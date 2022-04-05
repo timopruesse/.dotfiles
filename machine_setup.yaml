@@ -115,6 +115,13 @@ tasks:
           - "nvm uninstall $NODE_VERSION"
           - "rm -rf $NVM_DIR"
 
+  ts-lsp:
+    run:
+      commands:
+        install: "npm i -g typescript-language-server svelte-language-server"
+        update: "npm upgrade -g typescript-language-server svelte-language-server"
+        uninstall: "npm uninstall -g typescript-language-server svelte-language-server"
+
   yarn:
     run:
       commands:
