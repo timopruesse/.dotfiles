@@ -3,11 +3,11 @@ capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 local cmp = require("cmp")
 local source_mapping = {
-	buffer = "[Buffer]",
+	buffer = "[BUF]",
 	nvim_lsp = "[LSP]",
-	nvim_lua = "[Lua]",
-	cmp_tabnine = "[TN]",
-	path = "[Path]",
+	nvim_lua = "[LUA]",
+	cmp_tabnine = "[T9]",
+	path = "[PATH]",
 }
 local lspkind = require("lspkind")
 
@@ -42,7 +42,7 @@ cmp.setup({
 				if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
 					menu = entry.completion_item.data.detail .. " " .. menu
 				end
-				vim_item.kind = ""
+				vim_item.kind = "🤖"
 			end
 			vim_item.menu = menu
 			return vim_item
