@@ -125,7 +125,6 @@ require("lspconfig").tsserver.setup(config({
             },
             import_all_scan_buffers = 100,
             import_all_select_source = false,
-            -- if false will avoid organizing imports
             always_organize_imports = true,
 
             -- filter diagnostics
@@ -150,7 +149,6 @@ require("lspconfig").tsserver.setup(config({
                 -- },
             },
 
-            -- update imports on file move
             update_imports_on_move = true,
             require_confirmation_on_move = false,
             watch_dir = nil,
@@ -200,7 +198,20 @@ require("lspconfig").rust_analyzer.setup(config({
     }
 }))
 
-require('rust-tools').setup({})
+require('rust-tools').setup({
+    tools = {
+        autoSetHints = true,
+        hover_with_actions = true,
+        
+        runnables = {
+            use_telescope = true,
+        },
+
+        debuggables = {
+            use_telescope = true,
+        },
+    },
+})
 
 local opts = {
 	-- whether to highlight the currently hovered symbol

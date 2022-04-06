@@ -5,6 +5,7 @@ call plug#begin('~/.vim/plugged')
 
 " theme
 Plug 'gruvbox-community/gruvbox'
+Plug 'stevearc/dressing.nvim'
 
 Plug 'vim-utils/vim-man'
 Plug 'mbbill/undotree'
@@ -183,5 +184,6 @@ augroup END
 augroup TIMOPRUESSE
     autocmd!
     autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
+    autocmd WinNew * wincmd L
 augroup END
 

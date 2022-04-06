@@ -1,2 +1,1 @@
-nmap <leader>ct :!cargo test<CR>
-nmap <leader>cr :!cargo run<CR>
+nmap <leader>cr :lua require('rust-tools.runnables').runnables()<CR>
