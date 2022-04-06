@@ -118,7 +118,7 @@ tasks:
   ts-lsp:
     run:
       commands:
-        install: "npm i -g typescript-language-server svelte-language-server"
+        install: "npm install -g typescript typescript-language-server svelte-language-server"
         update: "npm upgrade -g typescript-language-server svelte-language-server"
         uninstall: "npm uninstall -g typescript-language-server svelte-language-server"
 
