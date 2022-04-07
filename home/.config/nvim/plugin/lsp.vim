@@ -22,6 +22,8 @@ nnoremap <silent>vrn <cmd>Lspsaga rename<CR>
 
 nnoremap <leader>pd <cmd>lua require('lspsaga.provider').preview_definition()<CR>
 
+nnoremap <leader>wf <cmd>lua require'lspsaga.provider'.lsp_finder()<CR>
+
 " svelte
 let g:vim_svelte_plugin_use_typescript = 1
 let g:vim_svelte_plugin_use_sass = 1

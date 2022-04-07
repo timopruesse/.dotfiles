@@ -9,6 +9,10 @@ nnoremap <leader>ll :lua require('telescope.builtin').loclist()<CR>
 nnoremap <leader>jl :lua require('telescope.builtin').jumplist()<CR>
 nnoremap <leader>rl :lua require('telescope.builtin').registers()<CR>
 
+nnoremap <leader>ds :lua require('telescope.builtin').lsp_document_symbols()<CR>
+nnoremap <leader>wss :lua require('telescope.builtin').lsp_workspace_symbols()<CR>
+nnoremap <leader>ts :lua require('telescope.builtin').treesitter()<CR>
+
 nnoremap <leader>vrc :lua require('timopruesse.telescope').search_dotfiles()<CR>
 nnoremap <leader>gb :lua require('timopruesse.telescope').git_branches()<CR>
 
