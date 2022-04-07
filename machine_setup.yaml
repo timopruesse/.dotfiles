@@ -16,13 +16,12 @@ tasks:
       target: "/etc/wsl.conf"
 
   windows_terminal:
-    # symlinking the windows terminal settings was showing weird behavior
     run:
       env:
         SETTINGS_PATH: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
       commands:
         - "rm -f $SETTINGS_PATH"
-    copy: # use copy instead of symlink for now
+    symlink:
       src: "./terminal"
       target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
