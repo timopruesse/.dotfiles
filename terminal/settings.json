@@ -57,7 +57,8 @@
         "guid": "{5a069d55-87bd-57cf-8a07-2726b203d3e5}",
         "hidden": false,
         "name": "Ubuntu",
-        "source": "CanonicalGroupLimited.Ubuntu20.04LTS_79rhkp1fndgsc"
+        "source": "CanonicalGroupLimited.Ubuntu20.04LTS_79rhkp1fndgsc",
+        "tabTitle": "Ubuntu"
       },
       {
         "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
@@ -325,6 +326,29 @@
       "cyan": "#3A96DD",
       "foreground": "#FFFFFF",
       "green": "#26A269",
+      "name": "Ubuntu-20.04-ColorScheme",
+      "purple": "#881798",
+      "red": "#C21A23",
+      "selectionBackground": "#FFFFFF",
+      "white": "#CCCCCC",
+      "yellow": "#A2734C"
+    },
+    {
+      "background": "#300A24",
+      "black": "#171421",
+      "blue": "#0037DA",
+      "brightBlack": "#767676",
+      "brightBlue": "#08458F",
+      "brightCyan": "#2C9FB3",
+      "brightGreen": "#26A269",
+      "brightPurple": "#A347BA",
+      "brightRed": "#C01C28",
+      "brightWhite": "#F2F2F2",
+      "brightYellow": "#A2734C",
+      "cursorColor": "#FFFFFF",
+      "cyan": "#3A96DD",
+      "foreground": "#FFFFFF",
+      "green": "#26A269",
       "name": "Ubuntu20.04LTSColorScheme",
       "purple": "#881798",
       "red": "#C21A23",
@@ -359,5 +383,6 @@
   "tabSwitcherMode": "mru",
   "tabWidthMode": "titleLength",
   "trimBlockSelection": true,
-  "useAcrylicInTabRow": true
+  "useAcrylicInTabRow": true,
+  "windowingBehavior": "useExisting"
 }
