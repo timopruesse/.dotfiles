@@ -25,7 +25,7 @@ tasks:
       commands:
         - "sudo apt-get update"
         - "sudo apt-get upgrade -y"
-        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip"
+        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev"
 
   zsh:
     run:
@@ -95,6 +95,10 @@ tasks:
         - "mkdir -p ~/.local/bin"
         - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
         - "chmod +x ~/.local/bin/rust-analyzer"
+
+  rust_code_coverage:
+    run:
+      commands: "cargo install cargo-tarpaulin"
 
   brew:
     run:
