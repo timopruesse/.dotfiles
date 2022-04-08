@@ -1,8 +1,44 @@
 default_shell: "zsh"
 
 tasks:
+  
+  zsh:
+    run:
+      shell: "bash"
+      commands:
+        - "sudo apt-get update"
+        - "sudo apt-get install -y zsh"
+        - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+
+  omz:
+    run:
+      shell: "bash"
+      env:
+        ZSH: ""
+      commands:
+        - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        - "chmod u+x /tmp/install-omz.sh"
+        - "/tmp/install-omz.sh"
+        - "rm /tmp/install-omz.sh"
+
+  zsh_theme:
+    clone:
+      url: "https://github.com/romkatv/powerlevel10k.git"
+      target: "~/.oh-my-zsh/custom/themes/powerlevel10k"
+
+  zsh_syntax_highlight:
+    clone:
+      url: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+      target: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+
+  zsh_auto_suggest:
+    clone:
+      url: "https://github.com/zsh-users/zsh-autosuggestions"
+      target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+
   upgrade_ubuntu:
     run:
+      shell: "bash"
       commands:
         install:
           - "sudo apt-get update"
@@ -17,6 +53,7 @@ tasks:
 
   windows_terminal:
     run:
+      shell: "bash"
       env:
         SETTINGS_PATH: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
       commands:
@@ -45,37 +82,6 @@ tasks:
         - "sudo apt-get upgrade -y"
         - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake"
 
-  zsh:
-    run:
-      commands:
-        - "sudo apt-get update"
-        - "sudo apt-get install -y zsh"
-        - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
-
-  omz:
-    run:
-      env:
-        ZSH: ""
-      commands:
-        - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-        - "chmod u+x /tmp/install-omz.sh"
-        - "/tmp/install-omz.sh"
-        - "rm /tmp/install-omz.sh"
-
-  zsh_theme:
-    clone:
-      url: "https://github.com/romkatv/powerlevel10k.git"
-      target: "~/.oh-my-zsh/custom/themes/powerlevel10k"
-
-  zsh_syntax_highlight:
-    clone:
-      url: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-      target: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
-
-  zsh_auto_suggest:
-    clone:
-      url: "https://github.com/zsh-users/zsh-autosuggestions"
-      target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 
   dotfiles:
     symlink:
