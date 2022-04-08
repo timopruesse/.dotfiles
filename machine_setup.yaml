@@ -12,10 +12,10 @@ tasks:
 
   omz:
     run:
-      shell: "bash"
       env:
         ZSH: ""
       commands:
+        - "rm -r ~/.oh-my-zsh"
         - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
         - "chmod u+x /tmp/install-omz.sh"
         - "/tmp/install-omz.sh"
