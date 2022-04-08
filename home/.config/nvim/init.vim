@@ -1,6 +1,13 @@
 syntax enable
 filetype plugin indent on
 
+if empty(glob('~/.config/nvim/autoload/plug.vim'))
+    silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
+                \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd!
+    autocmd VimEnter * PlugInstall
+endif
+
 call plug#begin('~/.vim/plugged')
 
 " theme
@@ -29,6 +36,7 @@ Plug 'BurntSushi/ripgrep'
 
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-projectionist'
+Plug 'tpope/vim-surround'
 
 Plug 'preservim/nerdtree'
 
@@ -99,7 +107,8 @@ Plug 'simrat39/rust-tools.nvim'
 Plug 'saecki/crates.nvim'
 
 " php
-Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install --no-dev -o'}
+Plug 'alvan/vim-php-manual', {'for': 'php'}
+Plug 'w0rp/ale'
 
 " golang
 Plug 'fatih/vim-go'
@@ -171,7 +180,8 @@ inoremap ! !<c-g>u
 inoremap ? ?<c-g>u
 inoremap = =<c-g>u
 
-nmap <C-w> :NERDTreeToggle %<CR>
+nmap <C-q> :NERDTreeToggle<CR>
+nnoremap <leader>tt :NERDTreeFind<CR>
 
 " preview markdown
 noremap <leader>md :Glow<CR>
@@ -187,9 +197,13 @@ augroup fmt
   au BufWritePre * try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry
 augroup END
 
+augroup highlight_yank
+    autocmd!
+    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank({timeout = 1000})
+augroup END
+
 augroup TIMOPRUESSE
     autocmd!
     autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
     autocmd WinNew * wincmd L
 augroup END
-

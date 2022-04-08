@@ -27,6 +27,11 @@ tasks:
       src: "./terminal"
       target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
+  ssh:
+    copy:
+      src: ""
+      target: ""
+
   tools:
     run:
       commands:
@@ -70,6 +75,7 @@ tasks:
     symlink:
       src: "./home"
       target: "~"
+      ignore: ["autoload/plug.vim"]
 
   neovim:
     run:
@@ -81,10 +87,6 @@ tasks:
         update:
           - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
           - "chmod u+x ~/.nvim/nvim.appimage"
-
-  plug:
-    run:
-      commands: 'sh -c ''curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'''
 
   rust:
     run:
@@ -139,12 +141,17 @@ tasks:
 
   ts-lsp:
     run:
+      env:
+        PACKAGES_STRING: "typescript typescript-language-server svelte-language-server tailwindcss-language-server"
       commands:
-        install: "npm install -g typescript typescript-language-server svelte-language-server"
-        update: "npm upgrade -g typescript-language-server svelte-language-server"
-        uninstall: "npm uninstall -g typescript-language-server svelte-language-server"
+        install: "npm install -g $PACKAGES_STRING"
+        update: "npm upgrade -g $PACKAGES_STRING"
+        uninstall: "npm uninstall -g $PACKAGES_STRING"
 
   php-lsp:
+    copy:
+      src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/intelephense.txt"
+      target: "~/intelephense/licence.txt"
     run:
       commands:
         install: "npm install -g intelephense"
@@ -212,6 +219,15 @@ tasks:
         - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
         - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
         - "rm -rf /tmp/composer-setup.php"
+
+  php-tools:
+    run:
+      commands:
+        install:
+          - "composer global require phpmd/phpmd"
+          - "composer global require squizlabs/php_codesniffer"
+          - "composer global require phpstan/phpstan"
+          - "composer global require friendsofphp/php-cs-fixer"
 
   go:
     run:

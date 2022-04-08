@@ -12,26 +12,26 @@ local source_mapping = {
 local lspkind = require("lspkind")
 
 cmp.setup({
-    experimental = {
-        native_menu = false,
-        ghost_text = true,
-    },
+	experimental = {
+		native_menu = false,
+		ghost_text = true,
+	},
 	snippet = {
 		expand = function(args)
-            vim.fn["vsnip#anonymous"](args.body)
+			vim.fn["vsnip#anonymous"](args.body)
 		end,
 	},
 	mapping = {
-        ['<C-p>'] = cmp.mapping.select_prev_item(),
-		['<C-n>'] = cmp.mapping.select_next_item(),
+		["<C-p>"] = cmp.mapping.select_prev_item(),
+		["<C-n>"] = cmp.mapping.select_next_item(),
 		["<C-u>"] = cmp.mapping.scroll_docs(-4),
 		["<C-d>"] = cmp.mapping.scroll_docs(4),
 		["<C-Space>"] = cmp.mapping.complete(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }),
-        ['<C-x>'] = cmp.mapping({
-            i = cmp.mapping.abort(),
-            c = cmp.mapping.close(),
-        }),
+		["<CR>"] = cmp.mapping.confirm({ select = true }),
+		["<C-x>"] = cmp.mapping({
+			i = cmp.mapping.abort(),
+			c = cmp.mapping.close(),
+		}),
 	},
 
 	formatting = {
@@ -50,40 +50,40 @@ cmp.setup({
 	},
 
 	sources = {
-        { name = 'nvim_lsp_signature_help' },
-        { name = 'path' },
+		{ name = "nvim_lsp_signature_help" },
+		{ name = "path" },
 		{ name = "nvim_lsp" },
 		{ name = "cmp_tabnine" },
-        { name = 'vsnip' },
-        { name = 'emoji' },
+		{ name = "vsnip" },
+		{ name = "emoji" },
 		{ name = "buffer", keyword_length = 3 },
 	},
 })
 
-cmp.setup.cmdline('/', {
-   sources = {
-     { name = 'nvim_lsp_document_symbol' },
-     { name = 'buffer' },
-   },
- })
-
-cmp.setup.cmdline(':', {
-   sources = cmp.config.sources({
-     { name = 'path' },
-   }, {
-     { name = 'cmdline' },
-   }),
+cmp.setup.cmdline("/", {
+	sources = {
+		{ name = "nvim_lsp_document_symbol" },
+		{ name = "buffer" },
+	},
 })
 
-cmp.setup.filetype('gitcommit', {
-  sources = require('cmp').config.sources({
-    { name = 'cmp_git' },
-  }, {
-    { name = 'buffer' },
-  })
+cmp.setup.cmdline(":", {
+	sources = cmp.config.sources({
+		{ name = "path" },
+	}, {
+		{ name = "cmdline" },
+	}),
 })
 
-require('cmp_git').setup({})
+cmp.setup.filetype("gitcommit", {
+	sources = require("cmp").config.sources({
+		{ name = "cmp_git" },
+	}, {
+		{ name = "buffer" },
+	}),
+})
+
+require("cmp_git").setup({})
 
 local tabnine = require("cmp_tabnine.config")
 tabnine:setup({
@@ -101,69 +101,71 @@ local function config(_config)
 end
 
 require("lspconfig").tsserver.setup(config({
-    -- Needed for inlayHints. Merge this table with your settings or copy
-    -- it from the source if you want to add your own init_options.
-    init_options = require("nvim-lsp-ts-utils").init_options,
-    --
-    on_attach = function(client, bufnr)
-        local ts_utils = require("nvim-lsp-ts-utils")
+	-- Needed for inlayHints. Merge this table with your settings or copy
+	-- it from the source if you want to add your own init_options.
+	init_options = require("nvim-lsp-ts-utils").init_options,
+	--
+	on_attach = function(client, bufnr)
+		local ts_utils = require("nvim-lsp-ts-utils")
 
-        -- defaults
-        ts_utils.setup({
-            debug = false,
-            disable_commands = false,
-            enable_import_on_completion = true,
+		-- defaults
+		ts_utils.setup({
+			debug = false,
+			disable_commands = false,
+			enable_import_on_completion = true,
 
-            -- import all
-            import_all_timeout = 5000, -- ms
-            -- lower numbers = higher priority
-            import_all_priorities = {
-                same_file = 1, -- add to existing import statement
-                local_files = 2, -- git files or files with relative path markers
-                buffer_content = 3, -- loaded buffer content
-                buffers = 4, -- loaded buffer names
-            },
-            import_all_scan_buffers = 100,
-            import_all_select_source = false,
-            always_organize_imports = true,
+			-- import all
+			import_all_timeout = 5000, -- ms
+			-- lower numbers = higher priority
+			import_all_priorities = {
+				same_file = 1, -- add to existing import statement
+				local_files = 2, -- git files or files with relative path markers
+				buffer_content = 3, -- loaded buffer content
+				buffers = 4, -- loaded buffer names
+			},
+			import_all_scan_buffers = 100,
+			import_all_select_source = false,
+			always_organize_imports = true,
 
-            -- filter diagnostics
-            filter_out_diagnostics_by_severity = {},
-            filter_out_diagnostics_by_code = {},
+			-- filter diagnostics
+			filter_out_diagnostics_by_severity = {},
+			filter_out_diagnostics_by_code = {},
 
-            -- inlay hints
-            auto_inlay_hints = true,
-            inlay_hints_highlight = "Comment",
-            inlay_hints_priority = 200, -- priority of the hint extmarks
-            inlay_hints_throttle = 150, -- throttle the inlay hint request
-            inlay_hints_format = { -- format options for individual hint kind
-                Type = {},
-                Parameter = {},
-                Enum = {},
-                -- Example format customization for `Type` kind:
-                -- Type = {
-                --     highlight = "Comment",
-                --     text = function(text)
-                --         return "->" .. text:sub(2)
-                --     end,
-                -- },
-            },
+			-- inlay hints
+			auto_inlay_hints = true,
+			inlay_hints_highlight = "Comment",
+			inlay_hints_priority = 200, -- priority of the hint extmarks
+			inlay_hints_throttle = 150, -- throttle the inlay hint request
+			inlay_hints_format = { -- format options for individual hint kind
+				Type = {},
+				Parameter = {},
+				Enum = {},
+				-- Example format customization for `Type` kind:
+				-- Type = {
+				--     highlight = "Comment",
+				--     text = function(text)
+				--         return "->" .. text:sub(2)
+				--     end,
+				-- },
+			},
 
-            update_imports_on_move = true,
-            require_confirmation_on_move = false,
-            watch_dir = nil,
-        })
+			update_imports_on_move = true,
+			require_confirmation_on_move = false,
+			watch_dir = nil,
+		})
 
-        -- required to fix code action ranges and filter diagnostics
-        ts_utils.setup_client(client)
+		-- required to fix code action ranges and filter diagnostics
+		ts_utils.setup_client(client)
 
-        -- no default maps, so you may want to define some here
-        local opts = { silent = true }
-        vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>", opts)
-        vim.api.nvim_buf_set_keymap(bufnr, "n", "gr", ":TSLspRenameFile<CR>", opts)
-        vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspImportAll<CR>", opts)
-    end,
+		-- no default maps, so you may want to define some here
+		local opts = { silent = true }
+		vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>", opts)
+		vim.api.nvim_buf_set_keymap(bufnr, "n", "gr", ":TSLspRenameFile<CR>", opts)
+		vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspImportAll<CR>", opts)
+	end,
 }))
+
+require("lspconfig").tailwindcss.setup(config())
 
 require("lspconfig").ccls.setup(config())
 
@@ -187,35 +189,39 @@ require("lspconfig").gopls.setup(config({
 	},
 }))
 
+require("lspconfig").pylsp.setup(config())
+
+require("lspconfig").intelephense.setup(config())
+
 require("lspconfig").rust_analyzer.setup(config({
 	cmd = { "rustup", "run", "nightly", "rust-analyzer" },
-    settings = {
-        rust = {
-            unstable_features = true,
-            build_on_save = false,
-            all_features = true,
-        },
-    }
+	settings = {
+		rust = {
+			unstable_features = true,
+			build_on_save = false,
+			all_features = true,
+		},
+	},
 }))
 
-require('rust-tools').setup({
-    tools = {
-        autoSetHints = true,
-        hover_with_actions = true,
-        
-        runnables = {
-            use_telescope = true,
-        },
+require("rust-tools").setup({
+	tools = {
+		autoSetHints = true,
+		hover_with_actions = true,
 
-        debuggables = {
-            use_telescope = true,
-        },
-    },
+		runnables = {
+			use_telescope = true,
+		},
+
+		debuggables = {
+			use_telescope = true,
+		},
+	},
 })
 
 require("symbols-outline").setup({
-    highlight_hovered_item = true,
-    show_guides = true,
+	highlight_hovered_item = true,
+	show_guides = true,
 })
 
 local snippets_paths = function()
@@ -232,13 +238,6 @@ local snippets_paths = function()
 	return paths
 end
 
-require("lspsaga").init_lsp_saga()
-
-require'lspconfig'.phpactor.setup{
-    on_attach = on_attach,
-    init_options = {
-        ["language_server_phpstan.enabled"] = true,
-        ["language_server_psalm.enabled"] = true,
-    }
-}
-
+require("lspsaga").init_lsp_saga({
+	code_action_icon = "💡",
+})
