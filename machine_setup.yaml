@@ -43,7 +43,7 @@ tasks:
       commands:
         - "sudo apt-get update"
         - "sudo apt-get upgrade -y"
-        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev"
+        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake"
 
   zsh:
     run:
