@@ -21,7 +21,9 @@ tasks:
         SETTINGS_PATH: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
       commands:
         - "rm -f $SETTINGS_PATH"
-    symlink:
+    # symlink doesn't work after the settings were changed via UI
+    # Apparently, the file gets regenerated instead of changed 🤔
+    copy:
       src: "./terminal"
       target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
