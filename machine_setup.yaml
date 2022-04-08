@@ -29,8 +29,14 @@ tasks:
 
   ssh:
     copy:
-      src: ""
-      target: ""
+      src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh"
+      target: "~/.ssh"
+    run:
+      commands:
+        install:
+          - "chmod 700 ~/.ssh"
+          - "chmod 600 ~/.ssh/id_rsa"
+          - "chmod 644 ~/.ssh/id_rsa.pub"
 
   tools:
     run:
