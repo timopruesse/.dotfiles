@@ -144,6 +144,13 @@ tasks:
         update: "npm upgrade -g typescript-language-server svelte-language-server"
         uninstall: "npm uninstall -g typescript-language-server svelte-language-server"
 
+  php-lsp:
+    run:
+      commands:
+        install: "npm install -g intelephense"
+        update: "npm upgrade -g intelephense"
+        uninstall: "npm uninstall -g intelephense"
+
   yarn:
     run:
       commands:
@@ -232,3 +239,8 @@ tasks:
           - "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main' | sudo tee /etc/apt/sources.list.d/microsoft-edge.list"
           - "sudo apt-get update"
           - "sudo apt-get install -y microsoft-edge-stable"
+
+  lua-formatter:
+    run:
+      commands:
+        install: "cargo install stylua"

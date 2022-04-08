@@ -11,7 +11,6 @@ Plug 'vim-utils/vim-man'
 Plug 'mbbill/undotree'
 
 " debugging
-Plug 'nvim-lua/plenary.nvim'
 Plug 'mfussenegger/nvim-dap'
 
 " comments
@@ -22,12 +21,14 @@ Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 Plug 'gpanders/editorconfig.nvim'
 
 " telescope
+Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzy-native.nvim'
 Plug 'BurntSushi/ripgrep'
 
 Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-projectionist'
 
 Plug 'preservim/nerdtree'
 
@@ -79,7 +80,7 @@ Plug 'junegunn/fzf.vim'
 
 " git
 Plug 'tpope/vim-fugitive'
-Plug 'stsewd/fzf-checkout.vim'
+Plug 'tpope/vim-rhubarb'
 Plug 'f-person/git-blame.nvim'
 
 " npm
@@ -99,7 +100,6 @@ Plug 'saecki/crates.nvim'
 
 " php
 Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install --no-dev -o'}
-Plug 'stephpy/vim-php-cs-fixer'
 
 " golang
 Plug 'fatih/vim-go'

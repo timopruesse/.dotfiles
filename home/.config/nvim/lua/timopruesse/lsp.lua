@@ -213,19 +213,10 @@ require('rust-tools').setup({
     },
 })
 
-local opts = {
-	-- whether to highlight the currently hovered symbol
-	-- disable if your cpu usage is higher than you want it
-	-- or you just hate the highlight
-	-- default: true
-	highlight_hovered_item = true,
-
-	-- whether to show outline guides
-	-- default: true
-	show_guides = true,
-}
-
-require("symbols-outline").setup(opts)
+require("symbols-outline").setup({
+    highlight_hovered_item = true,
+    show_guides = true,
+})
 
 local snippets_paths = function()
 	local plugins = { "friendly-snippets" }
@@ -242,3 +233,12 @@ local snippets_paths = function()
 end
 
 require("lspsaga").init_lsp_saga()
+
+require'lspconfig'.phpactor.setup{
+    on_attach = on_attach,
+    init_options = {
+        ["language_server_phpstan.enabled"] = true,
+        ["language_server_psalm.enabled"] = true,
+    }
+}
+
