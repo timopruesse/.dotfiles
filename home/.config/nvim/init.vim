@@ -176,6 +176,12 @@ nmap <C-w> :NERDTreeToggle %<CR>
 " preview markdown
 noremap <leader>md :Glow<CR>
 
+" Copy to and from clipboard
+nnoremap <leader>yy "+y
+vnoremap <leader>yy "+y
+nnoremap <leader>pp "+p
+vnoremap <leader>pp "+p
+
 augroup fmt
   autocmd!
   au BufWritePre * try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry
