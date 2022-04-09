@@ -28,7 +28,7 @@
   ],
   "copyFormatting": "none",
   "copyOnSelect": false,
-  "defaultProfile": "{5a069d55-87bd-57cf-8a07-2726b203d3e5}",
+  "defaultProfile": "{51855cb2-8cce-5362-8f54-464b92b32386}",
   "focusFollowMouse": true,
   "launchMode": "maximized",
   "profiles": {
@@ -54,11 +54,10 @@
     },
     "list": [
       {
-        "guid": "{5a069d55-87bd-57cf-8a07-2726b203d3e5}",
+        "guid": "{51855cb2-8cce-5362-8f54-464b92b32386}",
         "hidden": false,
         "name": "Ubuntu",
-        "source": "CanonicalGroupLimited.Ubuntu20.04LTS_79rhkp1fndgsc",
-        "tabTitle": "Ubuntu"
+        "source": "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
       },
       {
         "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
@@ -76,6 +75,13 @@
         "hidden": true,
         "name": "Azure Cloud",
         "source": "Windows.Terminal.Azure"
+      },
+      {
+        "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
+        "hidden": true,
+        "icon": "https://assets.ubuntu.com/v1/49a1a858-favicon-32x32.png",
+        "name": "Ubuntu (wsl.exe)",
+        "source": "Windows.Terminal.Wsl"
       }
     ]
   },
@@ -327,6 +333,29 @@
       "foreground": "#FFFFFF",
       "green": "#26A269",
       "name": "Ubuntu-20.04-ColorScheme",
+      "purple": "#881798",
+      "red": "#C21A23",
+      "selectionBackground": "#FFFFFF",
+      "white": "#CCCCCC",
+      "yellow": "#A2734C"
+    },
+    {
+      "background": "#300A24",
+      "black": "#171421",
+      "blue": "#0037DA",
+      "brightBlack": "#767676",
+      "brightBlue": "#08458F",
+      "brightCyan": "#2C9FB3",
+      "brightGreen": "#26A269",
+      "brightPurple": "#A347BA",
+      "brightRed": "#C01C28",
+      "brightWhite": "#F2F2F2",
+      "brightYellow": "#A2734C",
+      "cursorColor": "#FFFFFF",
+      "cyan": "#3A96DD",
+      "foreground": "#FFFFFF",
+      "green": "#26A269",
+      "name": "Ubuntu-ColorScheme",
       "purple": "#881798",
       "red": "#C21A23",
       "selectionBackground": "#FFFFFF",
