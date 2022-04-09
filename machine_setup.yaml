@@ -106,7 +106,7 @@ tasks:
       commands:
         install:
           - "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y"
-          - "source ~/.zshrc"
+          - "source $HOME/.cargo/env"
           - "rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy"
         update:
           - "rustup update"
