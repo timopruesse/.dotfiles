@@ -45,6 +45,7 @@ tasks:
           - "sudo apt-get upgrade -y"
           - "sudo do-release-upgrade -d"
           - "sudo apt-get install -y fuse"
+          - "sudo apt-get autoremove -y"
 
   wsl_config:
     symlink:
