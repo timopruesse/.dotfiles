@@ -81,7 +81,7 @@ tasks:
       commands:
         - "sudo apt-get update"
         - "sudo apt-get upgrade -y"
-        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config"
+        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential"
 
 
   dotfiles:
@@ -133,6 +133,7 @@ tasks:
         - "rm /tmp/install-brew.sh"
         - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
         - "brew tap homebrew/core"
+        - "eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
 
   vim-markdown:
     run:
@@ -147,6 +148,7 @@ tasks:
         install:
           - "mkdir -p $NVM_DIR"
           - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+          - "source ~/.zshrc"
         update:
           - "nvm install node --reinstall-packages-from=node"
           - "npm upgrade -g"
@@ -156,12 +158,10 @@ tasks:
 
   ts-lsp:
     run:
-      env:
-        PACKAGES_STRING: "typescript typescript-language-server svelte-language-server tailwindcss-language-server"
       commands:
-        install: "npm install -g $PACKAGES_STRING"
-        update: "npm upgrade -g $PACKAGES_STRING"
-        uninstall: "npm uninstall -g $PACKAGES_STRING"
+        install: "npm install -g typescript typescript-language-server svelte-language-server tailwindcss-language-server"
+        update: "npm upgrade -g typescript typescript-language-server svelte-language-server tailwindcss-language-server"
+        uninstall: "npm uninstall -g typescript typescript-language-server svelte-language-server tailwindcss-language-server"
 
   php-lsp:
     copy:
