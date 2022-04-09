@@ -1,7 +1,7 @@
 default_shell: "zsh"
 
 tasks:
-  
+
   zsh:
     run:
       shell: "bash"
@@ -81,10 +81,12 @@ tasks:
       commands:
         - "sudo apt-get update"
         - "sudo apt-get upgrade -y"
-        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake"
+        - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config"
 
 
   dotfiles:
+    run:
+      commands: "rm ~/.zshrc"
     symlink:
       src: "./home"
       target: "~"
