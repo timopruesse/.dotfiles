@@ -1,7 +1,6 @@
 default_shell: "zsh"
 
 tasks:
-
   zsh:
     run:
       shell: "bash"
@@ -83,7 +82,6 @@ tasks:
         - "sudo apt-get upgrade -y"
         - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential"
 
-
   dotfiles:
     run:
       commands: "rm ~/.zshrc"
@@ -134,7 +132,7 @@ tasks:
         - "rm /tmp/install-brew.sh"
         - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
         - "brew tap homebrew/core"
-        - "eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
+        - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
 
   vim-markdown:
     run:
@@ -232,9 +230,12 @@ tasks:
   composer:
     run:
       commands:
-        - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
-        - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
-        - "rm -rf /tmp/composer-setup.php"
+        install:
+          - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
+          - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+          - "rm -rf /tmp/composer-setup.php"
+        update:
+          - "composer self-update"
 
   php-tools:
     run:
