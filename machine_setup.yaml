@@ -104,9 +104,9 @@ tasks:
     run:
       commands:
         install:
-          - "sudo apt-get update"
-          - "sudo apt-get install -y rustc"
-          - "rustup default nightly"
+          - "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y"
+          - "source ~/.zshrc"
+          - "rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy"
         update:
           - "rustup update"
 
