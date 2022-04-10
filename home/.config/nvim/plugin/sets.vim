@@ -35,6 +35,6 @@ set termguicolors
 set scrolloff=10
 set noshowmode
 
-set cmdheight=2
+set cmdheight=1
 set updatetime=50
 set shortmess+=c
