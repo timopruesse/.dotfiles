@@ -181,7 +181,7 @@ inoremap ? ?<c-g>u
 inoremap = =<c-g>u
 
 nmap <C-q> :NERDTreeToggle<CR>
-nnoremap <leader>tt :NERDTreeFind<CR>
+nnoremap <leader>tf :NERDTreeFind<CR>
 
 " preview markdown
 noremap <leader>md :Glow<CR>
