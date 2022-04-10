@@ -157,10 +157,12 @@ tasks:
 
   ts-lsp:
     run:
+      env:
+        PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server"
       commands:
-        install: "npm install -g typescript typescript-language-server svelte-language-server tailwindcss-language-server"
-        update: "npm upgrade -g typescript typescript-language-server svelte-language-server tailwindcss-language-server"
-        uninstall: "npm uninstall -g typescript typescript-language-server svelte-language-server tailwindcss-language-server"
+        install: "npm install -g $(echo $PACKAGES_STR)"
+        update: "npm upgrade -g $(echo $PACKAGES_STR)"
+        uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
 
   php-lsp:
     copy:
