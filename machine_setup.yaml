@@ -248,7 +248,7 @@ tasks:
 
   go:
     run:
-      commands: "sudo apt-get install golang"
+      commands: "sudo apt-get install -y golang"
 
   personal_repos:
     run:
