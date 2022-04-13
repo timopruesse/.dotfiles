@@ -237,7 +237,7 @@ tasks:
           - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
           - "rm -rf /tmp/composer-setup.php"
         update:
-          - "composer self-update"
+          - "sudo composer self-update"
 
   php-tools:
     run:
