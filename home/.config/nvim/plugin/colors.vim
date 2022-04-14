@@ -13,9 +13,10 @@ fun! ColorMyPencils()
     let g:gruvbox_invert_selection='0'
 
     set background=dark
-    
+
     call luaeval('vim.cmd("colorscheme " .. _A[1])', [g:timopruesse_colorscheme])
 
+    hi CursorLine cterm=NONE ctermbg=0 guibg=#292929
     highlight ColorColumn ctermbg=0 guibg=#292929
     hi SignColumn guibg=none
     hi CursorLineNR guibg=None
@@ -27,4 +28,3 @@ fun! ColorMyPencils()
 endfun
 
 autocmd BufEnter * call ColorMyPencils()
-

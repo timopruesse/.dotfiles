@@ -1,6 +1,6 @@
 set nocompatible
 
-set path+=**
+" set path+=**
 
 " Nice menu when typing `:find *.py`
 set wildmode=longest,list,full
@@ -38,3 +38,6 @@ set noshowmode
 set cmdheight=1
 set updatetime=50
 set shortmess+=c
+
+set cursorline
+set colorcolumn=80
