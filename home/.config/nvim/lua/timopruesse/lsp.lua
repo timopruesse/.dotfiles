@@ -246,6 +246,6 @@ require("lspsaga").init_lsp_saga({
 		enable = true,
 		sign = true,
 		sign_priority = 20,
-		virtual_text = true,
+		virtual_text = false,
 	},
 })
