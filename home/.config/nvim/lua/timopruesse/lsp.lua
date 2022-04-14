@@ -21,7 +21,7 @@ cmp.setup({
 			vim.fn["vsnip#anonymous"](args.body)
 		end,
 	},
-	mapping = {
+	mapping = cmp.mapping.preset.insert({
 		["<C-p>"] = cmp.mapping.select_prev_item(),
 		["<C-n>"] = cmp.mapping.select_next_item(),
 		["<C-u>"] = cmp.mapping.scroll_docs(-4),
@@ -32,7 +32,7 @@ cmp.setup({
 			i = cmp.mapping.abort(),
 			c = cmp.mapping.close(),
 		}),
-	},
+	}),
 
 	formatting = {
 		format = function(entry, vim_item)
@@ -61,6 +61,7 @@ cmp.setup({
 })
 
 cmp.setup.cmdline("/", {
+	mapping = cmp.mapping.preset.cmdline(),
 	sources = {
 		{ name = "nvim_lsp_document_symbol" },
 		{ name = "buffer" },
@@ -68,6 +69,7 @@ cmp.setup.cmdline("/", {
 })
 
 cmp.setup.cmdline(":", {
+	mapping = cmp.mapping.preset.cmdline(),
 	sources = cmp.config.sources({
 		{ name = "path" },
 	}, {
