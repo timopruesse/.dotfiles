@@ -1,6 +1,6 @@
 {
   "version": "4.1.26",
-  "hide_promotional_message": false,
+  "hide_promotional_message": true,
   "beta_enabled": "Yes",
   "ignore_all_lsp": false,
   "creation_time": "2022-04-01T23:15:53.414397500Z",
