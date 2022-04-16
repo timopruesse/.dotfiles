@@ -1,8 +1,8 @@
-local pickers = require("telescope.pickers")
-local finders = require("telescope.finders")
-local previewers = require("telescope.previewers")
-local action_state = require("telescope.actions.state")
-local conf = require("telescope.config").values
+-- local pickers = require("telescope.pickers")
+-- local finders = require("telescope.finders")
+-- local previewers = require("telescope.previewers")
+-- local action_state = require("telescope.actions.state")
+-- local conf = require("telescope.config").values
 local actions = require("telescope.actions")
 
 require("telescope").setup({
@@ -27,7 +27,7 @@ require("telescope").setup({
 			override_generic_sorter = false,
 			override_file_sorter = true,
 		},
-	}
+	},
 })
 
 require("telescope").load_extension("fzy_native")
@@ -46,8 +46,8 @@ M.search_dotfiles = function()
 	require("telescope.builtin").find_files({
 		prompt_title = " .DOTFILES ",
 		cwd = "$HOME/.config/nvim",
-	 	hidden = true,
-        follow = true
+		hidden = true,
+		follow = true,
 	})
 end
 

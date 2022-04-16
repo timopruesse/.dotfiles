@@ -221,6 +221,10 @@ require("rust-tools").setup({
 	},
 })
 
+local home_dir = vim.fn.expand("$HOME")
+local sumneko_root_path = home_dir .. "/lua-language-server"
+local sumneko_binary = sumneko_root_path .. "/bin/lua-language-server"
+
 require("lspconfig").sumneko_lua.setup(config({
 	cmd = { sumneko_binary, "-E", sumneko_root_path .. "/main.lua" },
 	settings = {
@@ -246,20 +250,6 @@ require("symbols-outline").setup({
 	highlight_hovered_item = true,
 	show_guides = true,
 })
-
-local snippets_paths = function()
-	local plugins = { "friendly-snippets" }
-	local paths = {}
-	local path
-	local root_path = vim.env.HOME .. "/.vim/plugged/"
-	for _, plug in ipairs(plugins) do
-		path = root_path .. plug
-		if vim.fn.isdirectory(path) ~= 0 then
-			table.insert(paths, path)
-		end
-	end
-	return paths
-end
 
 require("lspsaga").init_lsp_saga({
 	code_action_icon = "",

@@ -287,11 +287,12 @@ tasks:
   lua-lsp:
     run:
       env:
-        NINJA_VERSION: "1.10.2"
-        TMP_INSTALL_PATH: "/tmp/ninja-linux.zip"
+        SERVER_VERSION: "3.0.2"
+        TMP_INSTALL_PATH: "/tmp/lua-language-server.tar.gz"
+        TARGET_DIR: "$HOME/lua-language-server"
       commands:
         install:
-          - "wget -O $TMP_INSTALL_PATH https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-linux.zip"
-          - "mkdir -p $HOME/local/bin"
-          - "unzip $TMP_INSTALL_PATH -d $HOME/local/bin"
+          - "wget -O $TMP_INSTALL_PATH https://github.com/sumneko/lua-language-server/releases/download/$SERVER_VERSION/lua-language-server-$SERVER_VERSION-linux-x64.tar.gz"
+          - "mkdir -p $TARGET_DIR"
+          - "tar -xf $TMP_INSTALL_PATH -C $TARGET_DIR"
           - "rm $TMP_INSTALL_PATH"
