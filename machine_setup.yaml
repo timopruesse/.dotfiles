@@ -13,12 +13,13 @@ tasks:
     run:
       env:
         ZSH: ""
+        TMP_INSTALL_PATH: "/tmp/install-omz.sh"
       commands:
         - "rm -r ~/.oh-my-zsh"
-        - "wget -O /tmp/install-omz.sh https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-        - "chmod u+x /tmp/install-omz.sh"
-        - "/tmp/install-omz.sh"
-        - "rm /tmp/install-omz.sh"
+        - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        - "chmod u+x $TMP_INSTALL_PATH"
+        - "$TMP_INSTALL_PATH"
+        - "rm $TMP_INSTALL_PATH"
 
   zsh_theme:
     clone:
@@ -83,9 +84,8 @@ tasks:
         - "sudo apt-get install -y ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential"
 
   dotfiles:
-    run:
-      commands: "rm ~/.zshrc"
     symlink:
+      force: true
       src: "./home"
       target: "~"
       ignore: ["autoload/plug.vim"]
@@ -125,11 +125,13 @@ tasks:
 
   brew:
     run:
+      env:
+        TMP_INSTALL_PATH: "/tmp/install-brew.sh"
       commands:
-        - "wget -O /tmp/install-brew.sh https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-        - "chmod u+x /tmp/install-brew.sh"
-        - "/tmp/install-brew.sh"
-        - "rm /tmp/install-brew.sh"
+        - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+        - "chmod u+x $TMP_INSTALL_PATH"
+        - "$TMP_INSTALL_PATH"
+        - "rm $TMP_INSTALL_PATH"
         - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
         - "brew tap homebrew/core"
         - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
@@ -231,11 +233,13 @@ tasks:
 
   composer:
     run:
+      env:
+        TMP_INSTALL_PATH: "/tmp/composer-setup.php"
       commands:
         install:
-          - "curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php"
-          - "sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
-          - "rm -rf /tmp/composer-setup.php"
+          - "curl -sS https://getcomposer.org/installer -o $TMP_INSTALL_PATH"
+          - "sudo php $TMP_INSTALL_PATH --install-dir=/usr/local/bin --filename=composer"
+          - "rm -rf $TMP_INSTALL_PATH"
         update:
           - "sudo composer self-update"
 
@@ -255,16 +259,16 @@ tasks:
   personal_repos:
     run:
       commands:
-        install: "machine_setup install -c ./personal_repositories.yaml"
-        update: "machine_setup update -c ./personal_repositories.yaml"
-        uninstall: "machine_setup uninstall -c ./personal_repositories.yaml"
+        install: "machine_setup install -c $DOTFILES/personal_repositories.yaml"
+        update: "machine_setup update -c $DOTFILES/personal_repositories.yaml"
+        uninstall: "machine_setup uninstall -c $DOTFILES/personal_repositories.yaml"
 
   no_repos:
     run:
       commands:
-        install: "machine_setup install -c ./no_repositories.yaml"
-        update: "machine_setup update -c ./no_repositories.yaml"
-        uninstall: "machine_setup uninstall -c ./no_repositories.yaml"
+        install: "machine_setup install -c $DOTFILES/no_repositories.yaml"
+        update: "machine_setup update -c $DOTFILES/no_repositories.yaml"
+        uninstall: "machine_setup uninstall -c $DOTFILES/no_repositories.yaml"
 
   edge:
     run:
@@ -279,3 +283,15 @@ tasks:
     run:
       commands:
         install: "cargo install stylua"
+
+  lua-lsp:
+    run:
+      env:
+        NINJA_VERSION: "1.10.2"
+        TMP_INSTALL_PATH: "/tmp/ninja-linux.zip"
+      commands:
+        install:
+          - "wget -O $TMP_INSTALL_PATH https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-linux.zip"
+          - "mkdir -p $HOME/local/bin"
+          - "unzip $TMP_INSTALL_PATH -d $HOME/local/bin"
+          - "rm $TMP_INSTALL_PATH"

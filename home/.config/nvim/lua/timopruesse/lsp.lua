@@ -221,6 +221,27 @@ require("rust-tools").setup({
 	},
 })
 
+require("lspconfig").sumneko_lua.setup(config({
+	cmd = { sumneko_binary, "-E", sumneko_root_path .. "/main.lua" },
+	settings = {
+		Lua = {
+			runtime = {
+				version = "LuaJIT",
+				path = vim.split(package.path, ";"),
+			},
+			diagnostics = {
+				globals = { "vim" },
+			},
+			workspace = {
+				library = {
+					[vim.fn.expand("$VIMRUNTIME/lua")] = true,
+					[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+				},
+			},
+		},
+	},
+}))
+
 require("symbols-outline").setup({
 	highlight_hovered_item = true,
 	show_guides = true,
