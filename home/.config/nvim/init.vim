@@ -80,7 +80,7 @@ Plug 'nvim-treesitter/playground'
 Plug 'kevinhwang91/nvim-bqf'
 
 " status line
-Plug 'nvim-lualine/lualine.nvim'
+Plug 'tamton-aquib/staline.nvim'
 
 " fuzzy finder
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }

@@ -8,21 +8,7 @@ end
 Nnoremap = CreateNoremap("n", { noremap = true })
 Inoremap = CreateNoremap("i", { noremap = true })
 
-require("lualine").setup({
-	icons_enabled = true,
-	theme = "auto",
-	globalstatus = true,
-	extensions = { "fugitive", "quickfix", "nerdtree", "symbols-outline" },
-	options = {
-		component_separators = "",
-		section_separators = "",
-	},
-	sections = {
-		lualine_y = {},
-		lualine_z = {},
-	},
-})
-
+require("timopruesse.statusline")
 require("timopruesse.telescope")
 require("timopruesse.lsp")
 
