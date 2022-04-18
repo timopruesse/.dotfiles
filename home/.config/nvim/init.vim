@@ -128,6 +128,9 @@ Plug 'github/copilot.vim'
 Plug 'kyazdani42/nvim-web-devicons'
 Plug 'pwntester/octo.nvim'
 
+" QOL
+Plug 'arnamak/stay-centered.nvim'
+
 call plug#end()
 
 " import lua scripts
@@ -139,15 +142,7 @@ let loaded_matchparen = 1
 let mapleader = " "
 
 " keep that goddamn cursor centered!!
-nnoremap j jzz
-nnoremap k kzz
-nnoremap G Gzz
-nnoremap n nzz
-nnoremap N Nzz
-nnoremap * *zz
-nnoremap # #zz
-nnoremap g* g*zz
-nnoremap g# g#zz
+lua require("stay-centered")
 
 " gimme my umlauts
 inoremap <M-a> ä
