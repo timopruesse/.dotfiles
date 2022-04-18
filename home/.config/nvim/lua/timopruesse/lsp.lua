@@ -51,12 +51,14 @@ cmp.setup({
 
 	sources = {
 		{ name = "nvim_lsp_signature_help" },
+		{ name = "npm", keyword_length = 3 },
 		{ name = "path" },
 		{ name = "nvim_lsp" },
+		{ name = "nvim_lua" },
 		{ name = "cmp_tabnine" },
 		{ name = "vsnip" },
 		{ name = "emoji" },
-		{ name = "buffer", keyword_length = 3 },
+		{ name = "buffer", keyword_length = 4 },
 	},
 })
 
@@ -260,3 +262,5 @@ require("lspsaga").init_lsp_saga({
 		virtual_text = false,
 	},
 })
+
+require("fidget").setup({ window = { blend = 0 } })
