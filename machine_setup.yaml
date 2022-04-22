@@ -150,8 +150,9 @@ tasks:
           - "mkdir -p $NVM_DIR"
           - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
           - "source ~/.zshrc"
+          - "nvm alias default $NODE_VERSION"
         update:
-          - "nvm install node --reinstall-packages-from=node"
+          - "nvm install node --reinstall-packages-from=node --default"
           - "npm upgrade -g"
         uninstall:
           - "nvm uninstall $NODE_VERSION"
