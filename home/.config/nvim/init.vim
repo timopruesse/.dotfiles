@@ -10,10 +10,6 @@ endif
 
 call plug#begin('~/.vim/plugged')
 
-" session
-Plug 'rmagatti/auto-session'
-Plug 'rmagatti/session-lens'
-
 " theme
 Plug 'gruvbox-community/gruvbox'
 Plug 'stevearc/dressing.nvim'

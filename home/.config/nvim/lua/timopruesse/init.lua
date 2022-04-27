@@ -38,7 +38,3 @@ parser_config.markdown.filetype_to_parsername = "octo"
 
 require("package-info").setup()
 require("crates").setup()
-
-require("session-lens").setup({
-	prompt_title = "💾 Sessions",
-})
