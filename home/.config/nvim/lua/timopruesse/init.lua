@@ -38,3 +38,5 @@ parser_config.markdown.filetype_to_parsername = "octo"
 
 require("package-info").setup()
 require("crates").setup()
+
+require("refactoring").setup({})

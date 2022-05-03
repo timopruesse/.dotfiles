@@ -1,3 +1,4 @@
+---
 default_shell: "zsh"
 
 tasks:
@@ -192,6 +193,13 @@ tasks:
         install: "npm install -g neovim prettier @fsouza/prettierd"
         update: "npm upgrade -g neovim prettier @fsouza/prettierd"
         uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
+
+  eslint:
+    run:
+      commands:
+        install: "npm install -g eslint eslint_d"
+        update: "npm upgrade -g eslint eslint_d"
+        uninstall: "npm uninstall -g eslint eslint_d"
 
   octo:
     run:

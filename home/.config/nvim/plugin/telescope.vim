@@ -16,3 +16,4 @@ nnoremap <leader>ts :lua require('telescope.builtin').treesitter()<CR>
 nnoremap <leader>vrc :lua require('timopruesse.telescope').search_dotfiles()<CR>
 nnoremap <leader>gb :lua require('timopruesse.telescope').git_branches()<CR>
 
+vnoremap <leader>rr :lua require('telescope').extensions.refactoring.refactors()<CR>

@@ -24,6 +24,9 @@ Plug 'mbbill/undotree'
 " debugging
 Plug 'mfussenegger/nvim-dap'
 
+" refactoring
+Plug 'ThePrimeagen/refactoring.nvim'
+
 " comments
 Plug 'terrortylor/nvim-comment'
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
