@@ -1,4 +1,4 @@
-" split navigation 
+" split navigation
 nnoremap <M-j> <C-W><C-J>
 nnoremap <M-k> <C-W><C-K>
 nnoremap <M-l> <C-W><C-L>
@@ -20,3 +20,11 @@ nnoremap <leader>bn :bnext<CR>
 nnoremap <leader>bp :bprevious<CR>
 nnoremap <leader>bf :bfirst<CR>
 nnoremap <leader>bl :blast<CR>
+
+" insert mode movement
+imap <M-h> <left>
+imap <M-j> <down>
+imap <M-k> <up>
+imap <M-l> <right>
+imap <M-f> <C-right>
+imap <M-b> <C-left>
