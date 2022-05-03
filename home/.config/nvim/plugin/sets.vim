@@ -1,5 +1,7 @@
 set nocompatible
 
+set shell=/bin/zsh
+
 " set path+=**
 
 " Nice menu when typing `:find *.py`
