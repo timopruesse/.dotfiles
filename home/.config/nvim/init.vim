@@ -196,6 +196,12 @@ vnoremap <leader>yy "+y
 nnoremap <leader>pp "+p
 vnoremap <leader>pp "+p
 
+" Resizing
+nmap <C-M-H> 2<C-w><
+nmap <C-M-L> 2<C-w>>
+nmap <C-M-K> <C-w>-
+nmap <C-M-J> <C-w>+
+
 augroup fmt
   autocmd!
   au BufWritePre * try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry
