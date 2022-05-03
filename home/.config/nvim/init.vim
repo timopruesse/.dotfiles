@@ -69,7 +69,6 @@ Plug 'hrsh7th/cmp-calc'
 Plug 'hrsh7th/cmp-emoji'
 Plug 'tzachar/cmp-tabnine', { 'do': './install.sh' }
 Plug 'simrat39/symbols-outline.nvim'
-Plug 'onsails/lspkind-nvim'
 Plug 'petertriho/cmp-git'
 Plug 'David-Kunz/cmp-npm'
 Plug 'j-hui/fidget.nvim'
