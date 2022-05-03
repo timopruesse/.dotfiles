@@ -1,11 +1,15 @@
 syntax enable
 filetype plugin indent on
 
+let g:loaded_perl_provider = 0
+let g:loaded_ruby_provider = 0
+
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
     silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
                 \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     autocmd!
     autocmd VimEnter * PlugInstall
+    autocmd VimEnter * TSInstall css
 endif
 
 call plug#begin('~/.vim/plugged')
@@ -72,6 +76,7 @@ Plug 'simrat39/symbols-outline.nvim'
 Plug 'petertriho/cmp-git'
 Plug 'David-Kunz/cmp-npm'
 Plug 'j-hui/fidget.nvim'
+Plug 'jose-elias-alvarez/null-ls.nvim'
 
 " treesitter
 Plug 'nvim-treesitter/nvim-treesitter'

@@ -207,6 +207,11 @@ tasks:
         - "python3 -m pipx ensurepath"
         - "pip install pynvim"
 
+  yaml:
+    run:
+      commands:
+        - "pip install --user yamllint"
+
   aws:
     run:
       commands:

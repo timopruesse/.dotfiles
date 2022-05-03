@@ -110,13 +110,11 @@ require("lspconfig").tsserver.setup(config({
 	on_attach = function(client, bufnr)
 		local ts_utils = require("nvim-lsp-ts-utils")
 
-		-- defaults
 		ts_utils.setup({
 			debug = false,
 			disable_commands = false,
 			enable_import_on_completion = true,
 
-			-- import all
 			import_all_timeout = 5000, -- ms
 			-- lower numbers = higher priority
 			import_all_priorities = {
@@ -129,16 +127,14 @@ require("lspconfig").tsserver.setup(config({
 			import_all_select_source = false,
 			always_organize_imports = true,
 
-			-- filter diagnostics
 			filter_out_diagnostics_by_severity = {},
 			filter_out_diagnostics_by_code = {},
 
-			-- inlay hints
 			auto_inlay_hints = true,
 			inlay_hints_highlight = "Comment",
 			inlay_hints_priority = 200, -- priority of the hint extmarks
-			inlay_hints_throttle = 150, -- throttle the inlay hint request
-			inlay_hints_format = { -- format options for individual hint kind
+			inlay_hints_throttle = 150,
+			inlay_hints_format = {
 				Type = {},
 				Parameter = {},
 				Enum = {},
@@ -159,7 +155,6 @@ require("lspconfig").tsserver.setup(config({
 		-- required to fix code action ranges and filter diagnostics
 		ts_utils.setup_client(client)
 
-		-- no default maps, so you may want to define some here
 		local opts = { silent = true }
 		vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>", opts)
 		vim.api.nvim_buf_set_keymap(bufnr, "n", "gr", ":TSLspRenameFile<CR>", opts)
@@ -262,3 +257,15 @@ require("lspsaga").init_lsp_saga({
 })
 
 require("fidget").setup({ window = { blend = 0 } })
+
+local null_ls = require("null-ls")
+
+null_ls.setup({
+	sources = {
+		null_ls.builtins.formatting.stylua,
+		null_ls.builtins.code_actions.refactoring,
+		-- null_ls.builtins.diagnostics.phpstan,
+		null_ls.builtins.diagnostics.yamllint,
+		null_ls.builtins.diagnostics.zsh,
+	},
+})
