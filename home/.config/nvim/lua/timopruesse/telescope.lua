@@ -18,7 +18,8 @@ require("telescope").setup({
 		mappings = {
 			i = {
 				["<C-x>"] = false,
-				["<C-q>"] = actions.send_to_qflist,
+				["<C-f>"] = actions.send_to_qflist + actions.open_qflist,
+				["<M-f>"] = actions.send_selected_to_qflist + actions.open_qflist,
 			},
 		},
 	},
