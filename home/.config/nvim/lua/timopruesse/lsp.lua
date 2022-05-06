@@ -79,7 +79,7 @@ cmp.setup.cmdline(":", {
 
 cmp.setup.filetype("gitcommit", {
 	sources = require("cmp").config.sources({
-		{ name = "cmp_git" },
+		{ name = "git" },
 	}, {
 		{ name = "buffer" },
 	}),
