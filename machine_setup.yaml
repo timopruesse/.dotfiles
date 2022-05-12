@@ -37,17 +37,6 @@ tasks:
       url: "https://github.com/zsh-users/zsh-autosuggestions"
       target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 
-  upgrade_ubuntu:
-    run:
-      shell: "bash"
-      commands:
-        install:
-          - "sudo apt-get update"
-          - "sudo apt-get upgrade -y"
-          - "sudo do-release-upgrade -d"
-          - "sudo apt-get install -y fuse"
-          - "sudo apt-get autoremove -y"
-
   wsl_config:
     symlink:
       src: "./etc/wsl.conf"
