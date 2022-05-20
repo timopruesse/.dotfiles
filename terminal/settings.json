@@ -54,11 +54,6 @@
     },
     "list": [
       {
-        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-        "hidden": false,
-        "name": "CMD"
-      },
-      {
         "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
         "hidden": true,
         "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
@@ -77,6 +72,11 @@
         "icon": "https://assets.ubuntu.com/v1/49a1a858-favicon-32x32.png",
         "name": "Ubuntu 22.04 LTS",
         "tabTitle": "Ubuntu"
+      },
+      {
+        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+        "hidden": false,
+        "name": "CMD"
       }
     ]
   },
