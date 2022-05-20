@@ -151,7 +151,7 @@ tasks:
   ts-lsp:
     run:
       env:
-        PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server"
+        PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server nx"
       commands:
         install: "npm install -g $(echo $PACKAGES_STR)"
         update: "npm upgrade -g $(echo $PACKAGES_STR)"
@@ -167,14 +167,14 @@ tasks:
         update: "npm upgrade -g intelephense"
         uninstall: "npm uninstall -g intelephense"
 
-  yarn:
-    run:
-      commands:
-        install:
-          - "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
-          - 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
-          - "sudo apt-get update"
-          - "sudo apt-get install --no-install-recommends yarn"
+  # yarn:
+  #   run:
+  #     commands:
+  #       install:
+  #         - "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
+  #         - 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
+  #         - "sudo apt-get update"
+  #         - "sudo apt-get install --no-install-recommends yarn"
 
   prettier:
     run:
