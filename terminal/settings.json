@@ -28,7 +28,7 @@
   ],
   "copyFormatting": "none",
   "copyOnSelect": false,
-  "defaultProfile": "{51855cb2-8cce-5362-8f54-464b92b32386}",
+  "defaultProfile": "{7987625b-6b5d-4c9d-bfd5-293e18769b15}",
   "focusFollowMouse": true,
   "launchMode": "maximized",
   "profiles": {
@@ -54,17 +54,6 @@
     },
     "list": [
       {
-        "guid": "{51855cb2-8cce-5362-8f54-464b92b32386}",
-        "hidden": false,
-        "name": "Ubuntu",
-        "source": "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc"
-      },
-      {
-        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-        "hidden": false,
-        "name": "CMD"
-      },
-      {
         "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
         "hidden": true,
         "icon": "ms-appx:///ProfileIcons/{61c54bbd-c2c6-5271-96e7-009a87ff44bf}.png",
@@ -77,11 +66,17 @@
         "source": "Windows.Terminal.Azure"
       },
       {
-        "guid": "{2c4de342-38b7-51cf-b940-2309a097f518}",
-        "hidden": true,
+        "commandline": "ubuntu2204.exe",
+        "guid": "{7987625b-6b5d-4c9d-bfd5-293e18769b15}",
+        "hidden": false,
         "icon": "https://assets.ubuntu.com/v1/49a1a858-favicon-32x32.png",
-        "name": "Ubuntu (wsl.exe)",
-        "source": "Windows.Terminal.Wsl"
+        "name": "Ubuntu 22.04 LTS",
+        "tabTitle": "Ubuntu"
+      },
+      {
+        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+        "hidden": false,
+        "name": "CMD"
       }
     ]
   },
@@ -333,6 +328,29 @@
       "foreground": "#FFFFFF",
       "green": "#26A269",
       "name": "Ubuntu-20.04-ColorScheme",
+      "purple": "#881798",
+      "red": "#C21A23",
+      "selectionBackground": "#FFFFFF",
+      "white": "#CCCCCC",
+      "yellow": "#A2734C"
+    },
+    {
+      "background": "#300A24",
+      "black": "#171421",
+      "blue": "#0037DA",
+      "brightBlack": "#767676",
+      "brightBlue": "#08458F",
+      "brightCyan": "#2C9FB3",
+      "brightGreen": "#26A269",
+      "brightPurple": "#A347BA",
+      "brightRed": "#C01C28",
+      "brightWhite": "#F2F2F2",
+      "brightYellow": "#A2734C",
+      "cursorColor": "#FFFFFF",
+      "cyan": "#3A96DD",
+      "foreground": "#FFFFFF",
+      "green": "#26A269",
+      "name": "Ubuntu-22.04-ColorScheme",
       "purple": "#881798",
       "red": "#C21A23",
       "selectionBackground": "#FFFFFF",
