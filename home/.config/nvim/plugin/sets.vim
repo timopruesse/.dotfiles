@@ -43,3 +43,6 @@ set shortmess+=c
 
 set cursorline
 set colorcolumn=80
+
+set list
+set listchars=tab:>-
