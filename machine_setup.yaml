@@ -151,7 +151,7 @@ tasks:
   ts-lsp:
     run:
       env:
-        PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server nx"
+        PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server nx vscode-css-languageservice"
       commands:
         install: "npm install -g $(echo $PACKAGES_STR)"
         update: "npm upgrade -g $(echo $PACKAGES_STR)"
