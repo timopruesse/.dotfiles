@@ -148,6 +148,15 @@ tasks:
           - "nvm uninstall $NODE_VERSION"
           - "rm -rf $NVM_DIR"
 
+  npm:
+    run:
+      env:
+        PACKAGES_STR: "wasm-pack"
+      commands:
+        install: "npm install -g $(echo $PACKAGES_STR)"
+        update: "npm upgrade -g $(echo $PACKAGES_STR)"
+        uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
+
   ts-lsp:
     run:
       env:
