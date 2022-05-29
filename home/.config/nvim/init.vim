@@ -9,7 +9,24 @@ if empty(glob('~/.config/nvim/autoload/plug.vim'))
                 \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     autocmd!
     autocmd VimEnter * PlugInstall
+    autocmd VimEnter * TSInstall html
     autocmd VimEnter * TSInstall css
+    autocmd VimEnter * TSInstall scss
+    autocmd VimEnter * TSInstall svelte
+    autocmd VimEnter * TSInstall rust
+    autocmd VimEnter * TSInstall php
+    autocmd VimEnter * TSInstall json
+    autocmd VimEnter * TSInstall yaml
+    autocmd VimEnter * TSInstall javascript
+    autocmd VimEnter * TSInstall typescript
+    autocmd VimEnter * TSInstall lua
+    autocmd VimEnter * TSInstall go
+    autocmd VimEnter * TSInstall dockerfile
+    autocmd VimEnter * TSInstall python
+    autocmd VimEnter * TSInstall dart
+    autocmd VimEnter * TSInstall markdown
+    autocmd VimEnter * TSInstall tsx
+    autocmd VimEnter * TSInstall vim
 endif
 
 call plug#begin('~/.vim/plugged')
