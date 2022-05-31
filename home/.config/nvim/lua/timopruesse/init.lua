@@ -40,3 +40,12 @@ require("package-info").setup()
 require("crates").setup()
 
 require("refactoring").setup({})
+
+vim.keymap.set("n", "p", require("pasta.mappings").p)
+vim.keymap.set("n", "P", require("pasta.mappings").P)
+
+require("pasta").setup({
+	converters = {},
+	next_key = vim.api.nvim_replace_termcodes("<C-n>", true, true, true),
+	prev_key = vim.api.nvim_replace_termcodes("<C-p>", true, true, true),
+})
