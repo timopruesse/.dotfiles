@@ -155,6 +155,7 @@ Plug 'pwntester/octo.nvim'
 " QOL
 Plug 'arnamak/stay-centered.nvim'
 Plug 'hrsh7th/nvim-pasta'
+Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
 
