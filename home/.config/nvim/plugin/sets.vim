@@ -38,7 +38,7 @@ set scrolloff=10
 set noshowmode
 
 set cmdheight=1
-set updatetime=50
+set updatetime=300
 set shortmess+=c
 
 set cursorline

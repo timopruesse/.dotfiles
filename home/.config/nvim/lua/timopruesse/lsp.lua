@@ -214,6 +214,15 @@ require("rust-tools").setup({
 			use_telescope = true,
 		},
 	},
+	server = {
+		settings = {
+			["rust-analyzer"] = {
+				checkOnSave = {
+					command = "clippy",
+				},
+			},
+		},
+	},
 })
 
 local home_dir = vim.fn.expand("$HOME")

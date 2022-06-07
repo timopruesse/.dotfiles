@@ -234,4 +234,6 @@ augroup END
 augroup TIMOPRUESSE
     autocmd!
     autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
+
+    autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
 augroup END
