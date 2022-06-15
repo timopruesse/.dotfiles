@@ -1,5 +1,7 @@
 vim.opt.shell = "/bin/zsh"
 
+vim.opt.completeopt = { "menu", "menuone", "noselect" }
+
 -- Nice menu when typing `:find *.ts`
 vim.opt.wildmode = { "longest", "list", "full" }
 vim.opt.wildmenu = true
@@ -33,6 +35,7 @@ vim.opt.shortmess:append("c")
 
 vim.opt.cursorline = true
 vim.opt.colorcolumn = "80"
+vim.opt.signcolumn = "yes"
 
 vim.opt.list = true
 vim.opt.listchars = { tab = "|-", trail = "·" }

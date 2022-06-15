@@ -8,12 +8,5 @@ nmap <leader>gg :G<CR>
 nmap <leader>gc :G commit<CR>
 nmap <leader>gp :G push<CR>
 
-" blame
-nmap <leader>gt :GitBlameToggle<CR>
-nmap <leader>go :GitBlameOpenCommitURL<CR>
-
-" disable git blame initially
-let g:gitblame_enabled = 0
-
 let g:fzf_layout = { 'window': { 'width': 0.8, 'height': 0.8 } }
 let $FZF_DEFAULT_OPTS='--reverse'

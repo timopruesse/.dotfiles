@@ -8,11 +8,6 @@ end
 Nnoremap = CreateNoremap("n", { noremap = true })
 Inoremap = CreateNoremap("i", { noremap = true })
 
-require("timopruesse.sets")
-require("timopruesse.statusline")
-require("timopruesse.telescope")
-require("timopruesse.lsp")
-
 if pcall(require, "plenary") then
 	RELOAD = require("plenary.reload").reload_module
 
@@ -21,6 +16,12 @@ if pcall(require, "plenary") then
 		return require(name)
 	end
 end
+
+require("timopruesse.sets")
+require("timopruesse.theme")
+require("timopruesse.statusline")
+require("timopruesse.telescope")
+require("timopruesse.lsp")
 
 require("nvim_comment").setup({
 	hook = function()
@@ -50,3 +51,7 @@ require("pasta").setup({
 	next_key = vim.api.nvim_replace_termcodes("<C-n>", true, true, true),
 	prev_key = vim.api.nvim_replace_termcodes("<C-p>", true, true, true),
 })
+
+-- NERDTree
+vim.g.NERDTreeWinSize = 80
+vim.g.NERDTreeWinPos = "right"

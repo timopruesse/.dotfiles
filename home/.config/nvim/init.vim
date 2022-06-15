@@ -115,7 +115,6 @@ Plug 'junegunn/fzf.vim'
 " git
 Plug 'tpope/vim-fugitive'
 " Plug 'tpope/vim-rhubarb'
-" Plug 'f-person/git-blame.nvim'
 
 " npm
 Plug 'MunifTanjim/nui.nvim'
