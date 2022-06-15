@@ -19,6 +19,7 @@ end
 
 require("timopruesse.sets")
 require("timopruesse.theme")
+require("timopruesse.variables")
 require("timopruesse.statusline")
 require("timopruesse.telescope")
 require("timopruesse.lsp")
@@ -51,7 +52,3 @@ require("pasta").setup({
 	next_key = vim.api.nvim_replace_termcodes("<C-n>", true, true, true),
 	prev_key = vim.api.nvim_replace_termcodes("<C-p>", true, true, true),
 })
-
--- NERDTree
-vim.g.NERDTreeWinSize = 80
-vim.g.NERDTreeWinPos = "right"
