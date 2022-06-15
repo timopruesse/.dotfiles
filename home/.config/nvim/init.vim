@@ -114,8 +114,8 @@ Plug 'junegunn/fzf.vim'
 
 " git
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rhubarb'
-Plug 'f-person/git-blame.nvim'
+" Plug 'tpope/vim-rhubarb'
+" Plug 'f-person/git-blame.nvim'
 
 " npm
 Plug 'MunifTanjim/nui.nvim'
@@ -141,9 +141,6 @@ Plug 'fatih/vim-go'
 
 " python
 Plug 'ambv/black'
-
-" rfc
-Plug 'mhinz/vim-rfc'
 
 " copilot
 Plug 'github/copilot.vim'

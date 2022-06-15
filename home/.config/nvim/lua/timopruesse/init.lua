@@ -8,6 +8,7 @@ end
 Nnoremap = CreateNoremap("n", { noremap = true })
 Inoremap = CreateNoremap("i", { noremap = true })
 
+require("timopruesse.sets")
 require("timopruesse.statusline")
 require("timopruesse.telescope")
 require("timopruesse.lsp")
