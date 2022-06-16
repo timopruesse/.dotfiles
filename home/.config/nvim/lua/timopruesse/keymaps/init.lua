@@ -11,3 +11,4 @@ key.nmap("p", pasta_mappings.p)
 key.nmap("P", pasta_mappings.P)
 
 require("timopruesse.keymaps.git")
+require("timopruesse.keymaps.harpoon")
