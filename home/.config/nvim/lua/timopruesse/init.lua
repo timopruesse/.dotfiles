@@ -20,6 +20,7 @@ end
 require("timopruesse.sets")
 require("timopruesse.theme")
 require("timopruesse.variables")
+require("timopruesse.autocommands")
 require("timopruesse.statusline")
 require("timopruesse.telescope")
 require("timopruesse.lsp")
