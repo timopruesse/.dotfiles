@@ -1,13 +1,3 @@
-function CreateNoremap(type, opts)
-	return function(lhs, rhs, bufnr)
-		bufnr = bufnr or 0
-		vim.api.nvim_buf_set_keymap(bufnr, type, lhs, rhs, opts)
-	end
-end
-
-Nnoremap = CreateNoremap("n", { noremap = true })
-Inoremap = CreateNoremap("i", { noremap = true })
-
 if pcall(require, "plenary") then
 	RELOAD = require("plenary.reload").reload_module
 
@@ -19,11 +9,12 @@ end
 
 require("timopruesse.sets")
 require("timopruesse.theme")
-require("timopruesse.variables")
-require("timopruesse.autocommands")
+require("timopruesse.variables.init")
+require("timopruesse.keymaps.init")
+require("timopruesse.autocommands.init")
 require("timopruesse.statusline")
-require("timopruesse.telescope")
 require("timopruesse.lsp")
+require("timopruesse.telescope")
 
 -- keep that goddamn cursor centered!!
 require("stay-centered")
@@ -53,12 +44,3 @@ require("package-info").setup()
 require("crates").setup()
 
 require("refactoring").setup({})
-
-vim.keymap.set("n", "p", require("pasta.mappings").p)
-vim.keymap.set("n", "P", require("pasta.mappings").P)
-
-require("pasta").setup({
-	converters = {},
-	next_key = vim.api.nvim_replace_termcodes("<C-n>", true, true, true),
-	prev_key = vim.api.nvim_replace_termcodes("<C-p>", true, true, true),
-})

@@ -155,11 +155,12 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
 
-lua require("timopruesse")
-
 " remappings
 let loaded_matchparen = 1
 let mapleader = " "
+
+lua require("timopruesse")
+
 
 " gimme my umlauts
 inoremap <M-a> ä

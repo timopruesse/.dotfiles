@@ -4,8 +4,9 @@
 -- local action_state = require("telescope.actions.state")
 -- local conf = require("telescope.config").values
 local actions = require("telescope.actions")
+local telescope = require("telescope")
 
-require("telescope").setup({
+telescope.setup({
 	defaults = {
 		file_sorter = require("telescope.sorters").get_fzy_sorter,
 		prompt_prefix = "🔍 ",
@@ -31,18 +32,10 @@ require("telescope").setup({
 	},
 })
 
-require("telescope").load_extension("fzy_native")
-require("telescope").load_extension("refactoring")
+telescope.load_extension("fzy_native")
+telescope.load_extension("refactoring")
 
 local M = {}
-
-function M.reload_modules()
-	local lua_dirs = vim.fn.glob("./lua/*", 0, 1)
-	for _, dir in ipairs(lua_dirs) do
-		dir = string.gsub(dir, "./lua/", "")
-		require("plenary.reload").reload_module(dir)
-	end
-end
 
 M.search_dotfiles = function()
 	require("telescope.builtin").find_files({
