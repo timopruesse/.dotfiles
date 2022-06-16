@@ -216,20 +216,3 @@ nmap <C-M-H> 2<C-w><
 nmap <C-M-L> 2<C-w>>
 nmap <C-M-K> <C-w>-
 nmap <C-M-J> <C-w>+
-
-augroup fmt
-  autocmd!
-  au BufWritePre * try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry
-augroup END
-
-augroup highlight_yank
-    autocmd!
-    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank({timeout = 1000})
-augroup END
-
-augroup TIMOPRUESSE
-    autocmd!
-    autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
-
-    autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })
-augroup END
