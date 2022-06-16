@@ -134,18 +134,20 @@ tasks:
     run:
       env:
         NVM_DIR: "~/.nvm"
-        NODE_VERSION: "18"
       commands:
         install:
           - "mkdir -p $NVM_DIR"
           - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
           - "source ~/.zshrc"
-          - "nvm alias default $NODE_VERSION"
+          - "nvm alias default $(node --version)"
         update:
+          - "OLD_NODE_VERSION=$(node --version)"
           - "nvm install node --reinstall-packages-from=node --default"
           - "npm upgrade -g"
+          - "nvm alias default $(node --version)"
+          - "nvm uninstall $OLD_NODE_VERSION"
         uninstall:
-          - "nvm uninstall $NODE_VERSION"
+          - "nvm uninstall $(node --version)"
           - "rm -rf $NVM_DIR"
 
   npm:
