@@ -12,3 +12,4 @@ key.nmap("P", pasta_mappings.P)
 
 require("timopruesse.keymaps.git")
 require("timopruesse.keymaps.harpoon")
+require("timopruesse.keymaps.navigation")
