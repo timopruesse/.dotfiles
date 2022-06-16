@@ -25,6 +25,15 @@ require("timopruesse.statusline")
 require("timopruesse.telescope")
 require("timopruesse.lsp")
 
+-- keep that goddamn cursor centered!!
+require("stay-centered")
+
+require("nvim-treesitter.configs").setup({
+	highlight = { enable = true },
+	incremental_selection = { enable = true },
+	textobjects = { enable = true },
+})
+
 require("nvim_comment").setup({
 	hook = function()
 		require("ts_context_commentstring.internal").update_commentstring()

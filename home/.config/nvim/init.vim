@@ -155,16 +155,11 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
 
-" import lua scripts
 lua require("timopruesse")
-lua require'nvim-treesitter.configs'.setup { highlight = { enable = true }, incremental_selection = { enable = true }, textobjects = { enable = true }}
 
 " remappings
 let loaded_matchparen = 1
 let mapleader = " "
-
-" keep that goddamn cursor centered!!
-lua require("stay-centered")
 
 " gimme my umlauts
 inoremap <M-a> ä
