@@ -14,8 +14,10 @@ end
 
 M.nnoremap = createNoRemap("n")
 M.inoremap = createNoRemap("i")
+M.vnoremap = createNoRemap("v")
 M.nmap = createMap("n")
 M.imap = createMap("i")
+M.vmap = createMap("v")
 
 M.exec_command = function(cmd)
 	return function()
