@@ -1,9 +1,6 @@
 syntax enable
 filetype plugin indent on
 
-let g:loaded_perl_provider = 0
-let g:loaded_ruby_provider = 0
-
 if empty(glob('~/.config/nvim/autoload/plug.vim'))
     silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
                 \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
@@ -28,6 +25,7 @@ if empty(glob('~/.config/nvim/autoload/plug.vim'))
     autocmd VimEnter * TSInstall tsx
     autocmd VimEnter * TSInstall vim
 endif
+
 
 call plug#begin('~/.vim/plugged')
 
@@ -155,60 +153,7 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
 
-" remappings
 let loaded_matchparen = 1
-let mapleader = " "
 
 lua require("timopruesse")
 
-
-" gimme my umlauts
-inoremap <M-a> ä
-inoremap <M-o> ö
-inoremap <M-u> ü
-
-nnoremap <silent> Q <nop>
-nnoremap <leader>ghw :h <C-R>=expand("<cword>")<CR><CR>
-nnoremap <leader>bs /<C-R>=escape(expand("<cWORD>"), "/")<CR><CR>
-nnoremap <leader>u :UndotreeShow<CR>
-nnoremap <leader>pv :Ex<CR>
-nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
-nnoremap <leader>s :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
-
-vnoremap J :m '>+1<CR>gv=gv
-vnoremap K :m '<-2<CR>gv=gv
-
-vnoremap <leader>p "_dP
-
-nnoremap <leader>y "+y
-vnoremap <leader>y "+y
-nnoremap <leader>Y gg"+yG
-
-nnoremap <leader>d "_d
-vnoremap <leader>d "_d
-
-nnoremap Y y$
-
-inoremap , ,<c-g>u
-inoremap . .<c-g>u
-inoremap ! !<c-g>u
-inoremap ? ?<c-g>u
-inoremap = =<c-g>u
-
-nmap <C-q> :NERDTreeToggle<CR>
-nnoremap <leader>tf :NERDTreeFind<CR>
-
-" preview markdown
-noremap <leader>md :Glow<CR>
-
-" Copy to and from clipboard
-nnoremap <leader>yy "+y
-vnoremap <leader>yy "+y
-nnoremap <leader>pp "+p
-vnoremap <leader>pp "+p
-
-" Resizing
-nmap <C-M-H> 2<C-w><
-nmap <C-M-L> 2<C-w>>
-nmap <C-M-K> <C-w>-
-nmap <C-M-J> <C-w>+
