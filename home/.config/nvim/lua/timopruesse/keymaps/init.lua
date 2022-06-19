@@ -10,6 +10,7 @@ local pasta_mappings = require("pasta.mappings")
 key.nmap("p", pasta_mappings.p)
 key.nmap("P", pasta_mappings.P)
 
+---@diagnostic disable-next-line: different-requires
 require("timopruesse.keymaps.telescope")
 require("timopruesse.keymaps.git")
 require("timopruesse.keymaps.harpoon")

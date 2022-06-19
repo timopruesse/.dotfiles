@@ -4,6 +4,7 @@
 -- local action_state = require("telescope.actions.state")
 -- local conf = require("telescope.config").values
 local actions = require("telescope.actions")
+---@diagnostic disable-next-line: different-requires
 local telescope = require("telescope")
 
 telescope.setup({
