@@ -99,6 +99,8 @@ packer.startup(function()
 			vim.api.nvim_command("TSInstall markdown")
 			vim.api.nvim_command("TSInstall tsx")
 			vim.api.nvim_command("TSInstall vim")
+			vim.api.nvim_command("TSInstall toml")
+			vim.api.nvim_command("TSInstall regex")
 		end,
 		config = function()
 			require("nvim-treesitter.configs").setup({
