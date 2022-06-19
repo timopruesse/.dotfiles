@@ -114,11 +114,15 @@ packer.startup(function()
 	use("tamton-aquib/staline.nvim")
 
 	-- git
+	use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
 	use({
 		"TimUntersberger/neogit",
-		requires = "nvim-lua/plenary.nvim",
+		requires = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
 		config = function()
-			require("neogit").setup()
+			require("neogit").setup({
+				disable_commit_confirmation = true,
+				integrations = { diffview = true },
+			})
 		end,
 	})
 
