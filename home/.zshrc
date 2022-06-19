@@ -123,3 +123,5 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 # fix chromium font error
 export FONTCONFIG_PATH=/etc/fonts
 
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -1,13 +1,11 @@
+vim.g.loaded_matchparen = 1
+
 -- disable unneeded providers
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 
 -- completion
 vim.g.completion_matching_strategy_list = { "exact", "substring", "fuzzy" }
-
--- NERDTree
-vim.g.NERDTreeWinSize = 80
-vim.g.NERDTreeWinPos = "right"
 
 -- netrw
 vim.g.netrw_browse_split = 0

@@ -1,12 +1,3 @@
-if pcall(require, "plenary") then
-	RELOAD = require("plenary.reload").reload_module
-
-	R = function(name)
-		RELOAD(name)
-		return require(name)
-	end
-end
-
 vim.g.mapleader = " "
 
 require("timopruesse.sets")
@@ -16,15 +7,25 @@ require("timopruesse.keymaps.init")
 require("timopruesse.autocommands.init")
 require("timopruesse.statusline")
 require("timopruesse.lsp")
+---@diagnostic disable-next-line: different-requires
 require("timopruesse.telescope")
 
--- keep that goddamn cursor centered!!
-require("stay-centered")
-
-require("nvim-treesitter.configs").setup({
-	highlight = { enable = true },
-	incremental_selection = { enable = true },
-	textobjects = { enable = true },
+require("nvim-tree").setup({
+	diagnostics = {
+		enable = true,
+		show_on_dirs = true,
+	},
+	view = {
+		side = "right",
+		centralize_selection = true,
+		adaptive_size = true,
+	},
+	renderer = {
+		group_empty = true,
+	},
+	filters = {
+		dotfiles = true,
+	},
 })
 
 require("nvim_comment").setup({
@@ -41,8 +42,3 @@ require("nvim-treesitter.configs").setup({
 
 local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 parser_config.markdown.filetype_to_parsername = "octo"
-
-require("package-info").setup()
-require("crates").setup()
-
-require("refactoring").setup({})

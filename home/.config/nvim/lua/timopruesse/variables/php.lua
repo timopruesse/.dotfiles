@@ -7,9 +7,6 @@ vim.g.neoformat_php_phpcsfixer = {
 	replace = 1,
 }
 
--- manual
-vim.g.php_manual_online_search_shortcut = ""
-
 -- ale
 vim.g.ale_lint_on_text_changed = "never"
 vim.g.ale_lint_on_enter = 0
