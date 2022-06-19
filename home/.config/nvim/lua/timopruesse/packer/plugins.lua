@@ -38,8 +38,17 @@ packer.startup(function()
 	use("ThePrimeagen/harpoon")
 
 	-- comments
-	use("terrortylor/nvim-comment")
 	use("JoosepAlviste/nvim-ts-context-commentstring")
+	use({
+		"terrortylor/nvim-comment",
+		config = function()
+			require("nvim_comment").setup({
+				hook = function()
+					require("ts_context_commentstring.internal").update_commentstring()
+				end,
+			})
+		end,
+	})
 
 	-- editorconfig
 	use("gpanders/editorconfig.nvim")
@@ -107,7 +116,11 @@ packer.startup(function()
 				highlight = { enable = true },
 				incremental_selection = { enable = true },
 				textobjects = { enable = true },
+				context_commentstring = {
+					enable = true,
+				},
 			})
+			require("nvim-treesitter.parsers").get_parser_configs().markdown.filetype_to_parsername = "octo"
 		end,
 	})
 	-- use("nvim-treesitter/playground")
