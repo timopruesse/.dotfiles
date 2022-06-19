@@ -141,6 +141,7 @@ packer.startup(function()
 	use("MunifTanjim/nui.nvim")
 	use({
 		"vuki656/package-info.nvim",
+		event = { "BufRead package.json" },
 		requires = "MunifTanjim/nui.nvim",
 		config = function()
 			require("package-info").setup()
