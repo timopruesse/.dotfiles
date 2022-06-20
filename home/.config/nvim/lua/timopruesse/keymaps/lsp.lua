@@ -15,7 +15,7 @@ key.nnoremap("<leader>[d", key.exec_command("Lspsaga diagnostic_jump_next"))
 key.nnoremap("<leader>]d", key.exec_command("Lspsaga diagnostic_jump_prev"))
 key.nnoremap("<leader>vws", vim.lsp.buf.workspace_symbol)
 
-key.nnoremap("<C-s>", key.exec_command("Lspsaga code_action"))
+key.nnoremap("<leader><space>", key.exec_command("Lspsaga code_action"))
 key.vnoremap("<C-s>", key.exec_command("<C-U>Lspsaga range_code_action"))
 
 key.nnoremap("<leader>vh", key.exec_command("Lspsaga hover_doc"))

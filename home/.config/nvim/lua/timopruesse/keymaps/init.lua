@@ -20,7 +20,7 @@ require("timopruesse.keymaps.rust")
 require("timopruesse.keymaps.lsp")
 require("timopruesse.keymaps.php")
 
-key.nnoremap("<leader>s", key.exec_command("w"))
+key.nnoremap("<C-s>", key.exec_command("w"))
 
 --gimme my umlauts
 key.inoremap("<M-a>", "ä")
