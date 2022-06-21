@@ -189,7 +189,7 @@ packer.startup(function()
 	use("ambv/black")
 
 	-- copilot
-	use("github/copilot.vim")
+	-- use("github/copilot.vim")
 
 	-- github
 	-- use({
