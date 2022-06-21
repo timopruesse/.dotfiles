@@ -2,7 +2,7 @@
 
 ## neovim
 
-My neovim configuration is written completely in `lua` and can be found [here](https://github.com/Chroma91/.dotfiles/tree/main/home/.config/nvim).  
+My neovim configuration is written in `lua` and can be found [here](https://github.com/Chroma91/.dotfiles/tree/main/home/.config/nvim).  
 
 ## OS
 
