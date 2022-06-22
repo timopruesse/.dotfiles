@@ -29,6 +29,10 @@ key.inoremap("<M-u>", "ü")
 
 key.nnoremap("Q", "<nop>")
 
+-- todo
+key.nnoremap("<leader>td", key.exec_command("TodoQuickFix"))
+key.nnoremap("<leader>tl", key.exec_command("TodoTelescope"))
+
 -- FIXME: Broken mappings after lua update
 -- key.nnoremap("<leader>ghw", key.exec_command('h <C-R>=expand("<cword>")'))
 -- key.nnoremap("<leader>bs", key.exec_command('/<C-R>=escape(expand("<cword>"), "/")'))

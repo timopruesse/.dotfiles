@@ -188,9 +188,6 @@ packer.startup(function()
 	-- python
 	use("ambv/black")
 
-	-- copilot
-	-- use("github/copilot.vim")
-
 	-- github
 	-- use({
 	-- 	"pwntester/octo.nvim",
@@ -203,6 +200,15 @@ packer.startup(function()
 	-- 		require("octo").setup()
 	-- 	end,
 	-- })
+
+	-- todo
+	use({
+		"folke/todo-comments.nvim",
+		requires = "nvim-lua/plenary.nvim",
+		config = function()
+			require("todo-comments").setup({})
+		end,
+	})
 
 	-- QOL
 	use({
