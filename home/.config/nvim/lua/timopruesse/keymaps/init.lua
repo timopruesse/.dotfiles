@@ -29,6 +29,9 @@ key.inoremap("<M-u>", "ü")
 
 key.nnoremap("Q", "<nop>")
 
+-- database ui
+key.nnoremap("<leader>db", key.exec_command("DBUIToggle"))
+
 -- todo
 key.nnoremap("<leader>td", key.exec_command("TodoQuickFix"))
 key.nnoremap("<leader>tl", key.exec_command("TodoTelescope"))

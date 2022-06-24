@@ -188,19 +188,6 @@ packer.startup(function()
 	-- python
 	use("ambv/black")
 
-	-- github
-	-- use({
-	-- 	"pwntester/octo.nvim",
-	-- 	requires = {
-	-- 		"nvim-lua/plenary.nvim",
-	-- 		"nvim-telescope/telescope.nvim",
-	-- 		"kyazdani42/nvim-web-devicons",
-	-- 	},
-	-- 	config = function()
-	-- 		require("octo").setup()
-	-- 	end,
-	-- })
-
 	-- todo
 	use({
 		"folke/todo-comments.nvim",
@@ -222,4 +209,8 @@ packer.startup(function()
 
 	-- markdown
 	use({ "ellisonleao/glow.nvim", branch = "main" })
+
+	-- databases
+	use("tpope/vim-dadbod")
+	use({ "kristijanhusak/vim-dadbod-ui", requires = "tpope/vim-dadbod" })
 end)
