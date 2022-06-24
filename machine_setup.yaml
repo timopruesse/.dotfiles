@@ -3,310 +3,295 @@ default_shell: "zsh"
 
 tasks:
   zsh:
-    run:
-      shell: "bash"
-      commands:
-        - "sudo apt-get update"
-        - "sudo apt-get install -y zsh"
-        - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+    commands:
+      - run:
+          shell: "bash"
+          commands:
+            - "sudo apt-get update"
+            - "sudo apt-get install -y zsh"
+            - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+      - run:
+          env:
+            ZSH: ""
+            TMP_INSTALL_PATH: "/tmp/install-omz.sh"
+          commands:
+            - "rm -r ~/.oh-my-zsh"
+            - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+            - "chmod u+x $TMP_INSTALL_PATH"
+            - "$TMP_INSTALL_PATH"
+            - "rm $TMP_INSTALL_PATH"
 
-  omz:
-    run:
-      env:
-        ZSH: ""
-        TMP_INSTALL_PATH: "/tmp/install-omz.sh"
-      commands:
-        - "rm -r ~/.oh-my-zsh"
-        - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-        - "chmod u+x $TMP_INSTALL_PATH"
-        - "$TMP_INSTALL_PATH"
-        - "rm $TMP_INSTALL_PATH"
-
-  zsh_theme:
-    clone:
-      url: "https://github.com/romkatv/powerlevel10k.git"
-      target: "~/.oh-my-zsh/custom/themes/powerlevel10k"
-
-  zsh_syntax_highlight:
-    clone:
-      url: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-      target: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
-
-  zsh_auto_suggest:
-    clone:
-      url: "https://github.com/zsh-users/zsh-autosuggestions"
-      target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+  zsh_extras:
+    commands:
+      - clone:
+          url: "https://github.com/romkatv/powerlevel10k.git"
+          target: "~/.oh-my-zsh/custom/themes/powerlevel10k"
+      - clone:
+          url: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+          target: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+      - clone:
+          url: "https://github.com/zsh-users/zsh-autosuggestions"
+          target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
 
   wsl_config:
-    symlink:
-      src: "./etc/wsl.conf"
-      target: "/etc/wsl.conf"
+    commands:
+      - symlink:
+          src: "./etc/wsl.conf"
+          target: "/etc/wsl.conf"
 
   windows_terminal:
-    run:
-      shell: "bash"
-      env:
-        SETTINGS_PATH: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
-      commands:
-        - "rm -f $SETTINGS_PATH"
-    # symlink doesn't work after the settings were changed via UI
-    # Apparently, the file gets regenerated instead of changed 🤔
-    copy:
-      src: "./terminal"
-      target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
+    commands:
+      - run:
+        shell: "bash"
+        env:
+          SETTINGS_PATH: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
+        commands:
+          - "rm -f $SETTINGS_PATH"
+      # symlink doesn't work after the settings were changed via UI
+      # Apparently, the file gets regenerated instead of changed 🤔
+      - copy:
+          src: "./terminal"
+          target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
   ssh:
-    copy:
-      src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh"
-      target: "~/.ssh"
-    run:
-      commands:
-        install:
-          - "chmod 700 ~/.ssh"
-          - "chmod 600 ~/.ssh/id_rsa"
-          - "chmod 644 ~/.ssh/id_rsa.pub"
+    commands:
+      - copy:
+          src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh"
+          target: "~/.ssh"
+      - run:
+          commands:
+            install:
+              - "chmod 700 ~/.ssh"
+              - "chmod 600 ~/.ssh/id_rsa"
+              - "chmod 644 ~/.ssh/id_rsa.pub"
 
   tools:
-    run:
-      commands:
-        - "sudo apt-get update"
-        - "sudo apt-get upgrade -y"
-        - "sudo apt-get install -y fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential mysql-client"
+    commands:
+      - run:
+        commands:
+          - "sudo apt-get update"
+          - "sudo apt-get upgrade -y"
+          - "sudo apt-get install -y fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential mysql-client"
 
   dotfiles:
-    symlink:
-      force: true
-      src: "./home"
-      target: "~"
-      ignore: ["autoload/plug.vim"]
+    commands:
+      - symlink:
+          force: true
+          src: "./home"
+          target: "~"
+          ignore: ["autoload/plug.vim"]
 
   neovim:
-    run:
-      commands:
-        install:
-          - "mkdir -p ~/.nvim"
-          - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
-          - "chmod u+x ~/.nvim/nvim.appimage"
-        update:
-          - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
-          - "chmod u+x ~/.nvim/nvim.appimage"
+    commands:
+      - run:
+          commands:
+            install:
+              - "mkdir -p ~/.nvim"
+              - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+              - "chmod u+x ~/.nvim/nvim.appimage"
+            update:
+              - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+              - "chmod u+x ~/.nvim/nvim.appimage"
 
   rust:
-    run:
-      commands:
-        install:
-          - "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y"
-          - "source $HOME/.cargo/env"
-          - "rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy"
-          - "rustup component add rustfmt --toolchain nightly"
-        update:
-          - "rustup update"
-
-  rust_analyzer:
-    run:
-      commands:
-        - "mkdir -p ~/.local/bin"
-        - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
-        - "chmod +x ~/.local/bin/rust-analyzer"
-
-  rust_code_coverage:
-    run:
-      commands: "cargo install cargo-tarpaulin"
+    commands:
+      - run:
+          commands:
+            install:
+              - "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y"
+              - "source $HOME/.cargo/env"
+              - "rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy"
+              - "rustup component add rustfmt --toolchain nightly"
+            update:
+              - "rustup update"
+      - run:
+          commands:
+            - "mkdir -p ~/.local/bin"
+            - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
+            - "chmod +x ~/.local/bin/rust-analyzer"
+      - run:
+          commands: "cargo install cargo-tarpaulin"
 
   brew:
-    run:
-      env:
-        TMP_INSTALL_PATH: "/tmp/install-brew.sh"
-      commands:
-        - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-        - "chmod u+x $TMP_INSTALL_PATH"
-        - "$TMP_INSTALL_PATH"
-        - "rm $TMP_INSTALL_PATH"
-        - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
-        - "brew tap homebrew/core"
-        - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+    commands:
+      - run:
+          env:
+            TMP_INSTALL_PATH: "/tmp/install-brew.sh"
+          commands:
+            - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+            - "chmod u+x $TMP_INSTALL_PATH"
+            - "$TMP_INSTALL_PATH"
+            - "rm $TMP_INSTALL_PATH"
+            - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
+            - "brew tap homebrew/core"
+            - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
 
   vim-markdown:
-    run:
-      commands: "brew install glow"
+    commands:
+      - run:
+          commands: "brew install glow"
 
   node:
-    run:
-      env:
-        NVM_DIR: "~/.nvm"
-      commands:
-        install:
-          - "mkdir -p $NVM_DIR"
-          - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
-          - "source ~/.zshrc"
-          - "nvm alias default $(node --version)"
-        update:
-          - "OLD_NODE_VERSION=$(node --version)"
-          - "nvm install node --reinstall-packages-from=node --default"
-          - "npm upgrade -g"
-          - "nvm alias default $(node --version)"
-          - "nvm uninstall $OLD_NODE_VERSION"
-        uninstall:
-          - "nvm uninstall $(node --version)"
-          - "rm -rf $NVM_DIR"
-
-  npm:
-    run:
-      env:
-        PACKAGES_STR: "wasm-pack"
-      commands:
-        install: "npm install -g $(echo $PACKAGES_STR)"
-        update: "npm upgrade -g $(echo $PACKAGES_STR)"
-        uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
+    commands:
+      - run:
+          env:
+            NVM_DIR: "~/.nvm"
+          commands:
+            install:
+              - "mkdir -p $NVM_DIR"
+              - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+              - "source ~/.zshrc"
+              - "nvm alias default $(node --version)"
+            update:
+              - "OLD_NODE_VERSION=$(node --version)"
+              - "nvm install node --reinstall-packages-from=node --default"
+              - "npm upgrade -g"
+              - "nvm alias default $(node --version)"
+              - "nvm uninstall $OLD_NODE_VERSION"
+            uninstall:
+              - "nvm uninstall $(node --version)"
+              - "rm -rf $NVM_DIR"
+      - run:
+          env:
+            PACKAGES_STR: "wasm-pack"
+          commands:
+            install: "npm install -g $(echo $PACKAGES_STR)"
+            update: "npm upgrade -g $(echo $PACKAGES_STR)"
+            uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
 
   ts-lsp:
-    run:
-      env:
-        PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server nx vscode-css-languageservice"
-      commands:
-        install: "npm install -g $(echo $PACKAGES_STR)"
-        update: "npm upgrade -g $(echo $PACKAGES_STR)"
-        uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
+    commands:
+      - run:
+          env:
+            PACKAGES_STR: "typescript typescript-language-server svelte-language-server tailwindcss-language-server nx vscode-css-languageservice"
+          commands:
+            install: "npm install -g $(echo $PACKAGES_STR)"
+            update: "npm upgrade -g $(echo $PACKAGES_STR)"
+            uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
 
   php-lsp:
-    copy:
-      src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/intelephense.txt"
-      target: "~/intelephense/licence.txt"
-    run:
-      commands:
-        install: "npm install -g intelephense"
-        update: "npm upgrade -g intelephense"
-        uninstall: "npm uninstall -g intelephense"
+    commands:
+      - copy:
+          src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/intelephense.txt"
+          target: "~/intelephense/licence.txt"
+      - run:
+          commands:
+            install: "npm install -g intelephense"
+            update: "npm upgrade -g intelephense"
+            uninstall: "npm uninstall -g intelephense"
 
-  # yarn:
-  #   run:
-  #     commands:
-  #       install:
-  #         - "curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -"
-  #         - 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
-  #         - "sudo apt-get update"
-  #         - "sudo apt-get install --no-install-recommends yarn"
-
-  prettier:
-    run:
-      commands:
-        install: "npm install -g neovim prettier @fsouza/prettierd"
-        update: "npm upgrade -g neovim prettier @fsouza/prettierd"
-        uninstall: "npm uninstall -g neovim prettier @fsouza/prettierd"
-
-  eslint:
-    run:
-      commands:
-        install: "npm install -g eslint eslint_d"
-        update: "npm upgrade -g eslint eslint_d"
-        uninstall: "npm uninstall -g eslint eslint_d"
-
-  octo:
-    run:
-      commands:
-        - "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg"
-        - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null'
-        - "sudo apt-get update && sudo apt-get install -y gh ripgrep fd-find"
+  lint:
+    commands:
+      - run:
+          env:
+            PACKAGES_STR: "neovim prettier @fsouza/prettierd eslint eslint_d"
+          commands:
+            install: "npm install -g $(echo $PACKAGES_STR)"
+            update: "npm upgrade -g $(echo $PACKAGES_STR)"
+            uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
 
   python:
-    run:
-      commands:
-        - "sudo apt-get install -y pipx python3-venv python3-pip"
-        - "python3 -m pipx ensurepath"
-        - "pip install pynvim"
+    commands:
+      - run:
+          commands:
+            - "sudo apt-get install -y pipx python3-venv python3-pip"
+            - "python3 -m pipx ensurepath"
+            - "pip install pynvim"
 
   yaml:
-    run:
-      commands:
-        - "pip install --user yamllint"
+    commands:
+      - run:
+          commands:
+            - "pip install --user yamllint"
 
   aws:
-    run:
-      commands:
-        install:
-          - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-          - "unzip /tmp/awscliv2.zip -d /tmp/"
-          - "sudo /tmp/aws/install"
-          - "rm /tmp/awscliv2.zip"
-          - "rm -rf /tmp/aws"
-          - "pipx install aws-sso-util"
-        update:
-          - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-          - "unzip /tmp/awscliv2.zip -d /tmp/"
-          - "sudo /tmp/aws/install --update"
-          - "rm /tmp/awscliv2.zip"
-          - "rm -rf /tmp/aws"
+    commands:
+      - run:
+          commands:
+            install:
+              - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
+              - "unzip /tmp/awscliv2.zip -d /tmp/"
+              - "sudo /tmp/aws/install"
+              - "rm /tmp/awscliv2.zip"
+              - "rm -rf /tmp/aws"
+              - "pipx install aws-sso-util"
+          update:
+            - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
+            - "unzip /tmp/awscliv2.zip -d /tmp/"
+            - "sudo /tmp/aws/install --update"
+            - "rm /tmp/awscliv2.zip"
+            - "rm -rf /tmp/aws"
 
   php:
-    run:
-      commands:
-        - "sudo add-apt-repository ppa:ondrej/php -y"
-        - "sudo apt-get update && sudo apt-get upgrade -y"
-        - "sudo apt-get install php8.1-cli -y"
-        - "sudo apt-get install -y php8.1-bz2 php8.1-curl php8.1-intl php8.1-xml php8.1-mbstring php8.1-zip"
-
-  composer:
-    run:
-      env:
-        TMP_INSTALL_PATH: "/tmp/composer-setup.php"
-      commands:
-        install:
-          - "curl -sS https://getcomposer.org/installer -o $TMP_INSTALL_PATH"
-          - "sudo php $TMP_INSTALL_PATH --install-dir=/usr/local/bin --filename=composer"
-          - "rm -rf $TMP_INSTALL_PATH"
-        update:
-          - "sudo composer self-update"
-
-  php-tools:
-    run:
-      commands:
-        install:
-          - "composer global require phpmd/phpmd"
-          - "composer global require squizlabs/php_codesniffer"
-          - "composer global require phpstan/phpstan"
-          - "composer global require friendsofphp/php-cs-fixer"
+    commands:
+      - run:
+          commands:
+            - "sudo add-apt-repository ppa:ondrej/php -y"
+            - "sudo apt-get update && sudo apt-get upgrade -y"
+            - "sudo apt-get install php8.1-cli -y"
+            - "sudo apt-get install -y php8.1-bz2 php8.1-curl php8.1-intl php8.1-xml php8.1-mbstring php8.1-zip"
+      - run:
+          env:
+            TMP_INSTALL_PATH: "/tmp/composer-setup.php"
+          commands:
+            install:
+              - "curl -sS https://getcomposer.org/installer -o $TMP_INSTALL_PATH"
+              - "sudo php $TMP_INSTALL_PATH --install-dir=/usr/local/bin --filename=composer"
+              - "rm -rf $TMP_INSTALL_PATH"
+            update:
+              - "sudo composer self-update"
+      - run:
+          commands:
+            install:
+              - "composer global require phpmd/phpmd"
+              - "composer global require squizlabs/php_codesniffer"
+              - "composer global require phpstan/phpstan"
+              - "composer global require friendsofphp/php-cs-fixer"
 
   go:
-    run:
-      commands: "sudo apt-get install -y golang"
+    commands:
+      - run:
+          commands: "sudo apt-get install -y golang"
 
   personal_repos:
-    run:
-      commands:
-        install: "machine_setup install -c $DOTFILES/personal_repositories.yaml"
-        update: "machine_setup update -c $DOTFILES/personal_repositories.yaml"
-        uninstall: "machine_setup uninstall -c $DOTFILES/personal_repositories.yaml"
+    commands:
+      - run:
+          commands:
+            install: "machine_setup install -c $DOTFILES/personal_repositories.yaml"
+            update: "machine_setup update -c $DOTFILES/personal_repositories.yaml"
+            uninstall: "machine_setup uninstall -c $DOTFILES/personal_repositories.yaml"
 
   no_repos:
-    run:
-      commands:
-        install: "machine_setup install -c $DOTFILES/no_repositories.yaml"
-        update: "machine_setup update -c $DOTFILES/no_repositories.yaml"
-        uninstall: "machine_setup uninstall -c $DOTFILES/no_repositories.yaml"
+    commands:
+      - run:
+          commands:
+            install: "machine_setup install -c $DOTFILES/no_repositories.yaml"
+            update: "machine_setup update -c $DOTFILES/no_repositories.yaml"
+            uninstall: "machine_setup uninstall -c $DOTFILES/no_repositories.yaml"
 
   edge:
-    run:
-      commands:
-        install:
-          - "sudo wget -O- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft-edge.gpg"
-          - "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main' | sudo tee /etc/apt/sources.list.d/microsoft-edge.list"
-          - "sudo apt-get update"
-          - "sudo apt-get install -y microsoft-edge-stable"
+    commands:
+      - run:
+          commands:
+            install:
+              - "sudo wget -O- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft-edge.gpg"
+              - "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main' | sudo tee /etc/apt/sources.list.d/microsoft-edge.list"
+              - "sudo apt-get update"
+              - "sudo apt-get install -y microsoft-edge-stable"
 
-  lua-formatter:
-    run:
-      commands:
-        install: "cargo install stylua"
-
-  lua-lsp:
-    run:
-      env:
-        SERVER_VERSION: "3.0.2"
-        TMP_INSTALL_PATH: "/tmp/lua-language-server.tar.gz"
-        TARGET_DIR: "$HOME/lua-language-server"
-      commands:
-        install:
-          - "wget -O $TMP_INSTALL_PATH https://github.com/sumneko/lua-language-server/releases/download/$SERVER_VERSION/lua-language-server-$SERVER_VERSION-linux-x64.tar.gz"
-          - "mkdir -p $TARGET_DIR"
-          - "tar -xf $TMP_INSTALL_PATH -C $TARGET_DIR"
-          - "rm $TMP_INSTALL_PATH"
+  lua:
+    commands:
+      - run:
+          commands:
+            install: "cargo install stylua"
+      - run:
+          env:
+            SERVER_VERSION: "3.0.2"
+            TMP_INSTALL_PATH: "/tmp/lua-language-server.tar.gz"
+            TARGET_DIR: "$HOME/lua-language-server"
+          commands:
+            install:
+              - "wget -O $TMP_INSTALL_PATH https://github.com/sumneko/lua-language-server/releases/download/$SERVER_VERSION/lua-language-server-$SERVER_VERSION-linux-x64.tar.gz"
+              - "mkdir -p $TARGET_DIR"
+              - "tar -xf $TMP_INSTALL_PATH -C $TARGET_DIR"
+              - "rm $TMP_INSTALL_PATH"
