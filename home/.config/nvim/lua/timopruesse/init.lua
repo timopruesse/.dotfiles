@@ -9,6 +9,7 @@ require("timopruesse.statusline")
 require("timopruesse.lsp")
 ---@diagnostic disable-next-line: different-requires
 require("timopruesse.telescope")
+require("timopruesse.snippets.init")
 
 require("nvim-tree").setup({
 	diagnostics = {

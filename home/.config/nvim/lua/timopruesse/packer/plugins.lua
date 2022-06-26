@@ -72,9 +72,6 @@ packer.startup(function()
 	use("hrsh7th/cmp-nvim-lsp-document-symbol")
 	use("hrsh7th/cmp-nvim-lsp-signature-help")
 	use("hrsh7th/cmp-nvim-lua")
-	use("hrsh7th/cmp-vsnip")
-	use("hrsh7th/vim-vsnip")
-	use("hrsh7th/vim-vsnip-integ")
 	use("hrsh7th/cmp-path")
 	use("hrsh7th/cmp-buffer")
 	use("hrsh7th/cmp-calc")
@@ -85,6 +82,30 @@ packer.startup(function()
 	use("David-Kunz/cmp-npm")
 	use("j-hui/fidget.nvim")
 	use("jose-elias-alvarez/null-ls.nvim")
+
+	-- snippets
+	use({
+		"L3MON4D3/LuaSnip",
+		config = function()
+			---@diagnostic disable-next-line: different-requires
+			local ls = require("luasnip")
+			local types = require("luasnip.util.types")
+
+			ls.config.set_config({
+				history = true,
+				updateevents = "TextChanged,TextChangedI",
+				enable_autosnippets = true,
+				ext_opts = {
+					[types.choiceNode] = {
+						active = {
+							virt_text = { { " ← Current", "NonTest" } },
+						},
+					},
+				},
+			})
+		end,
+	})
+	use({ "saadparwaiz1/cmp_luasnip", requires = "L3MON4D3/LuaSnip" })
 
 	-- treesitter
 	use({

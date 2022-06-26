@@ -19,6 +19,8 @@ require("timopruesse.keymaps.node")
 require("timopruesse.keymaps.rust")
 require("timopruesse.keymaps.lsp")
 require("timopruesse.keymaps.php")
+---@diagnostic disable-next-line: different-requires
+require("timopruesse.keymaps.luasnip")
 
 key.nnoremap("<C-s>", key.exec_command("w"))
 
