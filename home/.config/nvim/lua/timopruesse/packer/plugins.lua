@@ -203,7 +203,16 @@ packer.startup(function()
 	})
 
 	-- quickfix
-	use("kevinhwang91/nvim-bqf")
+	use({
+		"kevinhwang91/nvim-bqf",
+		config = function()
+			require("bqf").setup({
+				auto_enable = true,
+				magic_window = true,
+				auto_resize_height = true,
+			})
+		end,
+	})
 
 	-- fuzzy
 	use({ "junegunn/fzf", dir = "~/.fzf", run = "./install --all" })
@@ -267,7 +276,7 @@ packer.startup(function()
 	use("antoinemadec/FixCursorHold.nvim")
 
 	-- markdown
-	use({ "ellisonleao/glow.nvim", branch = "main" })
+	use({ "ellisonleao/glow.nvim", branch = "main", event = { "BufEnter *.md" } })
 
 	-- databases
 	use("tpope/vim-dadbod")

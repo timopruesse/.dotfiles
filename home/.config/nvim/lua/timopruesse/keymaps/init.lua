@@ -21,7 +21,7 @@ require("timopruesse.keymaps.luasnip")
 
 key.nnoremap("<C-s>", key.exec_command("w"))
 
---gimme my umlauts
+-- gimme my umlauts
 key.inoremap("<M-a>", "ä")
 key.inoremap("<M-o>", "ö")
 key.inoremap("<M-u>", "ü")
@@ -65,16 +65,13 @@ key.inoremap("=", "=<c-g>u")
 key.nmap("<C-q>", key.exec_command(":NvimTreeToggle"))
 key.nnoremap("<leader>tf", key.exec_command("NvimTreeFindFile"))
 
---preview markdown
-key.nnoremap("<leader>md", key.exec_command("Glow"))
-
---Copy to and from clipboard
+-- copy to and from clipboard
 key.nnoremap("<leader>yy", '"+y')
 key.vnoremap("<leader>yy", '"+y')
 key.nnoremap("<leader>pp", '"+p')
 key.vnoremap("<leader>pp", '"+p')
 
---Resizing
+-- resizing
 key.nmap("<C-M-H>", "2<C-w><")
 key.nmap("<C-M-L>", "2<C-w>>")
 key.nmap("<C-M-K>", "<C-w>-")

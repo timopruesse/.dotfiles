@@ -14,12 +14,22 @@ local createMap = function(mode)
 	end
 end
 
+local removeMap = function(mode)
+	return function(keys, buffer)
+		buffer = buffer or false
+		pcall(vim.keymap.del, mode, keys, { buffer = buffer })
+	end
+end
+
 M.nnoremap = createNoRemap("n")
 M.inoremap = createNoRemap("i")
 M.vnoremap = createNoRemap("v")
 M.nmap = createMap("n")
 M.imap = createMap("i")
 M.vmap = createMap("v")
+M.nremovemap = removeMap("n")
+M.iremovemap = removeMap("i")
+M.vremovemap = removeMap("v")
 
 M.escape = function(str)
 	return vim.api.nvim_replace_termcodes(str, true, true, true)
