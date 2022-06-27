@@ -43,7 +43,6 @@ key.nnoremap("<leader>tl", key.exec_command("TodoTelescope"))
 -- key.nnoremap("<leader>bs", key.exec_command('/<C-R>=escape(expand("<cword>"), "/")'))
 -- key.nnoremap("<leader><CR>", key.exec_command("so ~/.config/nvim/init.vim"))
 
-key.nnoremap("<leader>u", key.exec_command("UndotreeShow"))
 key.nnoremap("<leader>pv", key.exec_command("Ex"))
 
 key.vnoremap("J", key.exec_command("m '>+1<CR>gv=gv"))

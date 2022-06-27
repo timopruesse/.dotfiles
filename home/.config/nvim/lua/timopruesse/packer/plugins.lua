@@ -17,7 +17,6 @@ packer.startup(function()
 		tag = "nightly",
 	})
 
-	use("mbbill/undotree")
 	use("nvim-lua/plenary.nvim")
 
 	-- formatting
