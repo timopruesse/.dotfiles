@@ -1,6 +1,8 @@
 local key = require("timopruesse.helpers.keymap")
 local provider = require("lspsaga.provider")
 
+-- TODO: Write a custom_attach function to only add these keybindings when a language server was started...
+
 local scroll = function(dir)
 	return function()
 		require("lspsaga.action").smart_scroll_with_saga(dir, "<c-u>")

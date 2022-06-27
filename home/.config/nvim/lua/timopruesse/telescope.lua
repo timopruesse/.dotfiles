@@ -1,8 +1,3 @@
--- local pickers = require("telescope.pickers")
--- local finders = require("telescope.finders")
--- local previewers = require("telescope.previewers")
--- local action_state = require("telescope.actions.state")
--- local conf = require("telescope.config").values
 local actions = require("telescope.actions")
 ---@diagnostic disable-next-line: different-requires
 local telescope = require("telescope")
@@ -22,6 +17,7 @@ telescope.setup({
 				["<C-x>"] = false,
 				["<C-f>"] = actions.send_to_qflist + actions.open_qflist,
 				["<M-f>"] = actions.send_selected_to_qflist + actions.open_qflist,
+				["<C-h>"] = "which_key",
 			},
 		},
 	},

@@ -54,13 +54,30 @@ packer.startup(function()
 	use({
 		"nvim-telescope/telescope.nvim",
 		requires = { { "nvim-lua/plenary.nvim" } },
+		config = function()
+			require("timopruesse.telescope")
+		end,
 	})
 	use("nvim-telescope/telescope-fzy-native.nvim")
 	use("nvim-lua/popup.nvim")
 
 	-- lsp + autocomplete
 	use("neovim/nvim-lspconfig")
-	use({ "tami5/lspsaga.nvim", branch = "main" })
+	use({
+		"tami5/lspsaga.nvim",
+		branch = "main",
+		config = function()
+			require("lspsaga").init_lsp_saga({
+				code_action_icon = "",
+				code_action_prompt = {
+					enable = true,
+					sign = true,
+					sign_priority = 20,
+					virtual_text = false,
+				},
+			})
+		end,
+	})
 	use("nvim-lua/lsp_extensions.nvim")
 	use("hrsh7th/nvim-cmp")
 	use("hrsh7th/cmp-cmdline")

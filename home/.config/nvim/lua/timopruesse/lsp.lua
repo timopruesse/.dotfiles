@@ -155,10 +155,8 @@ require("lspconfig").tsserver.setup(config({
 		-- required to fix code action ranges and filter diagnostics
 		ts_utils.setup_client(client)
 
-		local opts = { silent = true }
-		vim.api.nvim_buf_set_keymap(bufnr, "n", "gs", ":TSLspOrganize<CR>", opts)
-		vim.api.nvim_buf_set_keymap(bufnr, "n", "gr", ":TSLspRenameFile<CR>", opts)
-		vim.api.nvim_buf_set_keymap(bufnr, "n", "gi", ":TSLspImportAll<CR>", opts)
+		-- keymaps
+		require("timopruesse.keymaps.node").setup(bufnr)
 	end,
 }))
 
@@ -168,7 +166,11 @@ require("lspconfig").ccls.setup(config())
 
 require("lspconfig").jedi_language_server.setup(config())
 
-require("lspconfig").svelte.setup(config())
+require("lspconfig").svelte.setup(config({
+	on_attach = function(_, bufnr)
+		require("timopruesse.keymaps.node").setup(bufnr)
+	end,
+}))
 
 require("lspconfig").solang.setup(config())
 
@@ -188,40 +190,40 @@ require("lspconfig").gopls.setup(config({
 
 require("lspconfig").pylsp.setup(config())
 
-require("lspconfig").intelephense.setup(config())
-
-require("lspconfig").rust_analyzer.setup(config({
-	cmd = { "rustup", "run", "nightly", "rust-analyzer" },
-	settings = {
-		rust = {
-			unstable_features = true,
-			build_on_save = false,
-			all_features = true,
-		},
-	},
+require("lspconfig").intelephense.setup(config({
+	on_attach = function(_, bufnr)
+		require("timopruesse.keymaps.php").setup(bufnr)
+	end,
 }))
 
 require("rust-tools").setup({
 	tools = {
 		autoSetHints = true,
 		hover_with_actions = true,
-
 		runnables = {
 			use_telescope = true,
 		},
-
 		debuggables = {
 			use_telescope = true,
 		},
 	},
 	server = {
 		settings = {
+			rust = {
+				unstable_features = true,
+				build_on_save = false,
+				all_features = true,
+				auto_inlay_hints = true,
+			},
 			["rust-analyzer"] = {
 				checkOnSave = {
 					command = "clippy",
 				},
 			},
 		},
+		on_attach = function(_, bufnr)
+			require("timopruesse.keymaps.rust").setup(bufnr)
+		end,
 	},
 })
 
@@ -253,16 +255,6 @@ require("lspconfig").sumneko_lua.setup(config({
 require("symbols-outline").setup({
 	highlight_hovered_item = true,
 	show_guides = true,
-})
-
-require("lspsaga").init_lsp_saga({
-	code_action_icon = "",
-	code_action_prompt = {
-		enable = true,
-		sign = true,
-		sign_priority = 20,
-		virtual_text = false,
-	},
 })
 
 require("fidget").setup({ window = { blend = 0 } })

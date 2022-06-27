@@ -1,14 +1,16 @@
 local M = {}
 
 local createNoRemap = function(mode)
-	return function(keys, callback)
-		vim.keymap.set(mode, keys, callback, { noremap = true, silent = true })
+	return function(keys, callback, buffer)
+		buffer = buffer or false
+		vim.keymap.set(mode, keys, callback, { noremap = true, silent = true, buffer = buffer })
 	end
 end
 
 local createMap = function(mode)
-	return function(keys, callback)
-		vim.keymap.set(mode, keys, callback, { noremap = false, silent = true })
+	return function(keys, callback, buffer)
+		buffer = buffer or false
+		vim.keymap.set(mode, keys, callback, { noremap = false, silent = true, buffer = buffer })
 	end
 end
 

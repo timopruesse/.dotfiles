@@ -15,10 +15,7 @@ require("timopruesse.keymaps.telescope")
 require("timopruesse.keymaps.git")
 require("timopruesse.keymaps.harpoon")
 require("timopruesse.keymaps.navigation")
-require("timopruesse.keymaps.node")
-require("timopruesse.keymaps.rust")
 require("timopruesse.keymaps.lsp")
-require("timopruesse.keymaps.php")
 ---@diagnostic disable-next-line: different-requires
 require("timopruesse.keymaps.luasnip")
 
