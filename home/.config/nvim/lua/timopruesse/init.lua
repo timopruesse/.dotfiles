@@ -1,5 +1,3 @@
-vim.g.mapleader = " "
-
 require("timopruesse.sets")
 require("timopruesse.theme")
 require("timopruesse.variables.init")

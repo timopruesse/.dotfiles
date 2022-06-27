@@ -89,11 +89,39 @@ packer.startup(function()
 	use("hrsh7th/cmp-calc")
 	use("hrsh7th/cmp-emoji")
 	use({ "tzachar/cmp-tabnine", run = "./install.sh", requires = "hrsh7th/nvim-cmp" })
-	use("simrat39/symbols-outline.nvim")
+	use({
+		"simrat39/symbols-outline.nvim",
+		config = function()
+			require("symbols-outline").setup({
+				highlight_hovered_item = true,
+				show_guides = true,
+			})
+		end,
+	})
 	use("petertriho/cmp-git")
 	use("David-Kunz/cmp-npm")
-	use("j-hui/fidget.nvim")
-	use("jose-elias-alvarez/null-ls.nvim")
+	use({
+		"jose-elias-alvarez/null-ls.nvim",
+		config = function()
+			local null_ls = require("null-ls")
+
+			null_ls.setup({
+				sources = {
+					null_ls.builtins.formatting.stylua,
+					null_ls.builtins.code_actions.refactoring,
+					-- null_ls.builtins.diagnostics.phpstan,
+					null_ls.builtins.diagnostics.yamllint,
+					null_ls.builtins.diagnostics.zsh,
+				},
+			})
+		end,
+	})
+	use({
+		"j-hui/fidget.nvim",
+		config = function()
+			require("fidget").setup({ window = { blend = 0 } })
+		end,
+	})
 
 	-- snippets
 	use({
@@ -110,7 +138,7 @@ packer.startup(function()
 				ext_opts = {
 					[types.choiceNode] = {
 						active = {
-							virt_text = { { " ← Current", "NonTest" } },
+							virt_text = { { " ← choice", "NonTest" } },
 						},
 					},
 				},
@@ -176,8 +204,6 @@ packer.startup(function()
 
 	-- quickfix
 	use("kevinhwang91/nvim-bqf")
-
-	use("tpope/vim-surround")
 
 	-- fuzzy
 	use({ "junegunn/fzf", dir = "~/.fzf", run = "./install --all" })

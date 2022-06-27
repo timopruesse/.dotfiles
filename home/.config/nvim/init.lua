@@ -13,5 +13,7 @@ if pcall(require, "plenary") then
 	end
 end
 
+vim.g.mapleader = " "
+
 require("timopruesse.packer.plugins")
 require("timopruesse.init")

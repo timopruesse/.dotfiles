@@ -251,22 +251,3 @@ require("lspconfig").sumneko_lua.setup(config({
 		},
 	},
 }))
-
-require("symbols-outline").setup({
-	highlight_hovered_item = true,
-	show_guides = true,
-})
-
-require("fidget").setup({ window = { blend = 0 } })
-
-local null_ls = require("null-ls")
-
-null_ls.setup({
-	sources = {
-		null_ls.builtins.formatting.stylua,
-		null_ls.builtins.code_actions.refactoring,
-		-- null_ls.builtins.diagnostics.phpstan,
-		null_ls.builtins.diagnostics.yamllint,
-		null_ls.builtins.diagnostics.zsh,
-	},
-})

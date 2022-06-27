@@ -1,4 +1,4 @@
-vim.opt.laststatus = 2
+vim.opt.laststatus = 3
 
 local gruvbox = {
 	n = "#a89984",
