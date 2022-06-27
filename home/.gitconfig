@@ -1,14 +1,15 @@
 [includeIf "gitdir:~/"]
-  path = .gitconfig_personal
+    path = .gitconfig_personal
 [includeIf "gitdir:~/github/niceoutside/"]
-  path = .gitconfig_niceoutside
+    path = .gitconfig_niceoutside
 
 [core]
-	editor = vim
-	autocrlf = input
+    editor = vim
+    autocrlf = input
+    fsmonitor = true
 [push]
-	default = current
+    default = current
 [pull]
-	rebase = false
+    rebase = false
 [init]
-	defaultBranch = main
+    defaultBranch = main
