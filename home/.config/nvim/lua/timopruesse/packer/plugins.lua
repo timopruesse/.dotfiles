@@ -49,9 +49,6 @@ packer.startup(function()
 		end,
 	})
 
-	-- editorconfig
-	use("gpanders/editorconfig.nvim")
-
 	-- telescope
 	use("BurntSushi/ripgrep")
 	use({
