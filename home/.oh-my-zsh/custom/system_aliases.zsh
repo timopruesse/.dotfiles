@@ -5,4 +5,4 @@ alias vim=nvim
 
 alias python=python3
 
-alias ms="machine_setup -c ~/github/Chroma91/.dotfiles/machine_setup.yaml"
+alias ms="machine_setup -c $DOTFILES/machine_setup.yaml"
