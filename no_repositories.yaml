@@ -29,6 +29,9 @@ tasks:
       - clone:
           url: "git@github.com:niceoutside/nice-outside-beacon.git"
           target: "~/github/niceoutside/nice-outside-beacon"
+      - clone:
+          url: "git@github.com:niceoutside/beacon-webapp.git"
+          target: "~/github/niceoutside/beacon-webapp"
 
   svelte-flow-diagram:
     commands:

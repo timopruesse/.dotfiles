@@ -272,7 +272,18 @@ packer.startup(function()
 			require("stay-centered")
 		end,
 	})
-	use("hrsh7th/nvim-pasta")
+	use({
+		"hrsh7th/nvim-pasta",
+		-- seems to be a bit buggy right now
+		disable = true,
+		config = function()
+			require("pasta").setup({
+				converters = {},
+				next_key = vim.api.nvim_replace_termcodes("<C-n>", true, true, true),
+				prev_key = vim.api.nvim_replace_termcodes("<C-p>", true, true, true),
+			})
+		end,
+	})
 	use("antoinemadec/FixCursorHold.nvim")
 
 	-- markdown
