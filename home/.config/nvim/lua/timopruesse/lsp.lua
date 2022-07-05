@@ -115,7 +115,7 @@ require("lspconfig").tsserver.setup(config({
 			disable_commands = false,
 			enable_import_on_completion = true,
 
-			import_all_timeout = 5000, -- ms
+			import_all_timeout = 5000,
 			-- lower numbers = higher priority
 			import_all_priorities = {
 				same_file = 1, -- add to existing import statement
@@ -196,9 +196,11 @@ require("lspconfig").intelephense.setup(config({
 	end,
 }))
 
-require("rust-tools").setup({
+require("rust-tools").setup(config({
 	tools = {
-		autoSetHints = true,
+		inlay_hints = {
+			auto = true,
+		},
 		hover_with_actions = true,
 		runnables = {
 			use_telescope = true,
@@ -225,7 +227,7 @@ require("rust-tools").setup({
 			require("timopruesse.keymaps.rust").setup(bufnr)
 		end,
 	},
-})
+}))
 
 local home_dir = vim.fn.expand("$HOME")
 local sumneko_root_path = home_dir .. "/lua-language-server"

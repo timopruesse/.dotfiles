@@ -190,7 +190,7 @@ packer.startup(function()
 	use("tamton-aquib/staline.nvim")
 
 	-- git
-	use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim" })
+	use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim", event = "BufEnter NeogitStatus" })
 	use({
 		"TimUntersberger/neogit",
 		requires = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
@@ -216,16 +216,24 @@ packer.startup(function()
 
 	-- fuzzy
 	use({ "junegunn/fzf", dir = "~/.fzf", run = "./install --all" })
-	use("junegunn/fzf.vim")
+	use({ "junegunn/fzf.vim", requires = { "junegunn/fzf" } })
 
 	-- npm
-	use("MunifTanjim/nui.nvim")
+	use({ "MunifTanjim/nui.nvim", event = { "BufEnter package.json" } })
 	use({
 		"vuki656/package-info.nvim",
 		event = { "BufRead package.json" },
 		requires = "MunifTanjim/nui.nvim",
 		config = function()
-			require("package-info").setup()
+			local package_info = require("package-info")
+			local key = require("timopruesse.helpers.keymap")
+
+			package_info.setup({ autostart = true })
+
+			key.nmap("<leader>pu", package_info.update)
+			key.nmap("<leader>pd", package_info.delete)
+			key.nmap("<leader>pi", package_info.install)
+			key.nmap("<leader>pc", package_info.change_version)
 		end,
 	})
 
@@ -236,12 +244,12 @@ packer.startup(function()
 	use("leafOfTree/vim-svelte-plugin")
 
 	-- rust
-	use("rust-lang/rust.vim")
-	use("simrat39/rust-tools.nvim")
+	-- TODO: Switch back branch once it's merged...
+	use({ "simrat39/rust-tools.nvim", branch = "modularize_and_inlay_rewrite" })
 	use({
 		"saecki/crates.nvim",
 		event = { "BufRead Cargo.toml" },
-		requires = { { "nvim-lua/plenary.nvim" } },
+		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("crates").setup()
 		end,
