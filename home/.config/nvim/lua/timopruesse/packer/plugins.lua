@@ -190,7 +190,13 @@ packer.startup(function()
 	use("tamton-aquib/staline.nvim")
 
 	-- git
-	use({ "sindrets/diffview.nvim", requires = "nvim-lua/plenary.nvim", event = "BufEnter NeogitStatus" })
+	use({
+		"sindrets/diffview.nvim",
+		requires = "nvim-lua/plenary.nvim",
+		config = function()
+			require("diffview").setup({})
+		end,
+	})
 	use({
 		"TimUntersberger/neogit",
 		requires = { "nvim-lua/plenary.nvim", "sindrets/diffview.nvim" },
