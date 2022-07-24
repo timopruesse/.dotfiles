@@ -151,29 +151,34 @@ packer.startup(function()
 	use({
 		"nvim-treesitter/nvim-treesitter",
 		run = function()
-			vim.api.nvim_command("TSUpdate html")
-			vim.api.nvim_command("TSUpdate css")
-			vim.api.nvim_command("TSUpdate scss")
-			vim.api.nvim_command("TSUpdate svelte")
-			vim.api.nvim_command("TSUpdate rust")
-			vim.api.nvim_command("TSUpdate php")
-			vim.api.nvim_command("TSUpdate json")
-			vim.api.nvim_command("TSUpdate yaml")
-			vim.api.nvim_command("TSUpdate javascript")
-			vim.api.nvim_command("TSUpdate typescript")
-			vim.api.nvim_command("TSUpdate lua")
-			vim.api.nvim_command("TSUpdate go")
-			vim.api.nvim_command("TSUpdate dockerfile")
-			vim.api.nvim_command("TSUpdate python")
-			vim.api.nvim_command("TSUpdate dart")
-			vim.api.nvim_command("TSUpdate markdown")
-			vim.api.nvim_command("TSUpdate tsx")
-			vim.api.nvim_command("TSUpdate vim")
-			vim.api.nvim_command("TSUpdate toml")
-			vim.api.nvim_command("TSUpdate regex")
+			vim.api.nvim_command("TSUpdate")
 		end,
 		config = function()
 			require("nvim-treesitter.configs").setup({
+				auto_install = true,
+				ensure_installed = {
+					"c",
+					"lua",
+					"rust",
+					"html",
+					"css",
+					"scss",
+					"svelte",
+					"php",
+					"json",
+					"yaml",
+					"javascript",
+					"typescript",
+					"go",
+					"dockerfile",
+					"python",
+					"dart",
+					"markdown",
+					"tsx",
+					"vim",
+					"toml",
+					"regex",
+				},
 				highlight = { enable = true },
 				incremental_selection = { enable = true },
 				textobjects = { enable = true },
