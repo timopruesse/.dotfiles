@@ -110,6 +110,9 @@ export EDITOR='vim'
 # add nvim to PATH
 PATH=$PATH:$HOME/.nvim/nvim.appimage
 
+# add global composer dir to PATH
+PATH=$PATH:$(composer -n config --global home)/vendor/bin
+
 # added by pipx (https://github.com/cs01/pipx)
 export PATH="/home/timo/.local/bin:$PATH"
 
