@@ -148,6 +148,7 @@ tasks:
               - "npm upgrade -g"
               - "nvm alias default $(node --version)"
               - "nvm uninstall $OLD_NODE_VERSION"
+              - "exec zsh"
             uninstall:
               - "nvm uninstall $(node --version)"
               - "rm -rf $NVM_DIR"
