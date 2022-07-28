@@ -1,6 +1,8 @@
 ---
+parallel: true
 tasks:
   entree:
+    parallel: true
     commands:
       - clone:
           url: "git@github.com:niceoutside/nice-outside-entree-api.git"
@@ -25,6 +27,7 @@ tasks:
           target: "~/github/niceoutside/aws-natchez"
 
   beacon:
+    parallel: true
     commands:
       - clone:
           url: "git@github.com:niceoutside/nice-outside-beacon.git"

@@ -1,4 +1,5 @@
 ---
+parallel: true
 tasks:
   machine_setup:
     commands:
@@ -6,6 +7,7 @@ tasks:
           url: "git@github.com:Chroma91/machine_setup.git"
           target: "~/github/Chroma91/machine_setup"
   timo-pruesse:
+    parallel: true
     commands:
       - clone:
           url: "git@github.com:Chroma91/timo-pruesse.git"

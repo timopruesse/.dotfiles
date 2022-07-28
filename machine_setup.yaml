@@ -22,6 +22,7 @@ tasks:
             - "rm $TMP_INSTALL_PATH"
 
   zsh_extras:
+    parallel: true
     commands:
       - clone:
           url: "https://github.com/romkatv/powerlevel10k.git"
@@ -286,6 +287,7 @@ tasks:
               - "sudo apt-get install -y microsoft-edge-stable"
 
   lua:
+    parallel: true
     commands:
       - run:
           commands:
