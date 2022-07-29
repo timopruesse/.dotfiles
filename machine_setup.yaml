@@ -69,10 +69,10 @@ tasks:
   tools:
     commands:
       - run:
-        commands:
-          - "sudo apt-get update"
-          - "sudo apt-get upgrade -y"
-          - "sudo apt-get install -y fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential mysql-client"
+          commands:
+            - "sudo apt-get update"
+            - "sudo apt-get upgrade -y"
+            - "sudo apt-get install -y fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential mysql-client"
 
   dotfiles:
     commands:
