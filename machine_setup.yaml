@@ -262,19 +262,13 @@ tasks:
 
   personal_repos:
     commands:
-      - run:
-          commands:
-            install: "machine_setup install -c $DOTFILES/personal_repositories.yaml"
-            update: "machine_setup update -c $DOTFILES/personal_repositories.yaml"
-            uninstall: "machine_setup uninstall -c $DOTFILES/personal_repositories.yaml"
+      - machine_setup:
+          config: "$DOTFILES/personal_repositories.yaml"
 
   no_repos:
     commands:
-      - run:
-          commands:
-            install: "machine_setup install -c $DOTFILES/no_repositories.yaml"
-            update: "machine_setup update -c $DOTFILES/no_repositories.yaml"
-            uninstall: "machine_setup uninstall -c $DOTFILES/no_repositories.yaml"
+      - machine_setup:
+          config: "$DOTFILES/no_repositories.yaml"
 
   edge:
     commands:
