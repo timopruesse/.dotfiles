@@ -23,7 +23,7 @@ telescope.setup({
 		preview = {
 			mime_hook = function(filepath, bufnr, opts)
 				local is_image = function(path)
-					local image_extensions = { "png", "jpg" }
+					local image_extensions = { "png", "jpg", "gif" }
 					local split_path = vim.split(path:lower(), ".", { plain = true })
 					local extension = split_path[#split_path]
 					return vim.tbl_contains(image_extensions, extension)
