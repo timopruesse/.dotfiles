@@ -127,10 +127,12 @@ tasks:
             - "brew tap homebrew/core"
             - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
 
-  vim-markdown:
+  brew_tools:
     commands:
       - run:
-          commands: "brew install glow"
+          env:
+            PACKAGES_STR: "glow catimg"
+          commands: "brew install $(echo $PACKAGES_STR)"
 
   node:
     commands:
