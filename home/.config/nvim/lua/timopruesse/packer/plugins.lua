@@ -55,6 +55,7 @@ packer.startup(function()
 		"nvim-telescope/telescope.nvim",
 		requires = { { "nvim-lua/plenary.nvim" } },
 		config = function()
+			---@diagnostic disable-next-line: different-requires
 			require("timopruesse.telescope")
 		end,
 	})

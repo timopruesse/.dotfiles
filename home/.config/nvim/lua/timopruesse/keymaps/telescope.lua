@@ -1,3 +1,4 @@
+---@diagnostic disable-next-line: different-requires
 local ts = require("telescope")
 local key = require("timopruesse.helpers.keymap")
 local builtin = require("telescope.builtin")
