@@ -33,6 +33,9 @@ tasks:
       - clone:
           url: "https://github.com/zsh-users/zsh-autosuggestions"
           target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+      - clone:
+          url: "https://github.com/zsh-users/zsh-completions"
+          target: "~/.oh-my-zsh/custom/plugins/zsh-completions"
 
   wsl_config:
     commands:
@@ -80,7 +83,6 @@ tasks:
           force: true
           src: "./home"
           target: "~"
-          ignore: ["autoload/plug.vim"]
 
   neovim:
     commands:
