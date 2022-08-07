@@ -8,7 +8,6 @@ local custom = require("timopruesse.telescope")
 key.nnoremap("<leader>pl", builtin.live_grep)
 key.nnoremap("<leader>ps", builtin.grep_string)
 key.nnoremap("<C-p>", custom.project_files)
-key.nnoremap("<Leader>pf", builtin.find_files)
 
 key.nnoremap("<leader>pb", builtin.buffers)
 key.nnoremap("<leader>qf", builtin.quickfix)
