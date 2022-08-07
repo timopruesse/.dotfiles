@@ -155,8 +155,8 @@ require("lspconfig").tsserver.setup(config({
 		-- required to fix code action ranges and filter diagnostics
 		ts_utils.setup_client(client)
 
-		-- keymaps
 		require("timopruesse.keymaps.node").setup(bufnr)
+		require("timopruesse.autocommands.typescript")
 	end,
 }))
 
@@ -225,6 +225,7 @@ require("rust-tools").setup(config({
 		},
 		on_attach = function(_, bufnr)
 			require("timopruesse.keymaps.rust").setup(bufnr)
+			require("timopruesse.autocommands.rust")
 		end,
 	},
 }))

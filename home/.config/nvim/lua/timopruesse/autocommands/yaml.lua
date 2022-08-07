@@ -8,4 +8,5 @@ end
 vim.api.nvim_create_autocmd({ "FileType" }, {
 	pattern = { "yaml" },
 	callback = set_options,
+	group = vim.api.nvim_create_augroup("timopruesse", { clear = false }),
 })

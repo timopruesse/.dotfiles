@@ -41,6 +41,8 @@ vim.opt.signcolumn = "yes"
 vim.opt.list = true
 vim.opt.listchars = { tab = "|-", trail = "·" }
 
+vim.opt.splitright = true
+
 vim.cmd("set nohlsearch")
 vim.cmd("set noshowmode")
 vim.cmd("set nowrap")

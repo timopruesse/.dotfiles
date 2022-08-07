@@ -5,6 +5,9 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "TabEnter" }, {
 
 vim.api.nvim_create_autocmd(
 	{ "FileType" },
-	{ pattern = { "toml" }, callback = require("cmp").setup.buffer({ sources = { { name = "crates" } } }) },
-	{ group = "TIMOPRUESSE" }
+	{
+		pattern = { "toml" },
+		callback = require("cmp").setup.buffer({ sources = { { name = "crates" } } }),
+		group = vim.api.nvim_create_augroup("timopruesse", { clear = false }),
+	}
 )
