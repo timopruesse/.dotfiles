@@ -256,8 +256,7 @@ packer.startup(function()
 	use("leafOfTree/vim-svelte-plugin")
 
 	-- rust
-	-- TODO: Switch back branch once it's merged...
-	use({ "simrat39/rust-tools.nvim", branch = "modularize_and_inlay_rewrite" })
+	use({ "simrat39/rust-tools.nvim" })
 	use({
 		"saecki/crates.nvim",
 		event = { "BufRead Cargo.toml" },

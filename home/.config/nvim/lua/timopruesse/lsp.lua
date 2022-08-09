@@ -169,6 +169,7 @@ require("lspconfig").jedi_language_server.setup(config())
 require("lspconfig").svelte.setup(config({
 	on_attach = function(_, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
+		require("timopruesse.autocommands.typescript")
 	end,
 }))
 
@@ -200,13 +201,6 @@ require("rust-tools").setup(config({
 	tools = {
 		inlay_hints = {
 			auto = true,
-		},
-		hover_with_actions = true,
-		runnables = {
-			use_telescope = true,
-		},
-		debuggables = {
-			use_telescope = true,
 		},
 	},
 	server = {
