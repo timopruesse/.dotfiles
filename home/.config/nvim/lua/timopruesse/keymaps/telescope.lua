@@ -22,4 +22,4 @@ key.nnoremap("<leader>ts", builtin.treesitter)
 key.nnoremap("<leader>vrc", custom.search_dotfiles)
 key.nnoremap("<leader>gb", custom.git_branches)
 
-key.vnoremap("<leader>rr", ts.extensions.refactoring.refactors)
+key.vnoremap("<leader>re", ts.extensions.refactoring.refactors)
