@@ -30,14 +30,7 @@ key.nnoremap("<leader>tl", key.exec_command("TodoTelescope"))
 -- key.nnoremap("<leader>bs", key.exec_command('/<C-R>=escape(expand("<cword>"), "/")'))
 -- key.nnoremap("<leader><CR>", key.exec_command("so ~/.config/nvim/init.vim"))
 
-key.vnoremap("J", key.exec_command("m '>+1<CR>gv=gv"))
-key.vnoremap("K", key.exec_command("m '<-2<CR>gv=gv"))
-
 key.vnoremap("<leader>p", '"_dP')
-
-key.nnoremap("<leader>y", '"+y')
-key.vnoremap("<leader>y", '"+y')
-key.nnoremap("<leader>Y", 'gg"+yG')
 
 key.nnoremap("<leader>d", '"_d')
 key.vnoremap("<leader>d", '"_d')
@@ -58,6 +51,8 @@ key.nnoremap("<leader>yy", '"+y')
 key.vnoremap("<leader>yy", '"+y')
 key.nnoremap("<leader>pp", '"+p')
 key.vnoremap("<leader>pp", '"+p')
+
+key.nnoremap("<leader>Y", 'gg"+yG')
 
 -- resizing
 key.nmap("<C-M-H>", "2<C-w><")
