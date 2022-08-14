@@ -33,6 +33,15 @@ local attach_to_buffer = function(output_bufnr, config)
 		group = au_test,
 	})
 
+	-- FIXME: Currently, this is only triggered when going to the output buffer...
+	vim.api.nvim_create_autocmd({ "TextChanged" }, {
+		buffer = output_bufnr,
+		callback = function()
+			vim.cmd("$")
+		end,
+		group = au_test,
+	})
+
 	vim.api.nvim_buf_set_lines(output_bufnr, 0, -1, false, { "Waiting for save..." })
 end
 
@@ -90,9 +99,9 @@ M.run_on_save = function(config)
 
 	vim.api.nvim_create_user_command(config.testAllCommandName, function()
 		if toggle_command() then
-			print("Tests now run on every save...")
+			print("Command now runs on every save...")
 		else
-			print("Stopped testing...")
+			print("Stopped...")
 		end
 	end, {})
 
@@ -101,9 +110,9 @@ M.run_on_save = function(config)
 			local file_path = vim.fn.expand("%")
 
 			if toggle_command(file_path) then
-				print(string.format("%s: Run tests on save...", file_path))
+				print(string.format("%s: Run command on save...", file_path))
 			else
-				print(string.format("%s: Stopped testing...", file_path))
+				print(string.format("%s: Stopped...", file_path))
 			end
 		else
 			print("Unsupported file type...")
