@@ -79,6 +79,9 @@ tasks:
 
   dotfiles:
     commands:
+      - clone:
+          url: "git@github.com:Chroma91/.dotfiles.git"
+          target: "."
       - symlink:
           force: true
           src: "./home"
