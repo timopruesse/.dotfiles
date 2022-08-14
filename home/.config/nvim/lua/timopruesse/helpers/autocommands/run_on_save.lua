@@ -55,7 +55,7 @@ local close_old_split = function(au_group)
 	local closed = #commands > 0
 
 	if closed then
-		vim.api.nvim_create_augroup("npm_test", { clear = true })
+		vim.api.nvim_create_augroup(au_group, { clear = true })
 		vim.api.nvim_buf_delete(scratch_bufnr, { force = true })
 	end
 
@@ -82,6 +82,7 @@ M.run_on_save = function(config)
 		end
 
 		attach_to_buffer(bufnr, config)
+
 		vim.cmd("wincmd p")
 
 		return true

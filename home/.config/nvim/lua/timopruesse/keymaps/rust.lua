@@ -7,6 +7,9 @@ M.setup = function(bufnr)
 
 	key.nnoremap("<leader>rr", require("rust-tools.runnables").runnables, buffer)
 	key.nmap("<C-Space>", require("rust-tools").hover_actions.hover_actions, buffer)
+
+	key.nmap("<leader>ta", key.exec_command("ToggleRustTestAll"), buffer)
+	key.nmap("<leader>tt", key.exec_command("ToggleRustTestFile"), buffer)
 end
 
 return M
