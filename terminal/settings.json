@@ -30,7 +30,7 @@
   "copyOnSelect": false,
   "defaultProfile": "{7987625b-6b5d-4c9d-bfd5-293e18769b15}",
   "focusFollowMouse": true,
-  "launchMode": "maximized",
+  "launchMode": "maximizedFocus",
   "profiles": {
     "defaults": {
       "backgroundImage": "desktopWallpaper",
