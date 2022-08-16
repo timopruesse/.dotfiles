@@ -4,9 +4,10 @@
 
 - neovim
   - color scheme: `gruvbox`
-- WSL -> Ubuntu
-  - tmux
-  - Windows Terminal Preview
+- tmux
+  - separate sessions for personal/work
+- WSL (Ubuntu)
+- Windows Terminal Preview
 
 ## Editor
 
