@@ -1,18 +1,6 @@
 # load identity
 keychain ~/.ssh/id_rsa
 
-# tmux env + aliases
-export TMUX_SESSION="timo"
-
-alias tmux_create="tmux new -s$TMUX_SESSION"
-alias tmux_attach="tmux attach -d -t $TMUX_SESSION"
-
-alias start="$HOME/start_tmux.sh"
-alias tkill="tmux kill-session -t $TMUX_SESSION"
-
-# start tmux session
-start
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
