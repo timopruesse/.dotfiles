@@ -20,19 +20,26 @@ if [ -n "$TMUX" ] && [ $CURRENT_SESSION_NAME = $1 ]; then
     exit 0;
 fi
 
-if [ $CURRENT_SESSION_NAME != $1 ]; then
-    tmux display-message -d 1500 "Workspace [$CURRENT_SESSION_NAME] -> [$1]"
+if [ -z "$TMUX" ]; then
+    if [ $HAS_TARGET_SESSION = 0 ]; then
+        tmux new -s $1
+    else
+        tmux attach -t $1
+    fi
+    exit 0;
+fi
 
+if [ $CURRENT_SESSION_NAME != $1 ]; then
     if [ $HAS_TARGET_SESSION = 0 ]; then
         TMUX= tmux new -d -s $1
     fi
     tmux switch -t $1
+    tmux display-message -d 1500 "Workspace [$CURRENT_SESSION_NAME] -> [$1]"
 else
-    tmux display-message "Workspace [$1]"
-
     if [ $HAS_TARGET_SESSION = 0 ]; then
         tmux new -s $1
     else
         tmux attach -d -t $1
     fi
+    tmux display-message "Workspace [$1]"
 fi
