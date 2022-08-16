@@ -3,9 +3,10 @@
 ## TLDR;
 
 - neovim
-- tmux
-- WSL (Ubuntu)
-- Windows Terminal Preview
+  - color scheme: `gruvbox`
+- WSL -> Ubuntu
+  - tmux
+  - Windows Terminal Preview
 
 ## Editor
 
