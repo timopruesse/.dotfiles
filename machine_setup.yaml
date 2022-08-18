@@ -90,13 +90,16 @@ tasks:
   neovim:
     commands:
       - run:
+          env:
+            NVIM_LATEST: https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
+            NVIM_NIGHTLY: https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
           commands:
             install:
               - "mkdir -p ~/.nvim"
-              - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+              - "curl -L $NVIM_NIGHTLY -o ~/.nvim/nvim.appimage"
               - "chmod u+x ~/.nvim/nvim.appimage"
             update:
-              - "curl -L https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage -o ~/.nvim/nvim.appimage"
+              - "curl -L $NVIM_NIGHTLY -o ~/.nvim/nvim.appimage"
               - "chmod u+x ~/.nvim/nvim.appimage"
 
   rust:
