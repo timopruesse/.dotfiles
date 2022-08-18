@@ -12,7 +12,6 @@ local source_mapping = {
 
 cmp.setup({
 	experimental = {
-		native_menu = false,
 		ghost_text = true,
 	},
 	snippet = {
