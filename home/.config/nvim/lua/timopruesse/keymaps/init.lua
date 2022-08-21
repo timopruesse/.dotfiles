@@ -18,6 +18,24 @@ key.inoremap("<M-u>", "ü")
 
 key.nnoremap("Q", "<nop>")
 
+-- quickfix
+local is_quickfix_open = function()
+	for _, v in pairs(vim.fn.getwininfo()) do
+		if v.quickfix == 1 then
+			return true
+		end
+	end
+	return false
+end
+
+key.nnoremap("<M-f>", function()
+	if is_quickfix_open() then
+		vim.cmd("cclose")
+	else
+		vim.cmd("copen")
+	end
+end)
+
 -- database ui
 key.nnoremap("<leader>db", key.exec_command("DBUIToggle"))
 
