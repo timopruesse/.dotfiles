@@ -47,3 +47,16 @@ tasks:
       - clone:
           url: "git@github.com:niceoutside/curtain.git"
           target: "~/github/niceoutside/curtain"
+
+  chewie:
+    parallel: true
+    commands:
+      - clone:
+          url: "git@github.com:chewielabs/ChewieWeb.git"
+          target: "~/github/chewielabs/ChewieWeb"
+      - clone:
+          url: "git@github.com:chewielabs/ChewieCMS.git"
+          target: "~/github/chewielabs/ChewieCMS"
+      - clone:
+          url: "git@github.com:chewielabs/ChewieWebCdk.git"
+          target: "~/github/chewielabs/ChewieWebCdk"
