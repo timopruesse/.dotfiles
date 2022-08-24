@@ -5,7 +5,6 @@ local rep = require("luasnip.extras").rep
 local s = ls.s
 local i = ls.insert_node
 local c = ls.choice_node
-local t = ls.text_node
 local sn = ls.snippet_node
 
 ls.add_snippets("svelte", {
@@ -13,14 +12,11 @@ ls.add_snippets("svelte", {
 		"script",
 		fmt(
 			[[
-                <script {}>
+                <script lang="ts">
                     {}
                 </script>
             ]],
-			{
-				c(1, { t('lang="ts"'), t('context="module"') }),
-				i(0),
-			}
+			{ i(0) }
 		)
 	),
 	-- the 2nd choice doesn't work as expected, yet...
