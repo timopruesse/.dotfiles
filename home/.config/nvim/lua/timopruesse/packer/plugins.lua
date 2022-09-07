@@ -290,12 +290,6 @@ packer.startup(function()
 
 	-- QOL
 	use({
-		"arnamak/stay-centered.nvim",
-		config = function()
-			require("stay-centered")
-		end,
-	})
-	use({
 		"hrsh7th/nvim-pasta",
 		-- seems to be a bit buggy right now
 		disable = true,

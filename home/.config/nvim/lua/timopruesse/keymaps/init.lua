@@ -18,6 +18,12 @@ key.inoremap("<M-u>", "ü")
 
 key.nnoremap("Q", "<nop>")
 
+-- center cursor while moving through file
+key.nnoremap("j", "jzz")
+key.nnoremap("k", "kzz")
+key.nnoremap("<Down>", "jzz")
+key.nnoremap("<Up>", "kzz")
+
 -- quickfix
 local is_quickfix_open = function()
 	for _, v in pairs(vim.fn.getwininfo()) do
