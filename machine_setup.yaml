@@ -289,6 +289,10 @@ tasks:
             install:
               - "wget -O $TMP_INSTALL_PATH https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
               - "unzip $TMP_INSTALL_PATH -d $HOME/.local/bin"
+            update:
+              - "ngrok update"
+            uninstall:
+              - "rm $HOME/.local/bin/ngrok"
 
   edge:
     commands:
