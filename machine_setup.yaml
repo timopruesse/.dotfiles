@@ -280,6 +280,16 @@ tasks:
       - machine_setup:
           config: "$DOTFILES/no_repositories.yaml"
 
+  ngrok:
+    commands:
+      - run:
+          env:
+            TMP_INSTALL_PATH: "/tmp/ngrok.zip"
+          commands:
+            install:
+              - "wget -O $TMP_INSTALL_PATH https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
+              - "unzip $TMP_INSTALL_PATH -d $HOME/.local/bin"
+
   edge:
     commands:
       - run:
