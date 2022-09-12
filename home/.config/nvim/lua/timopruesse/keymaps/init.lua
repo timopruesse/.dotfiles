@@ -49,12 +49,11 @@ key.nnoremap("<leader>db", key.exec_command("DBUIToggle"))
 key.nnoremap("<leader>td", key.exec_command("TodoQuickFix"))
 key.nnoremap("<leader>tl", key.exec_command("TodoTelescope"))
 
--- FIXME: Broken mappings after lua update
--- key.nnoremap("<leader>ghw", key.exec_command('h <C-R>=expand("<cword>")'))
--- key.nnoremap("<leader>bs", key.exec_command('/<C-R>=escape(expand("<cword>"), "/")'))
+-- FIXME: Broken mapping after lua update
 -- key.nnoremap("<leader><CR>", key.exec_command("so ~/.config/nvim/init.vim"))
 
 key.vnoremap("<leader>p", '"_dP')
+key.nnoremap("<leader>p", '"_dP')
 
 key.nnoremap("<leader>d", '"_d')
 key.vnoremap("<leader>d", '"_d')
