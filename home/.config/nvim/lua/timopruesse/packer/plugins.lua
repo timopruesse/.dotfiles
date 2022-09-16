@@ -276,6 +276,28 @@ packer.startup(function()
 	-- go
 	use("fatih/vim-go")
 
+	-- dart/flutter
+	use({
+		"akinsho/flutter-tools.nvim",
+		requires = "nvim-lua/plenary.nvim",
+		config = function()
+			require("flutter-tools").setup({
+				widget_guides = {
+					enabled = false,
+				},
+				lsp = {
+					color = {
+						enabled = true,
+						background = false,
+						foreground = false,
+						virtual_text = true,
+						virtual_text_str = "■",
+					},
+				},
+			})
+		end,
+	})
+
 	-- python
 	use("ambv/black")
 
