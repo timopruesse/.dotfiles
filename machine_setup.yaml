@@ -287,14 +287,14 @@ tasks:
               - "brew tap leoafarias/fvm"
               - "brew install fvm"
               - "fvm install stable"
-              - "sudo apt-get install -y android-sdk"
+              - "sudo apt-get install -y android-sdk sdkmanager"
             update:
               - "brew upgrade fvm"
             uninstall:
               - "fvm remove stable"
               - "brew uninstall fvm"
               - "brew untap leoafarias/fvm"
-              - "sudo apt-get remove -y android-sdk"
+              - "sudo apt-get remove -y android-sdk sdkmanager"
 
   personal_repos:
     commands:
