@@ -117,8 +117,12 @@ PATH=$PATH:$HOME/.nvim/nvim.appimage
 # add global composer dir to PATH
 PATH=$PATH:$(composer -n config --global home)/vendor/bin
 
+
 # added by pipx (https://github.com/cs01/pipx)
 export PATH="/home/timo/.local/bin:$PATH"
+
+# add ANDROID_HOME path
+export ANDROID_HOME=/usr/lib/android-sdk
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
