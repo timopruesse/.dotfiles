@@ -270,6 +270,15 @@ tasks:
       - run:
           commands: "sudo apt-get install -y golang"
 
+  clang:
+    commands:
+      - run:
+          commands:
+            install:
+              - "sudo apt-get install -y ninja-build clang"
+            uninstall:
+              - "sudo apt-get remove -y ninja-build clang"
+
   flutter:
     commands:
       - run:
