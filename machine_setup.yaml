@@ -282,12 +282,18 @@ tasks:
   flutter:
     commands:
       - run:
+          env:
+            TMP_INSTALL_PATH: "/tmp/cmdline.zip"
           commands:
             install:
               - "brew tap leoafarias/fvm"
               - "brew install fvm"
               - "fvm install stable"
               - "sudo apt-get install -y android-sdk sdkmanager"
+              - "wget -O $TMP_INSTALL_PATH https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip"
+              - "sudo mkdir -p /usr/lib/android-sdk/cmdline-tools/latest"
+              - "sudo unzip $TMP_INSTALL_PATH -d /usr/lib/android-sdk/cmdline-tools/latest"
+              - "rm $TMP_INSTALL_PATH"
             update:
               - "brew upgrade fvm"
             uninstall:
@@ -315,6 +321,7 @@ tasks:
             install:
               - "wget -O $TMP_INSTALL_PATH https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
               - "unzip $TMP_INSTALL_PATH -d $HOME/.local/bin"
+              - "rm $TMP_INSTALL_PATH"
             update:
               - "ngrok update"
             uninstall:
