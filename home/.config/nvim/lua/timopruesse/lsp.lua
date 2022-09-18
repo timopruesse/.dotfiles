@@ -177,9 +177,9 @@ require("lspconfig").solang.setup(config())
 
 require("lspconfig").cssls.setup(config())
 
--- require("lspconfig").dartls.setup(config())
+require("lspconfig").dartls.setup(config())
 require("flutter-tools").setup(config({
-	flutter_path = "~/fvm/default/bin/flutter",
+	fvm = true,
 	widget_guides = {
 		enabled = false,
 	},
