@@ -117,6 +117,9 @@ PATH=$PATH:$HOME/.nvim/nvim.appimage
 # add global composer dir to PATH
 PATH=$PATH:$(composer -n config --global home)/vendor/bin
 
+# dart
+PATH="$PATH:/usr/lib/dart/bin"
+
 # add ANDROID_HOME path
 export ANDROID_HOME=/usr/lib/android-sdk
 export ANDROID_SDK_ROOT=$ANDROID_HOME

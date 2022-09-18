@@ -177,6 +177,23 @@ require("lspconfig").solang.setup(config())
 
 require("lspconfig").cssls.setup(config())
 
+-- require("lspconfig").dartls.setup(config())
+require("flutter-tools").setup(config({
+	flutter_path = "~/fvm/default/bin/flutter",
+	widget_guides = {
+		enabled = false,
+	},
+	lsp = {
+		color = {
+			enabled = true,
+			background = false,
+			foreground = false,
+			virtual_text = true,
+			virtual_text_str = "■",
+		},
+	},
+}))
+
 require("lspconfig").gopls.setup(config({
 	cmd = { "gopls", "serve" },
 	settings = {

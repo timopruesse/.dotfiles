@@ -280,22 +280,6 @@ packer.startup(function()
 	use({
 		"akinsho/flutter-tools.nvim",
 		requires = "nvim-lua/plenary.nvim",
-		config = function()
-			require("flutter-tools").setup({
-				widget_guides = {
-					enabled = false,
-				},
-				lsp = {
-					color = {
-						enabled = true,
-						background = false,
-						foreground = false,
-						virtual_text = true,
-						virtual_text_str = "■",
-					},
-				},
-			})
-		end,
 	})
 
 	-- python
