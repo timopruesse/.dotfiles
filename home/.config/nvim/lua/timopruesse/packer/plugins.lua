@@ -323,7 +323,6 @@ packer.startup(function()
 			})
 		end,
 	})
-	use("antoinemadec/FixCursorHold.nvim")
 
 	-- markdown
 	use({ "ellisonleao/glow.nvim", branch = "main", event = { "BufEnter *.md" } })
