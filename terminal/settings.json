@@ -44,7 +44,7 @@
       "experimental.useAtlasEngine": true,
       "font": {
         "face": "MesloLGS NF",
-        "size": 14
+        "size": 17
       },
       "opacity": 100,
       "padding": "8",
