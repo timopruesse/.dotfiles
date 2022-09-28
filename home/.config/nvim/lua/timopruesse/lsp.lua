@@ -49,10 +49,10 @@ cmp.setup({
 
 	sources = {
 		{ name = "nvim_lsp_signature_help" },
-		{ name = "path" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "cmp_tabnine" },
+		{ name = "path" },
 		{ name = "nvim_lua" },
 		{ name = "emoji" },
 		{ name = "npm", keyword_length = 3 },

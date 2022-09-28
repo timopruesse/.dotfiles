@@ -102,22 +102,6 @@ packer.startup(function()
 	use("petertriho/cmp-git")
 	use("David-Kunz/cmp-npm")
 	use({
-		"jose-elias-alvarez/null-ls.nvim",
-		config = function()
-			local null_ls = require("null-ls")
-
-			null_ls.setup({
-				sources = {
-					null_ls.builtins.formatting.stylua,
-					null_ls.builtins.code_actions.refactoring,
-					-- null_ls.builtins.diagnostics.phpstan,
-					null_ls.builtins.diagnostics.yamllint,
-					null_ls.builtins.diagnostics.zsh,
-				},
-			})
-		end,
-	})
-	use({
 		"j-hui/fidget.nvim",
 		config = function()
 			require("fidget").setup({ window = { blend = 0 } })
