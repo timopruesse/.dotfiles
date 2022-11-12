@@ -159,6 +159,7 @@ packer.startup(function()
 					"python",
 					"dart",
 					"markdown",
+					"markdown_inline",
 					"tsx",
 					"vim",
 					"toml",
