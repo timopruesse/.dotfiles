@@ -7,11 +7,7 @@ tasks:
           url: "git@github.com:Chroma91/machine_setup.git"
           target: "~/github/Chroma91/machine_setup"
   timo-pruesse:
-    parallel: true
     commands:
       - clone:
-          url: "git@github.com:Chroma91/timo-pruesse.git"
-          target: "~/github/Chroma91/timo-pruesse"
-      - clone:
-          url: "git@github.com:Chroma91/timo_pruesse_wasm_terminal.git"
-          target: "~/github/Chroma91/timo_pruesse_wasm_terminal"
+          url: "git@github.com:Chroma91/timopruesse_personal.git"
+          target: "~/github/Chroma91/timopruesse_personal"
