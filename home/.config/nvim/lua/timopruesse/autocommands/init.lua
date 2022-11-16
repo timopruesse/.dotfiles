@@ -1,5 +1,5 @@
 local show_highlight = function()
-	require("vim.highlight").on_yank({ timeout = 1000 })
+	require("vim.highlight").on_yank({ timeout = 800 })
 end
 
 local au_yank = vim.api.nvim_create_augroup("highlight_yank", { clear = true })
@@ -11,12 +11,22 @@ vim.api.nvim_create_autocmd(
 	{ pattern = { "*" }, command = "try | undojoin | Neoformat | catch /E790/ | Neoformat | endtry", group = au_fmt }
 )
 
+local toggle_markdown_preview = function()
+	local peek = require("peek")
+
+	if peek.is_open() then
+		peek.close()
+	else
+		peek.open()
+	end
+end
+
 local preview_markdown = function(cmd)
 	local key = require("timopruesse.helpers.keymap")
 
 	local keys = "<leader>md"
 	if cmd.event == "BufEnter" then
-		key.nnoremap(keys, key.exec_command("Glow"), cmd.buf)
+		key.nnoremap(keys, toggle_markdown_preview, cmd.buf)
 	else
 		key.nremovemap(keys, cmd.buf)
 	end

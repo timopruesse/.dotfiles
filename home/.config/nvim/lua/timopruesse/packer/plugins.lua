@@ -294,7 +294,7 @@ packer.startup(function()
 	})
 
 	-- markdown
-	use({ "ellisonleao/glow.nvim", branch = "main", event = { "BufEnter *.md" } })
+	use({ "toppair/peek.nvim", run = "deno task --quiet build:fast" })
 
 	-- databases
 	use("tpope/vim-dadbod")
