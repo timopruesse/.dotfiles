@@ -117,6 +117,10 @@ PATH=$PATH:$HOME/.nvim/nvim.appimage
 # add global composer dir to PATH
 PATH=$PATH:$(composer -n config --global home)/vendor/bin
 
+# deno
+export DENO_INSTALL="/home/timo/.deno"
+PATH="$DENO_INSTALL/bin:$PATH"
+
 # dart
 PATH="$PATH:/usr/lib/dart/bin"
 

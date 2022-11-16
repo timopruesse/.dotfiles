@@ -139,8 +139,16 @@ tasks:
     commands:
       - run:
           env:
-            PACKAGES_STR: "glow catimg"
+            PACKAGES_STR: "catimg"
           commands: "brew install $(echo $PACKAGES_STR)"
+
+  deno:
+    commands:
+      - run:
+          commands:
+            install: "curl -fsSL https://deno.land/x/install/install.sh | sh"
+            update: "deno upgrade"
+            uninstall: "rm -rf $HOME/.deno"
 
   node:
     commands:
@@ -159,7 +167,6 @@ tasks:
               - "npm upgrade -g"
               - "nvm alias default $(node --version)"
               - "nvm uninstall $OLD_NODE_VERSION"
-              - "exec zsh"
             uninstall:
               - "nvm uninstall $(node --version)"
               - "rm -rf $NVM_DIR"
