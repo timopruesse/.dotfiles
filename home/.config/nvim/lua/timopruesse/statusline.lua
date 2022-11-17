@@ -15,9 +15,9 @@ local gruvbox = {
 
 require("staline").setup({
 	sections = {
-		left = { "  ", "mode", "file_name", "lsp" },
-		mid = { "cwd" },
-		right = { "branch", "  ", "lsp_name" },
+		left = { "  ", "mode", "[", "cwd", "]", "file_name", "lsp" },
+		mid = { "branch" },
+		right = { "lsp_name", "  " },
 	},
 	mode_colors = gruvbox,
 	defaults = {
