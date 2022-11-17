@@ -238,9 +238,6 @@ packer.startup(function()
 		end,
 	})
 
-	-- ts
-	use("jose-elias-alvarez/nvim-lsp-ts-utils")
-
 	-- svelte
 	use("leafOfTree/vim-svelte-plugin")
 
