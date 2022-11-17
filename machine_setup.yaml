@@ -80,7 +80,7 @@ tasks:
   dotfiles:
     commands:
       - clone:
-          url: "git@github.com:Chroma91/.dotfiles.git"
+          url: "git@github.com:timopruesse/.dotfiles.git"
           target: "."
       - symlink:
           force: true

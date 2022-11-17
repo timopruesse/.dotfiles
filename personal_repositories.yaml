@@ -4,10 +4,10 @@ tasks:
   machine_setup:
     commands:
       - clone:
-          url: "git@github.com:Chroma91/machine_setup.git"
+          url: "git@github.com:timopruesse/machine_setup.git"
           target: "~/github/Chroma91/machine_setup"
   timo-pruesse:
     commands:
       - clone:
-          url: "git@github.com:Chroma91/timopruesse_personal.git"
+          url: "git@github.com:timopruesse/timopruesse_personal.git"
           target: "~/github/Chroma91/timopruesse_personal"
