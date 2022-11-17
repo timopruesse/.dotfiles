@@ -102,8 +102,10 @@ local function config(_config)
 	}, _config or {})
 end
 
+-- require("lspconfig").denols.setup({})
+
 require("lspconfig").tsserver.setup(config({
-	on_attach = function(_client, bufnr)
+	on_attach = function(client, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 		require("timopruesse.autocommands.typescript")
 	end,
