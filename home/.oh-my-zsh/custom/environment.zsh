@@ -1,5 +1,5 @@
 # personal
-export GH_TIMO=$HOME/github/Chroma91
+export GH_TIMO=$HOME/github/timopruesse
 export DOTFILES=$GH_TIMO/.dotfiles
 
 # work
