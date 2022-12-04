@@ -90,17 +90,15 @@ tasks:
   neovim:
     commands:
       - run:
-          env:
-            NVIM_LATEST: https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-            NVIM_NIGHTLY: https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
           commands:
             install:
-              - "mkdir -p ~/.nvim"
-              - "curl -L $NVIM_NIGHTLY -o ~/.nvim/nvim.appimage"
-              - "chmod u+x ~/.nvim/nvim.appimage"
+              - "sudo add-apt-repository -y ppa:neovim-ppa/unstable"
+              - "sudo apt-get update"
+              - "sudo apt-get install -y neovim python3-neovim"
             update:
-              - "curl -L $NVIM_NIGHTLY -o ~/.nvim/nvim.appimage"
-              - "chmod u+x ~/.nvim/nvim.appimage"
+              - "sudo apt-get upgrade neovim"
+            uninstall:
+              - "sudo apt remove -y neovim python3-neovim"
 
   rust:
     commands:
