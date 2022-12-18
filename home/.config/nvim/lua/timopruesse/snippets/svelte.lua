@@ -6,17 +6,21 @@ local s = ls.s
 local i = ls.insert_node
 local c = ls.choice_node
 local sn = ls.snippet_node
+local t = ls.text_node
 
 ls.add_snippets("svelte", {
 	s(
-		"script",
+		"scr",
 		fmt(
 			[[
-                <script lang="ts">
+                <script {}>
                     {}
                 </script>
             ]],
-			{ i(0) }
+			{
+				c(1, { t('lang="ts"'), t('context="module"') }),
+				i(0),
+			}
 		)
 	),
 	-- the 2nd choice doesn't work as expected, yet...
