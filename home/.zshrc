@@ -101,7 +101,7 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#82909b"
 # else
 #   export EDITOR='mvim'
 # fi
-export VISUAL=$HOME/.nvim/nvim.appimage
+export VISUAL=nvim
 export EDITOR=$VISUAL
 
 # Compilation flags
