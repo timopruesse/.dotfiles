@@ -14,7 +14,6 @@ packer.startup(function()
 		requires = {
 			"kyazdani42/nvim-web-devicons",
 		},
-		tag = "nightly",
 	})
 
 	use("nvim-lua/plenary.nvim")

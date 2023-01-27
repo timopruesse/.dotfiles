@@ -42,3 +42,9 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufLeave" }, {
 })
 
 require("timopruesse.autocommands.yaml")
+
+-- close NvimTree on start up so it won't conflict with Telescope
+vim.api.nvim_create_autocmd("User", {
+	pattern = "NvimTreeSetup",
+	callback = require("nvim-tree.api").tree.close,
+})
