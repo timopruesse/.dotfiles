@@ -102,32 +102,38 @@ local function config(_config)
 	}, _config or {})
 end
 
--- require("lspconfig").denols.setup({})
+local lsp = require("lspconfig")
 
-require("lspconfig").tsserver.setup(config({
+lsp.denols.setup(config({
+	root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
+}))
+
+lsp.tsserver.setup(config({
 	on_attach = function(client, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 		require("timopruesse.autocommands.typescript")
 	end,
+	root_dir = lsp.util.root_pattern("package.json"),
+	single_file_support = false,
 }))
 
-require("lspconfig").ccls.setup(config())
+lsp.ccls.setup(config())
 
-require("lspconfig").jedi_language_server.setup(config())
+lsp.jedi_language_server.setup(config())
 
-require("lspconfig").svelte.setup(config({
+lsp.svelte.setup(config({
 	on_attach = function(_, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 		require("timopruesse.autocommands.typescript")
 	end,
 }))
 
-require("lspconfig").cssls.setup(config())
-require("lspconfig").tailwindcss.setup(config())
+lsp.cssls.setup(config())
+lsp.tailwindcss.setup(config())
 
-require("lspconfig").solang.setup(config())
+lsp.solang.setup(config())
 
-require("lspconfig").dartls.setup(config())
+lsp.dartls.setup(config())
 require("flutter-tools").setup(config({
 	fvm = true,
 	widget_guides = {
@@ -144,7 +150,7 @@ require("flutter-tools").setup(config({
 	},
 }))
 
-require("lspconfig").gopls.setup(config({
+lsp.gopls.setup(config({
 	cmd = { "gopls", "serve" },
 	settings = {
 		gopls = {
@@ -156,9 +162,9 @@ require("lspconfig").gopls.setup(config({
 	},
 }))
 
-require("lspconfig").pylsp.setup(config())
+lsp.pylsp.setup(config())
 
-require("lspconfig").intelephense.setup(config({
+lsp.intelephense.setup(config({
 	on_attach = function(_, bufnr)
 		require("timopruesse.keymaps.php").setup(bufnr)
 	end,
@@ -195,7 +201,7 @@ local home_dir = vim.fn.expand("$HOME")
 local sumneko_root_path = home_dir .. "/lua-language-server"
 local sumneko_binary = sumneko_root_path .. "/bin/lua-language-server"
 
-require("lspconfig").sumneko_lua.setup(config({
+lsp.sumneko_lua.setup(config({
 	cmd = { sumneko_binary, "-E", sumneko_root_path .. "/main.lua" },
 	settings = {
 		Lua = {
