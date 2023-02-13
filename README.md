@@ -3,7 +3,7 @@
 ## TLDR;
 
 - neovim
-  - color scheme: `gruvbox`
+  - color scheme: [moonbow](https://github.com/arturgoms/moonbow.nvim)
 - tmux
   - separate sessions for personal/work
 - WSL (Ubuntu)

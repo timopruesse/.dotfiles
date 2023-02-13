@@ -5,7 +5,7 @@ packer.startup(function()
 	use("wbthomason/packer.nvim")
 
 	-- theme
-	use("gruvbox-community/gruvbox")
+	use("arturgoms/moonbow.nvim")
 	use("stevearc/dressing.nvim")
 
 	use("kyazdani42/nvim-web-devicons")
