@@ -201,7 +201,7 @@ local home_dir = vim.fn.expand("$HOME")
 local sumneko_root_path = home_dir .. "/lua-language-server"
 local sumneko_binary = sumneko_root_path .. "/bin/lua-language-server"
 
-lsp.sumneko_lua.setup(config({
+lsp.lua_ls.setup(config({
 	cmd = { sumneko_binary, "-E", sumneko_root_path .. "/main.lua" },
 	settings = {
 		Lua = {
