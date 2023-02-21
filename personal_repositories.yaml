@@ -5,9 +5,9 @@ tasks:
     commands:
       - clone:
           url: "git@github.com:timopruesse/machine_setup.git"
-          target: "~/github/Chroma91/machine_setup"
+          target: "~/github/timopruesse/machine_setup"
   timo-pruesse:
     commands:
       - clone:
           url: "git@github.com:timopruesse/timopruesse_personal.git"
-          target: "~/github/Chroma91/timopruesse_personal"
+          target: "~/github/timopruesse/timopruesse_personal"
