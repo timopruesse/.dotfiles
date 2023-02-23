@@ -24,6 +24,9 @@ packer.startup(function()
 	-- debugging
 	use("mfussenegger/nvim-dap")
 
+	-- undo/history
+	use("mbbill/undotree")
+
 	-- refactoring
 	use({
 		"ThePrimeagen/refactoring.nvim",

@@ -51,3 +51,5 @@ vim.cmd("set noswapfile")
 vim.cmd("set nobackup")
 vim.cmd("set undodir=$HOME/.vim/undodir")
 vim.cmd("set undofile")
+
+vim.g.undotree_WindowLayout = 4
