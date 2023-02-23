@@ -35,7 +35,7 @@
     "defaults": {
       "backgroundImage": "desktopWallpaper",
       "backgroundImageAlignment": "center",
-      "backgroundImageOpacity": 0.10000000000000001,
+      "backgroundImageOpacity": 0.05,
       "backgroundImageStretchMode": "uniformToFill",
       "bellStyle": "all",
       "colorScheme": "Timo",
