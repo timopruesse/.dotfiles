@@ -284,7 +284,13 @@ tasks:
   go:
     commands:
       - run:
-          commands: "sudo apt-get install -y golang"
+          commands:
+            install:
+              - "sudo apt-get install -y golang"
+            update:
+              - "sudo apt-get upgrade -y golang"
+            uninstall:
+              - "sudo apt-get remove -y golang"
 
   clang:
     commands:
@@ -292,6 +298,8 @@ tasks:
           commands:
             install:
               - "sudo apt-get install -y ninja-build clang"
+            update:
+              - "sudo apt-get upgrade -y ninja-build clang"
             uninstall:
               - "sudo apt-get remove -y ninja-build clang"
 
