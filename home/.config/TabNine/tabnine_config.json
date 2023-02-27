@@ -8,6 +8,7 @@
   "semantic_status": {},
   "enable_telemetry": true,
   "user_understands_that_enabling_tabnine_cloud_sends_code_to_tabnine_servers": true,
+  "deep_completions_work_mode": "Hybrid",
   "hosted_deep_completions_enabled": "Disabled",
   "tabnine_cloud_host": null,
   "tabnine_cloud_certificate_domain": null,
@@ -30,7 +31,7 @@
   "model_hash_override": null,
   "local_indexing": null,
   "heartbeat_interval_seconds": null,
-  "last_service_level": null,
+  "last_service_level": "FreeCloudRegistered",
   "override_beams": null,
   "override_context_length": null,
   "onboarding": {
@@ -41,8 +42,12 @@
   "has_git_repos": null,
   "gusr": null,
   "exclude_file_masks": null,
-  "inline_suggestions_mode": false,
+  "inline_suggestions_mode": true,
   "use_specialized_model_if_available": false,
-  "empty_line_suggestions": false,
-  "snippets_enabled_v2": null
+  "snippets_enabled_v2": true,
+  "inline_suggestions_mode_clients": null,
+  "tabnine_hub_port": null,
+  "manually_selected_model": null,
+  "hybrid_rendering_mode": null,
+  "force_local_hub": false
 }
