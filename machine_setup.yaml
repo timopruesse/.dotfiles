@@ -211,9 +211,12 @@ tasks:
     commands:
       - run:
           commands:
-            - "sudo apt-get install -y pipx python3-venv python3-pip"
-            - "python3 -m pipx ensurepath"
-            - "pip install pynvim"
+            install:
+              - "sudo apt-get install -y pipx python3-venv python3-pip"
+              - "python3 -m pipx ensurepath"
+              - "pip install pynvim pip-review"
+            update:
+              - "pip-review --auto"
 
   yaml:
     commands:
