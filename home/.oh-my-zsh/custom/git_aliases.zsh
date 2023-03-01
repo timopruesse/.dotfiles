@@ -1,4 +1,4 @@
-alias diff="git diff"
+alias gd="git diff"
 alias gc="git checkout"
 alias gb="git branch"
 alias new="git checkout -b"
