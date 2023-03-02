@@ -73,9 +73,22 @@ tasks:
     commands:
       - run:
           commands:
-            - "sudo apt-get update"
-            - "sudo apt-get upgrade -y"
+            - "sudo apt-get update && sudo apt-get upgrade -y"
             - "sudo apt-get install -y tmux fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential mysql-client ninja-build libwebkit2gtk-4.0-37 exa"
+
+  mesa:
+    commands:
+      - run:
+        commands:
+          install:
+            - "sudo add-apt-repository -y ppa:oibaf/graphics-drivers"
+            - "sudo apt-get update && sudo apt-get upgrade -y"
+            - "sudo apt-get install -y vainfo mesa-va-drivers"
+          uninstall:
+            - "sudo apt-get remove -y vainfo mesa-va-drivers"
+            - "sudo apt-get install ppa-purge"
+            - "sudo ppa-purge ppa:oibaf/graphics-drivers"
+            - "sudo apt-get update && sudo apt-get upgrade -y"
 
   dotfiles:
     commands:
