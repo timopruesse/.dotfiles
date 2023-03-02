@@ -104,17 +104,21 @@ end
 
 local lsp = require("lspconfig")
 
-lsp.denols.setup(config({
-	root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
-}))
-
 lsp.tsserver.setup(config({
-	on_attach = function(client, bufnr)
+	on_attach = function(_, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 		require("timopruesse.autocommands.typescript")
 	end,
 	root_dir = lsp.util.root_pattern("package.json"),
 	single_file_support = false,
+}))
+
+lsp.denols.setup(config({
+	root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
+	on_attach = function(_, bufnr)
+		require("timopruesse.keymaps.node").setup(bufnr)
+		require("timopruesse.autocommands.typescript")
+	end,
 }))
 
 lsp.ccls.setup(config())
