@@ -67,8 +67,7 @@ packer.startup(function()
 	-- lsp + autocomplete
 	use("neovim/nvim-lspconfig")
 	use({
-		"tami5/lspsaga.nvim",
-		branch = "main",
+		"kkharji/lspsaga.nvim",
 		config = function()
 			require("lspsaga").init_lsp_saga({
 				code_action_icon = "",
