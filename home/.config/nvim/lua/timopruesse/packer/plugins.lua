@@ -9,12 +9,6 @@ packer.startup(function()
 	use("stevearc/dressing.nvim")
 
 	use("kyazdani42/nvim-web-devicons")
-	use({
-		"kyazdani42/nvim-tree.lua",
-		requires = {
-			"kyazdani42/nvim-web-devicons",
-		},
-	})
 
 	use("nvim-lua/plenary.nvim")
 
@@ -62,6 +56,10 @@ packer.startup(function()
 		end,
 	})
 	use("nvim-telescope/telescope-fzy-native.nvim")
+	use({
+		"nvim-telescope/telescope-file-browser.nvim",
+		requires = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+	})
 	use("nvim-lua/popup.nvim")
 
 	-- lsp + autocomplete

@@ -66,9 +66,6 @@ key.inoremap("!", "!<c-g>u")
 key.inoremap("?", "?<c-g>u")
 key.inoremap("=", "=<c-g>u")
 
-key.nmap("<C-q>", key.exec_command(":NvimTreeToggle"))
-key.nnoremap("<leader>tf", key.exec_command("NvimTreeFindFile"))
-
 -- copy to and from clipboard
 key.nnoremap("<leader>yy", '"+y')
 key.vnoremap("<leader>yy", '"+y')

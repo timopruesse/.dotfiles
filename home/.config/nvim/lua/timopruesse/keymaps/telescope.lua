@@ -23,3 +23,6 @@ key.nnoremap("<leader>vrc", custom.search_dotfiles)
 key.nnoremap("<leader>gb", custom.git_branches)
 
 key.vnoremap("<leader>re", ts.extensions.refactoring.refactors)
+
+key.nnoremap("<C-q>", key.exec_command(":Telescope file_browser"))
+key.nnoremap("<leader>tf", key.exec_command(":Telescope file_browser path=%:p:h select_buffer=true"))
