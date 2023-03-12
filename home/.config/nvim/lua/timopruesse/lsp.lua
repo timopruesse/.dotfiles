@@ -113,13 +113,13 @@ lsp.tsserver.setup(config({
 	single_file_support = false,
 }))
 
-lsp.denols.setup(config({
-	root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
-	on_attach = function(_, bufnr)
-		require("timopruesse.keymaps.node").setup(bufnr)
-		require("timopruesse.autocommands.typescript")
-	end,
-}))
+-- lsp.denols.setup(config({
+-- 	root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
+-- 	on_attach = function(_, bufnr)
+-- 		require("timopruesse.keymaps.node").setup(bufnr)
+-- 		require("timopruesse.autocommands.typescript")
+-- 	end,
+-- }))
 
 lsp.ccls.setup(config())
 
