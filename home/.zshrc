@@ -117,10 +117,6 @@ PATH=$PATH:$HOME/.nvim/nvim.appimage
 # add global composer dir to PATH
 PATH=$PATH:$(composer -n config --global home)/vendor/bin
 
-# deno
-export DENO_INSTALL="/home/timo/.deno"
-PATH="$DENO_INSTALL/bin:$PATH"
-
 # dart
 PATH="$PATH:/usr/lib/dart/bin"
 
@@ -150,3 +146,10 @@ export LIBVA_DRIVER_NAME=d3d12
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+
+# bun completions
+[ -s "/home/timo/.bun/_bun" ] && source "/home/timo/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
