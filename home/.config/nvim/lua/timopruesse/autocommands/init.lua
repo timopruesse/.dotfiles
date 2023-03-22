@@ -41,4 +41,5 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufLeave" }, {
 	group = au_md,
 })
 
+require("timopruesse.autocommands.inlay_hints")
 require("timopruesse.autocommands.yaml")

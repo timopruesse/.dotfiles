@@ -109,17 +109,31 @@ lsp.tsserver.setup(config({
 		require("timopruesse.keymaps.node").setup(bufnr)
 		require("timopruesse.autocommands.typescript")
 	end,
-	root_dir = lsp.util.root_pattern("package.json"),
-	single_file_support = false,
+	settings = {
+		typescript = {
+			inlayHints = {
+				includeInlayParameterNameHints = "all",
+				includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+				includeInlayFunctionParameterTypeHints = true,
+				includeInlayVariableTypeHints = true,
+				includeInlayPropertyDeclarationTypeHints = true,
+				includeInlayFunctionLikeReturnTypeHints = true,
+				includeInlayEnumMemberValueHints = true,
+			},
+		},
+		javascript = {
+			inlayHints = {
+				includeInlayParameterNameHints = "all",
+				includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+				includeInlayFunctionParameterTypeHints = true,
+				includeInlayVariableTypeHints = true,
+				includeInlayPropertyDeclarationTypeHints = true,
+				includeInlayFunctionLikeReturnTypeHints = true,
+				includeInlayEnumMemberValueHints = true,
+			},
+		},
+	},
 }))
-
--- lsp.denols.setup(config({
--- 	root_dir = lsp.util.root_pattern("deno.json", "deno.jsonc"),
--- 	on_attach = function(_, bufnr)
--- 		require("timopruesse.keymaps.node").setup(bufnr)
--- 		require("timopruesse.autocommands.typescript")
--- 	end,
--- }))
 
 lsp.ccls.setup(config())
 
@@ -177,7 +191,8 @@ lsp.intelephense.setup(config({
 require("rust-tools").setup(config({
 	tools = {
 		inlay_hints = {
-			auto = true,
+			-- using "lvimuser/lsp-inlayhints.nvim"
+			auto = false,
 		},
 	},
 	server = {
@@ -202,11 +217,11 @@ require("rust-tools").setup(config({
 }))
 
 local home_dir = vim.fn.expand("$HOME")
-local sumneko_root_path = home_dir .. "/lua-language-server"
-local sumneko_binary = sumneko_root_path .. "/bin/lua-language-server"
+local lua_root_path = home_dir .. "/lua-language-server"
+local lua_binary = lua_root_path .. "/bin/lua-language-server"
 
 lsp.lua_ls.setup(config({
-	cmd = { sumneko_binary, "-E", sumneko_root_path .. "/main.lua" },
+	cmd = { lua_binary, "-E", lua_root_path .. "/main.lua" },
 	settings = {
 		Lua = {
 			runtime = {
@@ -221,6 +236,9 @@ lsp.lua_ls.setup(config({
 					[vim.fn.expand("$VIMRUNTIME/lua")] = true,
 					[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
 				},
+			},
+			hint = {
+				enable = true,
 			},
 		},
 	},

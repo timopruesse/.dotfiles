@@ -64,6 +64,7 @@ packer.startup(function()
 
 	-- lsp + autocomplete
 	use("neovim/nvim-lspconfig")
+	use("lvimuser/lsp-inlayhints.nvim")
 	use({
 		"kkharji/lspsaga.nvim",
 		config = function()
