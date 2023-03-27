@@ -8,3 +8,5 @@ alias ms="machine_setup -c $DOTFILES/machine_setup.yaml"
 
 alias ls=exa
 alias l="exa -la"
+
+alias pn=pnpm
