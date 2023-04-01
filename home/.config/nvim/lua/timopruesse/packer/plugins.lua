@@ -175,6 +175,7 @@ packer.startup(function()
 			require("nvim-treesitter.parsers").get_parser_configs().markdown.filetype_to_parsername = "octo"
 		end,
 	})
+	use("nvim-treesitter/nvim-treesitter-context")
 	-- use("nvim-treesitter/playground")
 
 	-- status line
