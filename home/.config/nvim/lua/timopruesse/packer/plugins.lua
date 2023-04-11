@@ -164,6 +164,7 @@ packer.startup(function()
 					"vim",
 					"toml",
 					"regex",
+					"vimdoc",
 				},
 				highlight = { enable = true },
 				incremental_selection = { enable = true },
