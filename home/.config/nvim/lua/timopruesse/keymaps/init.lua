@@ -8,6 +8,7 @@ require("timopruesse.keymaps.navigation")
 require("timopruesse.keymaps.lsp")
 ---@diagnostic disable-next-line: different-requires
 require("timopruesse.keymaps.luasnip")
+require("timopruesse.keymaps.undotree")
 
 key.nnoremap("<C-s>", key.exec_command("w"))
 
