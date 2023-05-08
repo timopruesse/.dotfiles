@@ -16,11 +16,15 @@ key.nnoremap("<leader>jl", builtin.jumplist)
 key.nnoremap("<leader>rl", builtin.registers)
 
 key.nnoremap("<leader>ds", builtin.lsp_document_symbols)
-key.nnoremap("<leader>wss", builtin.lsp_workspace_symbols)
+key.nnoremap("<leader>ws", builtin.lsp_workspace_symbols)
 key.nnoremap("<leader>ts", builtin.treesitter)
+key.nnoremap("<leader>dg", builtin.diagnostics)
+key.nnoremap("<leader>rf", builtin.lsp_references)
 
 key.nnoremap("<leader>vrc", custom.search_dotfiles)
 key.nnoremap("<leader>gb", custom.git_branches)
+key.nnoremap("<leader>cl", builtin.git_commits)
+key.nnoremap("<leader>cc", builtin.git_bcommits)
 
 key.vnoremap("<leader>re", ts.extensions.refactoring.refactors)
 
