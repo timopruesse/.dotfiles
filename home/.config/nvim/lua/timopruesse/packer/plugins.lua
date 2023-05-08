@@ -201,22 +201,6 @@ packer.startup(function()
 		end,
 	})
 
-	-- quickfix
-	use({
-		"kevinhwang91/nvim-bqf",
-		ft = "qf",
-		config = function()
-			require("bqf").setup({
-				auto_enable = true,
-				magic_window = true,
-				auto_resize_height = true,
-				preview = {
-					auto_preview = true,
-				},
-			})
-		end,
-	})
-
 	-- fuzzy
 	use({ "junegunn/fzf", dir = "~/.fzf", run = "./install --all" })
 	use({ "junegunn/fzf.vim", requires = { "junegunn/fzf" } })
