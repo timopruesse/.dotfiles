@@ -26,11 +26,12 @@
       "keys": "alt+shift+d"
     }
   ],
+  "alwaysShowNotificationIcon": false,
   "copyFormatting": "none",
   "copyOnSelect": false,
-  "defaultProfile": "{7987625b-6b5d-4c9d-bfd5-293e18769b15}",
+  "defaultProfile": "{51855cb2-8cce-5362-8f54-464b92b32386}",
   "focusFollowMouse": true,
-  "launchMode": "fullscreen",
+  "launchMode": "maximizedFocus",
   "profiles": {
     "defaults": {
       "backgroundImage": "desktopWallpaper",
@@ -41,13 +42,14 @@
       "colorScheme": "Timo",
       "cursorHeight": 10,
       "cursorShape": "vintage",
-      "experimental.useAtlasEngine": true,
       "font": {
-        "face": "MesloLGS NF",
-        "size": 17
+        "face": "MesloLGS Nerd Font Mono",
+        "size": 17,
+        "weight": "normal"
       },
       "opacity": 100,
       "padding": "8",
+      "scrollbarState": "visible",
       "startingDirectory": "%USERPROFILE%",
       "tabColor": "#2C293A",
       "useAcrylic": true
