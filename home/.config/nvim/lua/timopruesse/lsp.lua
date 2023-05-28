@@ -207,6 +207,11 @@ require("rust-tools").setup(config({
 				checkOnSave = {
 					command = "clippy",
 				},
+				diagnostics = {
+					enable = true,
+					disabled = { "unresolved-proc-macro" },
+					enableExperimental = true,
+				},
 			},
 		},
 		on_attach = function(_, bufnr)
