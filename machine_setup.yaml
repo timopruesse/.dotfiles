@@ -254,12 +254,6 @@ tasks:
             - "rm /tmp/awscliv2.zip"
             - "rm -rf /tmp/aws"
 
-  aws_local_stack:
-    commands:
-      - run:
-          commands:
-            - "pip install awscli-local"
-
   php:
     commands:
       - run:
