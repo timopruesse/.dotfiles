@@ -1,11 +1,11 @@
 ---
 parallel: true
 tasks:
-  website_2021:
+  website:
     commands:
       - clone:
-          url: "git@github.com:niceoutside/website_2021.git"
-          target: "~/github/niceoutside/website_2021"
+          url: "git@github.com:niceoutside/website-v2.git"
+          target: "~/github/niceoutside/website-v2"
 
   beacon:
     parallel: true
@@ -16,6 +16,12 @@ tasks:
       - clone:
           url: "git@github.com:niceoutside/beacon-webapp.git"
           target: "~/github/niceoutside/beacon-webapp"
+
+  clai:
+    commands:
+      - clone:
+          url: "git@github.com:niceoutside/clai_api.git"
+          target: "~/github/niceoutside/clai_api"
 
   curtain:
     commands:
