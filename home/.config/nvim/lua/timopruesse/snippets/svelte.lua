@@ -18,7 +18,7 @@ ls.add_snippets("svelte", {
                 </script>
             ]],
 			{
-				c(1, { t('lang="ts"'), t('context="module"') }),
+				c(1, { t('lang="ts"'), t('context="module" lang="ts"') }),
 				i(0),
 			}
 		)
