@@ -18,10 +18,14 @@ tasks:
           target: "~/github/niceoutside/beacon-webapp"
 
   clai:
+    parallel: true
     commands:
       - clone:
           url: "git@github.com:niceoutside/clai_api.git"
           target: "~/github/niceoutside/clai_api"
+      - clone:
+          url: "git@github.com:niceoutside/clai_app.git"
+          target: "~/github/niceoutside/clai_app"
 
   curtain:
     commands:
