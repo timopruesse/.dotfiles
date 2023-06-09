@@ -183,7 +183,10 @@ lsp.gopls.setup(config({
 lsp.pylsp.setup(config())
 
 lsp.intelephense.setup(config({
-	on_attach = function(_, bufnr)
+	on_attach = function(client, bufnr)
+		client.server_capabilities.documentFormattingProvider = false
+		client.server_capabilities.documentRangeFormattingProvider = false
+
 		require("timopruesse.keymaps.php").setup(bufnr)
 	end,
 }))

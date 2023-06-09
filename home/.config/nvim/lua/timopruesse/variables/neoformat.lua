@@ -3,7 +3,6 @@ vim.g.neoformat_basic_format_align = 1
 vim.g.neoformat_basic_format_retab = 1
 vim.g.neoformat_basic_format_trim = 1
 
--- we want to run prettier(d) first in most cases :)
 vim.g.neoformat_enabled_cmake = { "cmakeformat" }
 vim.g.neoformat_enabled_cpp = { "uncrustify", "clangformat", "astyle" }
 vim.g.neoformat_enabled_cs = { "uncrustify", "astyle", "clangformat" }
@@ -17,7 +16,7 @@ vim.g.neoformat_enabled_csv = { "prettydiff" }
 vim.g.neoformat_enabled_dart = { "dartfmt", "format" }
 vim.g.neoformat_enabled_go = { "goimports", "gofmt", "gofumports", "gofumpt" }
 vim.g.neoformat_enabled_graphql = { "prettierd", "prettier" }
-vim.g.neoformat_enabled_html = { "htmlbeautify", "prettierd", "prettier", "tidy", "prettydiff" }
+vim.g.neoformat_enabled_html = { "prettierd", "prettier", "htmlbeautify", "tidy", "prettydiff" }
 vim.g.neoformat_enabled_javascript = {
 	"prettierd",
 	"prettier",

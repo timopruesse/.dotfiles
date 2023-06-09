@@ -111,9 +111,6 @@ export EDITOR=$VISUAL
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 
-# add nvim to PATH
-PATH=$PATH:$HOME/.nvim/nvim.appimage
-
 # add global composer dir to PATH
 PATH=$PATH:$(composer -n config --global home)/vendor/bin
 
@@ -143,9 +140,7 @@ export FONTCONFIG_PATH=/etc/fonts
 # D3D12 GPU acceleration
 export LIBVA_DRIVER_NAME=d3d12
 
-
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 
 # bun completions
 [ -s "/home/timo/.bun/_bun" ] && source "/home/timo/.bun/_bun"

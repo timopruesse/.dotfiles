@@ -238,9 +238,6 @@ packer.startup(function()
 		end,
 	})
 
-	-- php
-	use("w0rp/ale")
-
 	-- go
 	use("fatih/vim-go")
 
