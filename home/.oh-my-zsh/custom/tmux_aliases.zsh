@@ -1,8 +1,6 @@
-export TMUX_SESSION_PERSONAL="timo"
-export TMUX_SESSION_WORK="NO"
+alias ss="$HOME/start_tmux.sh"
+alias timo="ss timo"
+alias work="ss NO"
 
-alias timo="$HOME/start_tmux.sh $TMUX_SESSION_PERSONAL"
-alias work="$HOME/start_tmux.sh $TMUX_SESSION_WORK"
+alias ks="tmux kill-session -t"
 
-alias stop="tmux kill-session -t $TMUX_SESSION_PERSONAL"
-alias stop_work="tmux kill-session -t $TMUX_SESSION_WORK"

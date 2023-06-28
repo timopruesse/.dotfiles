@@ -16,7 +16,7 @@ fi
 CURRENT_SESSION_NAME=$(tmux display-message -p '#S')
 
 if [ -n "$TMUX" ] && [ $CURRENT_SESSION_NAME = $1 ]; then
-    tmux display-message -d 1500 "Already in [$CURRENT_SESSION_NAME]"
+    tmux display-message -d 1000 "Already in [$CURRENT_SESSION_NAME]"
     exit 0;
 fi
 
@@ -34,7 +34,7 @@ if [ $CURRENT_SESSION_NAME != $1 ]; then
         TMUX= tmux new -d -s $1
     fi
     tmux switch -t $1
-    tmux display-message -d 1500 "Workspace [$CURRENT_SESSION_NAME] -> [$1]"
+    tmux display-message -d 1000 "Workspace [$CURRENT_SESSION_NAME] -> [$1]"
 else
     if [ $HAS_TARGET_SESSION = 0 ]; then
         tmux new -s $1
