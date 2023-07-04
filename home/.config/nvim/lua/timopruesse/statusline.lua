@@ -17,7 +17,7 @@ require("staline").setup({
 	sections = {
 		left = { "  ", "mode", "[", "cwd", "]", "file_name", "lsp" },
 		mid = { "branch" },
-		right = { "lsp_name", "  " },
+		right = { require("tabnine.status").status(), "  ", "lsp_name", "  " },
 	},
 	mode_colors = gruvbox,
 	defaults = {

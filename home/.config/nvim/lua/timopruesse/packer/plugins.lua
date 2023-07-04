@@ -91,6 +91,21 @@ packer.startup(function()
 	use("hrsh7th/cmp-emoji")
 	use({ "tzachar/cmp-tabnine", run = "./install.sh", requires = "hrsh7th/nvim-cmp" })
 	use({
+		"codota/tabnine-nvim",
+		run = "./dl_binaries.sh",
+		config = function()
+			require("tabnine").setup({
+				disable_auto_comment = true,
+				accept_keymap = "<Tab>",
+				dismiss_keymap = "<C-]>",
+				debounce_ms = 800,
+				suggestion_color = { gui = "#808080", cterm = 244 },
+				exclude_filetypes = { "TelescopePrompt" },
+				log_file_path = nil,
+			})
+		end,
+	})
+	use({
 		"simrat39/symbols-outline.nvim",
 		config = function()
 			require("symbols-outline").setup({
