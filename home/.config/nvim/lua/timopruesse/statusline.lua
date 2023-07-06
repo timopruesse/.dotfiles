@@ -26,6 +26,5 @@ require("staline").setup({
 	mode_colors = gruvbox,
 	defaults = {
 		true_colors = true,
-		branch_symbol = " ",
 	},
 })
