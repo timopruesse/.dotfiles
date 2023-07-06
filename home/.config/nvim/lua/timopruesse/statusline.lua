@@ -13,11 +13,15 @@ local gruvbox = {
 	t = "#689d6a",
 }
 
+local function tabnine_status()
+	return require("tabnine.status").status()
+end
+
 require("staline").setup({
 	sections = {
 		left = { "  ", "mode", "[", "cwd", "]", "file_name", "lsp" },
 		mid = { "branch" },
-		right = { require("tabnine.status").status(), "  ", "lsp_name", "  " },
+		right = { tabnine_status, "  ", "lsp_name", "  " },
 	},
 	mode_colors = gruvbox,
 	defaults = {
