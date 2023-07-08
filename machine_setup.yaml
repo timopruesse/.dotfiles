@@ -335,6 +335,15 @@ tasks:
           commands:
             install:
               - "sudo snap install flutter"
+              - "brew tap leoafarias/fvm"
+              - "brew install fvm"
+              - "fvm install stable"
+            update:
+              - "brew upgrade fvm"
+            uninstall:
+              - "fvm remove stable"
+              - "brew uninstall fvm"
+              - "brew untap leoafarias/fvm"
 
   personal_repos:
     commands:
