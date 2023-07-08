@@ -15,7 +15,7 @@ tasks:
             ZSH: ""
             TMP_INSTALL_PATH: "/tmp/install-omz.sh"
           commands:
-            - "rm -r ~/.oh-my-zsh"
+            - "sudo rm -r ~/.oh-my-zsh"
             - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
             - "chmod u+x $TMP_INSTALL_PATH"
             - "$TMP_INSTALL_PATH"
