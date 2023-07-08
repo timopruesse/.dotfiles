@@ -332,26 +332,9 @@ tasks:
     commands:
       - run:
           env:
-            TMP_INSTALL_PATH: "/tmp/cmdline.zip"
           commands:
             install:
-              - "brew tap leoafarias/fvm"
-              - "brew install fvm"
-              - "fvm install stable"
-              - "sudo apt-get install -y android-sdk sdkmanager"
-              - "sudo chown -R $(echo whoami):$(echo whoami) /usr/lib/android-sdk"
-              - "wget -O $TMP_INSTALL_PATH https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip"
-              - "mkdir -p /usr/lib/android-sdk/cmdline-tools/latest"
-              - "unzip $TMP_INSTALL_PATH -d /usr/lib/android-sdk"
-              - "mv /usr/lib/android-sdk/cmdline-tools/* /usr/lib/android-sdk/cmdline-tools/latest"
-              - "rm $TMP_INSTALL_PATH"
-            update:
-              - "brew upgrade fvm"
-            uninstall:
-              - "fvm remove stable"
-              - "brew uninstall fvm"
-              - "brew untap leoafarias/fvm"
-              - "sudo apt-get remove -y android-sdk sdkmanager"
+              - "sudo snap install flutter"
 
   personal_repos:
     commands:
