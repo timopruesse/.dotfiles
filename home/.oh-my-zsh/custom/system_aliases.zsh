@@ -10,3 +10,5 @@ alias ls=exa
 alias l="exa -la"
 
 alias pn=pnpm
+
+alias flutter="fvm flutter"
