@@ -12,9 +12,6 @@ packer.startup(function()
 
 	use("nvim-lua/plenary.nvim")
 
-	-- formatting
-	use("mhartington/formatter.nvim")
-
 	-- debugging
 	use("mfussenegger/nvim-dap")
 
