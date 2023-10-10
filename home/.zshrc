@@ -152,3 +152,6 @@ export LIBVA_DRIVER_NAME=d3d12
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# bun completions
+[ -s "/home/timo/.bun/_bun" ] && source "/home/timo/.bun/_bun"
