@@ -115,7 +115,14 @@ packer.startup(function()
     use({
         "j-hui/fidget.nvim",
         config = function()
-            require("fidget").setup({ window = { blend = 0 } })
+            require("fidget").setup({
+                notification = {
+                    override_vim_notify = true,
+                    window = {
+                        winblend = 0
+                    },
+                }
+            })
         end,
     })
 
