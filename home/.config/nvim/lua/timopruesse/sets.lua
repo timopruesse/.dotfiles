@@ -6,13 +6,13 @@ vim.opt.completeopt = { "menu", "menuone", "noselect" }
 vim.opt.wildmode = { "longest", "list", "full" }
 vim.opt.wildmenu = true
 vim.opt.wildignore = {
-	"*.pyc",
-	"*_build/*",
-	"**/coverage/*",
-	"**/node_modules/*",
-	"**/android/*",
-	"**/ios/*",
-	"**/.git/*",
+    "*.pyc",
+    "*_build/*",
+    "**/coverage/*",
+    "**/node_modules/*",
+    "**/android/*",
+    "**/ios/*",
+    "**/.git/*",
 }
 
 vim.opt.background = "dark"
@@ -53,3 +53,5 @@ vim.cmd("set undodir=$HOME/.vim/undodir")
 vim.cmd("set undofile")
 
 vim.g.undotree_WindowLayout = 4
+
+vim.g.skip_ts_context_commentstring_module = true

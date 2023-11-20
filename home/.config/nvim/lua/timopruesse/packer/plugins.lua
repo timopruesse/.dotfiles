@@ -187,9 +187,6 @@ packer.startup(function()
                 highlight = { enable = true },
                 incremental_selection = { enable = true },
                 textobjects = { enable = true },
-                context_commentstring = {
-                    enable = true,
-                },
             })
             require("nvim-treesitter.parsers").get_parser_configs().markdown.filetype_to_parsername = "octo"
         end,
