@@ -63,17 +63,10 @@ packer.startup(function()
     use("neovim/nvim-lspconfig")
     use("lvimuser/lsp-inlayhints.nvim")
     use({
-        "kkharji/lspsaga.nvim",
+        "nvimdev/lspsaga.nvim",
+        after = 'nvim-lspconfig',
         config = function()
-            require("lspsaga").init_lsp_saga({
-                code_action_icon = "",
-                code_action_prompt = {
-                    enable = true,
-                    sign = true,
-                    sign_priority = 20,
-                    virtual_text = false,
-                },
-            })
+            require("lspsaga").setup({})
         end,
     })
     use("hrsh7th/nvim-cmp")

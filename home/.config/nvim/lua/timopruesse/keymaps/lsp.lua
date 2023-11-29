@@ -1,12 +1,11 @@
 local key = require("timopruesse.helpers.keymap")
-local provider = require("lspsaga.provider")
 
 -- TODO: Write a custom_attach function to only add these keybindings when a language server was started...
 
 local scroll = function(dir)
-	return function()
-		require("lspsaga.action").smart_scroll_with_saga(dir, "<c-u>")
-	end
+    return function()
+        require("lspsaga.action").smart_scroll_with_saga(dir, "<c-u>")
+    end
 end
 
 key.nnoremap("<leader>vd", vim.lsp.buf.definition)
@@ -26,6 +25,3 @@ key.nnoremap("<C-b>", scroll(-1))
 
 key.nnoremap("<leader>vsh", key.exec_command("Lspsaga signature_help"))
 key.nnoremap("<leader>vrn", key.exec_command("Lspsaga rename"))
-
-key.nnoremap("<leader>pd", provider.preview_definition)
-key.nnoremap("<leader>wf", provider.lsp_finder)
