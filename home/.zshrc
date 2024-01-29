@@ -155,3 +155,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # bun completions
 [ -s "/home/timo/.bun/_bun" ] && source "/home/timo/.bun/_bun"
+
+# dart/pub
+export PATH="$PATH":"$HOME/.pub-cache/bin"
