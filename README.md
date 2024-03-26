@@ -3,7 +3,7 @@
 ## TLDR;
 
 - neovim
-  - color scheme: [moonbow](https://github.com/arturgoms/moonbow.nvim)
+  - color scheme: [PaperColor](https://github.com/NLKNguyen/papercolor-theme)
 - tmux
   - separate sessions for personal/work
 - WSL (Ubuntu)
