@@ -90,19 +90,24 @@ require("lazy").setup({
             "nvim-lua/plenary.nvim"
         }
     },
+    { "williamboman/mason.nvim" },
+    { "neovim/nvim-lspconfig", dependencies = { "simrat39/rust-tools.nvim" } },
     {
-        "williamboman/mason.nvim",
-        config = function()
-            require("mason").setup({
-                max_concurrent_installers = 6,
-            })
-        end,
+        "williamboman/mason-lspconfig.nvim",
+        dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
+        ensure_installed = {
+            "lua_ls", "rust_analyzer", "bashls", "cssls", "eslint", "gopls", "html", "jsonls",
+            "tsserver", "intelephense", "pest_ls", "jedi_language_server", "somesass_ls", "svelte",
+            "tailwindcss", "yamlls"
+        },
     },
+    { "simrat39/rust-tools.nvim" },
     {
         "nvimdev/lspsaga.nvim",
         dependencies = {
             "nvim-treesitter/nvim-treesitter",
-            "nvim-tree/nvim-web-devicons"
+            "nvim-tree/nvim-web-devicons",
+            "neovim/nvim-lspconfig"
         },
         config = function()
             require('lspsaga').setup({})
@@ -116,36 +121,15 @@ require("lazy").setup({
             "nvim-lua/plenary.nvim",
             "nvim-treesitter/nvim-treesitter-context",
         },
-        build = function()
-            vim.api.nvim_command("TSUpdate")
-        end,
         config = function()
             require("nvim-treesitter.configs").setup({
                 auto_install = true,
                 ensure_installed = {
-                    "c",
-                    "lua",
-                    "rust",
-                    "html",
-                    "css",
-                    "scss",
-                    "svelte",
-                    "php",
-                    "json",
-                    "yaml",
-                    "javascript",
-                    "typescript",
-                    "go",
-                    "dockerfile",
-                    "python",
-                    "dart",
-                    "markdown",
-                    "markdown_inline",
-                    "tsx",
-                    "vim",
-                    "toml",
-                    "regex",
-                    "vimdoc",
+                    "lua", "rust", "html", "css", "scss", "svelte", "php",
+                    "json", "yaml", "javascript", "typescript",
+                    "go", "dockerfile", "python", "dart",
+                    "markdown", "markdown_inline", "vim", "toml",
+                    "regex", "vimdoc",
                 },
                 highlight = { enable = true },
                 incremental_selection = { enable = true },
@@ -183,107 +167,11 @@ require("lazy").setup({
             "David-Kunz/cmp-npm",
             "saadparwaiz1/cmp_luasnip"
         },
-        config = function()
-            local cmp = require("cmp")
-            local source_mapping = {
-                buffer = "[BUF]",
-                nvim_lsp = "[LSP]",
-                nvim_lua = "[LUA]",
-                cmp_tabnine = "[T9]",
-                path = "[PATH]",
-            }
-
-            cmp.setup({
-                experimental = {
-                    ghost_text = true,
-                },
-                snippet = {
-                    expand = function(args)
-                        require("luasnip").lsp_expand(args.body)
-                    end,
-                },
-                mapping = cmp.mapping.preset.insert({
-                    ["<C-p>"] = cmp.mapping.select_prev_item(),
-                    ["<C-n>"] = cmp.mapping.select_next_item(),
-                    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-d>"] = cmp.mapping.scroll_docs(4),
-                    ["<C-Space>"] = cmp.mapping.complete(),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-                    ["<C-x>"] = cmp.mapping({
-                        i = cmp.mapping.abort(),
-                        c = cmp.mapping.close(),
-                    }),
-                }),
-
-                formatting = {
-                    format = function(entry, vim_item)
-                        local menu = source_mapping[entry.source.name]
-                        if entry.source.name == "cmp_tabnine" then
-                            if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
-                                menu = entry.completion_item.data.detail .. " " .. menu
-                            end
-                            vim_item.kind = "🤖"
-                        end
-                        vim_item.menu = menu
-                        return vim_item
-                    end,
-                },
-
-                sources = {
-                    { name = "nvim_lsp_signature_help" },
-                    { name = "nvim_lsp" },
-                    { name = "luasnip" },
-                    { name = "cmp_tabnine" },
-                    { name = "path" },
-                    { name = "nvim_lua" },
-                    { name = "emoji" },
-                    { name = "npm", keyword_length = 3 },
-                    { name = "buffer", keyword_length = 4 },
-                },
-            })
-
-            cmp.setup.cmdline("/", {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = {
-                    { name = "nvim_lsp_document_symbol" },
-                    { name = "buffer" },
-                },
-            })
-
-            cmp.setup.cmdline(":", {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({
-                    { name = "path" },
-                }, {
-                    { name = "cmdline" },
-                }),
-            })
-
-            cmp.setup.filetype("gitcommit", {
-                sources = require("cmp").config.sources({
-                    { name = "git" },
-                }, {
-                    { name = "buffer" },
-                }),
-            })
-
-            require("cmp_git").setup({})
-        end
     },
     {
         'tzachar/cmp-tabnine',
         build = './install.sh',
         dependencies = 'hrsh7th/nvim-cmp',
-        config = function()
-            local tabnine = require("cmp_tabnine.config")
-            tabnine:setup({
-                max_lines = 1000,
-                max_num_results = 10,
-                sort = true,
-                run_on_every_keystroke = true,
-                snippet_placeholder = "..",
-            })
-        end
     },
     { 'codota/tabnine-nvim', build = "./dl_binaries.sh" },
     {

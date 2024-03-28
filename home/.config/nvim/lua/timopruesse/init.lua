@@ -3,6 +3,7 @@ require("timopruesse.variables.init")
 require("timopruesse.keymaps.init")
 require("timopruesse.autocommands.init")
 require("timopruesse.snippets.init")
+require("timopruesse.lsp")
 
 
 require("tabnine").setup({
