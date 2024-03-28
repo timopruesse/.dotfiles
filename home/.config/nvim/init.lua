@@ -52,11 +52,7 @@ require("lazy").setup({
             })
         end
     },
-    {
-        "NLKNguyen/papercolor-theme",
-        lazy = false,
-        priority = 1000,
-    },
+    { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
     { "stevearc/dressing.nvim", event = "VeryLazy" },
     { "nvim-tree/nvim-web-devicons", lazy = true },
     { "mbbill/undotree" },
