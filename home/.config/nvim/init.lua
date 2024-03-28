@@ -55,13 +55,14 @@ require("lazy").setup({
     { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
     { "stevearc/dressing.nvim", event = "VeryLazy" },
     { "nvim-tree/nvim-web-devicons", lazy = true },
-    { "mbbill/undotree" },
+    { "mbbill/undotree", lazy = true },
     { "ThePrimeagen/harpoon" },
     {
         "ThePrimeagen/refactoring.nvim",
         config = function()
             require("refactoring").setup({})
         end,
+        lazy = true,
     },
     { "JoosepAlviste/nvim-ts-context-commentstring" },
     {
@@ -74,13 +75,15 @@ require("lazy").setup({
         config = function()
             require("timopruesse.telescope")
         end,
+        lazy = true,
     },
     {
         "nvim-telescope/telescope-file-browser.nvim",
         dependencies = {
             "nvim-telescope/telescope.nvim",
             "nvim-lua/plenary.nvim"
-        }
+        },
+        lazy = true,
     },
     { "williamboman/mason.nvim" },
     { "neovim/nvim-lspconfig", dependencies = { "simrat39/rust-tools.nvim" } },
@@ -93,7 +96,7 @@ require("lazy").setup({
             "tailwindcss", "yamlls"
         },
     },
-    { "simrat39/rust-tools.nvim" },
+    { "simrat39/rust-tools.nvim", lazy = true },
     {
         "nvimdev/lspsaga.nvim",
         dependencies = {
@@ -128,7 +131,7 @@ require("lazy").setup({
                 textobjects = { enable = true },
             })
             require("nvim-treesitter.parsers").get_parser_configs().markdown.filetype_to_parsername = "octo"
-        end,
+        end
     },
     { "hrsh7th/cmp-nvim-lsp", lazy = true },
     { "hrsh7th/cmp-buffer", lazy = true },
@@ -159,13 +162,15 @@ require("lazy").setup({
             "David-Kunz/cmp-npm",
             "saadparwaiz1/cmp_luasnip"
         },
+        lazy = true,
     },
     {
         'tzachar/cmp-tabnine',
         build = './install.sh',
         dependencies = 'hrsh7th/nvim-cmp',
+        lazy = true,
     },
-    { 'codota/tabnine-nvim', build = "./dl_binaries.sh" },
+    { 'codota/tabnine-nvim', build = "./dl_binaries.sh", lazy = true },
     {
         "simrat39/symbols-outline.nvim",
         config = function()
@@ -174,6 +179,7 @@ require("lazy").setup({
                 show_guides = true,
             })
         end,
+        lazy = true
     },
     {
         "j-hui/fidget.nvim",
@@ -207,9 +213,10 @@ require("lazy").setup({
                 },
             })
         end,
+        lazy = true,
     },
     { "junegunn/fzf", dir = "~/.fzf", build = "./install --all", lazy = true },
-    { "junegunn/fzf.vim", dependencies = { "junegunn/fzf" } },
+    { "junegunn/fzf.vim", dependencies = { "junegunn/fzf" }, lazy = true },
     { "MunifTanjim/nui.nvim", event = "BufEnter package.json" },
     {
         "vuki656/package-info.nvim",
@@ -235,6 +242,7 @@ require("lazy").setup({
         config = function()
             require("crates").setup()
         end,
+        lazy = true,
     },
     { "fatih/vim-go", lazy = true },
     {
@@ -259,7 +267,8 @@ require("lazy").setup({
             require("peek").setup()
             vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
             vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
-        end
+        end,
+        lazy = true,
     },
     { "tpope/vim-dadbod", lazy = true },
     { "kristijanhusak/vim-dadbod-ui", dependencies = { "tpope/vim-dadbod" }, lazy = true }
