@@ -1,4 +1,5 @@
 require("timopruesse.sets")
+require("timopruesse.theme")
 require("timopruesse.variables.init")
 require("timopruesse.keymaps.init")
 require("timopruesse.autocommands.init")
