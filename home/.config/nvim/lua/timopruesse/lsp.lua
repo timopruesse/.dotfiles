@@ -1,4 +1,3 @@
----@diagnostic disable: different-requires
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
@@ -101,6 +100,11 @@ local function config(_config)
         capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities),
     }, _config or {})
 end
+
+require("mason").setup({
+    max_concurrent_installers = 6,
+})
+require("mason-lspconfig").setup()
 
 local lsp = require("lspconfig")
 
