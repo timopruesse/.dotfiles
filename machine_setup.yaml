@@ -268,12 +268,12 @@ tasks:
             install:
               - "sudo add-apt-repository ppa:ondrej/php -y"
               - "sudo apt-get update && sudo apt-get upgrade -y"
-              - "sudo apt-get install php8.2-cli -y"
-              - "sudo apt-get install -y php8.2-bz2 php8.2-curl php8.2-intl php8.2-xml php8.2-mbstring php8.2-zip"
+              - "sudo apt-get install php8.3-cli -y"
+              - "sudo apt-get install -y php8.3-bz2 php8.3-curl php8.3-intl php8.3-xml php8.3-mbstring php8.3-zip"
             uninstall:
               - "sudo add-apt-repository --remove ppa:ondrej/php"
-              - "sudo apt-get remove -y php8.2-bz2 php8.2-curl php8.2-intl php8.2-xml php8.2-mbstring php8.2-zip"
-              - "sudo apt-get remove php8.2-cli -y"
+              - "sudo apt-get remove -y php8.3-bz2 php8.3-curl php8.3-intl php8.3-xml php8.3-mbstring php8.3-zip"
+              - "sudo apt-get remove php8.3-cli -y"
       - run:
           env:
             TMP_INSTALL_PATH: "/tmp/composer-setup.php"
