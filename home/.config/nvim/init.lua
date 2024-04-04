@@ -56,6 +56,12 @@ require("lazy").setup({
     { "stevearc/dressing.nvim", event = "VeryLazy" },
     { "nvim-tree/nvim-web-devicons", lazy = true },
     { "mbbill/undotree", lazy = true },
+    {
+        "andymass/vim-matchup",
+        config = function()
+            vim.g.matchup_matchparen_offscreen = { method = "popup" }
+        end,
+    },
     { "ThePrimeagen/harpoon" },
     {
         "ThePrimeagen/refactoring.nvim",
@@ -135,6 +141,9 @@ require("lazy").setup({
                 highlight = { enable = true },
                 incremental_selection = { enable = true },
                 textobjects = { enable = true },
+                matchup = {
+                    enable = true
+                }
             })
             require("nvim-treesitter.parsers").get_parser_configs().markdown.filetype_to_parsername = "octo"
         end
