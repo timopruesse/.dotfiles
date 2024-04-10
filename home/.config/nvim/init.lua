@@ -100,6 +100,7 @@ require("lazy").setup({
 	{
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
+		lazy = true,
 		cmd = { "ConformInfo" },
 		keys = {
 			{
