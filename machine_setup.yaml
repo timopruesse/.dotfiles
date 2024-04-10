@@ -82,20 +82,6 @@ tasks:
           url: "https://github.com/tmux-plugins/tpm"
           target: "~/.tmux/plugins/tpm"
 
-  mesa:
-    commands:
-      - run:
-        commands:
-          install:
-            - "sudo add-apt-repository -y ppa:oibaf/graphics-drivers"
-            - "sudo apt-get update && sudo apt-get upgrade -y"
-            - "sudo apt-get install -y vainfo mesa-va-drivers libwayland-egl-backend-dev libwayland-egl1-mesa"
-          uninstall:
-            - "sudo apt-get remove -y vainfo mesa-va-drivers libwayland-egl-backend-dev libwayland-egl1-mesa"
-            - "sudo apt-get install ppa-purge"
-            - "sudo ppa-purge ppa:oibaf/graphics-drivers"
-            - "sudo apt-get update && sudo apt-get upgrade -y"
-
   dotfiles:
     commands:
       - clone:
@@ -152,20 +138,12 @@ tasks:
             - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
             - "brew tap homebrew/core"
             - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
-
-  brew_tools:
-    commands:
-      - run:
-          env:
-            PACKAGES_STR: "catimg"
-          commands: "brew install $(echo $PACKAGES_STR)"
-
   bun:
     commands:
       - run:
           commands:
             install: "curl -fsSL https://bun.sh/install | bash"
-            update: "bun upgrade"
+            update: "bun upgrade --canary"
 
   node:
     commands:
@@ -187,40 +165,17 @@ tasks:
             uninstall:
               - "nvm uninstall $(node --version)"
               - "rm -rf $NVM_DIR"
-      - run:
-          env:
-            PACKAGES_STR: "wasm-pack"
-          commands:
-            install: "npm install -g $(echo $PACKAGES_STR)"
-            update: "npm upgrade -g $(echo $PACKAGES_STR)"
-            uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
-
-  ts-lsp:
-    commands:
-      - run:
-          env:
-            PACKAGES_STR: "typescript typescript-language-server svelte-language-server @tailwindcss/language-server vscode-langservers-extracted"
-          commands:
-            install: "npm install -g $(echo $PACKAGES_STR)"
-            update: "npm upgrade -g $(echo $PACKAGES_STR)"
-            uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
-
   php-lsp:
     commands:
       - copy:
           src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/intelephense.txt"
           target: "~/intelephense/licence.txt"
-      - run:
-          commands:
-            install: "npm install -g intelephense"
-            update: "npm upgrade -g intelephense"
-            uninstall: "npm uninstall -g intelephense"
 
-  lint:
+  nvim-npm:
     commands:
       - run:
           env:
-            PACKAGES_STR: "neovim prettier @fsouza/prettierd eslint eslint_d"
+            PACKAGES_STR: "neovim"
           commands:
             install: "npm install -g $(echo $PACKAGES_STR)"
             update: "npm upgrade -g $(echo $PACKAGES_STR)"
@@ -236,12 +191,6 @@ tasks:
               - "pip install pynvim pip-review"
             update:
               - "pip-review --auto"
-
-  yaml:
-    commands:
-      - run:
-          commands:
-            - "pip install --user yamllint"
 
   aws:
     commands:
@@ -389,21 +338,3 @@ tasks:
               - "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main' | sudo tee /etc/apt/sources.list.d/microsoft-edge.list"
               - "sudo apt-get update"
               - "sudo apt-get install -y microsoft-edge-stable"
-
-  lua:
-    parallel: true
-    commands:
-      - run:
-          commands:
-            install: "cargo install stylua"
-      - run:
-          env:
-            SERVER_VERSION: "3.0.2"
-            TMP_INSTALL_PATH: "/tmp/lua-language-server.tar.gz"
-            TARGET_DIR: "$HOME/lua-language-server"
-          commands:
-            install:
-              - "wget -O $TMP_INSTALL_PATH https://github.com/sumneko/lua-language-server/releases/download/$SERVER_VERSION/lua-language-server-$SERVER_VERSION-linux-x64.tar.gz"
-              - "mkdir -p $TARGET_DIR"
-              - "tar -xf $TMP_INSTALL_PATH -C $TARGET_DIR"
-              - "rm $TMP_INSTALL_PATH"
