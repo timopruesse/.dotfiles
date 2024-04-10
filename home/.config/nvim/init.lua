@@ -132,7 +132,10 @@ require("lazy").setup({
 				python = { "black" },
 				["_"] = { "trim_whitespace" },
 			},
-			format_on_save = { timeout_ms = 600, lsp_fallback = true },
+			format_on_save = {
+				async = true,
+				lsp_fallback = true,
+			},
 			formatters = {
 				shfmt = {
 					prepend_args = { "-i", "2" },
