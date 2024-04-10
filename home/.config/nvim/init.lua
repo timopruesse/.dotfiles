@@ -147,7 +147,7 @@ require("lazy").setup({
 		end,
 	},
 	{ "williamboman/mason.nvim" },
-	{ "neovim/nvim-lspconfig", dependencies = { "simrat39/rust-tools.nvim" } },
+	{ "neovim/nvim-lspconfig" },
 	{
 		"williamboman/mason-lspconfig.nvim",
 		dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
@@ -170,7 +170,40 @@ require("lazy").setup({
 			"yamlls",
 		},
 	},
-	{ "simrat39/rust-tools.nvim", lazy = true },
+	{
+		"mrcjkb/rustaceanvim",
+		version = "^4",
+		ft = { "rust" },
+		lazy = true,
+		config = function()
+			vim.g.rustaceanvim = {
+				server = {
+					on_attach = function(_, bufnr)
+						require("timopruesse.keymaps.rust").setup(bufnr)
+					end,
+					default_settings = {
+						rust = {
+							unstable_features = true,
+							build_on_save = false,
+							all_features = true,
+							auto_inlay_hints = true,
+						},
+						["rust-analyzer"] = {
+							checkOnSave = {
+								command = "clippy",
+							},
+							diagnostics = {
+								enable = true,
+								disabled = { "unresolved-proc-macro" },
+								enableExperimental = true,
+							},
+						},
+					},
+				},
+			}
+			require("timopruesse.autocommands.rust")
+		end,
+	},
 	{
 		"nvimdev/lspsaga.nvim",
 		dependencies = {

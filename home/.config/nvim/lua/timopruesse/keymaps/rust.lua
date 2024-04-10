@@ -5,11 +5,21 @@ local M = {}
 M.setup = function(bufnr)
 	local buffer = bufnr or false
 
-	key.nnoremap("<leader>rr", require("rust-tools.runnables").runnables, buffer)
-	key.nmap("<C-Space>", require("rust-tools").hover_actions.hover_actions, buffer)
+	key.nnoremap("<leader>rr", function()
+		vim.cmd.RustLsp("runnables")
+	end, buffer)
 
-	key.nmap("<leader>ta", key.exec_command("ToggleRustTestAll"), buffer)
-	key.nmap("<leader>tt", key.exec_command("ToggleRustTestFile"), buffer)
+	key.nmap("<C-Space>", function()
+		vim.cmd.RustLsp({ "hover", "actions" })
+	end, buffer)
+
+	key.nmap("<leader>tt", function()
+		vim.cmd.RustLsp("testables")
+	end, buffer)
+
+	key.nmap("<leader>rd", function()
+		vim.cmd.RustLsp("renderDiagnostic")
+	end, buffer)
 end
 
 return M
