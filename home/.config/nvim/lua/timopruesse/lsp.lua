@@ -104,7 +104,27 @@ end
 require("mason").setup({
 	max_concurrent_installers = 6,
 })
-require("mason-lspconfig").setup()
+require("mason-lspconfig").setup({
+	automatic_installation = true,
+	ensure_installed = {
+		"lua_ls",
+		"rust_analyzer",
+		"bashls",
+		"cssls",
+		"eslint",
+		"gopls",
+		"html",
+		"jsonls",
+		"tsserver",
+		"intelephense",
+		"pest_ls",
+		"jedi_language_server",
+		"somesass_ls",
+		"svelte",
+		"tailwindcss",
+		"yamlls",
+	},
+})
 
 local lsp = require("lspconfig")
 

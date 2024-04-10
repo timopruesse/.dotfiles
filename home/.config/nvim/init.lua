@@ -130,6 +130,7 @@ require("lazy").setup({
 				bash = { "shfmt" },
 				go = { "goimports", "gofmt" },
 				python = { "black" },
+				blade = { "blade-formatter" },
 				["_"] = { "trim_whitespace" },
 			},
 			format_on_save = {
@@ -151,24 +152,6 @@ require("lazy").setup({
 	{
 		"williamboman/mason-lspconfig.nvim",
 		dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
-		ensure_installed = {
-			"lua_ls",
-			"rust_analyzer",
-			"bashls",
-			"cssls",
-			"eslint",
-			"gopls",
-			"html",
-			"jsonls",
-			"tsserver",
-			"intelephense",
-			"pest_ls",
-			"jedi_language_server",
-			"somesass_ls",
-			"svelte",
-			"tailwindcss",
-			"yamlls",
-		},
 	},
 	{
 		"mrcjkb/rustaceanvim",
@@ -223,6 +206,7 @@ require("lazy").setup({
 			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter-context",
 		},
+		build = ":TSUpdate",
 		config = function()
 			require("nvim-treesitter.configs").setup({
 				auto_install = true,
@@ -234,6 +218,7 @@ require("lazy").setup({
 					"scss",
 					"svelte",
 					"php",
+					"php_only",
 					"json",
 					"yaml",
 					"javascript",
@@ -248,6 +233,7 @@ require("lazy").setup({
 					"toml",
 					"regex",
 					"vimdoc",
+					"blade",
 				},
 				highlight = { enable = true },
 				incremental_selection = { enable = true },
@@ -256,7 +242,23 @@ require("lazy").setup({
 					enable = true,
 				},
 			})
-			require("nvim-treesitter.parsers").get_parser_configs().markdown.filetype_to_parsername = "octo"
+			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+
+			parser_config.blade = {
+				install_info = {
+					url = "https://github.com/EmranMR/tree-sitter-blade",
+					files = { "src/parser.c" },
+					branch = "main",
+				},
+				filetype = "blade",
+			}
+			vim.filetype.add({
+				pattern = {
+					[".*%.blade%.php"] = "blade",
+				},
+			})
+
+			parser_config.markdown.filetype_to_parsername = "octo"
 		end,
 	},
 	{ "hrsh7th/cmp-nvim-lsp", lazy = true },

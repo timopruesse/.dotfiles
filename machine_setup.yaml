@@ -101,6 +101,7 @@ tasks:
               - "sudo apt-get update"
               - "sudo apt-get install -y neovim python3-neovim"
               - "$HOME/install_lazygit.sh"
+              - "sudo luarocks install jsregexp"
             update:
               - "sudo apt-get upgrade neovim"
             uninstall:
@@ -170,6 +171,11 @@ tasks:
       - copy:
           src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/intelephense.txt"
           target: "~/intelephense/licence.txt"
+      - run:
+          commands:
+            install: "npm install -g blade-formatter"
+            update: "npm upgrade -g blade-formatter"
+            uninstall: "npm uninstall -g blade-formatter"
 
   nvim-npm:
     commands:
