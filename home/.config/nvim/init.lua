@@ -131,9 +131,7 @@ require("lazy").setup({
 				python = { "black" },
 				["_"] = { "trim_whitespace" },
 			},
-			-- Set up format-on-save
-			format_on_save = { timeout_ms = 500, lsp_fallback = true },
-			-- Customize formatters
+			format_on_save = { timeout_ms = 600, lsp_fallback = true },
 			formatters = {
 				shfmt = {
 					prepend_args = { "-i", "2" },
@@ -141,7 +139,6 @@ require("lazy").setup({
 			},
 		},
 		init = function()
-			-- If you want the formatexpr, here is the place to set it
 			vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 		end,
 	},
