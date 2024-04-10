@@ -8,10 +8,10 @@ vim.api.nvim_create_autocmd({ "TextYankPost" }, {
 })
 
 local au_fmt = vim.api.nvim_create_augroup("fmt", { clear = true })
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-    pattern = { "*" },
-    callback = function()
-        vim.lsp.buf.format()
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = "*",
+    callback = function(args)
+        require("conform").format({ bufnr = args.buf })
     end,
     group = au_fmt,
 })
