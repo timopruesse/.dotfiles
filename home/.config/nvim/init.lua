@@ -55,7 +55,7 @@ require("lazy").setup({
 	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 	{ "stevearc/dressing.nvim", event = "VeryLazy" },
 	{ "nvim-tree/nvim-web-devicons", lazy = true },
-	{ "mbbill/undotree", lazy = true },
+	{ "mbbill/undotree" },
 	{
 		"andymass/vim-matchup",
 		config = function()
@@ -300,16 +300,6 @@ require("lazy").setup({
 	},
 	{ "codota/tabnine-nvim", build = "./dl_binaries.sh", lazy = true },
 	{
-		"simrat39/symbols-outline.nvim",
-		config = function()
-			require("symbols-outline").setup({
-				highlight_hovered_item = true,
-				show_guides = true,
-			})
-		end,
-		lazy = true,
-	},
-	{
 		"j-hui/fidget.nvim",
 		config = function()
 			require("fidget").setup({
@@ -399,7 +389,7 @@ require("lazy").setup({
 		lazy = true,
 	},
 	{ "tpope/vim-dadbod", lazy = true },
-	{ "kristijanhusak/vim-dadbod-ui", dependencies = { "tpope/vim-dadbod" }, lazy = true },
+	{ "kristijanhusak/vim-dadbod-ui", dependencies = { "tpope/vim-dadbod" } },
 })
 
 require("timopruesse.init")

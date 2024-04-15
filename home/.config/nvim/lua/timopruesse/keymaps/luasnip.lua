@@ -21,4 +21,4 @@ end)
 
 key.imap("<c-u>", require("luasnip.extras.select_choice"))
 
-key.nmap("<leader>rs", key.exec_command("source ~/.config/nvim/lua/timopruesse/snippets.lua"))
+key.nmap("<leader>rs", key.exec_command("source ~/.config/nvim/lua/timopruesse/snippets/init.lua"))
