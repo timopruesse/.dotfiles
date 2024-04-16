@@ -71,12 +71,12 @@ require("lazy").setup({
 		lazy = true,
 	},
 	{
-		"terrortylor/nvim-comment",
+		"numToStr/Comment.nvim",
+		lazy = false,
 		config = function()
-			require("nvim_comment").setup()
+			require("Comment").setup()
 		end,
 	},
-	{ "JoosepAlviste/nvim-ts-context-commentstring" },
 	{
 		"nvim-telescope/telescope.nvim",
 		dependencies = {
