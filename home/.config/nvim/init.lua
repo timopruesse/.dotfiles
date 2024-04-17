@@ -128,6 +128,7 @@ require("lazy").setup({
 				lua = { "stylua" },
 				rust = { "rustfmt" },
 				bash = { "shfmt" },
+				sh = { "shfmt" },
 				go = { "goimports", "gofmt" },
 				python = { "black" },
 				blade = { "blade-formatter" },
