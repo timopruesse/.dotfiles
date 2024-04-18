@@ -353,7 +353,6 @@ require("lazy").setup({
 			key.nmap("<leader>pc", package_info.change_version)
 		end,
 	},
-	{ "leafOfTree/vim-svelte-plugin", lazy = true },
 	{
 		"saecki/crates.nvim",
 		event = "BufRead Cargo.toml",
