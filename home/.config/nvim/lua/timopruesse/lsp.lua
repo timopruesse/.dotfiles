@@ -169,7 +169,41 @@ lsp.svelte.setup(config({
 }))
 
 lsp.cssls.setup(config())
-lsp.tailwindcss.setup(config())
+lsp.tailwindcss.setup(config({
+	filetypes = {
+		"astro",
+		"astro-markdown",
+		"blade",
+		"edge",
+		"eelixir",
+		"elixir",
+		"gohtml",
+		"gohtmltmpl",
+		"haml",
+		"handlebars",
+		"hbs",
+		"html",
+		"html-eex",
+		"heex",
+		"markdown",
+		"mdx",
+		"mustache",
+		"php",
+		"razor",
+		"slim",
+		"twig",
+		"css",
+		"less",
+		"postcss",
+		"sass",
+		"scss",
+		"stylus",
+		"javascriptreact",
+		"typescriptreact",
+		"vue",
+		"svelte",
+	},
+}))
 
 lsp.solang.setup(config())
 
