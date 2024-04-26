@@ -158,3 +158,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # dart/pub
 export PATH="$PATH":"$HOME/.pub-cache/bin"
+
+# zoxide
+eval "$(zoxide init zsh)"
