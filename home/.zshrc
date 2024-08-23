@@ -135,8 +135,8 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 # fix chromium font error
 export FONTCONFIG_PATH=/etc/fonts
 
-# use Windows default browser
 export DISPLAY=:0
+# use Windows default browser
 export BROWSER=/usr/bin/wslview
 
 # D3D12 GPU acceleration
