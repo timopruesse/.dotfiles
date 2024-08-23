@@ -85,15 +85,13 @@ fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
 # customize auto suggestions
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#82909b"
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
-# export LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -152,9 +150,6 @@ export LIBVA_DRIVER_NAME=d3d12
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-
-# bun completions
-[ -s "/home/timo/.bun/_bun" ] && source "/home/timo/.bun/_bun"
 
 # dart/pub
 export PATH="$PATH":"$HOME/.pub-cache/bin"
