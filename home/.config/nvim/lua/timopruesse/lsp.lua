@@ -115,7 +115,7 @@ require("mason-lspconfig").setup({
 		"gopls",
 		"html",
 		"jsonls",
-		"tsserver",
+		"ts_ls",
 		"intelephense",
 		"pest_ls",
 		"jedi_language_server",
@@ -128,7 +128,7 @@ require("mason-lspconfig").setup({
 
 local lsp = require("lspconfig")
 
-lsp.tsserver.setup(config({
+lsp.ts_ls.setup(config({
 	on_attach = function(_, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 	end,
