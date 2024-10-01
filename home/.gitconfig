@@ -1,7 +1,7 @@
 [includeIf "gitdir:~/"]
     path = .gitconfig_personal
-[includeIf "gitdir:~/github/niceoutside/"]
-    path = .gitconfig_niceoutside
+[includeIf "gitdir:~/github/chewielabs/"]
+    path = .gitconfig_mill
 
 [core]
 	editor = nvim
