@@ -1,21 +1,11 @@
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-local tabnine = require("cmp_tabnine.config")
-tabnine:setup({
-	max_lines = 1000,
-	max_num_results = 10,
-	sort = true,
-	run_on_every_keystroke = true,
-	snippet_placeholder = "..",
-})
-
 local cmp = require("cmp")
 local source_mapping = {
 	buffer = "[BUF]",
 	nvim_lsp = "[LSP]",
 	nvim_lua = "[LUA]",
-	cmp_tabnine = "[T9]",
 	path = "[PATH]",
 }
 

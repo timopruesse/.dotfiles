@@ -35,15 +35,11 @@ require("lazy").setup({
 		config = function()
 			vim.opt.laststatus = 3
 
-			local function tabnine_status()
-				return require("tabnine.status").status()
-			end
-
 			require("staline").setup({
 				sections = {
 					left = { "  ", "mode", "[", "cwd", "]", "file_name", "lsp", "line_column" },
 					mid = { "git_branch" },
-					right = { tabnine_status, "  ", "lsp_name", "  " },
+					right = { "lsp_name", "  " },
 				},
 				defaults = {
 					true_colors = true,
@@ -293,13 +289,6 @@ require("lazy").setup({
 		},
 		lazy = true,
 	},
-	{
-		"tzachar/cmp-tabnine",
-		build = "./install.sh",
-		dependencies = "hrsh7th/nvim-cmp",
-		lazy = true,
-	},
-	{ "codota/tabnine-nvim", build = "./dl_binaries.sh", lazy = true },
 	{
 		"j-hui/fidget.nvim",
 		config = function()
