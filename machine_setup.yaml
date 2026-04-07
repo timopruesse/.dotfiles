@@ -39,9 +39,9 @@ tasks:
 
   wsl_config:
     commands:
-      - symlink:
-          src: "./etc/wsl.conf"
-          target: "/etc/wsl.conf"
+      - run:
+          install:
+            - "sudo cp ./etc/wsl.conf /etc/wsl.conf"
 
   windows_terminal:
     commands:
