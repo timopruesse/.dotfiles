@@ -39,9 +39,10 @@ tasks:
 
   wsl_config:
     commands:
-      - run:
-          install:
-            - "sudo cp ./etc/wsl.conf /etc/wsl.conf"
+      - copy:
+          src: "./etc/wsl.conf"
+          target: "/etc/wsl.conf"
+          sudo: true
 
   windows_terminal:
     commands:
