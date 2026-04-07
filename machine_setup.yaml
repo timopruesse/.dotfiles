@@ -49,19 +49,19 @@ tasks:
       - run:
           shell: "bash"
           env:
-            SETTINGS_PATH: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
+            SETTINGS_PATH: "/mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
           commands:
             - "rm -f $SETTINGS_PATH"
       # symlink doesn't work after the settings were changed via UI
       # Apparently, the file gets regenerated instead of changed
       - copy:
           src: "./terminal"
-          target: "/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
+          target: "/mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
 
   ssh:
     commands:
       - copy:
-          src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh"
+          src: "/mnt/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh"
           target: "~/.ssh"
       - run:
           install:
