@@ -195,9 +195,9 @@ tasks:
     commands:
       - run:
           install:
-            - "sudo apt-get install -y pipx python3-venv python3-pip"
+            - "sudo apt-get install -y pipx python3-venv python3-pip python3-pynvim"
             - "python3 -m pipx ensurepath"
-            - "pip install pynvim pip-review"
+            - "pipx install pip-review"
           update:
             - "pip-review --auto"
 
