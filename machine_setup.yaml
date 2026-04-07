@@ -75,7 +75,7 @@ tasks:
           commands:
             - "sudo add-apt-repository -y ppa:git-core/ppa"
             - "sudo apt-get update && sudo apt-get upgrade -y"
-            - "sudo apt-get install -y git tmux fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential mysql-client ninja-build libwebkit2gtk-4.0-37 eza fswatch luarocks"
+            - "sudo apt-get install -y git tmux fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks"
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
 
   tpm:
@@ -166,12 +166,6 @@ tasks:
             install: "curl -fsSL https://bun.sh/install | bash"
             update: "bun upgrade --canary"
 
-  deno:
-    commands:
-      - run:
-          commands:
-            install: "curl -fsSL https://deno.land/install.sh | sh"
-
   node:
     commands:
       - run:
@@ -192,17 +186,6 @@ tasks:
             uninstall:
               - "nvm uninstall $(node --version)"
               - "rm -rf $NVM_DIR"
-  php-lsp:
-    commands:
-      - copy:
-          src: "/c/Users/Timo/OneDrive/Dokumente/_DEV/intelephense.txt"
-          target: "~/intelephense/licence.txt"
-      - run:
-          commands:
-            install: "npm install -g blade-formatter"
-            update: "npm upgrade -g blade-formatter"
-            uninstall: "npm uninstall -g blade-formatter"
-
   nvim-npm:
     commands:
       - run:
@@ -223,61 +206,6 @@ tasks:
               - "pip install pynvim pip-review"
             update:
               - "pip-review --auto"
-
-  aws:
-    commands:
-      - run:
-          commands:
-            install:
-              - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-              - "unzip /tmp/awscliv2.zip -d /tmp/"
-              - "sudo /tmp/aws/install"
-              - "rm /tmp/awscliv2.zip"
-              - "rm -rf /tmp/aws"
-              - "pipx install aws-sso-util"
-          update:
-            - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"'
-            - "unzip /tmp/awscliv2.zip -d /tmp/"
-            - "sudo /tmp/aws/install --update"
-            - "rm /tmp/awscliv2.zip"
-            - "rm -rf /tmp/aws"
-
-  php:
-    commands:
-      - run:
-          commands:
-            install:
-              - "sudo add-apt-repository ppa:ondrej/php -y"
-              - "sudo apt-get update && sudo apt-get upgrade -y"
-              - "sudo apt-get install php8.3-cli -y"
-              - "sudo apt-get install -y php8.3-bz2 php8.3-curl php8.3-intl php8.3-xml php8.3-mbstring php8.3-zip"
-            uninstall:
-              - "sudo add-apt-repository --remove ppa:ondrej/php"
-              - "sudo apt-get remove -y php8.3-bz2 php8.3-curl php8.3-intl php8.3-xml php8.3-mbstring php8.3-zip"
-              - "sudo apt-get remove php8.3-cli -y"
-      - run:
-          env:
-            TMP_INSTALL_PATH: "/tmp/composer-setup.php"
-          commands:
-            install:
-              - "curl -sS https://getcomposer.org/installer -o $TMP_INSTALL_PATH"
-              - "sudo php $TMP_INSTALL_PATH --install-dir=/usr/local/bin --filename=composer"
-              - "rm -rf $TMP_INSTALL_PATH"
-            update:
-              - "sudo composer self-update"
-      - run:
-          commands:
-            install:
-              - "composer global require phpmd/phpmd"
-              - "composer global require squizlabs/php_codesniffer"
-              - "composer global require phpstan/phpstan"
-              - "composer global require friendsofphp/php-cs-fixer"
-            update:
-              - "composer global require phpmd/phpmd"
-              - "composer global require squizlabs/php_codesniffer"
-              - "composer global require phpstan/phpstan"
-              - "composer global require friendsofphp/php-cs-fixer"
-
   go:
     commands:
       - run:
@@ -288,17 +216,6 @@ tasks:
               - "sudo apt-get upgrade -y golang"
             uninstall:
               - "sudo apt-get remove -y golang"
-
-  clang:
-    commands:
-      - run:
-          commands:
-            install:
-              - "sudo apt-get install -y ninja-build clang"
-            update:
-              - "sudo apt-get upgrade -y ninja-build clang"
-            uninstall:
-              - "sudo apt-get remove -y ninja-build clang"
 
   dart:
     commands:
@@ -340,33 +257,3 @@ tasks:
     commands:
       - machine_setup:
           config: "$DOTFILES/personal_repositories.yaml"
-
-  no_repos:
-    commands:
-      - machine_setup:
-          config: "$DOTFILES/no_repositories.yaml"
-
-  ngrok:
-    commands:
-      - run:
-          env:
-            TMP_INSTALL_PATH: "/tmp/ngrok.zip"
-          commands:
-            install:
-              - "wget -O $TMP_INSTALL_PATH https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
-              - "unzip $TMP_INSTALL_PATH -d $HOME/.local/bin"
-              - "rm $TMP_INSTALL_PATH"
-            update:
-              - "ngrok update"
-            uninstall:
-              - "rm $HOME/.local/bin/ngrok"
-
-  edge:
-    commands:
-      - run:
-          commands:
-            install:
-              - "sudo wget -O- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /usr/share/keyrings/microsoft-edge.gpg"
-              - "echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main' | sudo tee /etc/apt/sources.list.d/microsoft-edge.list"
-              - "sudo apt-get update"
-              - "sudo apt-get install -y microsoft-edge-stable"
