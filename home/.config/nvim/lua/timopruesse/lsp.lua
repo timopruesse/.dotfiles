@@ -77,50 +77,23 @@ cmp.setup.filetype("gitcommit", {
 
 require("cmp_git").setup({})
 
+-- Shared on_attach: generic LSP keymaps registered buffer-locally for every server
 local function on_attach(client, bufnr)
 	require("timopruesse.keymaps.lsp").setup(bufnr)
 end
 
-local function config(_config)
-	_config = _config or {}
-	local server_on_attach = _config.on_attach
-	_config.on_attach = function(client, bufnr)
+local cmp_capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+-- Global defaults applied to all LSP servers
+vim.lsp.config("*", {
+	capabilities = cmp_capabilities,
+	on_attach = on_attach,
+})
+
+-- ts_ls: inlay hints + node keymaps
+vim.lsp.config("ts_ls", {
+	on_attach = function(client, bufnr)
 		on_attach(client, bufnr)
-		if server_on_attach then
-			server_on_attach(client, bufnr)
-		end
-	end
-	return vim.tbl_deep_extend("force", {
-		capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities),
-	}, _config)
-end
-
-require("mason").setup({
-	max_concurrent_installers = 6,
-})
-require("mason-lspconfig").setup({
-	automatic_installation = true,
-	ensure_installed = {
-		"lua_ls",
-		"bashls",
-		"cssls",
-		"eslint",
-		"gopls",
-		"html",
-		"jsonls",
-		"ts_ls",
-		"jedi_language_server",
-		"somesass_ls",
-		"svelte",
-		"tailwindcss",
-		"yamlls",
-	},
-})
-
-local lsp = require("lspconfig")
-
-lsp.ts_ls.setup(config({
-	on_attach = function(_, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 	end,
 	settings = {
@@ -147,18 +120,18 @@ lsp.ts_ls.setup(config({
 			},
 		},
 	},
-}))
+})
 
-lsp.jedi_language_server.setup(config())
-
-lsp.svelte.setup(config({
-	on_attach = function(_, bufnr)
+-- svelte: node keymaps
+vim.lsp.config("svelte", {
+	on_attach = function(client, bufnr)
+		on_attach(client, bufnr)
 		require("timopruesse.keymaps.node").setup(bufnr)
 	end,
-}))
+})
 
-lsp.cssls.setup(config())
-lsp.tailwindcss.setup(config({
+-- tailwindcss: expanded filetype list
+vim.lsp.config("tailwindcss", {
 	filetypes = {
 		"astro",
 		"astro-markdown",
@@ -190,26 +163,10 @@ lsp.tailwindcss.setup(config({
 		"vue",
 		"svelte",
 	},
-}))
+})
 
-require("flutter-tools").setup(config({
-	fvm = true,
-	widget_guides = {
-		enabled = false,
-	},
-	lsp = {
-		color = {
-			enabled = true,
-			background = false,
-			foreground = false,
-			virtual_text = true,
-			virtual_text_str = "■",
-		},
-	},
-}))
-
-lsp.gopls.setup(config({
-	cmd = { "gopls", "serve" },
+-- gopls: staticcheck + unused params (no "serve" subcommand — deprecated)
+vim.lsp.config("gopls", {
 	settings = {
 		gopls = {
 			analyses = {
@@ -218,9 +175,10 @@ lsp.gopls.setup(config({
 			staticcheck = true,
 		},
 	},
-}))
+})
 
-lsp.lua_ls.setup(config({
+-- lua_ls: runtime/workspace config for nvim development
+vim.lsp.config("lua_ls", {
 	settings = {
 		Lua = {
 			runtime = { version = "LuaJIT" },
@@ -233,4 +191,49 @@ lsp.lua_ls.setup(config({
 			telemetry = { enable = false },
 		},
 	},
-}))
+})
+
+require("mason").setup({
+	max_concurrent_installers = 6,
+})
+require("mason-lspconfig").setup({
+	ensure_installed = {
+		"lua_ls",
+		"bashls",
+		"cssls",
+		"eslint",
+		"gopls",
+		"html",
+		"jsonls",
+		"ts_ls",
+		"jedi_language_server",
+		"somesass_ls",
+		"svelte",
+		"tailwindcss",
+		"yamlls",
+	},
+	-- rust_analyzer: managed by rustaceanvim (conflicts if enabled here)
+	-- pest_ls: PHP testing LSP, not used
+	automatic_enable = {
+		exclude = { "rust_analyzer", "pest_ls" },
+	},
+})
+
+-- flutter-tools manages dartls itself; on_attach/capabilities go in lsp table
+require("flutter-tools").setup({
+	fvm = true,
+	widget_guides = {
+		enabled = false,
+	},
+	lsp = {
+		on_attach = on_attach,
+		capabilities = cmp_capabilities,
+		color = {
+			enabled = true,
+			background = false,
+			foreground = false,
+			virtual_text = true,
+			virtual_text_str = "■",
+		},
+	},
+})
