@@ -1,5 +1,5 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system({
 		"git",
 		"clone",
@@ -49,6 +49,12 @@ require("lazy").setup({
 		end,
 	},
 	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+	{
+		"lewis6991/gitsigns.nvim",
+		config = function()
+			require("gitsigns").setup()
+		end,
+	},
 	{ "stevearc/dressing.nvim", event = "VeryLazy" },
 	{ "nvim-tree/nvim-web-devicons", lazy = true },
 	{ "mbbill/undotree" },
@@ -102,7 +108,7 @@ require("lazy").setup({
 			{
 				"<leader>f",
 				function()
-					require("conform").format({ async = true, lsp_fallback = true })
+					require("conform").format({ async = true, lsp_format = "fallback" })
 				end,
 				mode = "",
 				desc = "Format buffer",
@@ -127,12 +133,10 @@ require("lazy").setup({
 				sh = { "shfmt" },
 				go = { "goimports", "gofmt" },
 				python = { "black" },
-				blade = { "blade-formatter" },
 				["_"] = { "trim_whitespace" },
 			},
 			format_on_save = {
-				async = true,
-				lsp_fallback = true,
+				lsp_format = "fallback",
 			},
 			formatters = {
 				shfmt = {
@@ -214,8 +218,6 @@ require("lazy").setup({
 					"css",
 					"scss",
 					"svelte",
-					"php",
-					"php_only",
 					"json",
 					"yaml",
 					"javascript",
@@ -230,7 +232,6 @@ require("lazy").setup({
 					"toml",
 					"regex",
 					"vimdoc",
-					"blade",
 				},
 				highlight = { enable = true },
 				incremental_selection = { enable = true },
@@ -240,20 +241,6 @@ require("lazy").setup({
 				},
 			})
 			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-
-			parser_config.blade = {
-				install_info = {
-					url = "https://github.com/EmranMR/tree-sitter-blade",
-					files = { "src/parser.c" },
-					branch = "main",
-				},
-				filetype = "blade",
-			}
-			vim.filetype.add({
-				pattern = {
-					[".*%.blade%.php"] = "blade",
-				},
-			})
 
 			parser_config.markdown.filetype_to_parsername = "octo"
 		end,
@@ -323,7 +310,7 @@ require("lazy").setup({
 		end,
 		lazy = true,
 	},
-	{ "junegunn/fzf", dir = "~/.fzf", build = "./install --all", lazy = true },
+	{ "junegunn/fzf", build = "./install --all", lazy = true },
 	{ "junegunn/fzf.vim", dependencies = { "junegunn/fzf" } },
 	{ "kevinhwang91/nvim-bqf", ft = { "qf" } },
 	{ "MunifTanjim/nui.nvim", event = "BufEnter package.json" },
@@ -358,7 +345,6 @@ require("lazy").setup({
 		dependencies = { "nvim-lua/plenary.nvim" },
 		lazy = true,
 	},
-	{ "ambv/black", lazy = true },
 	{
 		"folke/todo-comments.nvim",
 		dependencies = { "nvim-lua/plenary.nvim" },

@@ -3,7 +3,6 @@ local key = require("timopruesse.helpers.keymap")
 require("timopruesse.keymaps.telescope")
 require("timopruesse.keymaps.harpoon")
 require("timopruesse.keymaps.navigation")
-require("timopruesse.keymaps.lsp")
 require("timopruesse.keymaps.luasnip")
 require("timopruesse.keymaps.undotree")
 

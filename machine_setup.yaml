@@ -77,6 +77,7 @@ tasks:
             - "sudo apt-get update && sudo apt-get upgrade -y"
             - "sudo apt-get install -y git tmux fuse ripgrep fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev"
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
+            - "sudo locale-gen en_US.UTF-8"
 
   tpm:
     commands:
@@ -169,9 +170,10 @@ tasks:
             NVM_DIR: "~/.nvm"
           install:
             - "mkdir -p $NVM_DIR"
-            - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash"
+            - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
             - "source ~/.zshrc"
-            - "nvm alias default $(node --version)"
+            - "nvm install --lts"
+            - "nvm alias default lts/*"
           update:
             - "OLD_NODE_VERSION=$(node --version)"
             - "nvm install node --reinstall-packages-from=node --default"

@@ -1,27 +1,29 @@
 local key = require("timopruesse.helpers.keymap")
 
--- TODO: Write a custom_attach function to only add these keybindings when a language server was started...
+local M = {}
 
-local scroll = function(dir)
-    return function()
-        require("lspsaga.action").smart_scroll_with_saga(dir, "<c-u>")
-    end
+M.setup = function(bufnr)
+	local buffer = bufnr or false
+
+	key.nnoremap("<leader>vd", vim.lsp.buf.definition, buffer)
+	key.nnoremap("<leader>vi", vim.lsp.buf.implementation, buffer)
+	key.nnoremap("<leader>vrr", vim.lsp.buf.references, buffer)
+	key.nnoremap("<leader>ee", vim.diagnostic.open_float, buffer)
+
+	-- [ = backward (prev), ] = forward (next)
+	key.nnoremap("[d", key.exec_command("Lspsaga diagnostic_jump_prev"), buffer)
+	key.nnoremap("]d", key.exec_command("Lspsaga diagnostic_jump_next"), buffer)
+
+	key.nnoremap("<leader>vws", vim.lsp.buf.workspace_symbol, buffer)
+
+	key.nnoremap("<leader><leader>", key.exec_command("Lspsaga code_action"), buffer)
+	-- range_code_action removed from lspsaga; code_action works in visual mode
+	key.vnoremap("<leader><leader>", key.exec_command("Lspsaga code_action"), buffer)
+
+	key.nnoremap("<leader>vh", key.exec_command("Lspsaga hover_doc"), buffer)
+	-- Lspsaga signature_help removed — use native LSP
+	key.nnoremap("<leader>vsh", vim.lsp.buf.signature_help, buffer)
+	key.nnoremap("<leader>vrn", key.exec_command("Lspsaga rename"), buffer)
 end
 
-key.nnoremap("<leader>vd", vim.lsp.buf.definition)
-key.nnoremap("<leader>vi", vim.lsp.buf.implementation)
-key.nnoremap("<leader>vrr", vim.lsp.buf.references)
-key.nnoremap("<leader>ee", vim.diagnostic.open_float)
-key.nnoremap("<leader>[d", key.exec_command("Lspsaga diagnostic_jump_next"))
-key.nnoremap("<leader>]d", key.exec_command("Lspsaga diagnostic_jump_prev"))
-key.nnoremap("<leader>vws", vim.lsp.buf.workspace_symbol)
-
-key.nnoremap("<leader><leader>", key.exec_command("Lspsaga code_action"))
-key.vnoremap("<C-s>", key.exec_command("<C-U>Lspsaga range_code_action"))
-
-key.nnoremap("<leader>vh", key.exec_command("Lspsaga hover_doc"))
-key.nnoremap("<C-f>", scroll(1))
-key.nnoremap("<C-b>", scroll(-1))
-
-key.nnoremap("<leader>vsh", key.exec_command("Lspsaga signature_help"))
-key.nnoremap("<leader>vrn", key.exec_command("Lspsaga rename"))
+return M

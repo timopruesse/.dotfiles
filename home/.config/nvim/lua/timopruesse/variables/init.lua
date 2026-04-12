@@ -16,6 +16,3 @@ vim.g.netrw_localrmdir = "rm -r"
 -- svelte
 vim.g.vim_svelte_plugin_use_typescript = 1
 vim.g.vim_svelte_plugin_use_sass = 1
-
--- additional variables
-require("timopruesse.variables.php")

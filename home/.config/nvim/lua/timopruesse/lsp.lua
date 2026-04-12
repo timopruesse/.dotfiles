@@ -33,14 +33,7 @@ cmp.setup({
 
 	formatting = {
 		format = function(entry, vim_item)
-			local menu = source_mapping[entry.source.name]
-			if entry.source.name == "cmp_tabnine" then
-				if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
-					menu = entry.completion_item.data.detail .. " " .. menu
-				end
-				vim_item.kind = "🤖"
-			end
-			vim_item.menu = menu
+			vim_item.menu = source_mapping[entry.source.name]
 			return vim_item
 		end,
 	},
@@ -49,7 +42,6 @@ cmp.setup({
 		{ name = "nvim_lsp_signature_help" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
-		{ name = "cmp_tabnine" },
 		{ name = "path" },
 		{ name = "nvim_lua" },
 		{ name = "emoji" },
@@ -85,10 +77,22 @@ cmp.setup.filetype("gitcommit", {
 
 require("cmp_git").setup({})
 
+local function on_attach(client, bufnr)
+	require("timopruesse.keymaps.lsp").setup(bufnr)
+end
+
 local function config(_config)
+	_config = _config or {}
+	local server_on_attach = _config.on_attach
+	_config.on_attach = function(client, bufnr)
+		on_attach(client, bufnr)
+		if server_on_attach then
+			server_on_attach(client, bufnr)
+		end
+	end
 	return vim.tbl_deep_extend("force", {
 		capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities),
-	}, _config or {})
+	}, _config)
 end
 
 require("mason").setup({
@@ -98,7 +102,6 @@ require("mason-lspconfig").setup({
 	automatic_installation = true,
 	ensure_installed = {
 		"lua_ls",
-		"rust_analyzer",
 		"bashls",
 		"cssls",
 		"eslint",
@@ -106,8 +109,6 @@ require("mason-lspconfig").setup({
 		"html",
 		"jsonls",
 		"ts_ls",
-		"intelephense",
-		"pest_ls",
 		"jedi_language_server",
 		"somesass_ls",
 		"svelte",
@@ -148,8 +149,6 @@ lsp.ts_ls.setup(config({
 	},
 }))
 
-lsp.ccls.setup(config())
-
 lsp.jedi_language_server.setup(config())
 
 lsp.svelte.setup(config({
@@ -163,7 +162,6 @@ lsp.tailwindcss.setup(config({
 	filetypes = {
 		"astro",
 		"astro-markdown",
-		"blade",
 		"edge",
 		"eelixir",
 		"elixir",
@@ -178,7 +176,6 @@ lsp.tailwindcss.setup(config({
 		"markdown",
 		"mdx",
 		"mustache",
-		"php",
 		"razor",
 		"slim",
 		"twig",
@@ -195,9 +192,6 @@ lsp.tailwindcss.setup(config({
 	},
 }))
 
-lsp.solang.setup(config())
-
-lsp.dartls.setup(config())
 require("flutter-tools").setup(config({
 	fvm = true,
 	widget_guides = {
@@ -226,41 +220,17 @@ lsp.gopls.setup(config({
 	},
 }))
 
-lsp.pylsp.setup(config())
-
-lsp.intelephense.setup(config({
-	on_attach = function(client, bufnr)
-		client.server_capabilities.documentFormattingProvider = false
-		client.server_capabilities.documentRangeFormattingProvider = false
-
-		require("timopruesse.keymaps.php").setup(bufnr)
-	end,
-}))
-
-local home_dir = vim.fn.expand("$HOME")
-local lua_root_path = home_dir .. "/lua-language-server"
-local lua_binary = lua_root_path .. "/bin/lua-language-server"
-
 lsp.lua_ls.setup(config({
-	cmd = { lua_binary, "-E", lua_root_path .. "/main.lua" },
 	settings = {
 		Lua = {
-			runtime = {
-				version = "LuaJIT",
-				path = vim.split(package.path, ";"),
-			},
-			diagnostics = {
-				globals = { "vim" },
-			},
+			runtime = { version = "LuaJIT" },
+			diagnostics = { globals = { "vim" } },
 			workspace = {
-				library = {
-					[vim.fn.expand("$VIMRUNTIME/lua")] = true,
-					[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
-				},
+				library = vim.api.nvim_get_runtime_file("", true),
+				checkThirdParty = false,
 			},
-			hint = {
-				enable = true,
-			},
+			hint = { enable = true },
+			telemetry = { enable = false },
 		},
 	},
 }))
