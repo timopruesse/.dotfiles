@@ -1,8 +1,5 @@
----@diagnostic disable-next-line: different-requires
-local ts = require("telescope")
 local key = require("timopruesse.helpers.keymap")
 local builtin = require("telescope.builtin")
----@diagnostic disable-next-line: different-requires
 local custom = require("timopruesse.telescope")
 
 key.nnoremap("<leader>pl", builtin.live_grep)
@@ -26,7 +23,10 @@ key.nnoremap("<leader>gb", custom.git_branches)
 key.nnoremap("<leader>cl", builtin.git_commits)
 key.nnoremap("<leader>cc", builtin.git_bcommits)
 
-key.vnoremap("<leader>re", ts.extensions.refactoring.refactors)
+key.vnoremap("<leader>re", function()
+	require("telescope").load_extension("refactoring")
+	require("telescope").extensions.refactoring.refactors()
+end)
 
 key.nnoremap("<C-q>", key.exec_command(":Telescope file_browser"))
 key.nnoremap("<leader>tf", key.exec_command(":Telescope file_browser path=%:p:h select_buffer=true"))

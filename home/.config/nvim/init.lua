@@ -204,45 +204,35 @@ require("lazy").setup({
 	{
 		"nvim-treesitter/nvim-treesitter",
 		dependencies = {
-			"nvim-lua/plenary.nvim",
 			"nvim-treesitter/nvim-treesitter-context",
 		},
+		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter.configs").setup({
-				auto_install = true,
-				ensure_installed = {
-					"lua",
-					"rust",
-					"html",
-					"css",
-					"scss",
-					"svelte",
-					"json",
-					"yaml",
-					"javascript",
-					"typescript",
-					"go",
-					"dockerfile",
-					"python",
-					"dart",
-					"markdown",
-					"markdown_inline",
-					"vim",
-					"toml",
-					"regex",
-					"vimdoc",
-				},
-				highlight = { enable = true },
-				incremental_selection = { enable = true },
-				textobjects = { enable = true },
-				matchup = {
-					enable = true,
-				},
+			-- New rewrite API: setup() only accepts install_dir (optional)
+			-- Highlight, indent, etc. are built into Neovim 0.12+
+			require("nvim-treesitter").install({
+				"lua",
+				"rust",
+				"html",
+				"css",
+				"scss",
+				"svelte",
+				"json",
+				"yaml",
+				"javascript",
+				"typescript",
+				"go",
+				"dockerfile",
+				"python",
+				"dart",
+				"markdown",
+				"markdown_inline",
+				"vim",
+				"toml",
+				"regex",
+				"vimdoc",
 			})
-			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-
-			parser_config.markdown.filetype_to_parsername = "octo"
 		end,
 	},
 	{ "hrsh7th/cmp-nvim-lsp", lazy = true },
