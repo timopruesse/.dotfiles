@@ -11,6 +11,16 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Ensure nvm-managed node is in PATH (nvm is not loaded in non-interactive shells,
+-- so LSP servers and mason tools that need node won't find it otherwise)
+do
+	local node_dirs = vim.fn.glob(vim.fn.expand("~/.nvm/versions/node/*/bin"), false, true)
+	if #node_dirs > 0 then
+		table.sort(node_dirs)
+		vim.env.PATH = node_dirs[#node_dirs] .. ":" .. vim.env.PATH
+	end
+end
+
 vim.g.mapleader = " "
 
 require("lazy").setup({
@@ -209,8 +219,10 @@ require("lazy").setup({
 		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			-- New rewrite API: setup() only accepts install_dir (optional)
-			-- Highlight, indent, etc. are built into Neovim 0.12+
+			-- setup() must be called with install_dir to register it in runtimepath
+			require("nvim-treesitter").setup({
+				install_dir = vim.fn.stdpath("data") .. "/site",
+			})
 			require("nvim-treesitter").install({
 				"lua",
 				"rust",
