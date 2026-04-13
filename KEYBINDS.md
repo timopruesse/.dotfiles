@@ -10,6 +10,9 @@ Prefix key: **Ctrl+b** (default)
 
 | Key | Action |
 |-----|--------|
+| `prefix s` | List/switch sessions |
+| `prefix (` | Switch to previous session |
+| `prefix )` | Switch to next session |
 | `prefix c` | New window (current directory) |
 | `prefix \` | Vertical split (current directory) |
 | `prefix -` | Horizontal split (current directory) |
