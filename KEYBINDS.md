@@ -19,6 +19,7 @@ Prefix key: **Ctrl+b** (default)
 | `prefix r`   | Reload tmux config                   |
 | `prefix Tab` | Open popup terminal (75%x80%)        |
 | `prefix C`   | Browse/resume Claude sessions (new window) |
+| `prefix R`   | Resume last Claude session (new window)    |
 
 ### Pane Navigation
 
