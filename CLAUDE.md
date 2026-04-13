@@ -70,6 +70,10 @@ When adding new work contexts, add an `includeIf "gitdir:..."` block to `.gitcon
 
 All Tmux and Neovim keybindings are documented in [`KEYBINDS.md`](KEYBINDS.md). This is the canonical reference for shortcuts across the environment.
 
+## Aliases Reference
+
+All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grouped by source file (git, system, tmux, browser, claude).
+
 ## Key Behaviors
 
 - **WSL-specific**: `.zshrc` sets `DISPLAY`, `BROWSER=wslview`, and D3D12 GPU acceleration for WSL2.

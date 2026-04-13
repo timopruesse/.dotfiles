@@ -13,6 +13,10 @@
 
 See [KEYBINDS.md](KEYBINDS.md) for a full reference of Tmux and Neovim keybindings.
 
+## Aliases
+
+See [ALIASES.md](ALIASES.md) for all ZSH aliases grouped by category.
+
 ## Editor
 
 My `neovim` configuration is written in `lua` and can be found [here](https://github.com/timopruesse/.dotfiles/tree/main/home/.config/nvim).
