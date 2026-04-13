@@ -360,7 +360,8 @@ require("lazy").setup({
 		event = { "VeryLazy" },
 		build = "deno task --quiet build:fast",
 		config = function()
-			require("peek").setup()
+			-- TODO: remove wslview workaround once the upstream dependency is updated
+			require("peek").setup({ app = "wslview" })
 			vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
 			vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
 		end,
