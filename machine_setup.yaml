@@ -163,6 +163,11 @@ tasks:
           install: "curl -fsSL https://bun.sh/install | bash"
           update: "bun upgrade --canary"
 
+  deno:
+    commands:
+      - run:
+          install: "curl -fsSL https://deno.land/install.sh | sh"
+
   node:
     commands:
       - run:
