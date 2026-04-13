@@ -148,6 +148,10 @@ export LIBVA_DRIVER_NAME=d3d12
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+# deno
+export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
 # dart/pub
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 
