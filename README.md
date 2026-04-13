@@ -9,6 +9,10 @@
 - WSL (Ubuntu)
 - Windows Terminal Preview
 
+## Keybinds
+
+See [KEYBINDS.md](KEYBINDS.md) for a full reference of Tmux and Neovim keybindings.
+
 ## Editor
 
 My `neovim` configuration is written in `lua` and can be found [here](https://github.com/timopruesse/.dotfiles/tree/main/home/.config/nvim).

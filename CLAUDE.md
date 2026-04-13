@@ -66,6 +66,10 @@ LSP servers are managed by **mason.nvim** and configured individually in `lsp.lu
 
 When adding new work contexts, add an `includeIf "gitdir:..."` block to `.gitconfig` and create a corresponding identity file.
 
+## Keybinds Reference
+
+All Tmux and Neovim keybindings are documented in [`KEYBINDS.md`](KEYBINDS.md). This is the canonical reference for shortcuts across the environment.
+
 ## Key Behaviors
 
 - **WSL-specific**: `.zshrc` sets `DISPLAY`, `BROWSER=wslview`, and D3D12 GPU acceleration for WSL2.
