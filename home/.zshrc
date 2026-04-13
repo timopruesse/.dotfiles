@@ -168,4 +168,5 @@ esac
 claude() { command claude "$@" --worktree; }
 
 # zoxide (must be last)
+export _ZO_DOCTOR=0
 eval "$(zoxide init zsh)"
