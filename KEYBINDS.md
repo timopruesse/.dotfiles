@@ -18,8 +18,10 @@ Prefix key: **Ctrl+b** (default)
 | `prefix -`   | Horizontal split (current directory) |
 | `prefix r`   | Reload tmux config                   |
 | `prefix Tab` | Open popup terminal (75%x80%)        |
-| `prefix C`   | Browse/resume Claude sessions (new window) |
-| `prefix R`   | Resume last Claude session (new window)    |
+| `prefix S`   | Browse/resume Claude sessions (new window)    |
+| `prefix R`   | Resume last Claude session (new window)        |
+| `prefix H`   | Open Claude in horizontal split (current dir)  |
+| `prefix V`   | Open Claude in vertical split (current dir)    |
 
 ### Pane Navigation
 
