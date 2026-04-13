@@ -79,6 +79,21 @@ tasks:
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
             - "sudo locale-gen en_US.UTF-8"
 
+  gh:
+    commands:
+      - run:
+          install:
+            - "sudo mkdir -p -m 755 /etc/apt/keyrings"
+            - "wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null"
+            - "sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg"
+            - "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null"
+            - "sudo apt-get update"
+            - "sudo apt-get install -y gh"
+          update:
+            - "sudo apt-get upgrade -y gh"
+          uninstall:
+            - "sudo apt-get remove -y gh"
+
   tpm:
     commands:
       - clone:
