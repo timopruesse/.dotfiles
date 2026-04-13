@@ -165,7 +165,7 @@ esac
 # pnpm end
 
 # claude code: always use worktree
-alias claude='claude --worktree'
+claude() { command claude "$@" --worktree; }
 
 # zoxide (must be last)
 eval "$(zoxide init zsh)"
