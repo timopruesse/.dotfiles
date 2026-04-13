@@ -36,3 +36,7 @@ function ch() {
 function cv() {
   _claude_tmux vsplit "$@"
 }
+
+function cr() {
+  _claude_tmux window "--continue"
+}

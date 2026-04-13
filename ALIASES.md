@@ -62,3 +62,4 @@ All ZSH aliases and functions, grouped by source file.
 | `ch <prompt>` | `tmux split-window -h "claude -p \"...\""` | Open Claude Code with a prompt in a horizontal split |
 | `cv` | `tmux split-window -v "claude"` | Open Claude Code in a vertical split |
 | `cv <prompt>` | `tmux split-window -v "claude -p \"...\""` | Open Claude Code with a prompt in a vertical split |
+| `cr` | `tmux new-window "claude --continue"` | Resume last Claude Code session in a new tmux window |
