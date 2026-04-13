@@ -164,5 +164,8 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+# claude code: always use worktree
+alias claude='claude --worktree'
+
 # zoxide (must be last)
 eval "$(zoxide init zsh)"
