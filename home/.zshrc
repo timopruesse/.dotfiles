@@ -53,6 +53,7 @@ export UPDATE_ZSH_DAYS=1
 
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
+alias bun='nocorrect bun'
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 COMPLETION_WAITING_DOTS="true"
