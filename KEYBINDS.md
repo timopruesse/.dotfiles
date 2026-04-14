@@ -273,6 +273,7 @@ Leader key: **Space**
 | `<leader>zR` | Visual | Prompt + send selection to existing Claude pane    |
 | `<leader>zf` | Normal | Send current file to Claude                        |
 | `<leader>zd` | Normal | Send current line diagnostics to Claude            |
+| `<leader>zD` | Normal | Send diagnostics to existing Claude pane           |
 | `<leader>zg` | Normal | Send git diff for current file to Claude           |
 
 ### Miscellaneous
