@@ -1,5 +1,7 @@
 local M = {}
 
+local last_claude_pane = nil
+
 local function tmux_pane(mode, cwd)
 	local tmux_arg
 	if mode == "window" then
@@ -23,6 +25,25 @@ local function tmux_send(pane_id, keys)
 	vim.fn.jobstart({ "tmux", "send-keys", "-t", pane_id, keys, "Enter" })
 end
 
+local function pane_exists(pane_id)
+	local result = vim.fn.system(
+		string.format("tmux list-panes -a -F '#{pane_id}' | grep -qF '%s' && echo ok || echo no", pane_id)
+	)
+	return vim.trim(result) == "ok"
+end
+
+local function write_temp(text)
+	local tmpfile = vim.fn.tempname()
+	local f = io.open(tmpfile, "w")
+	if not f then
+		vim.notify("Failed to create temp file", vim.log.levels.ERROR)
+		return nil
+	end
+	f:write(text)
+	f:close()
+	return tmpfile
+end
+
 function M.get_visual_selection()
 	local lines = vim.fn.getregion(vim.fn.getpos("'<"), vim.fn.getpos("'>"), { type = vim.fn.visualmode() })
 	return table.concat(lines, "\n")
@@ -30,24 +51,41 @@ end
 
 function M.send_to_claude(text, opts)
 	opts = opts or {}
+
+	if opts.existing and last_claude_pane and pane_exists(last_claude_pane) then
+		local tmpfile = write_temp(text)
+		if not tmpfile then
+			return
+		end
+		vim.fn.system({ "tmux", "load-buffer", tmpfile })
+		vim.fn.system({ "tmux", "paste-buffer", "-t", last_claude_pane })
+		vim.defer_fn(function()
+			vim.fn.system({ "tmux", "send-keys", "-t", last_claude_pane, "Enter" })
+			os.remove(tmpfile)
+		end, 100)
+		return
+	end
+
+	if opts.existing then
+		vim.notify("No active Claude pane — opening new one.", vim.log.levels.INFO)
+	end
+
 	local mode = opts.mode or "vsplit"
 	local cwd = vim.fn.getcwd()
 
-	local tmpfile = vim.fn.tempname()
-	local f = io.open(tmpfile, "w")
-	if not f then
-		vim.notify("Failed to create temp file", vim.log.levels.ERROR)
+	local tmpfile = write_temp(text)
+	if not tmpfile then
 		return
 	end
-	f:write(text)
-	f:close()
 
 	local pane_id = tmux_pane(mode, cwd)
 	if not pane_id then
 		return
 	end
 
-	local cmd = string.format("claude \"$(cat '%s')\" ; rm -f '%s'", tmpfile, tmpfile)
+	last_claude_pane = pane_id
+
+	local cmd = string.format("__cp=$(cat '%s') && rm -f '%s' && claude -p \"$__cp\"", tmpfile, tmpfile)
 	tmux_send(pane_id, cmd)
 end
 
@@ -137,6 +175,23 @@ function M.send_diagnostics(opts)
 	M.send_to_claude(prompt, opts)
 end
 
+function M.send_git_diff(opts)
+	local filepath = vim.fn.expand("%:.")
+	local diff = vim.fn.system({ "git", "diff", "--", filepath })
+
+	if vim.trim(diff) == "" then
+		diff = vim.fn.system({ "git", "diff", "--staged", "--", filepath })
+	end
+
+	if vim.trim(diff) == "" then
+		vim.notify("No git changes for current file", vim.log.levels.INFO)
+		return
+	end
+
+	local prompt = string.format("Review the following changes in %s:\n\n```diff\n%s\n```", filepath, diff)
+	M.send_to_claude(prompt, opts)
+end
+
 function M.open_claude(opts)
 	opts = opts or {}
 	local mode = opts.mode or "vsplit"
@@ -146,6 +201,8 @@ function M.open_claude(opts)
 	if not pane_id then
 		return
 	end
+
+	last_claude_pane = pane_id
 	tmux_send(pane_id, "claude")
 end
 

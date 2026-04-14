@@ -64,3 +64,21 @@ function cpi() {
 function clist() {
   tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}  #{pane_current_command}  #{pane_current_path}' 2>/dev/null | grep -i claude || echo "No Claude agents running"
 }
+
+function cj() {
+  local panes
+  panes=$(tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}  #{pane_current_command}  #{pane_current_path}' 2>/dev/null | grep -i claude)
+
+  if [ -z "$panes" ]; then
+    echo "No Claude agents running"
+    return 1
+  fi
+
+  local selected
+  selected=$(echo "$panes" | fzf --height=40% --reverse --prompt="Jump to Claude > ")
+
+  if [ -n "$selected" ]; then
+    local target=$(echo "$selected" | awk '{print $1}')
+    tmux switch-client -t "$target"
+  fi
+}

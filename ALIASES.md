@@ -65,3 +65,4 @@ All ZSH aliases and functions, grouped by source file.
 | `cr` | `tmux new-window "claude --continue"` | Resume last Claude Code session in a new tmux window |
 | `cpi` | `echo 'code' \| cpi 'instruction'` | Pipe stdin to Claude in a new tmux window |
 | `clist` | — | List all tmux panes running Claude across sessions |
+| `cj` | — | fzf picker to jump to a running Claude agent |

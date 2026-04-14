@@ -22,7 +22,7 @@ Prefix key: **Ctrl+b** (default)
 | `prefix R`   | Resume last Claude session (new window)        |
 | `prefix H`   | Open Claude in horizontal split (current dir)  |
 | `prefix V`   | Open Claude in vertical split (current dir)    |
-| `prefix C`   | Popup listing all active Claude agents         |
+| `prefix C`   | fzf picker to jump to a running Claude agent   |
 
 ### Pane Navigation
 
@@ -262,15 +262,18 @@ Leader key: **Space**
 
 ### Claude (Tmux Integration)
 
-| Key          | Mode   | Action                                        |
-| ------------ | ------ | --------------------------------------------- |
-| `<leader>zo` | Normal | Open Claude in vertical tmux split            |
-| `<leader>zh` | Normal | Open Claude in horizontal tmux split          |
-| `<leader>zw` | Normal | Open Claude in new tmux window                |
-| `<leader>zs` | Visual | Send selection to Claude (vertical split)     |
-| `<leader>zp` | Visual | Prompt for instruction + send selection       |
-| `<leader>zf` | Normal | Send current file to Claude                   |
-| `<leader>zd` | Normal | Send current line diagnostics to Claude       |
+| Key          | Mode   | Action                                             |
+| ------------ | ------ | -------------------------------------------------- |
+| `<leader>zo` | Normal | Open Claude in vertical tmux split                 |
+| `<leader>zh` | Normal | Open Claude in horizontal tmux split               |
+| `<leader>zw` | Normal | Open Claude in new tmux window                     |
+| `<leader>zs` | Visual | Send selection to Claude (new pane)                |
+| `<leader>zp` | Visual | Prompt for instruction + send selection (new pane) |
+| `<leader>zr` | Visual | Send selection to existing Claude pane             |
+| `<leader>zR` | Visual | Prompt + send selection to existing Claude pane    |
+| `<leader>zf` | Normal | Send current file to Claude                        |
+| `<leader>zd` | Normal | Send current line diagnostics to Claude            |
+| `<leader>zg` | Normal | Send git diff for current file to Claude           |
 
 ### Miscellaneous
 

@@ -12,7 +12,7 @@ key.nnoremap("<leader>zw", function()
 	claude.open_claude({ mode = "window" })
 end)
 
--- send selection
+-- send selection (new pane)
 key.vnoremap("<leader>zs", function()
 	claude.send_selection({ mode = "vsplit" })
 end)
@@ -20,10 +20,21 @@ key.vnoremap("<leader>zp", function()
 	claude.prompt_and_send({ mode = "vsplit" })
 end)
 
--- send file / diagnostics
+-- send selection (existing pane)
+key.vnoremap("<leader>zr", function()
+	claude.send_selection({ existing = true })
+end)
+key.vnoremap("<leader>zR", function()
+	claude.prompt_and_send({ existing = true })
+end)
+
+-- send file / diagnostics / git diff
 key.nnoremap("<leader>zf", function()
 	claude.send_file({ mode = "vsplit" })
 end)
 key.nnoremap("<leader>zd", function()
 	claude.send_diagnostics({ mode = "vsplit" })
+end)
+key.nnoremap("<leader>zg", function()
+	claude.send_git_diff({ mode = "vsplit" })
 end)
