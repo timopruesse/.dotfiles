@@ -1,5 +1,5 @@
 #!/bin/sh
-panes=$(tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}  #{pane_current_command}  #{pane_current_path}' 2>/dev/null | grep -i claude)
+panes=$(tmux list-panes -a -F '#{pane_current_command} #{session_name}:#{window_index}.#{pane_index}  [#{window_name}]  #{pane_current_path}' 2>/dev/null | grep -i '^claude ' | sed 's/^[^ ]* //')
 
 if [ -z "$panes" ]; then
   echo "No Claude agents running"
