@@ -22,6 +22,7 @@ Prefix key: **Ctrl+b** (default)
 | `prefix R`   | Resume last Claude session (new window)        |
 | `prefix H`   | Open Claude in horizontal split (current dir)  |
 | `prefix V`   | Open Claude in vertical split (current dir)    |
+| `prefix C`   | Popup listing all active Claude agents         |
 
 ### Pane Navigation
 
@@ -258,6 +259,18 @@ Leader key: **Space**
 | `<leader>pd` | Normal | Delete package         |
 | `<leader>pi` | Normal | Install package        |
 | `<leader>pc` | Normal | Change package version |
+
+### Claude (Tmux Integration)
+
+| Key          | Mode   | Action                                        |
+| ------------ | ------ | --------------------------------------------- |
+| `<leader>zo` | Normal | Open Claude in vertical tmux split            |
+| `<leader>zh` | Normal | Open Claude in horizontal tmux split          |
+| `<leader>zw` | Normal | Open Claude in new tmux window                |
+| `<leader>zs` | Visual | Send selection to Claude (vertical split)     |
+| `<leader>zp` | Visual | Prompt for instruction + send selection       |
+| `<leader>zf` | Normal | Send current file to Claude                   |
+| `<leader>zd` | Normal | Send current line diagnostics to Claude       |
 
 ### Miscellaneous
 

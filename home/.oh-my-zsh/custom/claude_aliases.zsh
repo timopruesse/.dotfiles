@@ -40,3 +40,27 @@ function cv() {
 function cr() {
   _claude_tmux window "--continue"
 }
+
+function cpi() {
+  local input=""
+  if [ ! -t 0 ]; then
+    input=$(cat)
+  fi
+  local instruction="$*"
+  local prompt=""
+  if [ -n "$instruction" ] && [ -n "$input" ]; then
+    prompt="${instruction}\n\n${input}"
+  elif [ -n "$input" ]; then
+    prompt="$input"
+  elif [ -n "$instruction" ]; then
+    prompt="$instruction"
+  else
+    echo "Usage: echo 'code' | cpi 'instruction'  OR  cpi 'prompt'"
+    return 1
+  fi
+  _claude_tmux window "-p $(printf '%q' "$prompt")"
+}
+
+function clist() {
+  tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}  #{pane_current_command}  #{pane_current_path}' 2>/dev/null | grep -i claude || echo "No Claude agents running"
+}
