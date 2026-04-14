@@ -86,6 +86,15 @@ fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
 
 source $ZSH/oh-my-zsh.sh
 
+# history
+HISTSIZE=100000
+SAVEHIST=100000
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+
 # customize auto suggestions
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#82909b"
 
@@ -102,6 +111,7 @@ export LANG=en_US.UTF-8
 # fi
 export VISUAL=nvim
 export EDITOR=$VISUAL
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -109,6 +119,12 @@ export EDITOR=$VISUAL
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
+
+# rust
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+
+# go
+export PATH="$HOME/go/bin:$PATH"
 
 # dart
 PATH="$PATH:/usr/lib/dart/bin"
@@ -140,6 +156,16 @@ export BROWSER=/usr/bin/wslview
 # D3D12 GPU acceleration
 export LIBVA_DRIVER_NAME=d3d12
 
+# fzf
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+export FZF_DEFAULT_OPTS=" \
+  --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+  --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+  --color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8 \
+  --color=selected-bg:#45475a \
+  --multi"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # bun completions

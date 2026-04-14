@@ -7,11 +7,26 @@
 	editor = nvim
     autocrlf = input
     fsmonitor = true
+    excludesFile = ~/.gitignore_global
+[fetch]
+    prune = true
 [push]
     default = current
 	autoSetupRemote = true
 [pull]
 	rebase = true
+[rebase]
+    autoSquash = true
+    autoStash = true
+[merge]
+    conflictstyle = zdiff3
+[diff]
+    algorithm = histogram
+    colorMoved = default
+[branch]
+    sort = -committerdate
+[column]
+    ui = auto
 [init]
     defaultBranch = main
 [rerere]
