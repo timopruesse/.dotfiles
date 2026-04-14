@@ -1,1 +1,4 @@
 ngrok.yml
+
+# Worktrees
+.claude/worktrees
