@@ -166,7 +166,27 @@ esac
 
 # claude code: use worktree when inside a git repo with commits
 claude() {
+  local use_worktree=false
+
   if git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+
+    # skip worktree for dotfiles repo (symlinks need to take effect immediately)
+    if [[ "$repo_root" != "$DOTFILES" ]]; then
+      use_worktree=true
+
+      # don't append --worktree to subcommands that don't support it
+      local subcommands="agents|auth|auto-mode|doctor|install|mcp|plugin|plugins|setup-token|update|upgrade"
+      for arg in "$@"; do
+        [[ "$arg" == -* ]] && continue
+        [[ "$arg" =~ ^($subcommands)$ ]] && use_worktree=false
+        break
+      done
+    fi
+  fi
+
+  if $use_worktree; then
     command claude "$@" --worktree
   else
     command claude "$@"
