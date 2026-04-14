@@ -190,9 +190,9 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# claude code: use worktree when inside a git repo
+# claude code: use worktree when inside a git repo with at least one commit
 claude() {
-  if git rev-parse --is-inside-work-tree &>/dev/null; then
+  if git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
     command claude "$@" --worktree
   else
     command claude "$@"
