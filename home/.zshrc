@@ -164,8 +164,14 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# claude code: always use worktree
-claude() { command claude "$@" --worktree; }
+# claude code: use worktree when inside a git repo
+claude() {
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    command claude "$@" --worktree
+  else
+    command claude "$@"
+  fi
+}
 
 # zoxide (must be last)
 export _ZO_DOCTOR=0
