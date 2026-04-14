@@ -78,6 +78,10 @@ cmp.setup.filetype("gitcommit", {
 
 require("cmp_git").setup({})
 
+-- autopairs: auto-close brackets on completion confirm
+local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+
 -- Shared on_attach: generic LSP keymaps registered buffer-locally for every server
 local function on_attach(client, bufnr)
 	require("timopruesse.keymaps.lsp").setup(bufnr)
@@ -190,6 +194,29 @@ vim.lsp.config("lua_ls", {
 			},
 			hint = { enable = true },
 			telemetry = { enable = false },
+		},
+	},
+})
+
+-- yamlls: schema validation via schemastore
+vim.lsp.config("yamlls", {
+	settings = {
+		yaml = {
+			schemaStore = {
+				enable = false,
+				url = "",
+			},
+			schemas = require("schemastore").yaml.schemas(),
+		},
+	},
+})
+
+-- jsonls: schema validation via schemastore
+vim.lsp.config("jsonls", {
+	settings = {
+		json = {
+			schemas = require("schemastore").json.schemas(),
+			validate = { enable = true },
 		},
 	},
 })

@@ -47,13 +47,26 @@ require("lazy").setup({
 
 			require("staline").setup({
 				sections = {
-					left = { "  ", "mode", "[", "cwd", "]", "file_name", "lsp", "line_column" },
+					left = { "  ", "mode", " ", "file_name", " ", "lsp" },
 					mid = { "git_branch" },
-					right = { "lsp_name", "  " },
+					right = {
+						function()
+							local diff = vim.b.gitsigns_status
+							if diff and diff ~= "" then
+								return diff .. " | "
+							end
+							return ""
+						end,
+						"lsp_name",
+						" ",
+						"line_column",
+						"  ",
+					},
 				},
 				defaults = {
 					true_colors = true,
-					line_column = "| %-02c",
+					line_column = "[%l/%L] %-02c",
+					branch_symbol = " ",
 				},
 			})
 		end,
@@ -369,6 +382,93 @@ require("lazy").setup({
 	},
 	{ "tpope/vim-dadbod", lazy = true },
 	{ "kristijanhusak/vim-dadbod-ui", dependencies = { "tpope/vim-dadbod" } },
+	{
+		"folke/which-key.nvim",
+		event = "VeryLazy",
+		config = function()
+			local wk = require("which-key")
+			wk.setup({})
+			wk.add({
+				{ "<leader>v", group = "LSP" },
+				{ "<leader>z", group = "Claude" },
+				{ "<leader>p", group = "Search/Package" },
+				{ "<leader>b", group = "Buffers" },
+				{ "<leader>t", group = "Todo/Test" },
+				{ "<leader>d", group = "Diagnostics" },
+				{ "<leader>y", group = "Yank" },
+				{ "<leader>g", group = "Git" },
+				{ "<leader>c", group = "Commits" },
+				{ "<leader>r", group = "References" },
+				{ "<leader>s", group = "Swap" },
+			})
+		end,
+	},
+	{
+		"kylechui/nvim-surround",
+		version = "*",
+		event = "VeryLazy",
+		config = function()
+			require("nvim-surround").setup({})
+		end,
+	},
+	{
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		config = function()
+			require("nvim-autopairs").setup({
+				check_ts = true,
+			})
+		end,
+	},
+	{
+		"nvim-treesitter/nvim-treesitter-textobjects",
+		dependencies = { "nvim-treesitter/nvim-treesitter" },
+		config = function()
+			require("nvim-treesitter-textobjects").setup({
+				select = {
+					lookahead = true,
+					keymaps = {
+						["af"] = "@function.outer",
+						["if"] = "@function.inner",
+						["ac"] = "@class.outer",
+						["ic"] = "@class.inner",
+						["aa"] = "@parameter.outer",
+						["ia"] = "@parameter.inner",
+						["ai"] = "@conditional.outer",
+						["ii"] = "@conditional.inner",
+						["al"] = "@loop.outer",
+						["il"] = "@loop.inner",
+					},
+				},
+				move = {
+					set_jumps = true,
+					goto_next_start = {
+						["]m"] = "@function.outer",
+						["]a"] = "@parameter.outer",
+					},
+					goto_next_end = {
+						["]M"] = "@function.outer",
+					},
+					goto_previous_start = {
+						["[m"] = "@function.outer",
+						["[a"] = "@parameter.outer",
+					},
+					goto_previous_end = {
+						["[M"] = "@function.outer",
+					},
+				},
+				swap = {
+					swap_next = {
+						["<leader>sn"] = "@parameter.inner",
+					},
+					swap_previous = {
+						["<leader>sp"] = "@parameter.inner",
+					},
+				},
+			})
+		end,
+	},
+	{ "b0o/schemastore.nvim", lazy = true },
 })
 
 require("timopruesse.init")
