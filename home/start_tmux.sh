@@ -15,5 +15,8 @@ create_or_switch_session() {
 if [ -n "$TMUX" ]; then
     create_or_switch_session $1
 else
-    tmux new -A -s $1
+    # After attaching, continuum may restore sessions and switch away
+    # from our target. This background job switches back after restore.
+    (sleep 3 && tmux switch-client -t "$1" 2>/dev/null) &
+    tmux new -A -s "$1"
 fi
