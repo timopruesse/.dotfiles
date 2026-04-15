@@ -49,6 +49,7 @@ The Neovim config (`home/.config/nvim/`) uses **Lazy.nvim** and is organized und
 - `helpers/` — shared utilities (keymap helper, run_on_save)
 
 Formatting on save is handled by **conform.nvim**:
+
 - JS/TS/JSON/YAML/HTML/CSS/GraphQL/Markdown → Prettier
 - Rust → rustfmt
 - Lua → stylua
@@ -61,6 +62,7 @@ LSP servers are managed by **mason.nvim** and configured individually in `lsp.lu
 ## Git Identity Setup
 
 `.gitconfig` uses conditional includes to switch identities based on working directory:
+
 - `~/` → `.gitconfig_personal`
 - `~/github/chewielabs/` → `.gitconfig_mill`
 
