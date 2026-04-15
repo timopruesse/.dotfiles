@@ -1,12 +1,15 @@
 local key = require("timopruesse.helpers.keymap")
-local ui = require("harpoon.ui")
 
-key.nnoremap("<leader>a", require("harpoon.mark").add_file)
-key.nnoremap("<C-e>", ui.toggle_quick_menu)
+key.nnoremap("<leader>a", function()
+	require("harpoon.mark").add_file()
+end)
+key.nnoremap("<C-e>", function()
+	require("harpoon.ui").toggle_quick_menu()
+end)
 
 local go_to_file = function(i)
 	return function()
-		ui.nav_file(i)
+		require("harpoon.ui").nav_file(i)
 	end
 end
 

@@ -1,3 +1,5 @@
+vim.loader.enable()
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.uv.fs_stat(lazypath) then
 	vim.fn.system({
@@ -42,6 +44,7 @@ require("lazy").setup({
 	},
 	{
 		"tamton-aquib/staline.nvim",
+		event = "VeryLazy",
 		config = function()
 			vim.opt.laststatus = 3
 
@@ -74,20 +77,22 @@ require("lazy").setup({
 	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 	{
 		"lewis6991/gitsigns.nvim",
+		event = { "BufReadPre", "BufNewFile" },
 		config = function()
 			require("gitsigns").setup()
 		end,
 	},
 	{ "stevearc/dressing.nvim", event = "VeryLazy" },
 	{ "nvim-tree/nvim-web-devicons", lazy = true },
-	{ "mbbill/undotree" },
+	{ "mbbill/undotree", cmd = "UndotreeToggle" },
 	{
 		"andymass/vim-matchup",
-		config = function()
+		event = "BufReadPost",
+		init = function()
 			vim.g.matchup_matchparen_offscreen = { method = "popup" }
 		end,
 	},
-	{ "ThePrimeagen/harpoon" },
+	{ "ThePrimeagen/harpoon", lazy = true },
 	{
 		"ThePrimeagen/refactoring.nvim",
 		config = function()
@@ -97,7 +102,7 @@ require("lazy").setup({
 	},
 	{
 		"numToStr/Comment.nvim",
-		lazy = false,
+		event = "BufReadPost",
 		config = function()
 			require("Comment").setup()
 		end,
@@ -171,12 +176,21 @@ require("lazy").setup({
 			vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 		end,
 	},
-	{ "williamboman/mason.nvim" },
-	{ "neovim/nvim-lspconfig" },
 	{
-		"williamboman/mason-lspconfig.nvim",
-		dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
+		"neovim/nvim-lspconfig",
+		event = { "BufReadPre", "BufNewFile" },
+		dependencies = {
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			"hrsh7th/cmp-nvim-lsp",
+			"b0o/schemastore.nvim",
+		},
+		config = function()
+			require("timopruesse.lsp")
+		end,
 	},
+	{ "williamboman/mason.nvim", lazy = true },
+	{ "williamboman/mason-lspconfig.nvim", lazy = true },
 	{
 		"mrcjkb/rustaceanvim",
 		version = "^4",
@@ -213,10 +227,10 @@ require("lazy").setup({
 	},
 	{
 		"nvimdev/lspsaga.nvim",
+		event = "LspAttach",
 		dependencies = {
 			"nvim-treesitter/nvim-treesitter",
 			"nvim-tree/nvim-web-devicons",
-			"neovim/nvim-lspconfig",
 		},
 		config = function()
 			require("lspsaga").setup({})
@@ -288,11 +302,88 @@ require("lazy").setup({
 			"petertriho/cmp-git",
 			"David-Kunz/cmp-npm",
 			"saadparwaiz1/cmp_luasnip",
+			"windwp/nvim-autopairs",
 		},
-		lazy = true,
+		config = function()
+			local cmp = require("cmp")
+			local source_mapping = {
+				buffer = "[BUF]",
+				nvim_lsp = "[LSP]",
+				nvim_lua = "[LUA]",
+				path = "[PATH]",
+			}
+
+			cmp.setup({
+				experimental = { ghost_text = true },
+				snippet = {
+					expand = function(args)
+						require("luasnip").lsp_expand(args.body)
+					end,
+				},
+				mapping = cmp.mapping.preset.insert({
+					["<C-p>"] = cmp.mapping.select_prev_item(),
+					["<C-n>"] = cmp.mapping.select_next_item(),
+					["<C-u>"] = cmp.mapping.scroll_docs(-4),
+					["<C-d>"] = cmp.mapping.scroll_docs(4),
+					["<C-Space>"] = cmp.mapping.complete(),
+					["<CR>"] = cmp.mapping.confirm({ select = true }),
+					["<C-x>"] = cmp.mapping({
+						i = cmp.mapping.abort(),
+						c = cmp.mapping.close(),
+					}),
+				}),
+				formatting = {
+					format = function(entry, vim_item)
+						vim_item.menu = source_mapping[entry.source.name]
+						return vim_item
+					end,
+				},
+				sources = {
+					{ name = "nvim_lsp_signature_help" },
+					{ name = "nvim_lsp" },
+					{ name = "luasnip" },
+					{ name = "path" },
+					{ name = "nvim_lua" },
+					{ name = "emoji" },
+					{ name = "npm", keyword_length = 3 },
+					{ name = "buffer", keyword_length = 4 },
+				},
+			})
+
+			cmp.setup.cmdline("/", {
+				mapping = cmp.mapping.preset.cmdline(),
+				sources = {
+					{ name = "nvim_lsp_document_symbol" },
+					{ name = "buffer" },
+				},
+			})
+
+			cmp.setup.cmdline(":", {
+				mapping = cmp.mapping.preset.cmdline(),
+				sources = cmp.config.sources({
+					{ name = "path" },
+				}, {
+					{ name = "cmdline" },
+				}),
+			})
+
+			cmp.setup.filetype("gitcommit", {
+				sources = cmp.config.sources({
+					{ name = "git" },
+				}, {
+					{ name = "buffer" },
+				}),
+			})
+
+			require("cmp_git").setup({})
+
+			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+			cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
+		end,
 	},
 	{
 		"j-hui/fidget.nvim",
+		event = "LspAttach",
 		config = function()
 			require("fidget").setup({
 				notification = {
@@ -326,7 +417,11 @@ require("lazy").setup({
 		lazy = true,
 	},
 	{ "junegunn/fzf", build = "./install --all", lazy = true },
-	{ "junegunn/fzf.vim", dependencies = { "junegunn/fzf" } },
+	{
+		"junegunn/fzf.vim",
+		dependencies = { "junegunn/fzf" },
+		cmd = { "Files", "Rg", "Buffers", "BLines", "GFiles", "Commits", "Commands" },
+	},
 	{ "kevinhwang91/nvim-bqf", ft = { "qf" } },
 	{ "MunifTanjim/nui.nvim", event = "BufEnter package.json" },
 	{
@@ -357,11 +452,39 @@ require("lazy").setup({
 	{ "fatih/vim-go", lazy = true },
 	{
 		"akinsho/flutter-tools.nvim",
+		ft = "dart",
 		dependencies = { "nvim-lua/plenary.nvim" },
-		lazy = true,
+		config = function()
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
+			capabilities.textDocument.completion.completionItem.snippetSupport = true
+			capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
+			local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+			if ok then
+				capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+			end
+
+			require("flutter-tools").setup({
+				fvm = true,
+				widget_guides = { enabled = false },
+				lsp = {
+					on_attach = function(_, bufnr)
+						require("timopruesse.keymaps.lsp").setup(bufnr)
+					end,
+					capabilities = capabilities,
+					color = {
+						enabled = true,
+						background = false,
+						foreground = false,
+						virtual_text = true,
+						virtual_text_str = "■",
+					},
+				},
+			})
+		end,
 	},
 	{
 		"folke/todo-comments.nvim",
+		event = "BufReadPost",
 		dependencies = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("todo-comments").setup({})
@@ -381,7 +504,11 @@ require("lazy").setup({
 		lazy = true,
 	},
 	{ "tpope/vim-dadbod", lazy = true },
-	{ "kristijanhusak/vim-dadbod-ui", dependencies = { "tpope/vim-dadbod" } },
+	{
+		"kristijanhusak/vim-dadbod-ui",
+		dependencies = { "tpope/vim-dadbod" },
+		cmd = { "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
+	},
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
@@ -422,6 +549,7 @@ require("lazy").setup({
 	},
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
+		event = "BufReadPost",
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 		config = function()
 			require("nvim-treesitter-textobjects").setup({
