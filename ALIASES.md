@@ -52,6 +52,14 @@ All ZSH aliases and functions, grouped by source file.
 |-------|---------|-------------|
 | `nocors` | `chromium --disable-web-security ...` | Launch Chromium with CORS disabled |
 
+## AWS (`aws_aliases.zsh`)
+
+| Function | Command | Description |
+|----------|---------|-------------|
+| `awsp` | — | fzf picker to select and export an AWS profile |
+| `awsc` | — | Print the currently active AWS profile |
+| `awsu` | — | Unset AWS profile (revert to default) |
+
 ## Claude (`claude_aliases.zsh`)
 
 | Function | Command | Description |

@@ -23,6 +23,7 @@ Prefix key: **Ctrl+b** (default)
 | `prefix H`   | Open Claude in horizontal split (current dir)  |
 | `prefix V`   | Open Claude in vertical split (current dir)    |
 | `prefix C`   | fzf picker to jump to a running Claude agent   |
+| `prefix A`   | AWS profile picker (fzf)                       |
 
 ### Pane Navigation
 
