@@ -271,6 +271,28 @@ tasks:
             - "brew untap leoafarias/fvm"
             - "sudo apt-get remove -y android-sdk sdkmanager"
 
+  aws_cli:
+    commands:
+      - run:
+          env:
+            TMP_DIR: "/tmp/awscli-install"
+          install:
+            - "mkdir -p $TMP_DIR"
+            - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TMP_DIR/awscliv2.zip"'
+            - "unzip -o $TMP_DIR/awscliv2.zip -d $TMP_DIR"
+            - "sudo $TMP_DIR/aws/install"
+            - "rm -rf $TMP_DIR"
+          update:
+            - "mkdir -p $TMP_DIR"
+            - 'curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TMP_DIR/awscliv2.zip"'
+            - "unzip -o $TMP_DIR/awscliv2.zip -d $TMP_DIR"
+            - "sudo $TMP_DIR/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update"
+            - "rm -rf $TMP_DIR"
+          uninstall:
+            - "sudo rm -f /usr/local/bin/aws"
+            - "sudo rm -f /usr/local/bin/aws_completer"
+            - "sudo rm -rf /usr/local/aws-cli"
+
   personal_repos:
     commands:
       - machine_setup:
