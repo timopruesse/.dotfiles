@@ -30,6 +30,7 @@ function awsp() {
   if [ -n "$selected" ]; then
     export AWS_PROFILE="$selected"
     export AWS_DEFAULT_PROFILE="$selected"
+    echo "$selected" > "${XDG_STATE_HOME:-$HOME/.local/state}/aws_profile"
     echo "Switched to AWS profile: $selected"
   fi
 }
@@ -40,5 +41,6 @@ function awsc() {
 
 function awsu() {
   unset AWS_PROFILE AWS_DEFAULT_PROFILE
+  rm -f "${XDG_STATE_HOME:-$HOME/.local/state}/aws_profile"
   echo "AWS profile cleared (using default)"
 }
