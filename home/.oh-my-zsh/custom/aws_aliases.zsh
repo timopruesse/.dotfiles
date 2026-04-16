@@ -1,3 +1,8 @@
+function _aws_state_file() {
+  local session=$(tmux display-message -p '#{session_name}' 2>/dev/null || echo "default")
+  echo "${XDG_STATE_HOME:-$HOME/.local/state}/aws_profile_${session}"
+}
+
 function awsp() {
   local config="${AWS_CONFIG_FILE:-$HOME/.aws/config}"
   if [ ! -f "$config" ]; then
@@ -30,7 +35,7 @@ function awsp() {
   if [ -n "$selected" ]; then
     export AWS_PROFILE="$selected"
     export AWS_DEFAULT_PROFILE="$selected"
-    echo "$selected" > "${XDG_STATE_HOME:-$HOME/.local/state}/aws_profile"
+    echo "$selected" > "$(_aws_state_file)"
     echo "Switched to AWS profile: $selected"
   fi
 }
@@ -41,6 +46,6 @@ function awsc() {
 
 function awsu() {
   unset AWS_PROFILE AWS_DEFAULT_PROFILE
-  rm -f "${XDG_STATE_HOME:-$HOME/.local/state}/aws_profile"
+  rm -f "$(_aws_state_file)"
   echo "AWS profile cleared (using default)"
 }
