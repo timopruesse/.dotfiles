@@ -301,6 +301,20 @@ require("lazy").setup({
 				"regex",
 				"vimdoc",
 			})
+
+			-- The main branch of nvim-treesitter does not auto-enable highlighting;
+			-- it must be started per buffer. Also enable folds and treesitter-based indent.
+			vim.api.nvim_create_autocmd("FileType", {
+				group = vim.api.nvim_create_augroup("treesitter_start", { clear = true }),
+				callback = function(args)
+					local ft = vim.bo[args.buf].filetype
+					local lang = vim.treesitter.language.get_lang(ft) or ft
+					if pcall(vim.treesitter.start, args.buf, lang) then
+						vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+						vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+					end
+				end,
+			})
 		end,
 	},
 	{ "hrsh7th/cmp-nvim-lsp", lazy = true },
