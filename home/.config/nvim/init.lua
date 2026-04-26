@@ -13,13 +13,17 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Ensure nvm-managed node is in PATH (nvm is not loaded in non-interactive shells,
--- so LSP servers and mason tools that need node won't find it otherwise)
+-- Ensure fnm-managed node is in PATH (interactive shell hooks don't run in nvim's
+-- env, so LSP servers and mason tools that need node won't find it otherwise)
 do
-	local node_dirs = vim.fn.glob(vim.fn.expand("~/.nvm/versions/node/*/bin"), false, true)
-	if #node_dirs > 0 then
-		table.sort(node_dirs)
-		vim.env.PATH = node_dirs[#node_dirs] .. ":" .. vim.env.PATH
+	local fnm_dir = vim.env.FNM_MULTISHELL_PATH
+	if fnm_dir and fnm_dir ~= "" then
+		vim.env.PATH = fnm_dir .. ":" .. vim.env.PATH
+	else
+		local aliases = vim.fn.glob(vim.fn.expand("~/.local/share/fnm/aliases/default/bin"), false, true)
+		if #aliases > 0 then
+			vim.env.PATH = aliases[1] .. ":" .. vim.env.PATH
+		end
 	end
 end
 

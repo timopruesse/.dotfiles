@@ -190,23 +190,15 @@ tasks:
   node:
     commands:
       - run:
-          env:
-            NVM_DIR: "~/.nvm"
           install:
-            - "mkdir -p $NVM_DIR"
-            - "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash"
-            - "source ~/.zshrc"
-            - "nvm install --lts"
-            - "nvm alias default lts/*"
+            - "cargo install fnm"
+            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)'
           update:
-            - "OLD_NODE_VERSION=$(node --version)"
-            - "nvm install node --reinstall-packages-from=node --default"
-            - "npm upgrade -g"
-            - "nvm alias default $(node --version)"
-            - "nvm uninstall $OLD_NODE_VERSION"
+            - "cargo install fnm"
+            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g'
           uninstall:
-            - "nvm uninstall $(node --version)"
-            - "rm -rf $NVM_DIR"
+            - "rm -rf ~/.local/share/fnm"
+            - "cargo uninstall fnm"
 
   nvim-npm:
     commands:
