@@ -34,6 +34,11 @@ zcomet load zsh-users/zsh-syntax-highlighting
 
 zcomet compinit
 
+# user aliases / functions / environment
+for f in ~/.config/zsh/*.zsh(N); do
+  source "$f"
+done
+
 # customize auto suggestions
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#82909b"
 
