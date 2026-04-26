@@ -448,18 +448,6 @@ require("lazy").setup({
 			require("todo-comments").setup({})
 		end,
 	},
-	{
-		"toppair/peek.nvim",
-		event = { "VeryLazy" },
-		build = "deno task --quiet build:fast",
-		config = function()
-			-- TODO: remove wslview workaround once the upstream dependency is updated
-			require("peek").setup({ app = "wslview" })
-			vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
-			vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
-		end,
-		lazy = true,
-	},
 	{ "tpope/vim-dadbod", lazy = true },
 	{
 		"kristijanhusak/vim-dadbod-ui",
