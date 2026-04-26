@@ -54,7 +54,7 @@ require("lazy").setup({
 			vim.opt.laststatus = 3
 			require("lualine").setup({
 				options = {
-					theme = "catppuccin",
+					theme = "catppuccin-mocha",
 					globalstatus = true,
 					section_separators = "",
 					component_separators = "",
