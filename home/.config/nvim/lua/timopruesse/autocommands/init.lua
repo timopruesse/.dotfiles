@@ -12,10 +12,10 @@ vim.api.nvim_create_autocmd("FileType", {
 	pattern = "markdown",
 	group = vim.api.nvim_create_augroup("markdown", { clear = true }),
 	callback = function(args)
-		vim.keymap.set("n", "<leader>md", "<cmd>Markview toggle<cr>", {
+		vim.keymap.set("n", "<leader>md", "<cmd>Markview splitToggle<cr>", {
 			buffer = args.buf,
 			silent = true,
-			desc = "Toggle markdown render",
+			desc = "Toggle markdown preview (right split)",
 		})
 	end,
 })
