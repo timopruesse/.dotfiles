@@ -451,7 +451,6 @@ require("lazy").setup({
 			require("todo-comments").setup({})
 		end,
 	},
-	{ "tpope/vim-obsession", lazy = true },
 	{
 		"toppair/peek.nvim",
 		event = { "VeryLazy" },
