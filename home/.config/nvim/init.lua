@@ -258,17 +258,6 @@ require("lazy").setup({
 			require("timopruesse.autocommands.rust")
 		end,
 	},
-	{
-		"nvimdev/lspsaga.nvim",
-		event = "LspAttach",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"nvim-tree/nvim-web-devicons",
-		},
-		config = function()
-			require("lspsaga").setup({})
-		end,
-	},
 	{ "nvim-lua/plenary.nvim", lazy = true },
 	{ "nvim-treesitter/nvim-treesitter-context", lazy = true },
 	{

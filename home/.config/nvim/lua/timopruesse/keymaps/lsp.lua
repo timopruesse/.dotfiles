@@ -11,19 +11,21 @@ M.setup = function(bufnr)
 	key.nnoremap("<leader>ee", vim.diagnostic.open_float, buffer)
 
 	-- [ = backward (prev), ] = forward (next)
-	key.nnoremap("[d", key.exec_command("Lspsaga diagnostic_jump_prev"), buffer)
-	key.nnoremap("]d", key.exec_command("Lspsaga diagnostic_jump_next"), buffer)
+	key.nnoremap("[d", function()
+		vim.diagnostic.jump({ count = -1, float = true })
+	end, buffer)
+	key.nnoremap("]d", function()
+		vim.diagnostic.jump({ count = 1, float = true })
+	end, buffer)
 
 	key.nnoremap("<leader>vws", vim.lsp.buf.workspace_symbol, buffer)
 
-	key.nnoremap("<leader><leader>", key.exec_command("Lspsaga code_action"), buffer)
-	-- range_code_action removed from lspsaga; code_action works in visual mode
-	key.vnoremap("<leader><leader>", key.exec_command("Lspsaga code_action"), buffer)
+	key.nnoremap("<leader><leader>", vim.lsp.buf.code_action, buffer)
+	key.vnoremap("<leader><leader>", vim.lsp.buf.code_action, buffer)
 
-	key.nnoremap("<leader>vh", key.exec_command("Lspsaga hover_doc"), buffer)
-	-- Lspsaga signature_help removed — use native LSP
+	key.nnoremap("<leader>vh", vim.lsp.buf.hover, buffer)
 	key.nnoremap("<leader>vsh", vim.lsp.buf.signature_help, buffer)
-	key.nnoremap("<leader>vrn", key.exec_command("Lspsaga rename"), buffer)
+	key.nnoremap("<leader>vrn", vim.lsp.buf.rename, buffer)
 end
 
 return M
