@@ -47,33 +47,37 @@ require("lazy").setup({
 		},
 	},
 	{
-		"tamton-aquib/staline.nvim",
+		"nvim-lualine/lualine.nvim",
 		event = "VeryLazy",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			vim.opt.laststatus = 3
-
-			require("staline").setup({
-				sections = {
-					left = { "  ", "mode", " ", "file_name", " ", "lsp" },
-					mid = { "git_branch" },
-					right = {
-						function()
-							local diff = vim.b.gitsigns_status
-							if diff and diff ~= "" then
-								return diff .. " | "
-							end
-							return ""
-						end,
-						"lsp_name",
-						" ",
-						"line_column",
-						"  ",
-					},
+			require("lualine").setup({
+				options = {
+					theme = "catppuccin",
+					globalstatus = true,
+					section_separators = "",
+					component_separators = "",
 				},
-				defaults = {
-					true_colors = true,
-					line_column = "[%l/%L] %-02c",
-					branch_symbol = " ",
+				sections = {
+					lualine_a = { "mode" },
+					lualine_b = { { "branch", icon = "" }, "diff" },
+					lualine_c = { { "filename", path = 1 } },
+					lualine_x = {
+						{
+							function()
+								local names = {}
+								for _, c in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
+									table.insert(names, c.name)
+								end
+								return table.concat(names, ",")
+							end,
+							icon = " ",
+						},
+						"filetype",
+					},
+					lualine_y = { "progress" },
+					lualine_z = { { "location", fmt = function(s) return "[" .. s .. "]" end } },
 				},
 			})
 		end,
