@@ -215,7 +215,7 @@ require("lazy").setup({
 		dependencies = {
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
-			"hrsh7th/cmp-nvim-lsp",
+			"saghen/blink.cmp",
 			"b0o/schemastore.nvim",
 		},
 		config = function()
@@ -310,112 +310,43 @@ require("lazy").setup({
 			})
 		end,
 	},
-	{ "hrsh7th/cmp-nvim-lsp", lazy = true },
-	{ "hrsh7th/cmp-buffer", lazy = true },
-	{ "hrsh7th/cmp-cmdline", lazy = true },
-	{ "hrsh7th/cmp-nvim-lsp-document-symbol", lazy = true },
-	{ "hrsh7th/cmp-nvim-lsp-signature-help", lazy = true },
-	{ "hrsh7th/cmp-nvim-lua", lazy = true },
-	{ "hrsh7th/cmp-path", lazy = true },
-	{ "hrsh7th/cmp-calc", lazy = true },
-	{ "hrsh7th/cmp-emoji", lazy = true },
-	{ "petertriho/cmp-git", lazy = true },
-	{ "David-Kunz/cmp-npm", lazy = true },
-	{ "saadparwaiz1/cmp_luasnip", lazy = true, dependencies = { "L3MON4D3/LuaSnip" } },
 	{
-		"hrsh7th/nvim-cmp",
-		event = "InsertEnter",
-		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-buffer",
-			"hrsh7th/cmp-cmdline",
-			"hrsh7th/cmp-nvim-lsp-document-symbol",
-			"hrsh7th/cmp-nvim-lsp-signature-help",
-			"hrsh7th/cmp-nvim-lua",
-			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-calc",
-			"hrsh7th/cmp-emoji",
-			"petertriho/cmp-git",
-			"David-Kunz/cmp-npm",
-			"saadparwaiz1/cmp_luasnip",
-			"windwp/nvim-autopairs",
+		"saghen/blink.cmp",
+		event = { "InsertEnter", "CmdlineEnter" },
+		version = "*",
+		dependencies = { "L3MON4D3/LuaSnip", "windwp/nvim-autopairs" },
+		opts = {
+			snippets = { preset = "luasnip" },
+			keymap = {
+				preset = "enter",
+				["<C-p>"] = { "select_prev", "fallback" },
+				["<C-n>"] = { "select_next", "fallback" },
+				["<C-u>"] = { "scroll_documentation_up", "fallback" },
+				["<C-d>"] = { "scroll_documentation_down", "fallback" },
+				["<C-Space>"] = { "show", "show_documentation", "hide_documentation" },
+				["<C-x>"] = { "cancel", "fallback" },
+			},
+			sources = {
+				default = { "lsp", "snippets", "path", "buffer" },
+				providers = {
+					lsp = { name = "LSP" },
+					snippets = { name = "SNIP" },
+					path = { name = "PATH" },
+					buffer = { name = "BUF", min_keyword_length = 4 },
+				},
+			},
+			completion = {
+				ghost_text = { enabled = true },
+				accept = { auto_brackets = { enabled = true } },
+				documentation = { auto_show = true, auto_show_delay_ms = 200 },
+			},
+			signature = { enabled = true },
+			cmdline = {
+				keymap = { preset = "cmdline" },
+				completion = { menu = { auto_show = true } },
+			},
 		},
-		config = function()
-			local cmp = require("cmp")
-			local source_mapping = {
-				buffer = "[BUF]",
-				nvim_lsp = "[LSP]",
-				nvim_lua = "[LUA]",
-				path = "[PATH]",
-			}
-
-			cmp.setup({
-				experimental = { ghost_text = true },
-				snippet = {
-					expand = function(args)
-						require("luasnip").lsp_expand(args.body)
-					end,
-				},
-				mapping = cmp.mapping.preset.insert({
-					["<C-p>"] = cmp.mapping.select_prev_item(),
-					["<C-n>"] = cmp.mapping.select_next_item(),
-					["<C-u>"] = cmp.mapping.scroll_docs(-4),
-					["<C-d>"] = cmp.mapping.scroll_docs(4),
-					["<C-Space>"] = cmp.mapping.complete(),
-					["<CR>"] = cmp.mapping.confirm({ select = true }),
-					["<C-x>"] = cmp.mapping({
-						i = cmp.mapping.abort(),
-						c = cmp.mapping.close(),
-					}),
-				}),
-				formatting = {
-					format = function(entry, vim_item)
-						vim_item.menu = source_mapping[entry.source.name]
-						return vim_item
-					end,
-				},
-				sources = {
-					{ name = "nvim_lsp_signature_help" },
-					{ name = "nvim_lsp" },
-					{ name = "luasnip" },
-					{ name = "path" },
-					{ name = "nvim_lua" },
-					{ name = "emoji" },
-					{ name = "npm", keyword_length = 3 },
-					{ name = "buffer", keyword_length = 4 },
-				},
-			})
-
-			cmp.setup.cmdline("/", {
-				mapping = cmp.mapping.preset.cmdline(),
-				sources = {
-					{ name = "nvim_lsp_document_symbol" },
-					{ name = "buffer" },
-				},
-			})
-
-			cmp.setup.cmdline(":", {
-				mapping = cmp.mapping.preset.cmdline(),
-				sources = cmp.config.sources({
-					{ name = "path" },
-				}, {
-					{ name = "cmdline" },
-				}),
-			})
-
-			cmp.setup.filetype("gitcommit", {
-				sources = cmp.config.sources({
-					{ name = "git" },
-				}, {
-					{ name = "buffer" },
-				}),
-			})
-
-			require("cmp_git").setup({})
-
-			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-			cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
-		end,
+		opts_extend = { "sources.default" },
 	},
 	{
 		"j-hui/fidget.nvim",
@@ -494,9 +425,9 @@ require("lazy").setup({
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities.textDocument.completion.completionItem.snippetSupport = true
 			capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
-			local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+			local ok, blink = pcall(require, "blink.cmp")
 			if ok then
-				capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+				capabilities = blink.get_lsp_capabilities(capabilities)
 			end
 
 			require("flutter-tools").setup({

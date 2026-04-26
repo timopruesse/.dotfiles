@@ -2,7 +2,7 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
 
-local cmp_capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+local cmp_capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 -- Shared on_attach: generic LSP keymaps registered buffer-locally for every server
 local function on_attach(client, bufnr)
