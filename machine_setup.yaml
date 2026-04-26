@@ -10,32 +10,9 @@ tasks:
             - "sudo apt-get update"
             - "sudo apt-get install -y zsh"
             - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
-      - run:
-          env:
-            ZSH: ""
-            TMP_INSTALL_PATH: "/tmp/install-omz.sh"
-          commands:
-            - "sudo rm -r ~/.oh-my-zsh"
-            - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
-            - "chmod u+x $TMP_INSTALL_PATH"
-            - "$TMP_INSTALL_PATH"
-            - "rm $TMP_INSTALL_PATH"
-
-  zsh_extras:
-    parallel: true
-    commands:
       - clone:
-          url: "https://github.com/romkatv/powerlevel10k.git"
-          target: "~/.oh-my-zsh/custom/themes/powerlevel10k"
-      - clone:
-          url: "https://github.com/zsh-users/zsh-syntax-highlighting.git"
-          target: "~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
-      - clone:
-          url: "https://github.com/zsh-users/zsh-autosuggestions"
-          target: "~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
-      - clone:
-          url: "https://github.com/zsh-users/zsh-completions"
-          target: "~/.oh-my-zsh/custom/plugins/zsh-completions"
+          url: "https://github.com/agkozak/zcomet.git"
+          target: "~/.zcomet/bin"
 
   wsl_config:
     os: ["linux"]
