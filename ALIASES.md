@@ -35,7 +35,6 @@ All ZSH aliases and functions, grouped by source file.
 | `ls` | `eza` | Use eza for file listing |
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
-| `flutter` | `fvm flutter` | Use Flutter via FVM |
 
 ## Tmux (`tmux_aliases.zsh`)
 

@@ -63,16 +63,6 @@ export EDITOR=$VISUAL
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 
-# dart
-PATH="$PATH:/usr/lib/dart/bin"
-
-# add ANDROID_HOME path
-export ANDROID_HOME=/usr/lib/android-sdk
-export ANDROID_SDK_ROOT=$ANDROID_HOME
-
-PATH=$PATH:$ANDROID_HOME/tools
-PATH=$PATH:$ANDROID_HOME/platform-tools
-
 # added by pipx (https://github.com/cs01/pipx)
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -102,9 +92,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # deno
 export DENO_INSTALL="$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
-
-# dart/pub
-export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 # pnpm
 export PNPM_HOME="/home/timo/.local/share/pnpm"

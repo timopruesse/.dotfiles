@@ -283,7 +283,6 @@ require("lazy").setup({
 				"go",
 				"dockerfile",
 				"python",
-				"dart",
 				"markdown",
 				"markdown_inline",
 				"vim",
@@ -408,38 +407,6 @@ require("lazy").setup({
 		lazy = true,
 	},
 	{ "fatih/vim-go", lazy = true },
-	{
-		"akinsho/flutter-tools.nvim",
-		ft = "dart",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		config = function()
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities.textDocument.completion.completionItem.snippetSupport = true
-			capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
-			local ok, blink = pcall(require, "blink.cmp")
-			if ok then
-				capabilities = blink.get_lsp_capabilities(capabilities)
-			end
-
-			require("flutter-tools").setup({
-				fvm = true,
-				widget_guides = { enabled = false },
-				lsp = {
-					on_attach = function(_, bufnr)
-						require("timopruesse.keymaps.lsp").setup(bufnr)
-					end,
-					capabilities = capabilities,
-					color = {
-						enabled = true,
-						background = false,
-						foreground = false,
-						virtual_text = true,
-						virtual_text_str = "■",
-					},
-				},
-			})
-		end,
-	},
 	{
 		"folke/todo-comments.nvim",
 		event = "BufReadPost",

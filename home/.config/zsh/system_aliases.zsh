@@ -15,5 +15,3 @@ alias ls=eza
 alias l="eza -la"
 
 alias pn=pnpm
-
-alias flutter="fvm flutter"
