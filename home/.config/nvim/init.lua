@@ -408,6 +408,11 @@ require("lazy").setup({
 	},
 	{ "fatih/vim-go", lazy = true },
 	{
+		"OXY2DEV/markview.nvim",
+		ft = { "markdown", "Avante", "codecompanion" },
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+	},
+	{
 		"folke/todo-comments.nvim",
 		event = "BufReadPost",
 		dependencies = { "nvim-lua/plenary.nvim" },
