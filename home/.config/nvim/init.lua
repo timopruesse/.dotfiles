@@ -102,13 +102,6 @@ require("lazy").setup({
 	},
 	{ "ThePrimeagen/harpoon", lazy = true },
 	{
-		"ThePrimeagen/refactoring.nvim",
-		config = function()
-			require("refactoring").setup({})
-		end,
-		lazy = true,
-	},
-	{
 		"numToStr/Comment.nvim",
 		event = "BufReadPost",
 		config = function()

@@ -55,10 +55,5 @@ key.nnoremap("<leader>cc", function()
 	require("telescope.builtin").git_bcommits()
 end)
 
-key.vnoremap("<leader>re", function()
-	require("telescope").load_extension("refactoring")
-	require("telescope").extensions.refactoring.refactors()
-end)
-
 key.nnoremap("<C-q>", key.exec_command(":Telescope file_browser"))
 key.nnoremap("<leader>tf", key.exec_command(":Telescope file_browser path=%:p:h select_buffer=true"))
