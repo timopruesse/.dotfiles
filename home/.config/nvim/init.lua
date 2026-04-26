@@ -383,12 +383,6 @@ require("lazy").setup({
 		end,
 		lazy = true,
 	},
-	{ "junegunn/fzf", build = "./install --all", lazy = true },
-	{
-		"junegunn/fzf.vim",
-		dependencies = { "junegunn/fzf" },
-		cmd = { "Files", "Rg", "Buffers", "BLines", "GFiles", "Commits", "Commands" },
-	},
 	{ "kevinhwang91/nvim-bqf", ft = { "qf" } },
 	{ "MunifTanjim/nui.nvim", event = "BufEnter package.json" },
 	{
