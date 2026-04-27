@@ -16,11 +16,14 @@ key.inoremap("<M-u>", "ü")
 
 key.nnoremap("Q", "<nop>")
 
--- center cursor while moving through file
-key.nnoremap("j", "jzz")
-key.nnoremap("k", "kzz")
-key.nnoremap("<Down>", "jzz")
-key.nnoremap("<Up>", "kzz")
+-- center on jumps, not on line-by-line motion (zzzv also opens folds on search hits)
+key.nnoremap("n", "nzzzv")
+key.nnoremap("N", "Nzzzv")
+key.nnoremap("*", "*zzzv")
+key.nnoremap("#", "#zzzv")
+key.nnoremap("<C-d>", "<C-d>zz")
+key.nnoremap("<C-u>", "<C-u>zz")
+key.nnoremap("G", "Gzz")
 
 -- quickfix
 local is_quickfix_open = function()
