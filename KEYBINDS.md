@@ -4,21 +4,22 @@
 
 ## Tmux
 
-Prefix key: **Ctrl+b** (default)
+Prefix key: **Ctrl+Space**
 
 ### Session / Window Management
 
-| Key          | Action                               |
-| ------------ | ------------------------------------ |
-| `prefix s`   | List/switch sessions                 |
-| `prefix (`   | Switch to previous session           |
-| `prefix )`   | Switch to next session               |
-| `prefix c`   | New window (current directory)       |
-| `prefix \`   | Vertical split (current directory)   |
-| `prefix -`   | Horizontal split (current directory) |
-| `prefix r`   | Reload tmux config                   |
-| `prefix Tab` | Open popup terminal (75%x80%)        |
-| `prefix S`   | Browse/resume Claude sessions (new window)    |
+| Key          | Action                                         |
+| ------------ | ---------------------------------------------- |
+| `prefix s`   | List/switch sessions                           |
+| `prefix (`   | Switch to previous session                     |
+| `prefix )`   | Switch to next session                         |
+| `prefix c`   | New window (current directory)                 |
+| `prefix \`   | Vertical split (current directory)             |
+| `prefix -`   | Horizontal split (current directory)           |
+| `prefix r`   | Reload tmux config                             |
+| `prefix Tab` | Toggle last window                             |
+| `` prefix ` ``| Open popup terminal (75%x80%)                 |
+| `prefix S`   | Browse/resume Claude sessions (new window)     |
 | `prefix R`   | Resume last Claude session (new window)        |
 | `prefix H`   | Open Claude in horizontal split (current dir)  |
 | `prefix V`   | Open Claude in vertical split (current dir)    |
@@ -45,8 +46,9 @@ Prefix key: **Ctrl+b** (default)
 
 - Vi mode enabled for copy mode (`mode-keys vi`)
 - Mouse support enabled
-- Windows auto-renumber on close
-- Sessions auto-saved/restored via tmux-resurrect + tmux-continuum
+- Windows/panes are 1-indexed; windows auto-renumber on close
+- Yank in copy mode (`y`) and mouse-drag-end pipe to the OS clipboard via OSC 52
+- Sessions saved by tmux-resurrect + tmux-continuum; restore manually with `prefix Ctrl-r`
 
 ---
 
