@@ -27,7 +27,6 @@ vim.opt.incsearch = true
 vim.opt.relativenumber = true
 vim.opt.termguicolors = true
 vim.opt.scrolloff = 10
-vim.opt.lazyredraw = true
 
 vim.opt.cmdheight = 1
 vim.opt.updatetime = 300

@@ -9,7 +9,7 @@ return {
 	{
 		"kylechui/nvim-surround",
 		version = "*",
-		event = "VeryLazy",
+		event = "BufReadPost",
 		config = function()
 			require("nvim-surround").setup({})
 		end,

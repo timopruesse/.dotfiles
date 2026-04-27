@@ -1,8 +1,21 @@
+-- Capabilities are inlined to mirror blink.cmp.get_lsp_capabilities() without
+-- force-loading blink during the first BufReadPre. Blink stays lazy on InsertEnter.
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities.textDocument.completion.completionItem.documentationFormat = { "markdown", "plaintext" }
+capabilities.textDocument.completion.completionItem.preselectSupport = true
+capabilities.textDocument.completion.completionItem.deprecatedSupport = true
+capabilities.textDocument.completion.completionItem.commitCharactersSupport = true
+capabilities.textDocument.completion.completionItem.tagSupport = { valueSet = { 1 } }
+capabilities.textDocument.completion.completionItem.insertReplaceSupport = true
+capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
+capabilities.textDocument.completion.completionItem.resolveSupport = {
+	properties = { "documentation", "detail", "additionalTextEdits" },
+}
+capabilities.textDocument.completion.completionList = {
+	itemDefaults = { "commitCharacters", "editRange", "insertTextFormat", "insertTextMode", "data" },
+}
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
-
-local cmp_capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 -- Shared on_attach: generic LSP keymaps registered buffer-locally for every server
 local function on_attach(client, bufnr)
@@ -11,7 +24,7 @@ end
 
 -- Global defaults applied to all LSP servers
 vim.lsp.config("*", {
-	capabilities = cmp_capabilities,
+	capabilities = capabilities,
 	on_attach = on_attach,
 })
 
@@ -118,27 +131,41 @@ vim.lsp.config("lua_ls", {
 	},
 })
 
--- yamlls: schema validation via schemastore
-vim.lsp.config("yamlls", {
-	settings = {
-		yaml = {
-			schemaStore = {
-				enable = false,
-				url = "",
+-- yamlls/jsonls schemastore configs are deferred to first FileType yaml/json so
+-- the multi-MB schemastore JSON doesn't load when opening unrelated files (e.g. .ts).
+-- These autocmds are registered BEFORE mason-lspconfig.setup() so they fire first
+-- and the config is in place before the server's automatic_enable starts the client.
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "yaml", "yaml.docker-compose" },
+	once = true,
+	callback = function()
+		vim.lsp.config("yamlls", {
+			settings = {
+				yaml = {
+					schemaStore = {
+						enable = false,
+						url = "",
+					},
+					schemas = require("schemastore").yaml.schemas(),
+				},
 			},
-			schemas = require("schemastore").yaml.schemas(),
-		},
-	},
+		})
+	end,
 })
 
--- jsonls: schema validation via schemastore
-vim.lsp.config("jsonls", {
-	settings = {
-		json = {
-			schemas = require("schemastore").json.schemas(),
-			validate = { enable = true },
-		},
-	},
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "json", "jsonc" },
+	once = true,
+	callback = function()
+		vim.lsp.config("jsonls", {
+			settings = {
+				json = {
+					schemas = require("schemastore").json.schemas(),
+					validate = { enable = true },
+				},
+			},
+		})
+	end,
 })
 
 require("mason").setup({

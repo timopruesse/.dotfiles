@@ -8,8 +8,6 @@ return {
 		dependencies = {
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
-			"saghen/blink.cmp",
-			"b0o/schemastore.nvim",
 		},
 		config = function()
 			require("timopruesse.lsp")
