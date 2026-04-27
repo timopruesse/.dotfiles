@@ -72,16 +72,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # fnm (replaces nvm; ~50× faster shell startup)
 eval "$(fnm env --use-on-cd --shell zsh)"
 
-# fix chromium font error
-export FONTCONFIG_PATH=/etc/fonts
-
-export DISPLAY=:0
-# use Windows default browser
-export BROWSER=/usr/bin/wslview
-
-# D3D12 GPU acceleration
-export LIBVA_DRIVER_NAME=d3d12
-
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 

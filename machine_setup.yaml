@@ -2,13 +2,48 @@
 default_shell: "zsh"
 
 tasks:
-  zsh:
+  homebrew_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          commands:
+            - '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+            - 'eval "$(/opt/homebrew/bin/brew shellenv)"'
+
+  homebrew_linux:
+    os: ["linux"]
+    commands:
+      - run:
+          env:
+            TMP_INSTALL_PATH: "/tmp/install-brew.sh"
+          commands:
+            - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+            - "chmod u+x $TMP_INSTALL_PATH"
+            - "$TMP_INSTALL_PATH"
+            - "rm $TMP_INSTALL_PATH"
+            - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
+            - "brew tap homebrew/core"
+            - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+
+  zsh_linux:
+    os: ["linux"]
     commands:
       - run:
           shell: "bash"
           commands:
             - "sudo apt-get update"
             - "sudo apt-get install -y zsh"
+            - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+      - clone:
+          url: "https://github.com/agkozak/zcomet.git"
+          target: "~/.zcomet/bin"
+
+  zsh_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          commands:
+            - "brew install zsh"
             - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
       - clone:
           url: "https://github.com/agkozak/zcomet.git"
@@ -23,6 +58,7 @@ tasks:
           sudo: true
 
   windows_terminal:
+    os: ["linux"]
     commands:
       - run:
           shell: "bash"
@@ -48,7 +84,8 @@ tasks:
             - "chmod 600 ~/.ssh/id_rsa"
             - "chmod 644 ~/.ssh/id_rsa.pub"
 
-  tools:
+  tools_linux:
+    os: ["linux"]
     commands:
       - run:
           commands:
@@ -58,7 +95,15 @@ tasks:
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
             - "sudo locale-gen en_US.UTF-8"
 
-  gh:
+  tools_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          commands:
+            - "brew install git tmux ripgrep fzf fd wget keychain cmake pkg-config eza fswatch luarocks zoxide"
+
+  gh_linux:
+    os: ["linux"]
     commands:
       - run:
           install:
@@ -72,6 +117,17 @@ tasks:
             - "sudo apt-get upgrade -y gh"
           uninstall:
             - "sudo apt-get remove -y gh"
+
+  gh_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install gh"
+          update:
+            - "brew upgrade gh"
+          uninstall:
+            - "brew uninstall gh"
 
   tpm:
     commands:
@@ -104,7 +160,8 @@ tasks:
             - "brew install jesseduffield/lazygit/lazygit"
             - "brew install lazygit"
 
-  neovim:
+  neovim_linux:
+    os: ["linux"]
     commands:
       - run:
           install:
@@ -117,6 +174,18 @@ tasks:
           uninstall:
             - "sudo apt remove -y neovim python3-neovim"
 
+  neovim_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install neovim"
+            - "luarocks install jsregexp"
+          update:
+            - "brew upgrade neovim"
+          uninstall:
+            - "brew uninstall neovim"
+
   rust:
     commands:
       - run:
@@ -125,32 +194,13 @@ tasks:
             - "source $HOME/.cargo/env"
             - "rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy"
             - "rustup component add rustfmt --toolchain nightly"
+            - "rustup component add rust-analyzer --toolchain nightly"
           update:
             - "rustup update"
       - run:
           commands:
-            - "mkdir -p ~/.local/bin"
-            - "curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer"
-            - "chmod +x ~/.local/bin/rust-analyzer"
-      - run:
-          commands:
             - "cargo install cargo-tarpaulin"
             - "cargo install tree-sitter-cli"
-
-  linuxbrew:
-    os: ["linux"]
-    commands:
-      - run:
-          env:
-            TMP_INSTALL_PATH: "/tmp/install-brew.sh"
-          commands:
-            - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-            - "chmod u+x $TMP_INSTALL_PATH"
-            - "$TMP_INSTALL_PATH"
-            - "rm $TMP_INSTALL_PATH"
-            - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
-            - "brew tap homebrew/core"
-            - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
 
   bun:
     commands:
@@ -158,7 +208,8 @@ tasks:
           install: "curl -fsSL https://bun.sh/install | bash"
           update: "bun upgrade --canary"
 
-  node:
+  node_linux:
+    os: ["linux"]
     commands:
       - run:
           install:
@@ -171,6 +222,19 @@ tasks:
             - "rm -rf ~/.local/share/fnm"
             - "cargo uninstall fnm"
 
+  node_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install fnm"
+            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)'
+          update:
+            - "brew upgrade fnm"
+            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g'
+          uninstall:
+            - "brew uninstall fnm"
+
   nvim-npm:
     commands:
       - run:
@@ -180,7 +244,8 @@ tasks:
           update: "npm upgrade -g $(echo $PACKAGES_STR)"
           uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
 
-  python:
+  python_linux:
+    os: ["linux"]
     commands:
       - run:
           install:
@@ -190,7 +255,20 @@ tasks:
           update:
             - "pip-review --auto"
 
-  go:
+  python_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install python pipx"
+            - "python3 -m pipx ensurepath"
+            - "pipx install pip-review"
+            - "pipx install pynvim"
+          update:
+            - "pip-review --auto"
+
+  go_linux:
+    os: ["linux"]
     commands:
       - run:
           install:
@@ -199,6 +277,17 @@ tasks:
             - "sudo apt-get upgrade -y golang"
           uninstall:
             - "sudo apt-get remove -y golang"
+
+  go_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install go"
+          update:
+            - "brew upgrade go"
+          uninstall:
+            - "brew uninstall go"
 
   docker:
     os: ["linux"]
@@ -220,7 +309,19 @@ tasks:
             - "sudo rm -f /etc/apt/sources.list.d/docker.sources"
             - "sudo rm -f /etc/apt/keyrings/docker.asc"
 
-  aws_cli:
+  colima_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install colima docker docker-compose docker-buildx"
+          update:
+            - "brew upgrade colima docker docker-compose docker-buildx"
+          uninstall:
+            - "brew uninstall colima docker docker-compose docker-buildx"
+
+  aws_cli_linux:
+    os: ["linux"]
     commands:
       - run:
           env:
@@ -241,6 +342,51 @@ tasks:
             - "sudo rm -f /usr/local/bin/aws"
             - "sudo rm -f /usr/local/bin/aws_completer"
             - "sudo rm -rf /usr/local/aws-cli"
+
+  aws_cli_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install awscli"
+          update:
+            - "brew upgrade awscli"
+          uninstall:
+            - "brew uninstall awscli"
+
+  ghostty_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install --cask ghostty"
+          update:
+            - "brew upgrade --cask ghostty"
+          uninstall:
+            - "brew uninstall --cask ghostty"
+
+  font_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install --cask font-meslo-lg-nerd-font"
+          update:
+            - "brew upgrade --cask font-meslo-lg-nerd-font"
+
+  font_linux:
+    os: ["linux"]
+    commands:
+      - run:
+          env:
+            FONT_DIR: "$HOME/.local/share/fonts/MesloLGS"
+            TMP_ZIP: "/tmp/meslo-nf.zip"
+          install:
+            - "mkdir -p $FONT_DIR"
+            - "curl -fL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip -o $TMP_ZIP"
+            - "unzip -o $TMP_ZIP -d $FONT_DIR"
+            - "rm $TMP_ZIP"
+            - "fc-cache -fv"
 
   personal_repos:
     commands:
