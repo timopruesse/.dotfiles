@@ -1,9 +1,8 @@
 return {
-	{ "nvim-treesitter/nvim-treesitter-context", lazy = true },
 	{
 		"nvim-treesitter/nvim-treesitter",
 		dependencies = { "nvim-treesitter/nvim-treesitter-context" },
-		lazy = false,
+		event = { "BufReadPre", "BufNewFile" },
 		build = ":TSUpdate",
 		config = function()
 			-- setup() must be called with install_dir to register it in runtimepath

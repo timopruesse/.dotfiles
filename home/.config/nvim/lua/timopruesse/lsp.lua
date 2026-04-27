@@ -181,15 +181,13 @@ require("mason-lspconfig").setup({
 		"html",
 		"jsonls",
 		"ts_ls",
-		"jedi_language_server",
-		"somesass_ls",
+		"basedpyright",
 		"svelte",
 		"tailwindcss",
 		"yamlls",
 	},
 	-- rust_analyzer: managed by rustaceanvim (conflicts if enabled here)
-	-- pest_ls: PHP testing LSP, not used
 	automatic_enable = {
-		exclude = { "rust_analyzer", "pest_ls" },
+		exclude = { "rust_analyzer" },
 	},
 })

@@ -36,7 +36,9 @@ M.escape = function(str)
 end
 
 M.exec_command = function(cmd, replace_term)
-	replace_term = replace_term or true
+	if replace_term == nil then
+		replace_term = true
+	end
 
 	if replace_term then
 		cmd = M.escape(cmd)

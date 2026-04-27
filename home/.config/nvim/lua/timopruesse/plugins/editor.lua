@@ -1,12 +1,5 @@
 return {
 	{
-		"numToStr/Comment.nvim",
-		event = "BufReadPost",
-		config = function()
-			require("Comment").setup()
-		end,
-	},
-	{
 		"kylechui/nvim-surround",
 		version = "*",
 		event = "BufReadPost",

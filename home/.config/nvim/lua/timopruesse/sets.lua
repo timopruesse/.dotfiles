@@ -10,8 +10,6 @@ vim.opt.wildignore = {
     "*_build/*",
     "**/coverage/*",
     "**/node_modules/*",
-    "**/android/*",
-    "**/ios/*",
     "**/.git/*",
 }
 
@@ -28,7 +26,6 @@ vim.opt.relativenumber = true
 vim.opt.termguicolors = true
 vim.opt.scrolloff = 10
 
-vim.opt.cmdheight = 1
 vim.opt.updatetime = 300
 vim.opt.shortmess:append("c")
 
@@ -40,16 +37,15 @@ vim.opt.list = true
 vim.opt.listchars = { tab = "|-", trail = "·" }
 
 vim.opt.splitright = true
+vim.opt.laststatus = 3
 
-vim.cmd("set nohlsearch")
-vim.cmd("set noshowmode")
-vim.cmd("set nowrap")
+vim.opt.hlsearch = false
+vim.opt.showmode = false
+vim.opt.wrap = false
 
-vim.cmd("set noswapfile")
-vim.cmd("set nobackup")
-vim.cmd("set undodir=$HOME/.vim/undodir")
-vim.cmd("set undofile")
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.undodir = vim.fn.expand("~/.vim/undodir")
+vim.opt.undofile = true
 
 vim.g.undotree_WindowLayout = 4
-
-vim.g.skip_ts_context_commentstring_module = true

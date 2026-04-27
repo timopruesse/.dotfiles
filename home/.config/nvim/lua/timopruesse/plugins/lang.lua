@@ -28,10 +28,8 @@ return {
 					},
 				},
 			}
-			require("timopruesse.autocommands.rust")
 		end,
 	},
-	{ "fatih/vim-go", lazy = true },
 	{ "MunifTanjim/nui.nvim", event = "BufEnter package.json" },
 	{
 		"vuki656/package-info.nvim",

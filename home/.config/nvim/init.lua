@@ -20,9 +20,9 @@ do
 	if fnm_dir and fnm_dir ~= "" then
 		vim.env.PATH = fnm_dir .. ":" .. vim.env.PATH
 	else
-		local aliases = vim.fn.glob(vim.fn.expand("~/.local/share/fnm/aliases/default/bin"), false, true)
-		if #aliases > 0 then
-			vim.env.PATH = aliases[1] .. ":" .. vim.env.PATH
+		local fallback = vim.fn.expand("~/.local/share/fnm/aliases/default/bin")
+		if vim.uv.fs_stat(fallback) then
+			vim.env.PATH = fallback .. ":" .. vim.env.PATH
 		end
 	end
 end
