@@ -91,10 +91,25 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# claude code: use worktree when inside a git repo with commits
+# claude code: use worktree when inside a git repo with commits (pass --here to opt out)
 claude() {
-  local use_worktree=false
+  # --here: skip worktree, run on current branch
+  local args=()
+  local force_here=false
+  for arg in "$@"; do
+    if [[ "$arg" == "--here" ]]; then
+      force_here=true
+      continue
+    fi
+    args+=("$arg")
+  done
 
+  if $force_here; then
+    command claude "${args[@]}"
+    return
+  fi
+
+  local use_worktree=false
   if git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
     local repo_root
     repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
@@ -105,7 +120,7 @@ claude() {
 
       # don't append --worktree to subcommands that don't support it
       local subcommands="agents|auth|auto-mode|doctor|install|mcp|plugin|plugins|setup-token|update|upgrade"
-      for arg in "$@"; do
+      for arg in "${args[@]}"; do
         [[ "$arg" == -* ]] && continue
         [[ "$arg" =~ ^($subcommands)$ ]] && use_worktree=false
         break
@@ -114,9 +129,9 @@ claude() {
   fi
 
   if $use_worktree; then
-    command claude "$@" --worktree
+    command claude "${args[@]}" --worktree
   else
-    command claude "$@"
+    command claude "${args[@]}"
   fi
 }
 
