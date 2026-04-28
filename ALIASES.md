@@ -45,12 +45,6 @@ All ZSH aliases and functions, grouped by source file.
 | `work` | `ss mill` | Start work session |
 | `ks` | `tmux kill-session -t` | Kill a tmux session |
 
-## Browser (`browser_aliases.zsh`)
-
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `nocors` | `chromium --disable-web-security ...` | Launch Chromium with CORS disabled |
-
 ## AWS (`aws_aliases.zsh`)
 
 | Function | Command | Description |
