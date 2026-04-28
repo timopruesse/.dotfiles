@@ -15,11 +15,21 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 capabilities.textDocument.completion.completionList = {
 	itemDefaults = { "commitCharacters", "editRange", "insertTextFormat", "insertTextMode", "data" },
 }
-capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
+-- File-watcher registration synchronously enumerates matched files on attach.
+-- On big node_modules trees this costs hundreds of ms and is rarely worth it —
+-- in-buffer edits already produce didChange events, and external edits are rare.
+capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
--- Shared on_attach: generic LSP keymaps registered buffer-locally for every server
+-- Shared on_attach: generic LSP keymaps registered buffer-locally for every server.
+-- Also strips capabilities we don't bind, so the server doesn't compute them:
+--   * documentHighlight (no CursorHold binding)
+--   * codeLens (no autocmd / keymap)
 local function on_attach(client, bufnr)
 	require("timopruesse.keymaps.lsp").setup(bufnr)
+	if client.server_capabilities then
+		client.server_capabilities.documentHighlightProvider = nil
+		client.server_capabilities.codeLensProvider = nil
+	end
 end
 
 -- Global defaults applied to all LSP servers
@@ -28,10 +38,14 @@ vim.lsp.config("*", {
 	on_attach = on_attach,
 })
 
--- ts_ls: inlay hints + node keymaps
+-- ts_ls: inlay hints + node keymaps. Semantic tokens are dropped because
+-- treesitter already provides equivalent highlighting at a fraction of the cost,
+-- and ts_ls semantic-token responses on large TS files cause visible main-thread
+-- spikes on every change.
 vim.lsp.config("ts_ls", {
 	on_attach = function(client, bufnr)
 		on_attach(client, bufnr)
+		client.server_capabilities.semanticTokensProvider = nil
 		require("timopruesse.keymaps.node").setup(bufnr)
 	end,
 	settings = {
@@ -115,8 +129,13 @@ vim.lsp.config("gopls", {
 	},
 })
 
--- lua_ls: runtime/workspace config for nvim development
+-- lua_ls: runtime/workspace config for nvim development. Semantic tokens are
+-- dropped for the same reason as ts_ls — treesitter highlighting is enough.
 vim.lsp.config("lua_ls", {
+	on_attach = function(client, bufnr)
+		on_attach(client, bufnr)
+		client.server_capabilities.semanticTokensProvider = nil
+	end,
 	settings = {
 		Lua = {
 			runtime = { version = "LuaJIT" },

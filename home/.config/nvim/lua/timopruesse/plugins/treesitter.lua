@@ -1,5 +1,18 @@
 return {
 	{
+		-- Default mode = "cursor" recomputes the context tree on every CursorMoved,
+		-- which is a measurable hot spot on big TS/JS files. "topline" only updates
+		-- when the visible top line changes, and capping max_lines keeps redraw work
+		-- bounded.
+		"nvim-treesitter/nvim-treesitter-context",
+		event = { "BufReadPost", "BufNewFile" },
+		opts = {
+			mode = "topline",
+			max_lines = 3,
+			trim_scope = "outer",
+		},
+	},
+	{
 		"nvim-treesitter/nvim-treesitter",
 		dependencies = { "nvim-treesitter/nvim-treesitter-context" },
 		event = { "BufReadPre", "BufNewFile" },
