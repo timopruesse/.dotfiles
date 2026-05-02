@@ -165,24 +165,31 @@ tasks:
     commands:
       - run:
           install:
-            - "sudo add-apt-repository -y ppa:neovim-ppa/unstable"
-            - "sudo apt-get update"
-            - "sudo apt-get install -y neovim python3-neovim"
-            - "sudo luarocks install jsregexp"
+            - 'ARCH=$(uname -m); case "$ARCH" in aarch64) ARCH=arm64 ;; esac; curl -fsSL -o /tmp/nvim-nightly.tar.gz "https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-${ARCH}.tar.gz"'
+            - "sudo -n rm -rf /opt/nvim && sudo -n mkdir -p /opt/nvim"
+            - "sudo -n tar -C /opt/nvim --strip-components=1 -xzf /tmp/nvim-nightly.tar.gz"
+            - "sudo -n ln -sfn /opt/nvim/bin/nvim /usr/local/bin/nvim"
+            - "rm -f /tmp/nvim-nightly.tar.gz"
+            - "sudo -n luarocks install jsregexp"
           update:
-            - "sudo apt-get upgrade neovim"
+            - 'ARCH=$(uname -m); case "$ARCH" in aarch64) ARCH=arm64 ;; esac; curl -fsSL -o /tmp/nvim-nightly.tar.gz "https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-${ARCH}.tar.gz"'
+            - "sudo -n rm -rf /opt/nvim && sudo -n mkdir -p /opt/nvim"
+            - "sudo -n tar -C /opt/nvim --strip-components=1 -xzf /tmp/nvim-nightly.tar.gz"
+            - "sudo -n ln -sfn /opt/nvim/bin/nvim /usr/local/bin/nvim"
+            - "rm -f /tmp/nvim-nightly.tar.gz"
           uninstall:
-            - "sudo apt remove -y neovim python3-neovim"
+            - "sudo -n rm -f /usr/local/bin/nvim"
+            - "sudo -n rm -rf /opt/nvim"
 
   neovim_macos:
     os: ["macos"]
     commands:
       - run:
           install:
-            - "brew install neovim"
+            - "brew install --HEAD neovim"
             - "luarocks install jsregexp"
           update:
-            - "brew upgrade neovim"
+            - "brew upgrade --fetch-HEAD neovim"
           uninstall:
             - "brew uninstall neovim"
 
