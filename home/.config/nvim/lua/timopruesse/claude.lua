@@ -85,7 +85,7 @@ function M.send_to_claude(text, opts)
 
 	last_claude_pane = pane_id
 
-	local cmd = string.format("__cp=$(cat '%s') && rm -f '%s' && claude -p \"$__cp\"", tmpfile, tmpfile)
+	local cmd = string.format("__cp=$(cat '%s') && rm -f '%s' && claude \"$__cp\"", tmpfile, tmpfile)
 	tmux_send(pane_id, cmd)
 end
 
