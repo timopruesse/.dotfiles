@@ -69,6 +69,7 @@ return {
 				{ "<leader>c", group = "Commits" },
 				{ "<leader>r", group = "References" },
 				{ "<leader>s", group = "Swap" },
+				{ "<leader>z", group = "Claude" },
 			})
 		end,
 	},

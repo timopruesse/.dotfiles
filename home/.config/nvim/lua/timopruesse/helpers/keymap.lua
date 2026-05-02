@@ -1,16 +1,23 @@
 local M = {}
 
+local function resolve_opts(opts)
+	if type(opts) == "table" then
+		return opts.buffer or false, opts.desc
+	end
+	return opts or false, nil
+end
+
 local createNoRemap = function(mode)
-	return function(keys, callback, buffer)
-		buffer = buffer or false
-		vim.keymap.set(mode, keys, callback, { noremap = true, silent = true, buffer = buffer })
+	return function(keys, callback, opts)
+		local buffer, desc = resolve_opts(opts)
+		vim.keymap.set(mode, keys, callback, { noremap = true, silent = true, buffer = buffer, desc = desc })
 	end
 end
 
 local createMap = function(mode)
-	return function(keys, callback, buffer)
-		buffer = buffer or false
-		vim.keymap.set(mode, keys, callback, { noremap = false, silent = true, buffer = buffer })
+	return function(keys, callback, opts)
+		local buffer, desc = resolve_opts(opts)
+		vim.keymap.set(mode, keys, callback, { noremap = false, silent = true, buffer = buffer, desc = desc })
 	end
 end
 
