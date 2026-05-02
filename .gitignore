@@ -2,3 +2,6 @@ ngrok.yml
 
 # Worktrees
 .claude/worktrees
+
+# temp files
+tmp

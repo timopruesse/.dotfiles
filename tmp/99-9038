@@ -1,3 +1,0 @@
-/home/timo/github/timopruesse/.dotfiles/home/.config/nvim/lua/timopruesse/plugins/ai.lua:1:1,55,99 plugin spec and setup: lazy.nvim entry for ThePrimeagen/99 with provider config, logger, tmp_dir, md_files, and all keymaps under <leader>9
-/home/timo/github/timopruesse/.dotfiles/home/.config/nvim/lua/timopruesse/plugins/ai.lua:10:4,11,_99.setup() call configuring provider (ClaudeCodeProvider), model, logger, tmp_dir and md_files
-/home/timo/github/timopruesse/.dotfiles/home/.config/nvim/lua/timopruesse/plugins/ui.lua:62:4,1,which-key group label registering leader 9 as the "99 (AI)" prefix used by the 99 plugin keymaps
