@@ -57,6 +57,21 @@ tasks:
           target: "/etc/wsl.conf"
           sudo: true
 
+  win32yank_wsl:
+    os: ["linux"]
+    commands:
+      - run:
+          env:
+            TMP_ZIP: "/tmp/win32yank.zip"
+          install:
+            - "mkdir -p $HOME/.local/bin"
+            - "curl -fsSL -o $TMP_ZIP https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
+            - "unzip -p $TMP_ZIP win32yank.exe > $HOME/.local/bin/win32yank.exe"
+            - "chmod +x $HOME/.local/bin/win32yank.exe"
+            - "rm -f $TMP_ZIP"
+          uninstall:
+            - "rm -f $HOME/.local/bin/win32yank.exe"
+
   windows_terminal:
     os: ["linux"]
     commands:
