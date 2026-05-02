@@ -4,13 +4,24 @@ return {
 	{ "b0o/schemastore.nvim", lazy = true },
 	{
 		"neovim/nvim-lspconfig",
-		event = { "BufReadPre", "BufNewFile" },
+		event = "VeryLazy",
 		dependencies = {
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
 		},
 		config = function()
 			require("timopruesse.lsp")
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+					local ft = vim.bo[buf].filetype
+					if ft and ft ~= "" then
+						vim.api.nvim_exec_autocmds("FileType", {
+							buffer = buf,
+							modeline = false,
+						})
+					end
+				end
+			end
 		end,
 	},
 	{

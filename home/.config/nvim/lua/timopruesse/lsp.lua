@@ -82,34 +82,16 @@ vim.lsp.config("svelte", {
 	end,
 })
 
--- tailwindcss: expanded filetype list
+-- tailwindcss
 vim.lsp.config("tailwindcss", {
 	filetypes = {
 		"astro",
-		"astro-markdown",
-		"edge",
-		"eelixir",
-		"elixir",
-		"gohtml",
-		"gohtmltmpl",
-		"haml",
-		"handlebars",
-		"hbs",
 		"html",
-		"html-eex",
-		"heex",
-		"markdown",
-		"mdx",
-		"mustache",
-		"razor",
-		"slim",
-		"twig",
 		"css",
 		"less",
 		"postcss",
 		"sass",
 		"scss",
-		"stylus",
 		"javascriptreact",
 		"typescriptreact",
 		"vue",
