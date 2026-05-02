@@ -271,11 +271,14 @@ tasks:
     commands:
       - run:
           install:
-            - "sudo apt-get install -y pipx python3-venv python3-pip python3-pynvim"
+            - "sudo apt-get install -y pipx python3-venv python3-pip"
             - "python3 -m pipx ensurepath"
             - "pipx install pip-review"
+            - "python3 -m venv $HOME/.local/share/nvim/venv"
+            - "$HOME/.local/share/nvim/venv/bin/pip install --upgrade pip pynvim"
           update:
             - "pip-review --auto"
+            - "$HOME/.local/share/nvim/venv/bin/pip install --upgrade pynvim"
 
   python_macos:
     os: ["macos"]
