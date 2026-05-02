@@ -1,7 +1,15 @@
 return {
 	{ "nvim-lua/plenary.nvim", lazy = true },
 	{ "mbbill/undotree", cmd = "UndotreeToggle" },
-	{ "ThePrimeagen/harpoon", lazy = true },
+	{
+		"ThePrimeagen/harpoon",
+		branch = "harpoon2",
+		lazy = true,
+		dependencies = { "nvim-lua/plenary.nvim" },
+		config = function()
+			require("harpoon"):setup()
+		end,
+	},
 	{ "kevinhwang91/nvim-bqf", ft = { "qf" } },
 	{ "tpope/vim-dadbod", lazy = true },
 	{
