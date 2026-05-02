@@ -263,21 +263,20 @@ Leader key: **Space**
 | `<leader>pi` | Normal | Install package        |
 | `<leader>pc` | Normal | Change package version |
 
-### Claude (Tmux Integration)
+### 99 (AI Agent)
 
-| Key          | Mode   | Action                                             |
-| ------------ | ------ | -------------------------------------------------- |
-| `<leader>zo` | Normal | Open Claude in vertical tmux split                 |
-| `<leader>zh` | Normal | Open Claude in horizontal tmux split               |
-| `<leader>zw` | Normal | Open Claude in new tmux window                     |
-| `<leader>zs` | Visual | Send selection to Claude (new pane)                |
-| `<leader>zp` | Visual | Prompt for instruction + send selection (new pane) |
-| `<leader>zr` | Visual | Send selection to existing Claude pane             |
-| `<leader>zR` | Visual | Prompt + send selection to existing Claude pane    |
-| `<leader>zf` | Normal | Send current file to Claude                        |
-| `<leader>zd` | Normal | Send current line diagnostics to Claude            |
-| `<leader>zD` | Normal | Send diagnostics to existing Claude pane           |
-| `<leader>zg` | Normal | Send git diff for current file to Claude           |
+Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99), wired to the `claude` CLI via `ClaudeCodeProvider`.
+
+| Key          | Mode   | Action                                          |
+| ------------ | ------ | ----------------------------------------------- |
+| `<leader>9v` | Visual | Send selection with prompt; replace with result |
+| `<leader>9s` | Normal | Search the project with a prompt (quickfix)    |
+| `<leader>9o` | Normal | Open last result (quickfix / tutorial window)   |
+| `<leader>9x` | Normal | Stop all in-flight requests                     |
+| `<leader>9c` | Normal | Clear previous requests                         |
+| `<leader>9l` | Normal | View logs                                       |
+| `<leader>9m` | Normal | Telescope: select model                         |
+| `<leader>9p` | Normal | Telescope: select provider                      |
 
 ### Miscellaneous
 

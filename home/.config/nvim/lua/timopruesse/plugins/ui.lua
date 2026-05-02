@@ -59,7 +59,7 @@ return {
 			wk.setup({})
 			wk.add({
 				{ "<leader>v", group = "LSP" },
-				{ "<leader>z", group = "Claude" },
+				{ "<leader>9", group = "99 (AI)" },
 				{ "<leader>p", group = "Search/Package" },
 				{ "<leader>b", group = "Buffers" },
 				{ "<leader>t", group = "Todo/Test" },
