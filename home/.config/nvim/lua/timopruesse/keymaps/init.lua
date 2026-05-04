@@ -6,6 +6,7 @@ require("timopruesse.keymaps.navigation")
 require("timopruesse.keymaps.luasnip")
 require("timopruesse.keymaps.undotree")
 require("timopruesse.keymaps.claude")
+require("timopruesse.keymaps.scratch")
 
 key.nnoremap("<C-s>", key.exec_command("w"))
 

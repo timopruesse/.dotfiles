@@ -16,6 +16,7 @@ key.nnoremap("<C-Left>", "<C-W><C-H>")
 key.nnoremap("<C-x>", key.exec_command("only"))
 key.nnoremap("<M-v>", key.exec_command("vsplit"))
 key.nnoremap("<M-d>", key.exec_command("split"))
+key.nnoremap("<M-q>", key.exec_command("close"))
 
 -- buffers
 key.nnoremap("<leader>bn", key.exec_command("bnext"))

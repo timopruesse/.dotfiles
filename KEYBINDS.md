@@ -108,11 +108,15 @@ Leader key: **Space**
 
 #### Split Management
 
-| Key     | Mode   | Action                          |
-| ------- | ------ | ------------------------------- |
-| `<M-v>` | Normal | Vertical split                  |
-| `<M-d>` | Normal | Horizontal split                |
-| `<C-x>` | Normal | Close all splits except current |
+| Key          | Mode   | Action                            |
+| ------------ | ------ | --------------------------------- |
+| `<M-v>`      | Normal | Vertical split                    |
+| `<M-d>`      | Normal | Horizontal split                  |
+| `<M-q>`      | Normal | Close current split               |
+| `<C-x>`      | Normal | Close all splits except current   |
+| `<leader>nv` | Normal | Scratch pad in vertical split     |
+| `<leader>nh` | Normal | Scratch pad in horizontal split   |
+| `<leader>np` | Normal | Promote scratch to file and save  |
 
 #### Window Resizing
 
