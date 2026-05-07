@@ -36,6 +36,12 @@ All ZSH aliases and functions, grouped by source file.
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
 
+### Linux-only (`linux.zsh`)
+
+| Alias | Command | Description |
+|-------|---------|-------------|
+| `fd` | `fdfind` | Ubuntu's fd-find package installs as `fdfind` |
+
 ## Tmux (`tmux_aliases.zsh`)
 
 | Alias | Command | Description |
