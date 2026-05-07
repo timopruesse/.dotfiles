@@ -135,6 +135,11 @@ claude() {
   fi
 }
 
+# open buffer line in editor
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^x^e' edit-command-line
+
 # zoxide (must be last)
 export _ZO_DOCTOR=0
 eval "$(zoxide init zsh)"
