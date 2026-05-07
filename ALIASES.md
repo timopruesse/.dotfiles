@@ -42,6 +42,16 @@ All ZSH aliases and functions, grouped by source file.
 |-------|---------|-------------|
 | `fd` | `fdfind` | Ubuntu's fd-find package installs as `fdfind` |
 
+## Global aliases (`global_aliases.zsh`)
+
+Global aliases expand anywhere on the command line, not just at the start. Handy for redirection shortcuts.
+
+| Alias | Expands to | Description |
+|-------|------------|-------------|
+| `NE` | `2>/dev/null` | Discard stderr |
+| `DN` | `>/dev/null` | Discard stdout |
+| `NUL` | `>/dev/null 2>&1` | Discard both stdout and stderr |
+
 ## Suffix aliases (`suffix_aliases.zsh`)
 
 Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you've copied a path and just want to look at it.
