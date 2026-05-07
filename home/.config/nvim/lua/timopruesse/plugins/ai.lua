@@ -2,7 +2,10 @@ return {
     {
         "ThePrimeagen/99",
         event = "VeryLazy",
-        dependencies = { "nvim-telescope/telescope.nvim" },
+        dependencies = {
+            "nvim-telescope/telescope.nvim",
+            { "saghen/blink.compat", version = "2.*" },
+        },
         config = function()
             local _99 = require("99")
             local basename = vim.fs.basename(vim.uv.cwd() or "")
@@ -10,6 +13,7 @@ return {
             _99.setup({
                 provider = _99.Providers.ClaudeCodeProvider,
                 model = "claude-opus-4-7",
+                completion = { source = "blink" },
                 logger = {
                     level = _99.DEBUG,
                     path = "/tmp/" .. basename .. ".99.debug",
