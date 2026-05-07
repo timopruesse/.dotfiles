@@ -42,6 +42,22 @@ All ZSH aliases and functions, grouped by source file.
 |-------|---------|-------------|
 | `fd` | `fdfind` | Ubuntu's fd-find package installs as `fdfind` |
 
+## Suffix aliases (`suffix_aliases.zsh`)
+
+Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you've copied a path and just want to look at it.
+
+| Extensions | Opens with |
+|------------|------------|
+| `ts`, `tsx`, `js`, `jsx`, `mjs`, `cjs` | `$EDITOR` |
+| `lua`, `rs`, `go`, `py`, `rb` | `$EDITOR` |
+| `sh`, `zsh`, `bash` | `$EDITOR` |
+| `svelte`, `vue`, `astro` | `$EDITOR` |
+| `sql`, `gd`, `gdshader`, `vim` | `$EDITOR` |
+| `json`, `jsonc`, `yaml`, `yml`, `toml` | `$EDITOR` |
+| `md`, `mdx`, `txt`, `log` | `$EDITOR` |
+| `html`, `htm`, `css`, `scss`, `sass` | `$EDITOR` |
+| `conf`, `cfg`, `ini`, `env` | `$EDITOR` |
+
 ## Tmux (`tmux_aliases.zsh`)
 
 | Alias | Command | Description |
