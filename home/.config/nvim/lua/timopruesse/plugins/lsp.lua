@@ -42,11 +42,13 @@ return {
 			},
 			sources = {
 				default = { "lsp", "snippets", "path", "buffer" },
+				per_filetype = { ["99prompt"] = { "99" } },
 				providers = {
 					lsp = { name = "LSP" },
 					snippets = { name = "SNIP" },
 					path = { name = "PATH" },
 					buffer = { name = "BUF", min_keyword_length = 4 },
+					["99"] = { name = "99", module = "blink.compat.source" },
 				},
 			},
 			completion = {

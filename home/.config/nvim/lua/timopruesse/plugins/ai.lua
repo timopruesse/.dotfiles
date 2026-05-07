@@ -4,7 +4,7 @@ return {
         event = "VeryLazy",
         dependencies = {
             "nvim-telescope/telescope.nvim",
-            { "saghen/blink.compat", version = "2.*" },
+            { "saghen/blink.compat", version = "2.*", opts = {} },
         },
         config = function()
             local _99 = require("99")
