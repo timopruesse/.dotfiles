@@ -10,3 +10,8 @@ alias ls=eza
 alias l="eza -la"
 
 alias pn=pnpm
+
+# batch rename via zsh patterns; zmv -n previews, zcp/zln copy/symlink instead
+autoload -Uz zmv
+alias zcp='zmv -C'
+alias zln='zmv -L'

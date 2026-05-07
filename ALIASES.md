@@ -35,6 +35,9 @@ All ZSH aliases and functions, grouped by source file.
 | `ls` | `eza` | Use eza for file listing |
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
+| `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
+| `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
+| `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
 
 ### Linux-only (`linux.zsh`)
 
