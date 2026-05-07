@@ -137,7 +137,7 @@ vim.lsp.config("lua_ls", {
 -- These autocmds are registered BEFORE mason-lspconfig.setup() so they fire first
 -- and the config is in place before the server's automatic_enable starts the client.
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "yaml", "yaml.docker-compose" },
+	pattern = { "yaml", "yaml.docker-compose", "yaml.gitlab", "yaml.helm-values" },
 	once = true,
 	callback = function()
 		vim.lsp.config("yamlls", {
