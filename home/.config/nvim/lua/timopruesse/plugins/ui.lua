@@ -1,6 +1,17 @@
 return {
 	{ "catppuccin/nvim", name = "catppuccin", priority = 1000 },
 	{ "nvim-tree/nvim-web-devicons", lazy = true },
+	{
+		"echasnovski/mini.icons",
+		lazy = true,
+		opts = {},
+		init = function()
+			package.preload["nvim-web-devicons"] = function()
+				require("mini.icons").mock_nvim_web_devicons()
+				return package.loaded["nvim-web-devicons"]
+			end
+		end,
+	},
 	{ "stevearc/dressing.nvim", event = "VeryLazy" },
 	{
 		"nvim-lualine/lualine.nvim",

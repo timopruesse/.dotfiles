@@ -1,6 +1,21 @@
 return {
 	{ "williamboman/mason.nvim", lazy = true },
 	{ "williamboman/mason-lspconfig.nvim", lazy = true },
+	{
+		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		event = "VeryLazy",
+		dependencies = { "williamboman/mason.nvim" },
+		opts = {
+			ensure_installed = {
+				"stylua",
+				"shfmt",
+				"prettier",
+				"goimports",
+				"black",
+			},
+			run_on_start = true,
+		},
+	},
 	{ "b0o/schemastore.nvim", lazy = true },
 	{
 		"neovim/nvim-lspconfig",
