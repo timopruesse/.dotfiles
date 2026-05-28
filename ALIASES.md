@@ -111,7 +111,7 @@ Interactive enhancements wired into the shell (not aliases, but worth knowing):
 
 | Tool | Where | What it does |
 |------|-------|--------------|
-| **atuin** | `Ctrl-R` / `↑` | SQLite-backed shell history with fuzzy search. `Ctrl-R` searches **all** history; `↑` searches history scoped to the **current directory**. `Enter` drops the command on the prompt to edit (press `Enter` again to run). E2E-encrypted sync via `atuin sync` (config: `~/.config/atuin/config.toml`). |
+| **atuin** | `Ctrl-R` / `↑` | SQLite-backed shell history with fuzzy search. `Ctrl-R` searches **all** history; `↑` searches history scoped to the **current directory**. `Enter` runs the selected command; press `Tab` to drop it on the prompt for editing. E2E-encrypted sync via `atuin sync` (config: `~/.config/atuin/config.toml`). |
 | **fzf-tab** | `Tab` | Replaces zsh's completion menu with an fzf picker. Previews dirs with `eza` and files with `bat`. Renders in a tmux popup when inside tmux. Switch completion groups with `<` / `>`. |
 | **delta** | `git diff`, `gd`, lazygit | Syntax-highlighted, line-numbered diff pager (Catppuccin Mocha). Press `n` / `N` to jump between files. |
 | **bat** | `bat <file>` | Syntax-highlighted `cat` (Catppuccin Mocha). `cat` itself is left untouched. |

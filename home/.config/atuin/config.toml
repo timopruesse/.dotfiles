@@ -12,9 +12,9 @@ filter_mode = "global"
 # so Up "hunts" within the current project instead of all history
 filter_mode_shell_up_key_binding = "directory"
 
-# Enter drops the selected command onto the prompt to edit; press Enter again to
-# run it. Avoids accidentally firing destructive one-liners straight from search.
-enter_accept = false
+# Enter runs the selected command immediately; press Tab instead to drop it onto
+# the prompt for editing.
+enter_accept = true
 
 # don't take over the whole terminal
 inline_height = 25
