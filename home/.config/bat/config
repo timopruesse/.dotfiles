@@ -1,0 +1,5 @@
+# bat config. The Catppuccin Mocha theme lives in themes/ and is registered via
+# `bat cache --build` (run by machine_setup after symlinking).
+--theme="Catppuccin Mocha"
+--style="numbers,changes,header"
+--italic-text=always

@@ -35,6 +35,7 @@ All ZSH aliases and functions, grouped by source file.
 | `ls` | `eza` | Use eza for file listing |
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
+| `lg` | `lazygit` | Open lazygit |
 | `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
 | `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
 | `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
@@ -44,6 +45,7 @@ All ZSH aliases and functions, grouped by source file.
 | Alias | Command | Description |
 |-------|---------|-------------|
 | `fd` | `fdfind` | Ubuntu's fd-find package installs as `fdfind` |
+| `bat` | `batcat` | Ubuntu's bat package installs as `batcat` (aliased only when present) |
 
 ## Global aliases (`global_aliases.zsh`)
 
@@ -102,3 +104,18 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 | `cpi` | `echo 'code' \| cpi 'instruction'` | Pipe stdin to Claude in a new tmux window |
 | `clist` | — | List all tmux panes running Claude across sessions |
 | `cj` | — | fzf picker to jump to a running Claude agent |
+
+## Shell tooling
+
+Interactive enhancements wired into the shell (not aliases, but worth knowing):
+
+| Tool | Where | What it does |
+|------|-------|--------------|
+| **atuin** | `Ctrl-R` / `↑` | SQLite-backed shell history with fuzzy search. `Ctrl-R` searches **all** history; `↑` searches history scoped to the **current directory**. `Enter` drops the command on the prompt to edit (press `Enter` again to run). E2E-encrypted sync via `atuin sync` (config: `~/.config/atuin/config.toml`). |
+| **fzf-tab** | `Tab` | Replaces zsh's completion menu with an fzf picker. Previews dirs with `eza` and files with `bat`. Renders in a tmux popup when inside tmux. Switch completion groups with `<` / `>`. |
+| **delta** | `git diff`, `gd`, lazygit | Syntax-highlighted, line-numbered diff pager (Catppuccin Mocha). Press `n` / `N` to jump between files. |
+| **bat** | `bat <file>` | Syntax-highlighted `cat` (Catppuccin Mocha). `cat` itself is left untouched. |
+
+### Atuin first-run
+
+On a new machine, after install: `atuin register -u <user> -e <email>` (or `atuin login`), then `atuin import auto` and `atuin sync`.

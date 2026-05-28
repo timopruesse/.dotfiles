@@ -28,12 +28,15 @@ Prefix key: **Ctrl+Space**
 
 ### Pane Navigation
 
-| Key         | Action            |
-| ----------- | ----------------- |
-| `Alt+Left`  | Select pane left  |
-| `Alt+Right` | Select pane right |
-| `Alt+Up`    | Select pane up    |
-| `Alt+Down`  | Select pane down  |
+Seamless across tmux panes **and** nvim splits via `vim-tmux-navigator`: if the
+active pane runs (n)vim the key is forwarded to nvim, otherwise tmux switches panes.
+
+| Key     | Action                       |
+| ------- | ---------------------------- |
+| `Alt+h` | Select pane / nvim split left  |
+| `Alt+j` | Select pane / nvim split down  |
+| `Alt+k` | Select pane / nvim split up    |
+| `Alt+l` | Select pane / nvim split right |
 
 ### Window Reordering
 
@@ -95,12 +98,15 @@ Leader key: **Space**
 
 #### Split Navigation
 
+`<M-h/j/k/l>` navigate nvim splits and **cross seamlessly into adjacent tmux
+panes** at the edges (`vim-tmux-navigator`).
+
 | Key         | Mode   | Action                  |
 | ----------- | ------ | ----------------------- |
-| `<M-h>`     | Normal | Navigate to left split  |
-| `<M-j>`     | Normal | Navigate to below split |
-| `<M-k>`     | Normal | Navigate to above split |
-| `<M-l>`     | Normal | Navigate to right split |
+| `<M-h>`     | Normal | Navigate left (split or tmux pane)  |
+| `<M-j>`     | Normal | Navigate down (split or tmux pane)  |
+| `<M-k>`     | Normal | Navigate up (split or tmux pane)    |
+| `<M-l>`     | Normal | Navigate right (split or tmux pane) |
 | `<C-Left>`  | Normal | Navigate to left split  |
 | `<C-Down>`  | Normal | Navigate to below split |
 | `<C-Up>`    | Normal | Navigate to above split |

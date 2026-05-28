@@ -7,6 +7,13 @@
 	editor = nvim
     autocrlf = input
     fsmonitor = true
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true
+    line-numbers = true
+    syntax-theme = Catppuccin Mocha
 [push]
     default = current
 	autoSetupRemote = true

@@ -11,6 +11,8 @@ alias l="eza -la"
 
 alias pn=pnpm
 
+alias lg=lazygit
+
 # batch rename via zsh patterns; zmv -n previews, zcp/zln copy/symlink instead
 autoload -Uz zmv
 alias zcp='zmv -C'

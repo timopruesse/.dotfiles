@@ -106,7 +106,7 @@ tasks:
           commands:
             - "sudo add-apt-repository -y ppa:git-core/ppa"
             - "sudo apt-get update && sudo apt-get upgrade -y"
-            - "sudo apt-get install -y git tmux fuse ripgrep fzf fd-find unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
+            - "sudo apt-get install -y git tmux fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
             - "sudo locale-gen en_US.UTF-8"
 
@@ -115,7 +115,29 @@ tasks:
     commands:
       - run:
           commands:
-            - "brew install git tmux ripgrep fzf fd wget keychain cmake pkg-config eza fswatch luarocks zoxide"
+            - "brew install git tmux ripgrep fzf fd bat git-delta wget keychain cmake pkg-config eza fswatch luarocks zoxide"
+
+  atuin_linux:
+    os: ["linux"]
+    commands:
+      - run:
+          install:
+            - "cargo install atuin --locked"
+          update:
+            - "cargo install atuin --locked"
+          uninstall:
+            - "cargo uninstall atuin"
+
+  atuin_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install atuin"
+          update:
+            - "brew upgrade atuin"
+          uninstall:
+            - "brew uninstall atuin"
 
   gh_linux:
     os: ["linux"]
@@ -159,6 +181,16 @@ tasks:
           force: true
           src: "./home"
           target: "~"
+
+  # register the Catppuccin Mocha theme bundled in ~/.config/bat/themes so bat
+  # and delta can use it. Runs after the dotfiles symlink puts the theme in place.
+  bat_theme:
+    commands:
+      - run:
+          install:
+            - "$(command -v batcat || command -v bat) cache --build"
+          update:
+            - "$(command -v batcat || command -v bat) cache --build"
 
   lazygit_linux:
     os: ["linux"]

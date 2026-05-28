@@ -1,0 +1,40 @@
+# Atuin shell history. Docs: https://docs.atuin.sh/configuration/config/
+
+## search UI -------------------------------------------------------------------
+
+# fuzzy matching for Ctrl-R
+search_mode = "fuzzy"
+
+# filter mode for Ctrl-R: search across all history
+filter_mode = "global"
+
+# filter mode when triggered via the Up key: scope to the current directory,
+# so Up "hunts" within the current project instead of all history
+filter_mode_shell_up_key_binding = "directory"
+
+# Enter drops the selected command onto the prompt to edit; press Enter again to
+# run it. Avoids accidentally firing destructive one-liners straight from search.
+enter_accept = false
+
+# don't take over the whole terminal
+inline_height = 25
+style = "compact"
+
+## sync ------------------------------------------------------------------------
+
+# end-to-end encrypted sync with the hosted server (run `atuin register` /
+# `atuin login` once per machine, then `atuin sync`).
+auto_sync = true
+sync_frequency = "10m"
+sync_address = "https://api.atuin.sh"
+
+## privacy ---------------------------------------------------------------------
+
+# commands matching these patterns are never recorded (kept out of the synced
+# DB). Covers inline secrets/tokens and a few destructive verbs worth not
+# fat-fingering out of fuzzy history.
+history_filter = [
+  "(?i)(SECRET|TOKEN|PASSWORD|PASSWD|API_?KEY|ACCESS_KEY)",
+  "^\\s*export\\s+\\w*(KEY|SECRET|TOKEN|PASS)",
+  "ATUIN_.*",
+]

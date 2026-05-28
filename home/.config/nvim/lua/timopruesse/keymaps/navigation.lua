@@ -1,10 +1,10 @@
 local key = require("timopruesse.helpers.keymap")
 
--- split navigation
-key.nnoremap("<M-j>", "<C-W><C-J>")
-key.nnoremap("<M-k>", "<C-W><C-K>")
-key.nnoremap("<M-l>", "<C-W><C-L>")
-key.nnoremap("<M-h>", "<C-W><C-H>")
+-- split navigation (seamless across nvim splits and tmux panes)
+key.nnoremap("<M-h>", "<cmd>TmuxNavigateLeft<cr>")
+key.nnoremap("<M-j>", "<cmd>TmuxNavigateDown<cr>")
+key.nnoremap("<M-k>", "<cmd>TmuxNavigateUp<cr>")
+key.nnoremap("<M-l>", "<cmd>TmuxNavigateRight<cr>")
 
 -- arrow keys as alternative
 key.nnoremap("<C-Down>", "<C-W><C-J>")

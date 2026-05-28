@@ -27,12 +27,16 @@ source ~/.zcomet/bin/zcomet.zsh
 # theme
 zcomet load romkatv/powerlevel10k
 
-# plugins (zsh-syntax-highlighting must come last)
+# plugins
+# order matters: completions feed compinit; fzf-tab must load after compinit but
+# before the widget-wrapping plugins; zsh-syntax-highlighting must come last.
 zcomet load zsh-users/zsh-completions
-zcomet load zsh-users/zsh-autosuggestions
-zcomet load zsh-users/zsh-syntax-highlighting
 
 zcomet compinit
+
+zcomet load Aloxaf/fzf-tab
+zcomet load zsh-users/zsh-autosuggestions
+zcomet load zsh-users/zsh-syntax-highlighting
 
 # user aliases / functions / environment
 for f in ~/.config/zsh/*.zsh(N); do
@@ -140,6 +144,11 @@ autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^x^e' edit-command-line
 
-# zoxide (must be last)
+# zoxide
 export _ZO_DOCTOR=0
 eval "$(zoxide init zsh)"
+
+# atuin (shell history; binds Up + Ctrl-R, so keep near the end)
+if command -v atuin >/dev/null 2>&1; then
+  eval "$(atuin init zsh)"
+fi
