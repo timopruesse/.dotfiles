@@ -170,7 +170,7 @@ tasks:
     commands:
       - clone:
           url: "https://github.com/tmux-plugins/tpm"
-          target: "$HOME/.tmux/plugins/tpm"
+          target: "~/.tmux/plugins/tpm"
 
   dotfiles:
     commands:
