@@ -23,8 +23,19 @@ Prefix key: **Ctrl+Space**
 | `prefix R`   | Resume last Claude session (new window)        |
 | `prefix H`   | Open Claude in horizontal split (current dir)  |
 | `prefix V`   | Open Claude in vertical split (current dir)    |
-| `prefix C`   | fzf picker to jump to a running Claude agent   |
+| `prefix C`   | fzf popup to jump to a running Claude agent     |
+| `prefix a`   | Toggle live Claude sessions sidebar (split right) |
 | `prefix A`   | AWS profile picker (fzf)                       |
+
+The Claude picker (`prefix C`) and sidebar (`prefix a`) show each session's
+status, also reflected in the status bar (`[claude: N ⚠ M]`):
+
+- 🔴 `input` — waiting on your confirmation/permission (needs you now)
+- 🟢 `idle` — finished, awaiting your next prompt (your turn)
+- ⚪ `working` — busy, no action needed
+
+In the sidebar, `enter` jumps to a session, `ctrl-r` refreshes (it also
+auto-refreshes every 3s), and `esc` or pressing `prefix a` again closes it.
 
 ### Pane Navigation
 
