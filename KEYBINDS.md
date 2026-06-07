@@ -26,6 +26,9 @@ Prefix key: **Ctrl+Space**
 | `prefix C`   | fzf popup to jump to a running Claude agent     |
 | `prefix a`   | Toggle live Claude sessions sidebar (split right) |
 | `prefix A`   | AWS profile picker (fzf)                       |
+| `prefix m`   | Harpoon: pin the current pane to a slot        |
+| `prefix e`   | Harpoon: open the pinned-sessions menu (fzf)   |
+| `Alt+1`..`Alt+4` | Harpoon: jump straight to pinned slot 1–4 (no prefix) |
 
 The Claude picker (`prefix C`) and sidebar (`prefix a`) show each session's
 status, also reflected in the status bar (`[claude: N ⚠ M]`):
@@ -36,6 +39,16 @@ status, also reflected in the status bar (`[claude: N ⚠ M]`):
 
 In the sidebar, `enter` jumps to a session, `ctrl-r` refreshes (it also
 auto-refreshes every 3s), and `esc` or pressing `prefix a` again closes it.
+
+**Harpoon** (session pinning, à la ThePrimeagen's nvim plugin): pin the panes
+you're juggling with `prefix m`, then flip between them instantly with
+`Alt+1`–`Alt+4` — no prefix, no list to scan. `prefix e` opens a menu (same
+status markers) where `enter` jumps and `ctrl-x` unpins. The list is stored in
+`~/.tmux/claude_harpoon` (by pane id, so it lasts the life of the panes; dead
+panes are pruned automatically) and isn't limited to Claude panes.
+
+> `prefix m` replaces the default mark-pane binding, and `Alt+1`–`Alt+4` are
+> bound in the root table (active without the prefix).
 
 ### Pane Navigation
 
