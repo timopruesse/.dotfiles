@@ -8,6 +8,6 @@ if [ -n "$existing" ] && tmux list-panes -a -F '#{pane_id}' | grep -qx "$existin
   tmux kill-pane -t "$existing"
   tmux set-option -gu @claude_panel
 else
-  pane=$(tmux split-window -h -l 50 -P -F '#{pane_id}' "sh $HOME/.tmux/scripts/claude_panel.sh")
+  pane=$(tmux split-window -h -l 80 -P -F '#{pane_id}' "sh $HOME/.tmux/scripts/claude_panel.sh")
   tmux set-option -g @claude_panel "$pane"
 fi

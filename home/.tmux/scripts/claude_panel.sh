@@ -11,7 +11,7 @@ selected=$(
     --no-sort \
     --track \
     --delimiter='\t' \
-    --with-nth='1,3,4' \
+    --with-nth='1,4,3' \
     --prompt='claude > ' \
     --header='enter: jump   ctrl-r: refresh   esc: close' \
     --bind="ctrl-r:reload($SCRIPTS/claude_sessions.sh)" \

@@ -50,6 +50,10 @@ panes are pruned automatically) and isn't limited to Claude panes.
 > `prefix m` replaces the default mark-pane binding, and `Alt+1`–`Alt+4` are
 > bound in the root table (active without the prefix).
 
+Claude **windows are auto-named after their current task** (truncated) in the
+status bar window list, e.g. `1:Add session overview sid…`; other windows keep
+their command name.
+
 ### Pane Navigation
 
 Seamless across tmux panes **and** nvim splits via `vim-tmux-navigator`: if the
