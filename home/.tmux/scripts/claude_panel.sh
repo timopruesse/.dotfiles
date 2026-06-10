@@ -4,6 +4,7 @@
 # selected one, esc/ctrl-c closes the sidebar.
 
 SCRIPTS="$HOME/.tmux/scripts"
+. "$SCRIPTS/claude_lib.sh"
 
 selected=$(
   "$SCRIPTS/claude_sessions.sh" | fzf \
@@ -24,12 +25,4 @@ tmux set-option -gu @claude_panel
 [ -z "$selected" ] && exit 0
 
 target=$(printf '%s' "$selected" | cut -f2)
-[ -z "$target" ] && exit 0
-
-session=${target%%:*}
-winpane=${target#*:}
-window=${winpane%%.*}
-
-tmux switch-client -t "$session"
-tmux select-window -t "${session}:${window}" 2>/dev/null
-tmux select-pane -t "$target" 2>/dev/null
+claude_jump "$target"

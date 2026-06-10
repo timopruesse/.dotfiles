@@ -61,24 +61,21 @@ function cpi() {
   _claude_tmux window "-p $(printf '%q' "$prompt")"
 }
 
+# clist / cj share one definition of "a running Claude session" (and one jump)
+# with the tmux scripts: claude_sessions.sh enumerates, claude_picker.sh picks
+# and jumps. Re-implementing the enumeration here drifted out of sync with
+# is_claude_cmd (it missed version-only panes and matched ~/.claude paths).
 function clist() {
-  tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}  #{pane_current_command}  #{pane_current_path}' 2>/dev/null | grep -i claude || echo "No Claude agents running"
+  local rows
+  rows=$("$HOME/.tmux/scripts/claude_sessions.sh")
+  if [[ -z "$rows" ]]; then
+    echo "No Claude agents running"
+    return 0
+  fi
+  # Show: status marker, target (session:window.pane), task title.
+  printf '%s\n' "$rows" | awk -F '\t' '{ printf "%s  %-18s  %s\n", $1, $2, $3 }'
 }
 
 function cj() {
-  local panes
-  panes=$(tmux list-panes -a -F '#{session_name}:#{window_index}.#{pane_index}  #{pane_current_command}  #{pane_current_path}' 2>/dev/null | grep -i claude)
-
-  if [ -z "$panes" ]; then
-    echo "No Claude agents running"
-    return 1
-  fi
-
-  local selected
-  selected=$(echo "$panes" | fzf --height=40% --reverse --prompt="Jump to Claude > ")
-
-  if [ -n "$selected" ]; then
-    local target=$(echo "$selected" | awk '{print $1}')
-    tmux switch-client -t "$target"
-  fi
+  "$HOME/.tmux/scripts/claude_picker.sh"
 }

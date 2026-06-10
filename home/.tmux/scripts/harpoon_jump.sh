@@ -1,5 +1,7 @@
 #!/bin/sh
 # Jump to harpoon slot $1 (1-based). Bound to Alt+1..Alt+4 for instant switching.
+. "$HOME/.tmux/scripts/claude_lib.sh"
+
 LIST="$HOME/.tmux/claude_harpoon"
 n=$1
 
@@ -11,12 +13,9 @@ if [ -z "$target" ]; then
   exit 0
 fi
 
-if ! tmux list-panes -a -F '#{pane_id}' | grep -qx "$target"; then
+if ! pane_exists "$target"; then
   tmux display-message "Harpoon slot $n pane is gone"
   exit 0
 fi
 
-session=$(tmux display-message -p -t "$target" '#{session_name}')
-tmux switch-client -t "$session"
-tmux select-window -t "$target" 2>/dev/null
-tmux select-pane -t "$target" 2>/dev/null
+claude_jump "$target"

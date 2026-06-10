@@ -1,6 +1,7 @@
 #!/bin/sh
 # Harpoon menu popup (bound to prefix + e): manage and jump to pinned sessions.
 SCRIPTS="$HOME/.tmux/scripts"
+. "$SCRIPTS/claude_lib.sh"
 
 if [ -z "$("$SCRIPTS/harpoon_list.sh")" ]; then
   echo "Harpoon is empty — press 'prefix m' in a pane to pin it"
@@ -25,9 +26,4 @@ selected=$(
 [ -z "$selected" ] && exit 0
 
 target=$(printf '%s' "$selected" | cut -f3)
-[ -z "$target" ] && exit 0
-
-session=$(tmux display-message -p -t "$target" '#{session_name}')
-tmux switch-client -t "$session"
-tmux select-window -t "$target" 2>/dev/null
-tmux select-pane -t "$target" 2>/dev/null
+claude_jump "$target"

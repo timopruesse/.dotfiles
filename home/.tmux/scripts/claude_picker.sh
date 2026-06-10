@@ -1,6 +1,7 @@
 #!/bin/sh
 # Popup picker (bound to prefix + C): pick a running Claude session and jump.
 SCRIPTS="$HOME/.tmux/scripts"
+. "$SCRIPTS/claude_lib.sh"
 
 panes=$("$SCRIPTS/claude_sessions.sh")
 
@@ -17,11 +18,5 @@ selected=$(printf '%s\n' "$panes" | fzf \
   --prompt="Jump to Claude > ")
 
 if [ -n "$selected" ]; then
-  target=$(printf '%s' "$selected" | cut -f2)
-  session=${target%%:*}
-  winpane=${target#*:}
-  window=${winpane%%.*}
-  tmux switch-client -t "$session"
-  tmux select-window -t "${session}:${window}" 2>/dev/null
-  tmux select-pane -t "$target" 2>/dev/null
+  claude_jump "$(printf '%s' "$selected" | cut -f2)"
 fi

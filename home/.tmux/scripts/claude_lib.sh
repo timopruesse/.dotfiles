@@ -1,6 +1,8 @@
 #!/bin/sh
-# Sourceable helpers for detecting Claude panes and their status.
-# Used by claude_sessions.sh (sidebar/picker) and the harpoon scripts.
+# Sourceable helpers shared across the Claude/harpoon tmux scripts: detecting
+# Claude panes, reporting their status, checking liveness, and focusing a pane.
+# Sourced by claude_sessions.sh (sidebar/picker), claude_panel*.sh, and the
+# harpoon scripts.
 
 # is_claude_cmd <pane_current_command>
 # Claude Code reports its command as "claude" or its bare version (e.g. 2.1.168).
@@ -37,4 +39,23 @@ claude_status_marker() {
 clean_title() {
   prefix=${1%%[A-Za-z0-9]*}
   printf '%s' "${1#"$prefix"}"
+}
+
+# pane_exists <pane_id> -> succeeds (exit 0) if the pane is still alive.
+pane_exists() {
+  tmux list-panes -a -F '#{pane_id}' | grep -qx "$1"
+}
+
+# claude_jump <target> -> focus a pane: switch to its session, then select its
+# window and pane. <target> may be a pane id (e.g. %5, as the harpoon scripts
+# use) or a session:window.pane string (as the sidebar/picker use) -- both are
+# valid tmux -t targets, so display-message resolves the session either way.
+claude_jump() {
+  target=$1
+  [ -z "$target" ] && return 1
+  session=$(tmux display-message -p -t "$target" '#{session_name}' 2>/dev/null)
+  [ -z "$session" ] && return 1
+  tmux switch-client -t "$session"
+  tmux select-window -t "$target" 2>/dev/null
+  tmux select-pane -t "$target" 2>/dev/null
 }

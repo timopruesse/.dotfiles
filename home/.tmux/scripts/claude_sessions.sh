@@ -7,9 +7,9 @@
 #   title   - the task summary Claude sets as the pane title
 #   dir     - basename of the working directory (context)
 #
-# Helpers are defined in claude_status.sh.
+# Helpers are defined in claude_lib.sh.
 
-. "$(dirname "$0")/claude_status.sh"
+. "$(dirname "$0")/claude_lib.sh"
 
 tmux list-panes -a -F '#{pane_id}|@|#{pane_current_command}|@|#{session_name}:#{window_index}.#{pane_index}|@|#{pane_title}|@|#{pane_current_path}' 2>/dev/null |
   while IFS= read -r line; do

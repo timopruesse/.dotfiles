@@ -2,9 +2,11 @@
 # Toggle a Claude sessions sidebar: a split to the right that lists every
 # running Claude session with its status, refreshes live, and lets you jump.
 
+. "$HOME/.tmux/scripts/claude_lib.sh"
+
 existing=$(tmux show-option -gqv @claude_panel)
 
-if [ -n "$existing" ] && tmux list-panes -a -F '#{pane_id}' | grep -qx "$existing"; then
+if [ -n "$existing" ] && pane_exists "$existing"; then
   tmux kill-pane -t "$existing"
   tmux set-option -gu @claude_panel
 else
