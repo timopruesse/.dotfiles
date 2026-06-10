@@ -27,7 +27,8 @@ end
 
 local function pane_exists(pane_id)
 	local result = vim.fn.system(
-		string.format("tmux list-panes -a -F '#{pane_id}' | grep -qF '%s' && echo ok || echo no", pane_id)
+		-- -x: match the whole line, so pane %1 doesn't spuriously match %10/%11.
+		string.format("tmux list-panes -a -F '#{pane_id}' | grep -qxF '%s' && echo ok || echo no", pane_id)
 	)
 	return vim.trim(result) == "ok"
 end
