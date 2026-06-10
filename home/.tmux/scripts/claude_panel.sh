@@ -15,7 +15,7 @@ selected=$(
     --prompt='claude > ' \
     --header='enter: jump   ctrl-r: refresh   esc: close' \
     --bind="ctrl-r:reload($SCRIPTS/claude_sessions.sh)" \
-    --bind="every(3):reload($SCRIPTS/claude_sessions.sh)"
+    --bind="every(5):reload-sync($SCRIPTS/claude_sessions.sh)"
 )
 
 # Forget the sidebar so the toggle reopens a fresh one next time.
