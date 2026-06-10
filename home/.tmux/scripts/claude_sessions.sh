@@ -26,6 +26,14 @@ tmux list-panes -a -F '#{pane_id}|@|#{pane_current_command}|@|#{session_name}:#{
     is_claude_cmd "$cmd" || continue
 
     dir=${path##*/}
+    # In a git worktree the basename is the worktree/branch name, which isn't
+    # very informative. Show the repo name (the main worktree's dir) instead.
+    common=$(git -C "$path" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+    gitdir=$(git -C "$path" rev-parse --path-format=absolute --git-dir 2>/dev/null)
+    if [ -n "$common" ] && [ "$common" != "$gitdir" ]; then
+      repo=$(dirname "$common")
+      dir=${repo##*/}
+    fi
     title=$(clean_title "$ptitle")
     [ -z "$title" ] && title="$dir"
 
