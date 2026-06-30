@@ -1,7 +1,31 @@
+# Base default identity. Overridden by the include rules below for matching
+# repos; the fallback for anything that matches none (e.g. an out-of-tree
+# clone of some other org's repo).
+[user]
+	name = Timo Prüße
+	email = chroma91@gmail.com
+
+# Path-based (kept): repos cloned under these directories.
 [includeIf "gitdir:~/"]
     path = .gitconfig_personal
 [includeIf "gitdir:~/github/chewielabs/"]
     path = .gitconfig_mill
+
+# Remote-URL-based: identity follows the GitHub org no matter where the repo
+# is cloned (git worktrees, /tmp, etc.). Evaluated after the gitdir rules, so
+# an org match here wins. https is the common case; ssh forms included too.
+[includeIf "hasconfig:remote.*.url:https://github.com/chewielabs/**"]
+    path = .gitconfig_mill
+[includeIf "hasconfig:remote.*.url:git@github.com:chewielabs/**"]
+    path = .gitconfig_mill
+[includeIf "hasconfig:remote.*.url:ssh://git@github.com/chewielabs/**"]
+    path = .gitconfig_mill
+[includeIf "hasconfig:remote.*.url:https://github.com/timopruesse/**"]
+    path = .gitconfig_personal
+[includeIf "hasconfig:remote.*.url:git@github.com:timopruesse/**"]
+    path = .gitconfig_personal
+[includeIf "hasconfig:remote.*.url:ssh://git@github.com/timopruesse/**"]
+    path = .gitconfig_personal
 
 [core]
 	editor = nvim
