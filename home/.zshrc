@@ -108,8 +108,30 @@ claude() {
     args+=("$arg")
   done
 
+  # keep the machine awake for the duration of the run:
+  #   macOS -> caffeinate -i prefix (blocks system idle sleep, lets display off)
+  #   WSL   -> background powershell.exe holding an ES_SYSTEM_REQUIRED assertion
+  #            (the Windows equivalent), killed on return via the EXIT trap
+  # On bare Linux neither exists, so this stays a plain `command claude`.
+  local run=(command claude)
+  if command -v caffeinate &>/dev/null; then
+    local claude_bin
+    claude_bin=$(whence -p claude 2>/dev/null)
+    [[ -n "$claude_bin" ]] && run=(caffeinate -i "$claude_bin")
+  elif [[ -n "$WSL_DISTRO_NAME" ]]; then
+    local pwsh
+    pwsh=$(command -v powershell.exe 2>/dev/null || command -v pwsh.exe 2>/dev/null)
+    if [[ -n "$pwsh" ]]; then
+      # 2147483649 = ES_CONTINUOUS (0x80000000) | ES_SYSTEM_REQUIRED (0x1)
+      "$pwsh" -NoProfile -Command '$s = Add-Type -MemberDefinition "[DllImport(`"kernel32.dll`")] public static extern uint SetThreadExecutionState(uint e);" -Name Power -Namespace Win32 -PassThru; $s::SetThreadExecutionState(2147483649); while ($true) { Start-Sleep 3600 }' &>/dev/null &
+      local keepawake_pid=$!
+      disown 2>/dev/null
+      trap "kill $keepawake_pid 2>/dev/null" EXIT
+    fi
+  fi
+
   if $force_here; then
-    command claude "${args[@]}"
+    "${run[@]}" "${args[@]}"
     return
   fi
 
@@ -133,9 +155,9 @@ claude() {
   fi
 
   if $use_worktree; then
-    command claude "${args[@]}" --worktree
+    "${run[@]}" "${args[@]}" --worktree
   else
-    command claude "${args[@]}"
+    "${run[@]}" "${args[@]}"
   fi
 }
 
