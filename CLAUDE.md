@@ -23,6 +23,7 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 ```
 home/             # Symlinked to ~ — contains all user config files
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
+  .claude/        # Claude Code config (settings, statusline, CLAUDE.md, agents/)
   .zshrc          # Zsh shell config
   .tmux.conf      # Tmux config
   .gitconfig*     # Git config with conditional includes per directory
