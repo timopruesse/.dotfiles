@@ -1,8 +1,9 @@
 # Subagent model routing
 
-Four user-scoped agents are pinned to Sonnet 5 for cheap work
-(`~/.claude/agents/`). They live in the `.dotfiles` repo
-(`home/.claude/agents/`) and are symlinked into `~/.claude/`.
+Four user-scoped agents handle cheap work (`~/.claude/agents/`): `scout`,
+`sweep`, and `worker` are pinned to Sonnet 5; `committer` is pinned to Haiku
+(routine plumbing that doesn't need Sonnet-level reasoning). They live in the
+`.dotfiles` repo (`home/.claude/agents/`) and are symlinked into `~/.claude/`.
 
 - **`scout`** — read-only search/exploration and fan-out lookups. Prefer it over
   the built-in `Explore`/`general-purpose` agents when the task is pure
