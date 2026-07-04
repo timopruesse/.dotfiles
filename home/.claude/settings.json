@@ -25,5 +25,5 @@
   },
   "tui": "fullscreen",
   "skipAutoPermissionPrompt": true,
-  "model": "opus"
+  "model": "opus[1m]"
 }
