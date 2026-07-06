@@ -42,6 +42,15 @@ changed for the fix; never sweep up unrelated working-tree changes.
 1. **Failing CI / checks** — diagnose from the logs, fix in the working tree, run
    the equivalent check locally if one exists, then commit and push. Write a
    why-focused commit message in the repo's established style (read the log).
+   - If the fix was a **code/logic change** (not a config/version bump or other
+     mechanical edit with no runtime surface), spawn the `verifier` agent on it
+     before you trust the fix — give it the specific behavior the fix is supposed
+     to restore and let it try to break it. If the verifier returns `BREAKS`,
+     treat that as a spent fix attempt under the anti-flail guard below: do NOT
+     push a second speculative fix and do NOT revert. Report `STATUS: WAITING`
+     with the SHA you pushed and the verifier's failing input (e.g. "pushed
+     abc123 to fix CI, but the verifier breaks it with X — needs you; consider
+     reverting"). Only continue as normal if the verifier returns `HOLDS`.
 2. **Base drift** — if the PR is behind or its merge state is stale, update it
    from the base branch. If the update is CLEAN, push it. If it produces
    conflicts, STOP that step and surface it (see below) — do not force-resolve.
