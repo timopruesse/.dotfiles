@@ -20,9 +20,10 @@ live in the `.dotfiles` repo (`home/.claude/agents/`) and are symlinked into
 - **`pr-babysitter`** — shepherds one PR toward mergeable in stateless one-sweep
   runs: auto-fixes+pushes CI/lint/type failures, clean rebases, and stale PR
   bodies; surfaces human review comments and real conflicts instead of acting on
-  them. Drive it on an interval with the `/loop` skill (e.g.
-  `/loop 5m babysit PR #123`); each sweep reports a `STATUS: DONE/WORKING/WAITING`
-  line so the loop knows when to stop. Route hard debugging it flags to Opus.
+  them. Each sweep reports a `STATUS: DONE/WORKING/WAITING` line. Invoke via the
+  `/babysit-pr [pr]` command, which self-loops (re-schedules on `WORKING`, stops
+  on `DONE`/`WAITING`) — no `/loop` wrapper needed. Route hard debugging it flags
+  to Opus.
 
 Reserve Opus for reasoning-heavy subagent work: planning/architecture (the
 built-in `Plan` agent), adversarial verification, and hard debugging. When a task

@@ -83,11 +83,12 @@ reads:
 
 - `STATUS: DONE` — checks green AND `reviewDecision` is APPROVED AND mergeable
   AND no unresolved human review threads. Nothing left; the loop should stop.
-- `STATUS: WORKING` — you pushed a fix or base update; CI needs to re-run. Keep
-  looping.
-- `STATUS: WAITING` — blocked on a human (review comments to address, a conflict
-  needing judgment, or the anti-flail guard tripped). Nothing for you to do until
-  something changes; say exactly what you're waiting on.
+- `STATUS: WORKING` — there is progress to wait on: you pushed a fix or base
+  update, OR checks are still running/pending (nothing to fix yet). CI needs
+  time; the loop should check again.
+- `STATUS: WAITING` — blocked on a human: unresolved review comments to address,
+  a conflict needing judgment, or the anti-flail guard tripped. Nothing changes
+  without human action; say exactly what you're waiting on. The loop should stop.
 
 State what you did as fact only for what you actually ran and verified. If a push
 or check fetch failed, report it with the output rather than assuming success.
