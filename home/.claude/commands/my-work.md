@@ -42,9 +42,12 @@ I reply with a terse selector: `all`, `go`, specific numbers (`1 3 5`), or
 - **Show the dispatch plan and STOP for one confirmation.** Print a one-screen
   plan grouped by agent: each selected item → the agent/command it'll run → a
   one-line intent/prompt. This is the only thing I see before it runs.
-- On my `go`, fan them out in parallel — spawn `worker` per ready ticket (with a
-  concrete prompt derived from the ticket), fire `/babysit-pr` per red PR, etc. —
-  and report back as each returns.
+- On my `go`, fan them out in parallel — for each ready Jira ticket run `/start
+  <KEY>` first (scaffold its worktree + branch off fresh `main`) and hand the
+  ticket to `worker` inside that worktree; fire `/babysit-pr` per red PR; etc. —
+  and report back as each returns. Routing ticket work through `/start` keeps each
+  dispatched ticket on its own branch/worktree instead of whatever branch I happen
+  to be on.
 
 Keep the common case frictionless: `/my-work` → glance → `go` → glance at plan →
 `go`. But the plan preview is a hard gate — never skip it, never dispatch without

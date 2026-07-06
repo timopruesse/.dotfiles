@@ -49,14 +49,27 @@ the spawn.
 
 ## Commands (`home/.claude/commands/`)
 
+Roughly the PR lifecycle, front to back:
+
+- **`/start <JIRA-KEY>`** — scaffold a ticket: self-prune stale worktrees, then
+  create a fresh worktree at `~/worktrees/<repo>/<KEY>` + branch `<KEY>-<slug>`
+  off `main`, load the ticket's AC as context, offer the opt-in Jira transition.
+  Doesn't auto-implement; offers `worker` in the new worktree.
+- **`/open-pr [base]`** — open a ready-for-review PR from the current branch:
+  why-focused title/body from the branch's commits+diff → preview → `go` opens it,
+  Jira key linked. No pre-flight. Offers opt-in Jira transition + `/babysit-pr`.
 - **`/babysit-pr [pr]`** — self-looping shepherd for one PR (or the current
   branch's PR).
 - **`/babysit-fleet`** — single fleet loop fanning `pr-babysitter` over all your
   open PRs; one wakeup, stops when every PR is `DONE`/`WAITING`.
+- **`/address-reviews [pr]`** — work through unresolved review threads on your PR:
+  applies code (via `worker` + `verifier` gate) after a preview, drafts replies
+  for you to post. Never posts/resolves threads. Single PR.
 - **`/review-requests`** — draft-only fan-out of `pr-reviewer` over every PR
   awaiting your review. Never posts.
 - **`/ship-digest [since]`** — retrospective: what you shipped (git + merged PRs
   + Jira), fanned to `scout`.
 - **`/my-work`** — prospective hub: open PRs + review requests + assigned Jira,
-  surfaced with one-word dispatch into `worker`/`pr-babysitter`/`/review-requests`
-  behind a plan-preview gate. Never auto-dispatches.
+  surfaced with one-word dispatch behind a plan-preview gate. Ticket dispatch
+  routes through `/start` (worktree+branch first, then `worker`); red PRs through
+  `/babysit-pr`. Never auto-dispatches.
