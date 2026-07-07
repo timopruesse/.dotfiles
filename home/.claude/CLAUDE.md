@@ -1,5 +1,8 @@
 # Subagent model routing
 
+> A visual flow graph of these commands + agents is in
+> [`WORKFLOWS.md`](../../WORKFLOWS.md).
+
 Eight user-scoped agents live in the `.dotfiles` repo
 (`home/.claude/agents/`) and are symlinked into `~/.claude/`. `scout`, `sweep`,
 `worker`, `pr-babysitter`, `pr-reviewer`, and `boba-watcher` are pinned to
