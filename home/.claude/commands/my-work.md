@@ -32,12 +32,15 @@ low-ambiguity spec) or **needs your design input** — be honest; a half-baked
 ticket handed off unattended wastes a run; and (b) whether its board/repo is
 **Boba-enabled**, which decides the dispatch mechanism (below).
 
-**Detecting Boba-enabled** (per ticket, at gather time): the Boba pipeline stamps
-the `boba` label on the tickets it works, so a project that already uses it will
-have prior `boba`-labeled issues. Probe with JQL `project = <KEY> AND labels =
-boba` (via the Atlassian MCP) — a non-empty result means the board is
-Boba-enabled. Treat absence of the signal as **not** Boba-enabled and fall back
-to `worker`; `worker` is always the safe default when detection is inconclusive.
+**Detecting Boba-enabled** (per distinct **project**, at gather time): the Boba
+pipeline stamps the `boba` label on the tickets it works, so a project that already
+uses it will have prior `boba`-labeled issues. Probe with JQL `project = <KEY> AND
+labels = boba` (via the Atlassian MCP) — a non-empty result means the project is
+Boba-enabled. The verdict is a property of the **project**, not the ticket, so
+probe each project **once** and reuse it for every ticket that shares it — don't
+re-probe per ticket. Treat absence of the signal (or an inconclusive probe) as
+**not** Boba-enabled; `worker` is always the safe default. Hold each project's
+verdict (`boba` / `no-boba`) to pass down to `/dispatch` at step 3.
 
 ## 3. Dispatch (the easy path)
 
@@ -51,16 +54,11 @@ I reply with a terse selector: `all`, `go`, specific numbers (`1 3 5`), or
 - **Show the dispatch plan and STOP for one confirmation.** Print a one-screen
   plan grouped by action: each selected item → the label/command it'll run → a
   one-line intent. This is the only thing I see before it runs.
-- On my `go`, fan them out in parallel and report back as each returns:
-  - **Ready Jira ticket on a Boba-enabled board/repo** → add the `boba` label via
-    the Atlassian MCP (`editJiraIssue`, appending to existing labels), which hands
-    it to the Boba pipeline (`chewielabs/boba_fetch`) to pick up unattended. The
-    pipeline owns the branch/worktree/implementation — this session just labels.
-    After labeling, **offer** `/watch-boba <KEY>` to shepherd the ticket to a PR (or
-    surface a blocker) — opt-in, don't auto-start it.
-  - **Ready Jira ticket on a board/repo that does NOT use Boba** → fall back to the
-    old flow: run `/start <KEY>` first (scaffold its worktree + branch off fresh
-    `main`) and hand the ticket to `worker` inside that worktree.
+- On my `go`, act on each selected item in parallel and report back as each returns:
+  - **Ready Jira ticket** → `/dispatch <KEY> <verdict>`, passing the per-project
+    Boba verdict from step 2 (`boba` / `no-boba`) so it doesn't re-probe. `/dispatch`
+    owns the mechanism: label for the Boba pipeline or scaffold via `/start` +
+    `worker`, then offer the opt-in `/watch-boba` and Jira transition.
   - **CI-red PR** → `/babysit-pr <n>`; etc.
 
 Keep the common case frictionless: `/my-work` → glance → `go` → glance at plan →

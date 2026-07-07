@@ -47,22 +47,15 @@ a sprint pool isn't a safe-to-auto set, so nothing starts without explicit numbe
   each selected item → the label/command it'll run → a one-line intent. This is the
   only thing I see before it runs.
 - On my `go`, start each selected ticket in parallel and report back as each returns.
-  The mechanism branches by whether the board is **Boba-enabled**:
-  - **Detecting Boba-enabled** (once per board — the whole pool is one project, so
-    probe once; ideally fold this into the step-1 `scout` gather): the Boba pipeline
-    stamps the `boba` label on the tickets it works, so a project that already uses
-    it has prior `boba`-labeled issues. Probe with JQL `project = <KEY> AND labels =
-    boba` — a non-empty result means Boba-enabled. Absence → **not** Boba-enabled.
-  - **Boba-enabled** → add the `boba` label via `editJiraIssue` (appending to
-    existing labels), which hands it to the Boba pipeline (`chewielabs/boba_fetch`)
-    to pick up unattended. The pipeline owns branch/worktree/implementation. After
-    labeling, **offer** `/watch-boba <KEY>` to watch the ticket to a PR (or a
-    blocker) — opt-in, don't auto-start it.
-  - **Not Boba-enabled** (or detection inconclusive — `worker` is the safe default)
-    → run `/start <KEY>` first (scaffold its worktree + branch off fresh `main`)
-    and hand the ticket to `worker` inside that worktree.
-- **Offer** the opt-in Jira transition (→ In Progress) for each started ticket —
-  only if I say yes; never silently.
+  - **Detect Boba-enabled once for the board** — the whole pool is one project, so
+    probe once (ideally fold this into the step-1 `scout` gather): JQL `project =
+    <KEY> AND labels = boba`. Non-empty → Boba-enabled; absence, or an inconclusive
+    probe → **not** (`worker` is the safe default). Hold the verdict for dispatch.
+  - **Dispatch each ticket** → `/dispatch <KEY> <verdict>`, passing the board's
+    verdict (`boba` / `no-boba`) so it doesn't re-probe. `/dispatch` owns the
+    mechanism: label for the Boba pipeline (which owns branch/worktree/implementation)
+    or scaffold via `/start` + `worker`, and offers the opt-in `/watch-boba` and the
+    Jira transition (→ In Progress) — never silently.
 
 Keep it frictionless: `/open-work` → glance → pick numbers → glance at plan → `go`.
 The plan preview is a hard gate — never skip it, never start without it.

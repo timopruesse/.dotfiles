@@ -3,11 +3,13 @@
 #
 # Bridges Claude Code hook events to a desktop notification + sound so the async
 # self-looping commands (/babysit-pr, /babysit-fleet, /watch-boba) can run in the
-# background and pull you back only when they need you or finish.
+# background and pull you back only when they need your attention.
 #
 # Usage (from settings.json hooks):
 #   bash $HOME/.claude/hooks/notify.sh attention   # Notification event → popup + chime
-#   bash $HOME/.claude/hooks/notify.sh done         # Stop event → soft sound only
+#
+# Only the Notification event is wired (attention-only). The `*` branch below is a
+# defensive fallback for any other kind passed in.
 #
 # OS-aware: macOS uses osascript + afplay; Linux/WSL falls back to notify-send,
 # then a terminal bell. Never fails the turn — always exits 0.
@@ -31,11 +33,6 @@ case "$kind" in
     title="Claude Code — needs you"
     [ -z "$msg" ] && msg="Waiting for your input"
     mac_sound="Glass"
-    ;;
-  done)
-    title="Claude Code — done"
-    [ -z "$msg" ] && msg="Turn finished"
-    mac_sound="Purr"
     ;;
   *)
     title="Claude Code"

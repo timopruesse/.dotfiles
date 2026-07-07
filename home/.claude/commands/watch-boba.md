@@ -7,6 +7,10 @@ Watch the Boba-dispatched Jira ticket `$ARGUMENTS` on a self-paced loop until Bo
 Fetch (`chewielabs/boba_fetch`) either opens a PR or gets stuck. If no key is
 given, ask for one — there's no branch to infer a Boba ticket from.
 
+The `STATUS:` vocabulary and `ScheduleWakeup` cadence are defined once in
+`~/.claude/LOOP-PROTOCOL.md`; the per-status handling below is this command's
+bindings on top of it (Boba adds the `BLOCKED` gated-unblock path).
+
 Each iteration:
 
 1. Spawn the `boba-watcher` agent for ONE read-only sweep of `$ARGUMENTS`. It
@@ -16,10 +20,8 @@ Each iteration:
 2. Read the `STATUS:` and act:
 
    - **`STATUS: WORKING`** — Boba holds the ticket, no terminal signal yet.
-     Schedule the next sweep with `ScheduleWakeup`, re-firing this same command
-     (`prompt` = `/watch-boba $ARGUMENTS`). Boba's transitions land on a minutes
-     timescale (analysis/bail within a minute or two, a PR in ~several minutes), so
-     use a cache-warm delay ~270s. Then stop this turn — the wakeup resumes the loop.
+     Reschedule per the loop protocol (`prompt` = `/watch-boba $ARGUMENTS`), then
+     stop the turn — the wakeup resumes the loop.
 
    - **`STATUS: DONE`** — Boba opened a PR. Do NOT schedule another `boba-watcher`
      sweep; the ticket→code phase is over. Hand off to the PR lifecycle: invoke
@@ -49,9 +51,9 @@ Each iteration:
         description, and/or `addCommentToJiraIssue` for a clarification). Boba
         auto-re-analyzes on a ticket update (observed: it posts "is retrying this
         ticket" without needing the label re-added), so after applying, resume the
-        loop with `ScheduleWakeup` (`/watch-boba $ARGUMENTS`, ~270s) to catch the
-        retry → PR. If after a couple of sweeps Boba has NOT posted a retry, surface
-        that — it may need a manual re-trigger (re-applying the `boba` label).
+        loop per the loop protocol (`/watch-boba $ARGUMENTS`) to catch the retry →
+        PR. If after a couple of sweeps Boba has NOT posted a retry, surface that —
+        it may need a manual re-trigger (re-applying the `boba` label).
 
    - **`STATUS: WAITING`** — no longer Boba's to move (label gone / never picked up,
      or a human has taken the ticket over). Do NOT schedule. Stop and tell me what
@@ -60,6 +62,6 @@ Each iteration:
    - Anything else (no key, MCP/auth error, agent failed) — do NOT schedule. Stop
      and report the problem.
 
-The loop is self-terminating: it continues only on `WORKING` (and after a confirmed
-unblock), and stops on `DONE` (handing to `/babysit-pr`), `WAITING`, unconfirmed
-unblock, or error. You do not need to wrap this in the /loop skill.
+Self-termination follows the loop protocol, with Boba's specifics: continue only on
+`WORKING` (and after a confirmed unblock); stop on `DONE` (handing to `/babysit-pr`),
+`WAITING`, an unconfirmed/repeated-bail unblock, or error.

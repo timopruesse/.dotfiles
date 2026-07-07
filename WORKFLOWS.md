@@ -16,8 +16,9 @@ flowchart TD
         SD(["/ship-digest<br/>retrospective"])
     end
 
-    subgraph dispatch["🔀 Dispatch a ready ticket"]
-        DISP{{"board Boba-enabled?"}}
+    subgraph dispatch["🔀 /dispatch — ticket intake"]
+        DSP(["/dispatch KEY"])
+        DISP{{"project Boba-enabled?"}}
         LBL["add 'boba' label<br/>→ boba_fetch pipeline"]
         ST(["/start<br/>worktree + branch"])
     end
@@ -58,12 +59,13 @@ flowchart TD
     HUM1(["needs you"])
 
     %% ---------- edges ----------
-    MW -->|"assigned Jira · ready"| DISP
+    MW -->|"assigned Jira · ready"| DSP
     MW -->|"CI-red PR"| BP
     MW -->|"awaiting my review"| RR
-    OW -->|"pick from pool"| DISP
+    OW -->|"pick from pool"| DSP
     SD --> SCOUT
 
+    DSP --> DISP
     DISP -->|"yes"| LBL
     DISP -->|"no / unsure"| ST
     LBL -. "offer" .-> WB
@@ -109,7 +111,7 @@ flowchart TD
     classDef human   fill:#fee2e2,stroke:#dc2626,color:#450a0a;
     classDef done    fill:#bbf7d0,stroke:#15803d,color:#052e16;
 
-    class MW,OW,SD,WB,ST,OP,BP,FL,RR,AR command;
+    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR command;
     class SCOUT,BW,WK,PRB,PRR sonnet;
     class VER opus;
     class CM haiku;
@@ -132,7 +134,9 @@ flowchart TD
   Nothing posts to GitHub or resolves a review thread on your behalf.
 - Two self-looping loops (`/watch-boba` → `boba-watcher`, `/babysit-pr` →
   `pr-babysitter`) re-fire on an interval via `ScheduleWakeup` and terminate
-  themselves on `DONE` / `WAITING`.
+  themselves on `DONE` / `WAITING`. The `STATUS:` vocabulary and the
+  `ScheduleWakeup` cadence they (and `/babysit-fleet`) share are defined once in
+  [`home/.claude/LOOP-PROTOCOL.md`](home/.claude/LOOP-PROTOCOL.md).
 - **Notifications:** a `Notification` hook
   ([`home/.claude/hooks/notify.sh`](home/.claude/hooks/notify.sh)) pings macOS
   (desktop notification + chime) when a loop **needs you** — a preview gate,
