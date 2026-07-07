@@ -3,35 +3,40 @@ description: Browse open items in a board's active sprint (default ECW) and pick
 argument-hint: "[board/project key — defaults to ECW]"
 ---
 
-Show me the open items in the active sprint so I can pick what to start. This is a
-pool to grab from — the whole sprint's open work, not just what's assigned to me.
-Selection is explicit and NEVER auto-dispatched: I start only the tickets I name,
-behind the preview gate in step 3. It's fine to pick nothing.
+Show me the unassigned, startable items in the active sprint so I can pick what to
+grab. This is a free-to-take pool — deliberately unassigned so it doesn't overlap
+`/my-work` (my own assigned work). Selection is explicit and NEVER auto-dispatched:
+I start only the tickets I name, behind the preview gate in step 3. It's fine to
+pick nothing.
 
-## 1. Gather (Atlassian MCP)
+## 1. Gather (fan to `scout` — the raw result is token-fat)
 
 - **Board/project key:** use `$ARGUMENTS` if given, else default to `ECW`.
-- Query the active sprint's open items via `searchJiraIssuesUsingJql`:
-  `project = <KEY> AND sprint in openSprints() AND statusCategory != Done ORDER BY rank`.
-  If Atlassian is unavailable, say so and stop — there's nothing to browse without it.
-- For each item capture: key, summary, status, and assignee (me / someone else /
-  unassigned).
+- The pool is **unassigned, startable** items in the active sprint: unassigned so
+  it's genuinely grabbable and doesn't overlap `/my-work` (which covers your own
+  assigned work); startable (`statusCategory = "To Do"`, i.e. NEW/Refine/To Do)
+  because Review / In Progress / Ready for Release are in flight, not things to
+  start fresh.
+- **Do NOT run the JQL inline** — `searchJiraIssuesUsingJql` returns full
+  descriptions + nested objects and blows the context even with a `fields` filter
+  (the filter isn't honored). Spawn `scout` to run it and return **only** a compact
+  list — one line per item: `key · status · summary`. The query:
+  `project = <KEY> AND sprint in openSprints() AND statusCategory = "To Do" AND assignee IS EMPTY ORDER BY rank`.
+  If Atlassian is unavailable, `scout` says so and I stop — nothing to browse without it.
 
 ## 2. Present a numbered, actionable list
 
-One line per open item, each PRE-BOUND to the start action and tagged for safety:
+One line per item, each PRE-BOUND to the start action and tagged for safety:
 
-- `1. ECW-1060 "add rate limit" — To Do, unassigned` → start ✅ ready
-- `2. ECW-1042 "rework billing" — To Do, unassigned, needs design input` → **needs you**
-- `3. ECW-1039 "fix parser" — In Progress, you` → already yours; start resumes it
-- `4. ECW-1051 "tune cache" — In Progress, @someone` → **someone else's**; won't start unless named
+- `1. ECW-1061 "Customer Portal: subscription detail + edit" — NEW` → start ✅ ready
+- `2. ECW-1135 "connect Overview page to backend" — Refine` → start ✅ ready
+- `3. ECW-963 "Research: Shopify Promo Preview" — NEW` → **needs you** (research/spike)
+- `4. ECW-1064 "replace payment method" — NEW` → **needs you** (blocked: confirm w/ Recharge)
 
-Judge and flag each item on two axes:
-
-- **Ready** (concrete, low-ambiguity spec) vs **needs your design input** — be
-  honest; a half-baked ticket handed off unattended wastes a run.
-- **Ownership** — flag items already assigned to someone else or in progress;
-  I can still grab one, but only if I name its number explicitly.
+Judge and flag each item as **ready** (concrete, low-ambiguity spec — clear AC,
+buildable now) vs **needs your design input** — be honest; a half-baked ticket, a
+research/spike, or one with unresolved "confirm with X / resolve at grooming"
+blockers handed off unattended wastes a run.
 
 ## 3. Select + start (behind the preview gate)
 
@@ -42,11 +47,12 @@ a sprint pool isn't a safe-to-auto set, so nothing starts without explicit numbe
   each selected item → the label/command it'll run → a one-line intent. This is the
   only thing I see before it runs.
 - On my `go`, start each selected ticket in parallel and report back as each returns.
-  The mechanism branches by whether its board/repo is **Boba-enabled**:
-  - **Detecting Boba-enabled** (per ticket): the Boba pipeline stamps the `boba`
-    label on the tickets it works, so a project that already uses it has prior
-    `boba`-labeled issues. Probe with JQL `project = <KEY> AND labels = boba` — a
-    non-empty result means Boba-enabled. Absence → **not** Boba-enabled.
+  The mechanism branches by whether the board is **Boba-enabled**:
+  - **Detecting Boba-enabled** (once per board — the whole pool is one project, so
+    probe once; ideally fold this into the step-1 `scout` gather): the Boba pipeline
+    stamps the `boba` label on the tickets it works, so a project that already uses
+    it has prior `boba`-labeled issues. Probe with JQL `project = <KEY> AND labels =
+    boba` — a non-empty result means Boba-enabled. Absence → **not** Boba-enabled.
   - **Boba-enabled** → add the `boba` label via `editJiraIssue` (appending to
     existing labels), which hands it to the Boba pipeline (`chewielabs/boba_fetch`)
     to pick up unattended. The pipeline owns branch/worktree/implementation.
