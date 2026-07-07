@@ -55,7 +55,9 @@ a sprint pool isn't a safe-to-auto set, so nothing starts without explicit numbe
     boba` — a non-empty result means Boba-enabled. Absence → **not** Boba-enabled.
   - **Boba-enabled** → add the `boba` label via `editJiraIssue` (appending to
     existing labels), which hands it to the Boba pipeline (`chewielabs/boba_fetch`)
-    to pick up unattended. The pipeline owns branch/worktree/implementation.
+    to pick up unattended. The pipeline owns branch/worktree/implementation. After
+    labeling, **offer** `/watch-boba <KEY>` to watch the ticket to a PR (or a
+    blocker) — opt-in, don't auto-start it.
   - **Not Boba-enabled** (or detection inconclusive — `worker` is the safe default)
     → run `/start <KEY>` first (scaffold its worktree + branch off fresh `main`)
     and hand the ticket to `worker` inside that worktree.

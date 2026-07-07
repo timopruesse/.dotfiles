@@ -56,6 +56,8 @@ I reply with a terse selector: `all`, `go`, specific numbers (`1 3 5`), or
     the Atlassian MCP (`editJiraIssue`, appending to existing labels), which hands
     it to the Boba pipeline (`chewielabs/boba_fetch`) to pick up unattended. The
     pipeline owns the branch/worktree/implementation — this session just labels.
+    After labeling, **offer** `/watch-boba <KEY>` to shepherd the ticket to a PR (or
+    surface a blocker) — opt-in, don't auto-start it.
   - **Ready Jira ticket on a board/repo that does NOT use Boba** → fall back to the
     old flow: run `/start <KEY>` first (scaffold its worktree + branch off fresh
     `main`) and hand the ticket to `worker` inside that worktree.

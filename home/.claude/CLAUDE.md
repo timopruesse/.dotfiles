@@ -1,10 +1,10 @@
 # Subagent model routing
 
-Seven user-scoped agents live in the `.dotfiles` repo
+Eight user-scoped agents live in the `.dotfiles` repo
 (`home/.claude/agents/`) and are symlinked into `~/.claude/`. `scout`, `sweep`,
-`worker`, `pr-babysitter`, and `pr-reviewer` are pinned to Sonnet 5; `committer`
-is pinned to Haiku (routine plumbing); `verifier` is pinned to Opus (adversarial
-reasoning — see below).
+`worker`, `pr-babysitter`, `pr-reviewer`, and `boba-watcher` are pinned to
+Sonnet 5; `committer` is pinned to Haiku (routine plumbing); `verifier` is pinned
+to Opus (adversarial reasoning — see below).
 
 - **`scout`** — read-only exploration, two modes. LOCATE (default): pinpoint
   "where/how does X work" via excerpts + `file:line`. EXPLAIN: read a subsystem
@@ -41,6 +41,13 @@ reasoning — see below).
   GitHub; never posts). Reads the diff/intent, reviews adversarially, spawns
   `verifier` for risky logic, returns a draft review + suggested verdict. Fanned
   out one-per-PR by `/review-requests`.
+- **`boba-watcher`** — read-only classifier for one Boba-dispatched Jira ticket.
+  A stateless sweep reads the ticket's comments, identifies Boba Fetch's latest
+  signal **by its comment signature** (the `boba-fetch.vercel.app/dashboard/runs/`
+  Run ID link — Boba posts under the user's own account, so author can't
+  disambiguate), and reports `STATUS: DONE` (+PR URL) / `WORKING` / `BLOCKED`
+  (+reason) / `WAITING`. It never touches the ticket; the `/watch-boba` command
+  orchestrates the reactions. Driven on a loop by `/watch-boba`.
 
 Reserve Opus for reasoning-heavy subagent work: planning/architecture (the
 built-in `Plan` agent), adversarial verification (`verifier`), and hard debugging.
@@ -61,6 +68,13 @@ Roughly the PR lifecycle, front to back:
   create a fresh worktree at `~/worktrees/<repo>/<KEY>` + branch `<KEY>-<slug>`
   off `main`, load the ticket's AC as context, offer the opt-in Jira transition.
   Doesn't auto-implement; offers `worker` in the new worktree.
+- **`/watch-boba <JIRA-KEY>`** — self-looping watcher for a `boba`-labeled ticket
+  (the Boba branch of dispatch). Each tick spawns `boba-watcher` to classify Boba
+  Fetch's latest signal; on `DONE` it auto-hands the new PR to `/babysit-pr`, on
+  `BLOCKED` it drafts a ticket update to unblock Boba behind a preview gate (Boba
+  auto-re-analyzes on the update), on `WORKING` it reschedules (~270s), and stops
+  on `WAITING`/repeated-bail. Offered opt-in by `/open-work` and `/my-work` after
+  they label a ticket.
 - **`/open-pr [base]`** — open a ready-for-review PR from the current branch:
   why-focused title/body from the branch's commits+diff → preview → `go` opens it,
   Jira key linked. No pre-flight. Offers opt-in Jira transition + `/babysit-pr`.
