@@ -71,5 +71,8 @@ Roughly the PR lifecycle, front to back:
   + Jira), fanned to `scout`.
 - **`/my-work`** — prospective hub: open PRs + review requests + assigned Jira,
   surfaced with one-word dispatch behind a plan-preview gate. Ticket dispatch
-  routes through `/start` (worktree+branch first, then `worker`); red PRs through
+  branches by board: tickets on a Boba-enabled board (detected via a prior
+  `boba`-labeled issue in the project) get the `boba` label so the Boba pipeline
+  (`chewielabs/boba_fetch`) picks them up unattended; everything else falls back
+  to `/start` (worktree+branch first, then `worker`). Red PRs through
   `/babysit-pr`. Never auto-dispatches.
