@@ -33,9 +33,12 @@ flowchart TD
 
     subgraph impl["🛠 Local implementation"]
         WK["worker"]
+        LND(["/land"])
         VG{{"behavior change?"}}
         VER["verifier"]
+        LPG{{"commit preview"}}
         CM["committer"]
+        PRQ{{"PR exists?"}}
     end
 
     subgraph pr["🚦 PR → mergeable"]
@@ -81,12 +84,16 @@ flowchart TD
     BW -->|"WAITING / 2nd bail"| HUM1
     PG -->|"design call"| HUM1
 
-    WK --> VG
-    VG -->|"yes"| VER
-    VER -->|"BREAKS"| WK
-    VER -->|"HOLDS"| CM
-    VG -->|"no"| CM
-    CM --> OP
+    WK -. "done · you: /land" .-> LND
+    LND --> VG
+    VG -->|"runtime surface"| VER
+    VG -->|"docs / mechanical"| LPG
+    VER -->|"HOLDS"| LPG
+    VER -->|"BREAKS · gated retry"| HUM1
+    LPG -->|"you: go"| CM
+    CM --> PRQ
+    PRQ -->|"no PR · offer"| OP
+    PRQ -->|"PR exists · push"| BP
     OP --> BP
 
     BP --> PRB
@@ -111,11 +118,11 @@ flowchart TD
     classDef human   fill:#fee2e2,stroke:#dc2626,color:#450a0a;
     classDef done    fill:#bbf7d0,stroke:#15803d,color:#052e16;
 
-    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR command;
+    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND command;
     class SCOUT,BW,WK,PRB,PRR sonnet;
     class VER opus;
     class CM haiku;
-    class DISP,PG,VG gate;
+    class DISP,PG,VG,LPG,PRQ gate;
     class HUM1,HUM2 human;
     class MERGE done;
 ```
@@ -127,8 +134,13 @@ flowchart TD
 - Node colors encode the model pin: 🟢 Sonnet, 🟣 Opus (`verifier`), ⚪ Haiku
   (`committer`).
 - The single **`verifier`** node is one agent invoked from several flows (the
-  `worker` gate, `pr-babysitter`, `pr-reviewer`) — the converging arrows show its
-  reuse, not multiple agents.
+  `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
+  arrows show its reuse, not multiple agents.
+- **`/land`** is the local counterpart to the Boba loop's `boba-watcher → /babysit-pr`
+  hand-off: it closes the seam between `worker` and `/open-pr` by owning the
+  post-`worker` conveyor (verifier gate → commit preview → `committer` → offer the
+  next step). If a PR already exists it pushes the follow-up commit and offers
+  `/babysit-pr` instead of `/open-pr`.
 - **Red "needs you"** nodes are where a flow deliberately STOPS for a human: the
   design philosophy is *auto-fix the deterministic, surface the judgment calls*.
   Nothing posts to GitHub or resolves a review thread on your behalf.
@@ -149,8 +161,8 @@ flowchart TD
 |---|---|---|---|
 | `scout` | Sonnet | read-only retrieval / codebase explain | gather in `/my-work`, `/open-work`, `/ship-digest`; Boba unblock locate |
 | `worker` | Sonnet | implementer for concrete, low-ambiguity specs | `/start`, `/address-reviews`, Boba unblock |
-| `verifier` | Opus | adversarial correctness gate (tries to BREAK a change) | `worker` gate, `pr-babysitter`, `pr-reviewer` |
-| `committer` | Haiku | git staging / commit-message / commit / push | after local implementation |
+| `verifier` | Opus | adversarial correctness gate (tries to BREAK a change) | `/land` gate, `pr-babysitter`, `pr-reviewer` |
+| `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor) |
 | `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body) | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |
 | `boba-watcher` | Sonnet | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |

@@ -22,10 +22,12 @@ to Opus (adversarial reasoning — see below).
   reports a behavior-changing change, gate it through `verifier`** (orchestrator
   step — spawn `verifier` yourself; feed any `BREAKS` input back to `worker`,
   escalate design-level failures to Opus). Skip the gate for no-runtime-surface
-  or mechanical changes.
+  or mechanical changes. On the current-branch path this conveyor is codified as
+  `/land` (verifier gate → commit → hand off).
 - **`committer`** — routine git plumbing (staging, commit messages, commit,
   push). Delegate the mechanical "commit this" / "commit and push" step to it
-  once the work is done, instead of spending Opus on it.
+  once the work is done, instead of spending Opus on it. Orchestrated by `/land`
+  as the commit stage of the post-`worker` conveyor.
 - **`verifier`** (Opus) — composable adversarial verifier. Tries to BREAK a
   change by driving its real behavior, returns `VERDICT: HOLDS/BREAKS/
   INCONCLUSIVE`. Not a diff review (that's `/code-review`) — an independent
@@ -84,6 +86,15 @@ Roughly the PR lifecycle, front to back:
   `BLOCKED` it drafts a ticket update to unblock Boba behind a preview gate (Boba
   auto-re-analyzes on the update), on `WORKING` it reschedules, and stops on
   `WAITING`/repeated-bail. Offered opt-in by `/dispatch` after it labels a ticket.
+- **`/land`** — the local counterpart to the Boba loop's `boba-watcher → /babysit-pr`
+  hand-off: closes the seam between `worker` and `/open-pr`. Runs on the current
+  branch/worktree (no arg), owning the post-`worker` conveyor — orchestrator
+  risk-gates the diff and spawns `verifier` on runtime surface (on `BREAKS`,
+  surfaces + offers a gated `worker` retry, never auto-loops), commits via
+  `committer` behind a preview gate, then branches on whether a PR exists: none →
+  offer `/open-pr` (which owns the push); PR exists → push the follow-up commit and
+  offer `/babysit-pr`. Doesn't run `worker` or touch Jira. This is what finally
+  wires the otherwise command-less `committer`.
 - **`/open-pr [base]`** — open a ready-for-review PR from the current branch:
   why-focused title/body from the branch's commits+diff → preview → `go` opens it,
   Jira key linked. No pre-flight. Offers opt-in Jira transition + `/babysit-pr`.
