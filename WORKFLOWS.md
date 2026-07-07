@@ -133,12 +133,11 @@ flowchart TD
 - Two self-looping loops (`/watch-boba` → `boba-watcher`, `/babysit-pr` →
   `pr-babysitter`) re-fire on an interval via `ScheduleWakeup` and terminate
   themselves on `DONE` / `WAITING`.
-- **Notifications:** a `Notification` + `Stop` hook
+- **Notifications:** a `Notification` hook
   ([`home/.claude/hooks/notify.sh`](home/.claude/hooks/notify.sh)) pings macOS
-  (desktop notification + chime) when a loop **needs you** (a preview gate,
-  permission, or idle wait) and plays a soft sound when a **turn/loop finishes** —
-  so you can fire off a loop and walk away. OS-aware; falls back to `notify-send`
-  / a terminal bell off macOS.
+  (desktop notification + chime) when a loop **needs you** — a preview gate,
+  permission, or idle wait — so you can fire off a loop and walk away. OS-aware;
+  falls back to `notify-send` / a terminal bell off macOS.
 
 ## Agents at a glance
 
