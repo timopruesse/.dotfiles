@@ -1,5 +1,5 @@
 ---
-description: Land the current branch's work — verifier gate, commit (committer), then offer /open-pr
+description: Land the current branch's work — verifier gate, commit (committer), then advance to /open-pr or /babysit-pr
 argument-hint: "[--yes to skip the commit preview]"
 ---
 
@@ -8,7 +8,10 @@ Land the work on the current branch: run the `verifier` gate, commit via
 already made the edits) and `/open-pr` — the local counterpart to how
 `/watch-boba` auto-hands a Boba ticket to `/babysit-pr`. It operates on the
 **current branch/worktree**; it does NOT run `worker` (that already happened) and
-does NOT open the PR itself (it offers `/open-pr`).
+does NOT open the PR itself (it advances into `/open-pr`). Mode (A default vs B
+pre-authorized, set at `/dispatch`) is carried in session context — see
+[`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md) for the AUTO/STOP taxonomy this
+command follows below.
 
 ## 1. Pre-flight (read-only)
 
@@ -35,36 +38,41 @@ does NOT open the PR itself (it offers `/open-pr`).
   there's real runtime surface, giving it the specific behavior the change is meant
   to produce and letting it try to break it.
 - **On `VERDICT: BREAKS`** — do NOT commit. Surface the verifier's failing input
-  and the observed wrong behavior, and STOP for me (same posture as
-  `/address-reviews` and the babysitter). Offer to hand the failing case to a fresh
-  `worker` as a new spec — but only on my `go`; never auto-retry, never loop
-  unattended. One verifier attempt, then it's my call.
+  and the observed wrong behavior, and `HALT: <reason>` (a `verifier` BREAKS is a
+  STOP always, per the protocol's taxonomy — B never overrides it). Offer to hand
+  the failing case to a fresh `worker` as a new spec — but only on my `go`; never
+  auto-retry, never loop unattended. One verifier attempt, then it's my call.
 - On `HOLDS` (or a skipped gate), continue.
 
-## 3. Commit (preview → my `go`)
+## 3. Commit (preview → mode-aware)
 
 - If there are uncommitted changes, hand them to `committer` to stage only the
   intended changes (report, don't sweep up, unrelated working-tree cruft) and
   write ONE why-focused commit message in the repo's established style. A `worker`
   change is one scoped unit — don't split it.
-- **Show me one preview and STOP for `go`:** the verifier verdict (or why it was
-  skipped), the proposed commit message, and the file list. This is a hard gate —
-  never commit without my `go`. (`--yes` in `$ARGUMENTS` skips this preview.)
+- **Preview:** the verifier verdict (or why it was skipped), the proposed commit
+  message, and the file list. Under mode A, show it and **STOP for `go`** — a hard
+  gate; never commit without it. Under mode B, this gate is **AUTO** (per
+  [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md)'s taxonomy) — show the same
+  preview but commit without pausing. (`--yes` in `$ARGUMENTS` skips the pause
+  under mode A too.)
 - If §1 found the work already committed and the tree is clean, skip this step —
   there's nothing to commit; go straight to §4.
 
-## 4. Push / PR handoff (on my `go`)
+## 4. Push / PR handoff
 
-Branch on whether a PR already exists (from §1):
+Branch on whether a PR already exists (from §1) — this is a branch point, so name
+the successor rather than writing a bare `ADVANCE`:
 
 - **No PR yet** → commit locally only; do NOT push (that's `/open-pr`'s job — it
-  does its own `git push -u origin HEAD`). Then **offer** `/open-pr` as one line —
-  only run it if I say yes.
+  does its own `git push -u origin HEAD`). `ADVANCE → /open-pr`.
 - **PR already exists** → this is a follow-up commit onto an open PR, so **push**
-  (`git push`) to feed the existing PR / its babysitter. Then **offer**
-  `/babysit-pr <number>` rather than `/open-pr`.
+  (`git push`) to feed the existing PR / its babysitter. `ADVANCE → /babysit-pr
+  <number>`.
 
-Do not offer or perform the Jira transition here — that's `/open-pr`'s (In Review)
+Under mode A, advancing runs the next step up to its own preview gate and waits
+for `go` there; under mode B it runs through, auto-approving that step's AUTO
+gates. Do not fire the Jira transition here — that's `/open-pr`'s (In Review)
 step; landing isn't review-ready by itself. Report what you did honestly — the
-verdict, what was committed/pushed, and the follow-up on offer. If `verifier`
-returned BREAKS, or a commit/push failed, stop and show it rather than proceeding.
+verdict, what was committed/pushed, and the step advanced to. If `verifier`
+returned BREAKS, or a commit/push failed, `HALT: <reason>` rather than proceeding.

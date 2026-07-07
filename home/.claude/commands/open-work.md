@@ -40,22 +40,31 @@ blockers handed off unattended wastes a run.
 
 ## 3. Select + start (behind the preview gate)
 
-I reply with the numbers I want (e.g. `1 3`). There is no bare `go`/`all` here —
-a sprint pool isn't a safe-to-auto set, so nothing starts without explicit numbers.
+I reply with the numbers I want (e.g. `1 3`), or `ship <nums>` (e.g. `ship 1 3`).
+There is no bare `go`/`all` here — a sprint pool isn't a safe-to-auto set, so
+nothing starts without explicit numbers. **`ship` likewise requires explicit
+numbers; there is no bare `ship`.**
 
-- **Show the start plan and STOP for one confirmation.** Print a one-screen plan:
-  each selected item → the label/command it'll run → a one-line intent. This is the
-  only thing I see before it runs.
+- Plain numbers are mode **A** (normal per-gate confirm); `ship <nums>` is mode
+  **B** (pre-authorized) per
+  [`~/.claude/HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md) — the named items run
+  through, auto-approving downstream AUTO gates instead of pausing at each.
+- **Show the start plan and STOP for one confirmation** — for numbers and `ship`
+  alike. Print a one-screen plan: each selected item → the label/command it'll
+  run → a one-line intent. This is the only thing I see before it runs; for a
+  `ship` selection this one confirmation IS the pre-authorization — only the
+  per-step gates downstream are skipped, not this batch gate.
 - On my `go`, start each selected ticket in parallel and report back as each returns.
   - **Detect Boba-enabled once for the board** — the whole pool is one project, so
     probe once (ideally fold this into the step-1 `scout` gather): JQL `project =
     <KEY> AND labels = boba`. Non-empty → Boba-enabled; absence, or an inconclusive
     probe → **not** (`worker` is the safe default). Hold the verdict for dispatch.
-  - **Dispatch each ticket** → `/dispatch <KEY> <verdict>`, passing the board's
-    verdict (`boba` / `no-boba`) so it doesn't re-probe. `/dispatch` owns the
-    mechanism: label for the Boba pipeline (which owns branch/worktree/implementation)
-    or scaffold via `/start` + `worker`, and offers the opt-in `/watch-boba` and the
-    Jira transition (→ In Progress) — never silently.
+  - **Dispatch each ticket** → `/dispatch <KEY> <verdict>` (append `--auto` if it
+    was selected via `ship`), passing the board's verdict (`boba` / `no-boba`) so
+    it doesn't re-probe. `/dispatch` owns the mechanism: label for the Boba
+    pipeline (which owns branch/worktree/implementation) or scaffold via `/start`
+    + `worker`, and offers the opt-in `/watch-boba` and the Jira transition (→ In
+    Progress) — never silently.
 
 Keep it frictionless: `/open-work` → glance → pick numbers → glance at plan → `go`.
 The plan preview is a hard gate — never skip it, never start without it.

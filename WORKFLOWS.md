@@ -17,6 +17,7 @@ flowchart TD
     end
 
     subgraph dispatch["🔀 /dispatch — ticket intake"]
+        SHIP(["/ship KEY<br/>= /dispatch --auto"])
         DSP(["/dispatch KEY"])
         DISP{{"project Boba-enabled?"}}
         LBL["add 'boba' label<br/>→ boba_fetch pipeline"]
@@ -41,11 +42,13 @@ flowchart TD
         PRQ{{"PR exists?"}}
     end
 
-    subgraph pr["🚦 PR → mergeable"]
+    subgraph pr["🚦 PR → mergeable → merged"]
         BP(["/babysit-pr"])
         FL(["/babysit-fleet"])
         PRB["pr-babysitter"]
-        MERGE(["mergeable ✅"])
+        AM{{"auto-mode +<br/>all-clear? (fail-closed)"}}
+        MERGE(["mergeable ✅<br/>mode A: you merge"])
+        MRG(["merged ✅<br/>→ Ready for Release"])
         HUM2(["needs you<br/>reviews / conflict"])
     end
 
@@ -68,6 +71,7 @@ flowchart TD
     OW -->|"pick from pool"| DSP
     SD --> SCOUT
 
+    SHIP -->|"mode B · --auto"| DSP
     DSP --> DISP
     DISP -->|"yes"| LBL
     DISP -->|"no / unsure"| ST
@@ -100,7 +104,10 @@ flowchart TD
     FL --> PRB
     PRB -->|"code fix"| VER
     PRB -->|"WORKING"| BP
-    PRB -->|"DONE"| MERGE
+    PRB -->|"DONE · approved+green"| AM
+    AM -->|"mode B · all-clear"| MRG
+    AM -->|"mode A"| MERGE
+    AM -->|"external blocker · fail-closed"| HUM2
     PRB -->|"WAITING"| HUM2
 
     RR --> PRR
@@ -118,13 +125,13 @@ flowchart TD
     classDef human   fill:#fee2e2,stroke:#dc2626,color:#450a0a;
     classDef done    fill:#bbf7d0,stroke:#15803d,color:#052e16;
 
-    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND command;
+    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND,SHIP command;
     class SCOUT,BW,WK,PRB,PRR sonnet;
     class VER opus;
     class CM haiku;
-    class DISP,PG,VG,LPG,PRQ gate;
+    class DISP,PG,VG,LPG,PRQ,AM gate;
     class HUM1,HUM2 human;
-    class MERGE done;
+    class MERGE,MRG done;
 ```
 
 ## Reading the graph
@@ -146,9 +153,20 @@ flowchart TD
   Nothing posts to GitHub or resolves a review thread on your behalf.
 - Two self-looping loops (`/watch-boba` → `boba-watcher`, `/babysit-pr` →
   `pr-babysitter`) re-fire on an interval via `ScheduleWakeup` and terminate
-  themselves on `DONE` / `WAITING`. The `STATUS:` vocabulary and the
+  themselves on `DONE` / `WAITING` / `MERGED`. The `STATUS:` vocabulary and the
   `ScheduleWakeup` cadence they (and `/babysit-fleet`) share are defined once in
   [`home/.claude/LOOP-PROTOCOL.md`](home/.claude/LOOP-PROTOCOL.md).
+- The `/dispatch → … → merged` **spine auto-chains** in one of two modes: **A**
+  (default) auto-invokes each successor but pauses at every preview gate for a
+  one-word `go`; **B** (via `/ship`, `--auto`, or the hubs' `ship <nums>`) runs
+  through, auto-approving the deterministic (AUTO) gates and stopping only at
+  judgment (STOP) gates. Every spine step ends with an `ADVANCE → <next>` or
+  `HALT: <reason>` line the orchestrator dispatches on. The spine, the taxonomy,
+  the conditional **auto-merge** (fail-closed, mode-B only — the `auto-mode +
+  all-clear?` gate), and the **Jira lifecycle** (In Progress → In Review → Ready
+  for Release) are defined once in
+  [`home/.claude/HANDOFF-PROTOCOL.md`](home/.claude/HANDOFF-PROTOCOL.md) — the
+  synchronous sibling of `LOOP-PROTOCOL.md`.
 - **Notifications:** a `Notification` hook
   ([`home/.claude/hooks/notify.sh`](home/.claude/hooks/notify.sh)) pings macOS
   (desktop notification + chime) when a loop **needs you** — a preview gate,
@@ -163,7 +181,7 @@ flowchart TD
 | `worker` | Sonnet | implementer for concrete, low-ambiguity specs | `/start`, `/address-reviews`, Boba unblock |
 | `verifier` | Opus | adversarial correctness gate (tries to BREAK a change) | `/land` gate, `pr-babysitter`, `pr-reviewer` |
 | `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor) |
-| `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body) | `/babysit-pr`, `/babysit-fleet` |
+| `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body); conditional fail-closed auto-merge in auto-mode | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |
 | `boba-watcher` | Sonnet | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
 | `sweep` | Sonnet | mechanical fix loops (tsc / lint / formatting) | ad hoc (not bound to a command) |

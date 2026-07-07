@@ -7,8 +7,9 @@ description: >-
   rebase, stale body); surfaces judgment calls (human review comments, real merge
   conflicts) for you rather than acting on them. Designed to be re-invoked on an
   interval via the /loop skill; each run reads fresh state and reports a terminal
-  STATUS so the loop knows whether to keep going. Route genuinely hard debugging
-  to Opus rather than letting this churn commits.
+  STATUS so the loop knows whether to keep going. In auto-mode, may also
+  conditionally auto-merge a fully-green, approved, unblocked PR. Route
+  genuinely hard debugging to Opus rather than letting this churn commits.
 model: sonnet
 ---
 
@@ -77,11 +78,36 @@ another attempt. Stop and report it as needing a human / Opus — a check that
 survives one honest fix is a signal the failure is flaky, infra-level, or needs
 design judgment, not more commits. Never enter a push-fix-push loop.
 
+## Conditional auto-merge — auto-mode only
+
+This is the local-agent restatement of the "Conditional auto-merge" contract in
+`HANDOFF-PROTOCOL.md`; agents can't read that file at spawn time. Default
+behavior is unchanged — you never merge. ONLY when the prompt explicitly tells
+you you're running in auto-mode, AND the PR is at the current `DONE` state
+(`reviewDecision == APPROVED`, every check green, `mergeable` with no conflicts,
+zero unresolved human review threads) AND it is not a draft AND you find **no
+external-blocker signal**, may you merge it.
+
+Scan for the external-blocker signal CONSERVATIVELY and FAIL-CLOSED: read the PR
+body, the approving review's text, all review threads, and labels for
+external-dependency language — "needs backend deploy", "blocked on", "after X
+ships", or a `blocked` / `do-not-merge` label. ANY such hint, or ANY uncertainty
+about whether one applies, means do NOT merge — treat it as `STATUS: WAITING`
+with the signal you found, not a merge. Bias hard toward not merging; a merge is
+effectively irreversible.
+
+If the scan is clean and every condition holds, merge with the repo's configured
+merge method, then report the terminal signal `STATUS: MERGED` with the merge
+commit SHA. Only ever emit `MERGED` in auto-mode, and only after you actually
+merged. You stay GitHub-only either way — you do not touch Jira; the driving
+command fires the post-merge Jira transition off the `MERGED` signal.
+
 ## Never
 
 - Force-push, rewrite published history, or `--force` a base update unless the
   prompt explicitly tells you to.
-- Merge the PR yourself (unless explicitly told to).
+- Merge the PR yourself — unless explicitly told to, or you're in auto-mode with
+  every auto-merge condition met and no external-blocker signal (see above).
 - Commit secrets, or commit unrelated changes sitting in the working tree.
 - Reply to, resolve, or dismiss review threads on the user's behalf.
 
@@ -92,12 +118,17 @@ reads:
 
 - `STATUS: DONE` — checks green AND `reviewDecision` is APPROVED AND mergeable
   AND no unresolved human review threads. Nothing left; the loop should stop.
+  (Not auto-mode, or auto-mode with an external-blocker signal present — either
+  way, you stopped short of merging.)
 - `STATUS: WORKING` — there is progress to wait on: you pushed a fix or base
   update, OR checks are still running/pending (nothing to fix yet). CI needs
   time; the loop should check again.
 - `STATUS: WAITING` — blocked on a human: unresolved review comments to address,
   a conflict needing judgment, or the anti-flail guard tripped. Nothing changes
   without human action; say exactly what you're waiting on. The loop should stop.
+- `STATUS: MERGED` — auto-mode only: all auto-merge conditions held, no
+  external-blocker signal, and you merged the PR. Report the merge commit SHA.
+  The loop should stop; the orchestrator fires the post-merge Jira transition.
 
 State what you did as fact only for what you actually ran and verified. If a push
 or check fetch failed, report it with the output rather than assuming success.

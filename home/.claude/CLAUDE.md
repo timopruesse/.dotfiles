@@ -97,11 +97,15 @@ Roughly the PR lifecycle, front to back:
   wires the otherwise command-less `committer`.
 - **`/open-pr [base]`** — open a ready-for-review PR from the current branch:
   why-focused title/body from the branch's commits+diff → preview → `go` opens it,
-  Jira key linked. No pre-flight. Offers opt-in Jira transition + `/babysit-pr`.
+  Jira key linked. No pre-flight. Fires the In-Review transition and advances to
+  `/babysit-pr` (auto under mode B, one-line offer/gate under mode A).
 - **`/babysit-pr [pr]`** — self-looping shepherd for one PR (or the current
-  branch's PR).
+  branch's PR). In auto-mode (launched inside a `/ship` chain) it may **conditionally
+  auto-merge** — only if approved + green + mergeable + no unresolved threads + not
+  draft + no external-blocker (fail-closed); on merge it reports `MERGED` and the
+  command fires the ticket's Ready-for-Release transition.
 - **`/babysit-fleet`** — single fleet loop fanning `pr-babysitter` over all your
-  open PRs; one wakeup, stops when every PR is `DONE`/`WAITING`.
+  open PRs; one wakeup, stops when every PR is `DONE`/`WAITING`/`MERGED`.
 - **`/address-reviews [pr]`** — work through unresolved review threads on your PR:
   applies code (via `worker` + `verifier` gate) after a preview, drafts replies
   for you to post. Never posts/resolves threads. Single PR.
@@ -114,8 +118,33 @@ Roughly the PR lifecycle, front to back:
   batch-gate here; ready tickets are handed to `/dispatch` (which owns the
   Boba-label vs `/start` + `worker` branch). Red PRs through `/babysit-pr`. Never
   auto-dispatches.
+- **`/ship <JIRA-KEY>`** — the mode-B entry to the spine: exactly
+  `/dispatch <KEY> --auto`. Runs one ticket end-to-end **unattended**, auto-approving
+  the deterministic gates and stopping only at judgment calls (design snag,
+  `verifier` BREAKS, `WAITING`, Boba `BLOCKED`, external-blocker on a merge
+  candidate, error). Ends by launching the async loop (`/babysit-pr` or
+  `/watch-boba`) and returning. The hubs expose the same via a `ship <nums>` selector
+  (explicit numbers only — no bare `ship`).
+
+## Two run modes + the handoff spine
+
+The commands from `/dispatch` to a mergeable/merged PR form an **auto-chaining
+spine**, run in one of two modes:
+
+- **Mode A (default)** — each step auto-invokes its successor, but **pauses at every
+  preview gate** for a one-word `go`. You never navigate or re-type the next command;
+  you still confirm each gate.
+- **Mode B (opt-in, via `/ship` / `--auto` / hub `ship`)** — runs the spine through,
+  **auto-approving deterministic gates** and stopping only at judgment calls,
+  including the fail-closed **conditional auto-merge**.
+
+Both share one contract — the spine + successors, the `ADVANCE`/`HALT` terminal line
+every spine step emits, the AUTO-vs-STOP taxonomy, and the Jira lifecycle mapping
+(In Progress → In Review → Ready for Release) — defined once in
+[`HANDOFF-PROTOCOL.md`](HANDOFF-PROTOCOL.md). It's the synchronous sibling of
+`LOOP-PROTOCOL.md`; change the spine, the vocabulary, or the taxonomy there.
 
 The three self-looping commands (`/babysit-pr`, `/babysit-fleet`, `/watch-boba`)
-share one contract — the `STATUS:` vocabulary and the `ScheduleWakeup` cadence —
-defined once in [`LOOP-PROTOCOL.md`](LOOP-PROTOCOL.md). Change the cadence or the
-enum there, not in each command.
+share the other contract — the `STATUS:` vocabulary and the `ScheduleWakeup`
+cadence — defined once in [`LOOP-PROTOCOL.md`](LOOP-PROTOCOL.md). Change the cadence
+or the enum there, not in each command.

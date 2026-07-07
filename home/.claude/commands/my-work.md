@@ -44,21 +44,31 @@ verdict (`boba` / `no-boba`) to pass down to `/dispatch` at step 3.
 
 ## 3. Dispatch (the easy path)
 
-I reply with a terse selector: `all`, `go`, specific numbers (`1 3 5`), or
-`all but 2`. Then:
+I reply with a terse selector: `all`, `go`, `ship <nums>`, specific numbers
+(`1 3 5`), or `all but 2`. Then:
 
 - **Resolve the selection.** Bare `go`/`all` means the **safe-to-auto set only**:
   ready Jira tickets + CI-red PRs. Deliberately EXCLUDE anything flagged **needs
   you** (design-input tickets, review-comment PRs) — those I dispatch only when I
   name their numbers explicitly.
-- **Show the dispatch plan and STOP for one confirmation.** Print a one-screen
-  plan grouped by action: each selected item → the label/command it'll run → a
-  one-line intent. This is the only thing I see before it runs.
+- **`ship <nums>` is mode B** (pre-authorized) per
+  [`~/.claude/HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md) — the named items run
+  through, auto-approving downstream AUTO gates instead of pausing at each.
+  **Explicit numbers are required; there is no bare `ship`** — a whole-queue
+  unattended run is deliberately not offered. `go`/`all`/numbers stay mode A:
+  normal per-gate confirm.
+- **Show the dispatch plan and STOP for one confirmation** — for `go` and `ship`
+  alike. Print a one-screen plan grouped by action: each selected item → the
+  label/command it'll run → a one-line intent. This is the only thing I see
+  before it runs; for a `ship` selection this one confirmation IS the
+  pre-authorization — only the per-step gates downstream are skipped, not this
+  batch gate.
 - On my `go`, act on each selected item in parallel and report back as each returns:
-  - **Ready Jira ticket** → `/dispatch <KEY> <verdict>`, passing the per-project
-    Boba verdict from step 2 (`boba` / `no-boba`) so it doesn't re-probe. `/dispatch`
-    owns the mechanism: label for the Boba pipeline or scaffold via `/start` +
-    `worker`, then offer the opt-in `/watch-boba` and Jira transition.
+  - **Ready Jira ticket** → `/dispatch <KEY> <verdict>` (append `--auto` if it was
+    selected via `ship`), passing the per-project Boba verdict from step 2
+    (`boba` / `no-boba`) so it doesn't re-probe. `/dispatch` owns the mechanism:
+    label for the Boba pipeline or scaffold via `/start` + `worker`, then offer
+    the opt-in `/watch-boba` and Jira transition.
   - **CI-red PR** → `/babysit-pr <n>`; etc.
 
 Keep the common case frictionless: `/my-work` → glance → `go` → glance at plan →

@@ -26,3 +26,17 @@ redesign it.
   so with the output instead of forcing a workaround.
 - State what you did as fact only for what you actually changed and verified;
   flag anything you assumed.
+
+## Report — end with a terminal line
+
+You're a step in the local spine (`/dispatch` → `/start` → `worker` → `/land` →
+`/open-pr` → `/babysit-pr`), defined in `HANDOFF-PROTOCOL.md`. Agents can't read
+that file at spawn time, so restate the contract here: end every run with
+exactly one of:
+
+- `ADVANCE → /land` — the change is made and the relevant checks/lint/tests pass
+  (or none exist); the spine's next step is `/land`.
+- `HALT: <reason>` — you hit a genuine design decision, an ambiguity the spec
+  doesn't resolve, a spec that's wrong given the code, or a check you can't make
+  pass — exactly the "stop and report back" cases above. This is the signal the
+  task needed Opus, not more effort from you.

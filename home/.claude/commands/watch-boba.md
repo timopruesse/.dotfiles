@@ -24,10 +24,14 @@ Each iteration:
      stop the turn — the wakeup resumes the loop.
 
    - **`STATUS: DONE`** — Boba opened a PR. Do NOT schedule another `boba-watcher`
-     sweep; the ticket→code phase is over. Hand off to the PR lifecycle: invoke
-     `/babysit-pr <PR-URL-or-number>` (from the URL the watcher extracted) to
-     shepherd the new PR toward mergeable. Tell me the PR link and that babysitting
-     has taken over. The watch loop ends here.
+     sweep; the ticket→code phase is over. This is the boba branch's "PR opened"
+     event, so fire the **In Review** Jira transition per
+     [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md)'s lifecycle mapping (`/open-pr`
+     never ran on this branch) — AUTO under mode B, a one-line offer under mode A;
+     idempotent and forward-only. Then hand off to the PR lifecycle: invoke
+     `/babysit-pr <PR-URL-or-number>` (from the URL the watcher extracted, inheriting
+     the run's mode) to shepherd the new PR toward mergeable. Tell me the PR link and
+     that babysitting has taken over. The watch loop ends here.
 
    - **`STATUS: BLOCKED`** — Boba bailed asking for more information. This is the
      auto-unblock path, and it is GATED — I confirm before anything touches the ticket:

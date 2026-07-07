@@ -4,7 +4,10 @@ argument-hint: "<JIRA-KEY> (e.g. ECW-1060)"
 ---
 
 Start work on the Jira ticket `$ARGUMENTS` by scaffolding an isolated worktree and
-branch. Do NOT auto-implement — scaffold, orient, and hand off on my say-so.
+branch, then orient and auto-advance into `worker`. This is the local branch of
+`/dispatch`'s spine (see [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md)) — it no
+longer waits on a separate "go" to hand off; `worker`'s own downstream gates
+(`/land`'s commit preview, etc.) are where mode A actually pauses.
 
 ## 1. Self-prune stale worktrees first (safe)
 
@@ -44,11 +47,15 @@ branch. Do NOT auto-implement — scaffold, orient, and hand off on my say-so.
 ## 4. Orient + hand off
 
 - Print the ticket summary + acceptance criteria as working context.
-- **Offer** the opt-in Jira transition (To Do → In Progress) — only do it if I say
-  yes; never silently.
-- **Offer** to hand the ticket to `worker` (running in the new worktree, with the
-  ticket AC as the spec). Do not start implementation unless I say go.
+- Fire the "work starts" Jira transition (To Do → In Progress) per
+  [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md)'s Jira lifecycle mapping:
+  **AUTO** under mode B (fire it via the Atlassian MCP without asking); under mode
+  A, a one-line **offer** — only do it if I say yes; never silently.
+- **Auto-advance** into `worker`, running in the new worktree with the ticket AC
+  as the spec — under mode A this still just runs `worker` (its own first gate is
+  `/land`'s commit preview, so nothing is skipped by advancing here); under mode B
+  the same.
 
 If the worktree already exists for this key, don't recreate it — just report its
-path and orient. Report failures (fetch, worktree add) with the error rather than
-proceeding blindly.
+path and orient. `ADVANCE → worker` on success; `HALT: <reason>` if the worktree
+fetch/add fails rather than proceeding blindly.
