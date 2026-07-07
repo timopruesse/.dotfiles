@@ -51,6 +51,11 @@ the spawn.
 
 Roughly the PR lifecycle, front to back:
 
+- **`/open-work [board]`** — browse the active sprint's open items on a board
+  (defaults to `ECW`) as a pick-from pool, not just what's assigned to me. Lists
+  open items with ready/needs-you + ownership flags; I pick numbers (no bare
+  `go`/`all`), and behind a plan-preview gate each starts via the same
+  board-branched dispatch as `/my-work` (Boba label vs `/start` + `worker`).
 - **`/start <JIRA-KEY>`** — scaffold a ticket: self-prune stale worktrees, then
   create a fresh worktree at `~/worktrees/<repo>/<KEY>` + branch `<KEY>-<slug>`
   off `main`, load the ticket's AC as context, offer the opt-in Jira transition.
