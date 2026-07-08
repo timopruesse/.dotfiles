@@ -115,7 +115,7 @@ tasks:
     commands:
       - run:
           commands:
-            - "brew install git tmux ripgrep fzf fd bat git-delta wget keychain cmake pkg-config eza fswatch luarocks zoxide"
+            - "brew install git tmux ripgrep fzf fd bat git-delta wget keychain cmake pkg-config eza fswatch luarocks zoxide terminal-notifier"
 
   atuin_linux:
     os: ["linux"]
