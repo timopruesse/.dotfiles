@@ -33,6 +33,14 @@ Each iteration:
    `verifier` gate for any behavior-changing fix per the model-routing rules),
    push, and keep the loop going; unpicked items are dropped. Never fix them
    unprompted — the point of the list is that I choose.
+   Then, **for each picked item whose fix actually landed** (committed + pushed;
+   `verifier` did not return `BREAKS`), post a short acknowledgement reply to
+   that item's review thread — "Done in `<sha>` — <one line>", using the thread
+   reference the agent carried on the item — and resolve the thread. Post +
+   resolve **only** on the applied fix: if `verifier` returned `BREAKS` and you
+   held the push, or the reply wouldn't make sense for that comment, leave the
+   thread untouched and surface it instead. This is the one place the PR path
+   posts on my behalf, and it's scoped to work I objectively completed.
 3. Read the agent's terminal `STATUS:` line and act on it:
 
    - **`STATUS: WORKING`** — reschedule per the loop protocol (`prompt` =

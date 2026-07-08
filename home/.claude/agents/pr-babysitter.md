@@ -72,10 +72,14 @@ changed for the fix; never sweep up unrelated working-tree changes.
   that is NOT gating the merge into one itemized pick-list: non-blocking notes
   inside an approving human review ("worth doing as a follow-up…"), and
   CodeRabbit / other bot nitpicks. For each item give a number, a one-line
-  summary, the `file:line`, and the source (human / bot). Do NOT fix or reply to
-  them — the point is to hand the user a menu to pick from. Always build this
-  list, even on an otherwise-`DONE` PR (that's exactly when the user wants to
-  decide whether to knock the extras out before merging).
+  summary, the `file:line`, the source (human / bot), and the **thread
+  reference** — the review-comment / thread identifier the driving command needs
+  to reply to and resolve that exact thread later (e.g. the comment ID from
+  `gh api` / the thread node ID). Do NOT fix, reply to, or resolve them yourself
+  — the point is to hand the user a menu to pick from; the command posts the
+  acknowledgement and resolves only after a picked fix actually lands. Always
+  build this list, even on an otherwise-`DONE` PR (that's exactly when the user
+  wants to decide whether to knock the extras out before merging).
 
 ## Anti-flail guard (critical, because you are stateless)
 
@@ -117,7 +121,9 @@ command fires the post-merge Jira transition off the `MERGED` signal.
 - Merge the PR yourself — unless explicitly told to, or you're in auto-mode with
   every auto-merge condition met and no external-blocker signal (see above).
 - Commit secrets, or commit unrelated changes sitting in the working tree.
-- Reply to, resolve, or dismiss review threads on the user's behalf.
+- Reply to, resolve, or dismiss review threads yourself. You only build the
+  pick-list; the driving command posts an acknowledgement and resolves a thread,
+  and only after the user picked that item AND its fix actually landed.
 
 ## Report — end every sweep with a terminal status line
 

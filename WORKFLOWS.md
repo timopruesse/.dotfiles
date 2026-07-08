@@ -52,12 +52,12 @@ flowchart TD
         HUM2(["needs you<br/>reviews / conflict"])
     end
 
-    subgraph rev["🔍 Review · draft-only"]
+    subgraph rev["🔍 Review · draft-first"]
         RR(["/review-requests"])
         PRR["pr-reviewer"]
         DR(["draft review<br/>you post"])
         AR(["/address-reviews"])
-        DRP(["draft replies<br/>you post"])
+        DRP(["applied → reply + resolve<br/>questions → draft"])
     end
 
     SCOUT["scout"]
@@ -150,7 +150,10 @@ flowchart TD
   `/babysit-pr` instead of `/open-pr`.
 - **Red "needs you"** nodes are where a flow deliberately STOPS for a human: the
   design philosophy is *auto-fix the deterministic, surface the judgment calls*.
-  Nothing posts to GitHub or resolves a review thread on your behalf.
+  The one carve-out: a review thread whose fix you actually applied and pushed
+  gets an acknowledgement reply posted and the thread resolved
+  (`/address-reviews`, and `/babysit-pr` on a picked nitpick) — scoped to work
+  objectively completed. Anything needing your position stays a draft you post.
 - Two self-looping loops (`/watch-boba` → `boba-watcher`, `/babysit-pr` →
   `pr-babysitter`) re-fire on an interval via `ScheduleWakeup` and terminate
   themselves on `DONE` / `WAITING` / `MERGED`. The `STATUS:` vocabulary and the

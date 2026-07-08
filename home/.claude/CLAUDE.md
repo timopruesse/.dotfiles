@@ -107,8 +107,9 @@ Roughly the PR lifecycle, front to back:
 - **`/babysit-fleet`** — single fleet loop fanning `pr-babysitter` over all your
   open PRs; one wakeup, stops when every PR is `DONE`/`WAITING`/`MERGED`.
 - **`/address-reviews [pr]`** — work through unresolved review threads on your PR:
-  applies code (via `worker` + `verifier` gate) after a preview, drafts replies
-  for you to post. Never posts/resolves threads. Single PR.
+  applies code (via `worker` + `verifier` gate) after a preview, then posts an
+  acknowledgement reply and resolves the thread **only for a fix that actually
+  landed**; question/design threads stay drafts you post. Single PR.
 - **`/review-requests`** — draft-only fan-out of `pr-reviewer` over every PR
   awaiting your review. Never posts.
 - **`/ship-digest [since]`** — retrospective: what you shipped (git + merged PRs
