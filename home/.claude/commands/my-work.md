@@ -18,10 +18,15 @@ trailing `gh`/`jira` scope applies to either shape.
 
 Spawn `scout` calls concurrently so the token-fat raw output stays isolated:
 
-- **My open PRs** (`gh search prs --author=@me --state=open`) — and for each, its
-  CI state (`gh pr checks`) and whether there are review comments waiting on me.
-- **Review requests** (`gh search prs --review-requested=@me --state=open`).
+- **My open PRs** (`gh search prs --author=@me --state=open --archived=false`) —
+  and for each, its CI state (`gh pr checks`) and whether there are review
+  comments waiting on me.
+- **Review requests** (`gh search prs --review-requested=@me --state=open --archived=false`).
 - **My assigned Jira tickets** that are open/in-progress (via the Atlassian MCP).
+
+Always pass `--archived=false` on both `gh search prs` calls: a PR (or review
+request) in an archived repo is un-actionable — the repo is read-only, so it can
+never merge — and surfacing it just adds dead noise to the hub.
 
 ## 2. Present a numbered, actionable list
 
