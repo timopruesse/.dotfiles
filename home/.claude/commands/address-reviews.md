@@ -1,15 +1,16 @@
 ---
-description: Work through unresolved review threads on your PR — apply code (gated), reply + resolve applied threads
+description: Work through unresolved review threads on your PR — apply code (gated); ack reply + resolve on landed fixes go through automatically
 argument-hint: "[pr number] (default: current branch's PR)"
 ---
 
 Help me address the unresolved review comments on ONE pull request (`$ARGUMENTS`,
-else the current branch's PR). Boundary: after I confirm, you may **apply code**
-to my branch and — **only for a thread whose fix you actually applied and pushed**
-— post an acknowledgement reply and resolve that thread. Anything needing my
-position (questions, design pushback, or a fix I didn't apply) stays a **draft I
-post myself**; never invent a stance in my name or resolve a thread I didn't act
-on.
+else the current branch's PR). Boundary: after I confirm the **code** changes, you
+may **apply code** to my branch and — **only for a thread whose fix you actually
+applied and pushed** — post an acknowledgement reply and resolve that thread
+**without a separate approval** (these mechanical acks are not gated). Anything
+needing my position (questions, design pushback, or a fix I didn't apply) stays a
+**draft I post myself**; never invent a stance in my name or resolve a thread I
+didn't act on. The gate is over the code, not the acks.
 
 ## 1. Gather (read-only)
 
@@ -28,13 +29,16 @@ on.
 - For each **code-change** thread: hand the change to `worker` (the reviewer's
   comment is the spec) in this branch's working tree; because it's addressing
   correctness feedback, run the result through the `verifier` gate. Prepare a
-  short acknowledgement reply (e.g. "Done in `<sha>` — <one line>") that I'll
-  **post and resolve** on apply.
+  short acknowledgement reply (e.g. "Done in `<sha>` — <one line>") that will
+  **post + resolve automatically** once the fix lands — it is *not* part of the
+  gate.
 - For each **question** thread: draft a *suggested* reply but flag it **needs your
   answer** — never invent a design position in my name. These stay drafts.
-- Present ONE preview: the proposed code diffs (grouped) + every reply, each
-  tagged to its thread and marked whether it'll be **posted + resolved** (applied
-  code-change) or left a **draft** (question). STOP for my `go`.
+- Present ONE preview covering only what I sign off on: the proposed **code diffs**
+  (grouped), each tagged to its thread. For context, also list the prepared ack
+  replies (marked **auto — posts + resolves on the landed fix**) and the question
+  drafts (marked **draft — I post**), but I'm approving the code, not the replies.
+  STOP for my `go`.
 
 ## 4. Apply (on my `go`)
 
@@ -42,8 +46,9 @@ on.
   `worker` already did the edit; commit with a why-focused message).
 - For each **code-change** thread whose fix actually landed (pushed; `verifier`
   did not return `BREAKS`), post its acknowledgement reply to that thread and
-  resolve it. Post + resolve only on the applied fix — a fix I skipped or one the
-  `verifier` broke leaves its thread untouched.
+  resolve it — **automatically, no separate approval**. Post + resolve only on the
+  applied fix — a fix I skipped or one the `verifier` broke leaves its thread
+  untouched. (The landed-fix condition, not my sign-off, is what gates the ack.)
 - For **question** threads, leave the reply as a draft in my output — I post
   those. Do NOT approve/submit a review, and never resolve a thread you didn't
   apply a fix for.
