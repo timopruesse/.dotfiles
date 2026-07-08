@@ -83,8 +83,12 @@ loop reads:
 
 - `STATUS: DONE` — Boba opened a PR. Put the PR URL on the same line or the line
   above (e.g. `PR: https://github.com/chewielabs/ChewieWeb/pull/2552`).
-- `STATUS: WORKING` — Boba holds the ticket, no terminal signal yet (queued,
-  analyzing, or retrying). The loop should check again.
+- `STATUS: WORKING — pending` — Boba holds the ticket, no terminal signal yet
+  (queued or analyzing). Your sweep is read-only and did no work, so this is always
+  `pending`; the loop backs off per `LOOP-PROTOCOL.md` instead of re-reading Jira
+  every ~270s. Exception: if this sweep is the FIRST to see "Boba Fetch is retrying
+  this ticket" (a fresh state change after a bail), say so — the driver resets to a
+  tight cadence to catch the resulting PR promptly.
 - `STATUS: BLOCKED` — Boba bailed for more info. Include the verbatim Reason and
   Suggestions, and `REPEATED-BAIL` if it's the 2nd+ bail.
 - `STATUS: WAITING` — no longer Boba's to move: label gone / never picked up, or a

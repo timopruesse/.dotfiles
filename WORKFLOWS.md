@@ -127,9 +127,9 @@ flowchart TD
     classDef done    fill:#bbf7d0,stroke:#15803d,color:#052e16;
 
     class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND,SHIP command;
-    class SCOUT,BW,WK,PRB,PRR sonnet;
+    class BW,WK,PRB,PRR sonnet;
     class VER opus;
-    class CM haiku;
+    class CM,SCOUT haiku;
     class DISP,PG,VG,LPG,PRQ,AM gate;
     class HUM1,HUM2 human;
     class MERGE,MRG done;
@@ -140,7 +140,9 @@ flowchart TD
 - **Rounded blue** nodes are slash **commands** you invoke; **rectangles** are
   **subagents** they spawn. **Hexagons** are decision / preview **gates**.
 - Node colors encode the model pin: 🟢 Sonnet, 🟣 Opus (`verifier`), ⚪ Haiku
-  (`committer`).
+  (`committer`, `scout`). `scout` is the cheap Haiku LOCATE/gather retriever; its
+  Sonnet sibling `scout-explain` (deep subsystem walkthroughs) isn't wired into the
+  lifecycle flows, so it's listed in the table below rather than drawn here.
 - The single **`verifier`** node is one agent invoked from several flows (the
   `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
   arrows show its reuse, not multiple agents.
@@ -186,7 +188,8 @@ flowchart TD
 
 | Agent | Model | Role | Driven by |
 |---|---|---|---|
-| `scout` | Sonnet | read-only retrieval / codebase explain | gather in `/my-work`, `/open-work`, `/ship-digest`; Boba unblock locate |
+| `scout` | Haiku | read-only LOCATE / gather (excerpts, `file:line`, compact query results) | gather in `/my-work`, `/open-work`, `/ship-digest`; Boba unblock locate |
+| `scout-explain` | Sonnet | read-only EXPLAIN — full-subsystem architecture/data-flow walkthrough | ad-hoc, when understanding (not locating) is the goal |
 | `worker` | Sonnet | implementer for concrete, low-ambiguity specs | `/start`, `/address-reviews`, Boba unblock |
 | `verifier` | Opus | adversarial correctness gate (tries to BREAK a change) | `/land` gate, `pr-babysitter`, `pr-reviewer` |
 | `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor) |

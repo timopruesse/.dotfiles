@@ -7,7 +7,7 @@ Produce a digest of what I SHIPPED over the timeframe in `$ARGUMENTS` (default:
 last 24h). This is retrospective — the sibling of `/my-work`, which is
 prospective.
 
-Fan out the retrieval to `scout` (Sonnet, cheap; keeps the token-fat raw output
+Fan out the retrieval to `scout` (Haiku, cheap; keeps the token-fat raw output
 out of this thread) — spawn these in parallel, one `scout` call each:
 
 1. **Git** — my authored/merged commits across the relevant repos in the

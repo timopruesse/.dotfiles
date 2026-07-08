@@ -38,7 +38,7 @@ driving command reads:
 
 | STATUS | Meaning | Command does |
 |---|---|---|
-| `WORKING` | Progress to wait on — a fix/update was pushed, or checks/analysis are still running. Nothing to decide. | **Reschedule** the next sweep (see cadence). |
+| `WORKING` | Progress to wait on. The agent marks one of two flavors: **progress** (a fix/rebase/body update was pushed *this* sweep) or **pending** (nothing to do — checks/analysis still running, no failure to fix). | **Reschedule** — but the cadence depends on the flavor (see below). |
 | `DONE` | Terminal success — the loop's goal is reached (PR mergeable, or Boba opened a PR). | **Stop.** Hand off if the flow specifies one (e.g. `boba-watcher` DONE → `/babysit-pr`). |
 | `WAITING` | Blocked on a human — review comments, a real conflict, anti-flail tripped, or a human took the ticket over. | **Stop.** Say exactly what needs the human. |
 | `BLOCKED` | *(Boba only)* Boba bailed for more info. | Run the command's gated unblock path; do **not** treat as WORKING. |
@@ -52,12 +52,30 @@ On `WORKING` (and after a confirmed Boba unblock), schedule the next sweep by
 re-firing the **same command** — set `prompt` to the exact invocation
 (`/babysit-pr $ARGUMENTS`, `/babysit-fleet $ARGUMENTS`, `/watch-boba $ARGUMENTS`).
 
-- **Delay ~270s by default.** Keep it **under 300s** so the Anthropic prompt cache
-  (5-minute TTL) stays warm — a longer sleep reads the whole loop context uncached,
-  slower and costlier.
-- Go **shorter (~180s)** when the target looked close to a terminal state (a PR
-  nearly green). Boba's transitions land on a minutes timescale (analysis/bail in a
-  minute or two, a PR in several), so ~270s fits it too.
+> **What actually costs tokens per tick.** The ~270s "cache-warm" window below
+> keeps the *wakeup turn* cheap (the main-session context stays within the 5-minute
+> cache TTL). But the dominant cost per tick is the **sweep agent** — a fresh
+> Sonnet `pr-babysitter`/`boba-watcher` invocation whose context is *not* covered by
+> that cache. So a tight cadence is worth paying only when a terminal-state race is
+> live (something changed, or a flip is imminent); while purely idle-waiting it just
+> burns sweeps. Hence the flavor split:
+
+- **Baseline ~270s, kept under 300s** so the Anthropic prompt cache (5-minute TTL)
+  stays warm for the wakeup turn.
+- **`WORKING — progress`, or near-terminal** (a fix/rebase just landed, or the PR
+  looked nearly green): keep it **tight** — ~270s, or **~180s** when a terminal
+  state looks close. Something moved; check back soon.
+- **`WORKING — pending`** (nothing to do — checks/analysis still running): **back
+  off.** Double the delay on each *consecutive* pending sweep — 270 → 540 → 900 —
+  capping at ~900s. Idling at 270s spends a Sonnet sweep every 4.5 min to re-learn
+  "still running." **Snap back** to the tight cadence the instant a sweep reports
+  `progress`, goes near-terminal, or shows any state change. Track the
+  consecutive-pending count in the main session — its context survives each
+  `ScheduleWakeup`, so the current delay carries across wakeups.
+- Boba's transitions land on a minutes timescale (analysis/bail in a minute or two,
+  a PR in several); a `boba-watcher` sweep is read-only and does no work, so treat
+  its `WORKING` as `pending` and let the backoff apply — except reset to ~270s on a
+  freshly-observed "retrying" (a real state change worth catching promptly).
 - After scheduling, **stop the turn** — the wakeup resumes the loop.
 
 ## Self-termination

@@ -3,18 +3,21 @@
 > A visual flow graph of these commands + agents is in
 > [`WORKFLOWS.md`](../../WORKFLOWS.md).
 
-Eight user-scoped agents live in the `.dotfiles` repo
-(`home/.claude/agents/`) and are symlinked into `~/.claude/`. `scout`, `sweep`,
-`worker`, `pr-babysitter`, `pr-reviewer`, and `boba-watcher` are pinned to
-Sonnet 5; `committer` is pinned to Haiku (routine plumbing); `verifier` is pinned
-to Opus (adversarial reasoning — see below).
+Nine user-scoped agents live in the `.dotfiles` repo
+(`home/.claude/agents/`) and are symlinked into `~/.claude/`. `sweep`, `worker`,
+`pr-babysitter`, `pr-reviewer`, `boba-watcher`, and `scout-explain` are pinned to
+Sonnet 5; `committer` and `scout` are pinned to Haiku (routine plumbing / cheap
+retrieval); `verifier` is pinned to Opus (adversarial reasoning — see below).
 
-- **`scout`** — read-only exploration, two modes. LOCATE (default): pinpoint
-  "where/how does X work" via excerpts + `file:line`. EXPLAIN: read a subsystem
-  in full and return an architecture/data-flow walkthrough to understand a
-  codebase. Say "explain" in the prompt for the second mode. Prefer it over the
-  built-in `Explore`/`general-purpose` agents for pure retrieval/understanding,
-  since those inherit Opus.
+- **`scout`** (Haiku) — read-only LOCATE agent: pinpoint "where/how does X work"
+  via excerpts + `file:line`, or run a read-only gather (a `gh`/JQL query, a
+  search) and return a compact result. The cheap default retriever the hubs and
+  lifecycle commands fan out to. Prefer it over the built-in
+  `Explore`/`general-purpose` agents for pure retrieval, since those inherit Opus.
+- **`scout-explain`** (Sonnet) — read-only EXPLAIN agent: read a subsystem in full
+  and return an architecture/data-flow walkthrough to *understand* a codebase.
+  Reach for it (not `scout`) when depth of understanding is the point — that's what
+  justifies Sonnet over Haiku here.
 - **`sweep`** — mechanical fix loops (tsc/type errors, lint, formatting).
 - **`worker`** — implementer for small, clearly-specified coding changes. Use
   over the Opus `general-purpose` agent only when the spec is concrete and

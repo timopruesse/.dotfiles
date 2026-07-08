@@ -30,7 +30,12 @@ sweeps except what you can read from git and GitHub right now.
 - `gh pr view <pr> --json number,title,body,headRefName,baseRefName,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,commits`
 - `gh pr checks <pr>` for the check summary; for failures, pull the actual logs
   (`gh run view <run-id> --log-failed`, or the job log) — diagnose from real
-  output, never guess why a check is red.
+  output, never guess why a check is red. **Fetch logs surgically**: these logs run
+  to megabytes, and dumping a whole one into your context is both expensive and
+  worse for diagnosis. Grep/tail for the failure (`gh run view <run-id> --log-failed
+  | grep -iE -A5 'error|fail|✕|panic' | tail -n 200`, or scope to the failing job)
+  and pull more only if the excerpt isn't enough. Never ingest an entire passing or
+  full log.
 - Unresolved review threads: `gh api` the PR review comments / use
   `gh pr view --json reviews`. Distinguish human review comments from bot/CI
   annotations.
@@ -137,9 +142,13 @@ fix.
   AND no unresolved human review threads. Nothing left; the loop should stop.
   (Not auto-mode, or auto-mode with an external-blocker signal present — either
   way, you stopped short of merging.)
-- `STATUS: WORKING` — there is progress to wait on: you pushed a fix or base
-  update, OR checks are still running/pending (nothing to fix yet). CI needs
-  time; the loop should check again.
+- `STATUS: WORKING` — there is progress to wait on; the loop should check again.
+  Mark which flavor so the loop can pace itself (per `LOOP-PROTOCOL.md`'s cadence):
+  - `STATUS: WORKING — progress` when you pushed something this sweep (a CI fix, a
+    clean rebase, or a body update). Something changed; the loop stays tight.
+  - `STATUS: WORKING — pending` when there was nothing to do — checks are still
+    running and there's no failure to fix, no drift, no stale body. The loop backs
+    off instead of re-sweeping every ~270s while CI churns.
 - `STATUS: WAITING` — blocked on a human: unresolved review comments to address,
   a conflict needing judgment, or the anti-flail guard tripped. Nothing changes
   without human action; say exactly what you're waiting on. The loop should stop.
