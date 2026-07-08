@@ -105,6 +105,16 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 | `clist` | — | List all tmux panes running Claude across sessions |
 | `cj` | — | fzf picker to jump to a running Claude agent |
 
+## Mermaid (`mermaid.zsh`)
+
+| Function | Command | Description |
+|----------|---------|-------------|
+| `mermaid <file.mmd>` | — | Render a raw `.mmd`/`.mermaid` file in the browser |
+| `mermaid <file.md>` | — | Render every ` ```mermaid ` block in a markdown file |
+| `… \| mermaid` | — | Render from stdin (also `mermaid -`) |
+
+Renders diagrams with the same `mermaid.js` engine GitHub uses (loaded from a CDN), so the preview matches what GitHub will show — handy for eyeballing a diagram before pushing. Opens in the default browser (`open` on macOS, `$BROWSER`/`wslview` on WSL, `xdg-open` on Linux). Needs a browser + internet on first load.
+
 ## Shell tooling
 
 Interactive enhancements wired into the shell (not aliases, but worth knowing):
