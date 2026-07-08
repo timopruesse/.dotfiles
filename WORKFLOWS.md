@@ -68,6 +68,7 @@ flowchart TD
     MW -->|"assigned Jira · ready"| DSP
     MW -->|"CI-red PR"| BP
     MW -->|"awaiting my review"| RR
+    MW -.->|"watch · ambient loop"| MW
     OW -->|"pick from pool"| DSP
     SD --> SCOUT
 
@@ -154,10 +155,15 @@ flowchart TD
   gets an acknowledgement reply posted and the thread resolved
   (`/address-reviews`, and `/babysit-pr` on a picked nitpick) — scoped to work
   objectively completed. Anything needing your position stays a draft you post.
-- Two self-looping loops (`/watch-boba` → `boba-watcher`, `/babysit-pr` →
-  `pr-babysitter`) re-fire on an interval via `ScheduleWakeup` and terminate
-  themselves on `DONE` / `WAITING` / `MERGED`. The `STATUS:` vocabulary and the
-  `ScheduleWakeup` cadence they (and `/babysit-fleet`) share are defined once in
+- Self-looping loops come in two **shapes**. **Shepherd** loops (`/watch-boba` →
+  `boba-watcher`, `/babysit-pr` / `/babysit-fleet` → `pr-babysitter`) re-fire on a
+  cache-warm interval via `ScheduleWakeup`, drive one target to a terminal state,
+  and self-terminate on `DONE` / `WAITING` / `MERGED` via the shared `STATUS:`
+  vocabulary. The **hub** loop (`/my-work watch`, the dashed self-edge on `MW`)
+  borrows only the re-fire mechanism: it never converges, emits a per-tick
+  `CHANGES` roll-up instead of `STATUS:`, runs on a slow idle-tick cadence, and
+  stops on your action or an empty queue. Both shapes — the `STATUS:` enum, the two
+  cadences, and the shape split — are defined once in
   [`home/.claude/LOOP-PROTOCOL.md`](home/.claude/LOOP-PROTOCOL.md).
 - The `/dispatch → … → merged` **spine auto-chains** in one of two modes: **A**
   (default) auto-invokes each successor but pauses at every preview gate for a

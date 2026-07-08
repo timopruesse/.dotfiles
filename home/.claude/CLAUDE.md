@@ -118,7 +118,12 @@ Roughly the PR lifecycle, front to back:
   surfaced with one-word dispatch behind a plan-preview gate. Gather + judge +
   batch-gate here; ready tickets are handed to `/dispatch` (which owns the
   Boba-label vs `/start` + `worker` branch). Red PRs through `/babysit-pr`. Never
-  auto-dispatches.
+  auto-dispatches. `/my-work watch` promotes it into an **ambient loop** (the "hub"
+  loop shape in `LOOP-PROTOCOL.md`) that re-gathers on an idle-tick cadence and
+  prints a per-tick `CHANGES` roll-up; unlike the shepherd loops it never converges
+  and emits no `STATUS:` line. Mode A notifies only (invariant intact); the opt-in
+  `watch --auto` pre-authorizes auto-acting on the *safe set only* (ready Jira +
+  CI-red PRs), dispatch-once per item, reporting each `AUTO-ACTED` tick.
 - **`/ship <JIRA-KEY>`** — the mode-B entry to the spine: exactly
   `/dispatch <KEY> --auto`. Runs one ticket end-to-end **unattended**, auto-approving
   the deterministic gates and stopping only at judgment calls (design snag,
@@ -145,7 +150,10 @@ every spine step emits, the AUTO-vs-STOP taxonomy, and the Jira lifecycle mappin
 [`HANDOFF-PROTOCOL.md`](HANDOFF-PROTOCOL.md). It's the synchronous sibling of
 `LOOP-PROTOCOL.md`; change the spine, the vocabulary, or the taxonomy there.
 
-The three self-looping commands (`/babysit-pr`, `/babysit-fleet`, `/watch-boba`)
-share the other contract — the `STATUS:` vocabulary and the `ScheduleWakeup`
-cadence — defined once in [`LOOP-PROTOCOL.md`](LOOP-PROTOCOL.md). Change the cadence
-or the enum there, not in each command.
+The self-looping commands share the other contract — the `ScheduleWakeup`
+re-fire mechanism, plus (for the **shepherd**-shaped loops `/babysit-pr`,
+`/babysit-fleet`, `/watch-boba`) the `STATUS:` vocabulary and cache-warm cadence —
+defined once in [`LOOP-PROTOCOL.md`](LOOP-PROTOCOL.md). `/my-work watch` is a
+fourth looper of the **hub** shape: it borrows only the re-fire mechanism, never
+converges, and emits no `STATUS:` line (see the loop-shapes table there). Change
+the cadence, the enum, or the shape split in that file, not in each command.

@@ -1,11 +1,18 @@
 ---
 description: A hub of your open work (PRs, reviews, Jira) with one-word dispatch into your agents
-argument-hint: "[optional gh/jira scope]"
+argument-hint: "[watch [--auto]] [optional gh/jira scope]"
 ---
 
 Show me my open work for the day as a dispatch hub. Gather, then present an
 actionable, numbered list. NEVER auto-dispatch — dispatching always goes through
 the preview gate in step 3.
+
+**Two shapes.** Bare `/my-work` (and `/my-work <scope>`) is the **one-shot hub**
+below — gather, present, dispatch on a selector, done. `/my-work watch` promotes
+it into an **ambient loop** (the "hub" loop shape in
+[`~/.claude/LOOP-PROTOCOL.md`](../LOOP-PROTOCOL.md)) that re-gathers on an
+interval and reports what changed — see [Watch mode](#watch-mode) at the end. Any
+trailing `gh`/`jira` scope applies to either shape.
 
 ## 1. Gather (fan out to `scout`, in parallel)
 
@@ -74,3 +81,76 @@ I reply with a terse selector: `all`, `go`, `ship <nums>`, specific numbers
 Keep the common case frictionless: `/my-work` → glance → `go` → glance at plan →
 `go`. But the plan preview is a hard gate — never skip it, never dispatch without
 it.
+
+## Watch mode
+
+`/my-work watch [--auto] [scope]` runs the hub as an **ambient loop** — the "hub"
+loop shape defined in [`~/.claude/LOOP-PROTOCOL.md`](../LOOP-PROTOCOL.md). Unlike
+the shepherd loops (`/babysit-pr`, `/watch-boba`), a work hub never converges to a
+terminal state, so it does **not** emit the `STATUS:` enum; it borrows only the
+`ScheduleWakeup` re-fire-same-command mechanism and reports a per-tick roll-up
+instead. It terminates on your action or an empty queue, never on "done."
+
+**State lives in a snapshot file**, not in context — do not assume in-context
+memory survives across wakeups. Persist to the session scratchpad at
+`<scratchpad>/my-work-watch.json` (the scratchpad path is in the system prompt),
+keyed by stable id:
+
+```json
+{ "prs":  { "142": { "ci": "red", "reviewComments": 3, "mergeable": false } },
+  "jira": { "ECW-88": { "status": "In Progress", "assignee": "me" } },
+  "reviewRequests": ["owner/repo#77"],
+  "dispatched": ["142", "ECW-88"] }
+```
+
+Each tick:
+
+1. **Gather** — exactly step 1 above (the `scout` fan-out), honoring any `scope`.
+2. **Diff against the prior snapshot** and print a `CHANGES SINCE LAST TICK` block
+   *above* the hub. Compare field-by-field on stable keys (PR number, `KEY`,
+   `repo#n`):
+   - 🆕 new assigned ticket / new review request
+   - 🔴→🟢 · 🟢→🔴 CI transition on your PR
+   - 💬 new review comments waiting on you (count delta)
+   - ✅ Boba landed a PR / a PR became mergeable
+   - ➖ item left the queue (merged, closed, reassigned)
+   On the **first tick** print `baseline — N items` (no diff).
+3. **Render the numbered hub** — byte-for-byte the step 2 output, so every
+   dispatch selector (`go`, `ship <nums>`, `1 3 5`, `all but 2`) works unchanged.
+   You can type a selector at any tick; it drops straight into step 3's gated
+   dispatch path.
+4. **Persist the snapshot** (including `dispatched`), then `ScheduleWakeup`
+   re-firing `/my-work watch [--auto] [scope]` and **stop the turn**.
+
+**Cadence — idle-tick, not cache-warm.** A hub has no terminal-state race, so the
+~270s shepherd cadence does not apply; use the idle-tick regime (~15–30 min,
+`delaySeconds` ≈ 1200) per `LOOP-PROTOCOL.md`'s hub-shape rule. Checking sooner
+buys nothing because hub state moves on a minutes-to-hours scale.
+
+**Termination.** Stop the loop (don't reschedule) when: you say stop, you dispatch
+a selection (hand off, then offer to resume watching), or the queue is empty.
+Never stop on convergence — there isn't any.
+
+### Mode A vs B (the `--auto` flag)
+
+- **`/my-work watch` → mode A (default): notify only.** The `CHANGES` block is
+  informational; you still type a selector to act. The `NEVER auto-dispatch`
+  invariant at the top of this file holds exactly.
+- **`/my-work watch --auto` → mode B: auto-act on the safe set.** Entering
+  `--auto` **is** the pre-authorization, identical in spirit to `ship <nums>` per
+  [`~/.claude/HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md) — it is not the hub
+  dispatching behind your back. Under it, each tick runs an auto-act pass bound by
+  three load-bearing constraints:
+  1. **Safe set only** — the *same* set bare `go` resolves to in step 3: ready
+     Jira tickets + CI-red PRs. Needs-you items (design-input tickets,
+     review-comment PRs) **only notify**, never auto-act, even here.
+  2. **Dispatch-once, tracked in `dispatched`** — auto-act fires on an item only
+     the *first* time it enters the safe set, then records its key. `/babysit-pr`
+     and `/watch-boba` are themselves self-looping; re-dispatching a still-red PR
+     every tick would stack duplicate loops on one target. An already-dispatched
+     item renders as *in flight*, not re-dispatched.
+  3. **Report before rescheduling** — lead the tick with an `AUTO-ACTED THIS TICK`
+     block (each item → the command it ran) above `CHANGES`, so an unattended loop
+     is never silently acting.
+  Auto-act uses the mode-B dispatch forms: CI-red PR → `/babysit-pr <n>`; ready
+  Jira → `/dispatch <KEY> --auto` with the per-project Boba verdict from step 2.

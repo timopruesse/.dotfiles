@@ -1,15 +1,35 @@
 # Loop protocol
 
 The canonical contract shared by the self-looping commands (`/babysit-pr`,
-`/babysit-fleet`, `/watch-boba`) and the classifier agents they drive
-(`pr-babysitter`, `boba-watcher`). One definition of the `STATUS:` vocabulary and
-the `ScheduleWakeup` cadence, so the loop files don't each re-derive it.
+`/babysit-fleet`, `/watch-boba`, `/my-work watch`) and the classifier agents they
+drive (`pr-babysitter`, `boba-watcher`). One definition of the `STATUS:`
+vocabulary and the `ScheduleWakeup` cadence, so the loop files don't each
+re-derive it.
 
 > **Why the split.** Agents run in isolated context and can't read this file at
 > spawn time, so each classifier agent still states the `STATUS:` line it emits in
 > its own prompt. This doc is the authoritative definition they emit *against*, and
 > it owns the **command-side control loop** — the part that runs in the main
 > session (read STATUS → reschedule or stop). Change the cadence or the enum here.
+
+## Loop shapes
+
+All loopers share the underlying **mechanism** — `ScheduleWakeup` re-fires the
+*same command* (with its exact arguments), then the turn stops; the wakeup resumes
+the loop. But they come in two shapes, and only one uses the `STATUS:` contract:
+
+| Shape | Commands | Converges? | Terminal signal | Cadence |
+|---|---|---|---|---|
+| **Shepherd** | `/babysit-pr`, `/babysit-fleet`, `/watch-boba` | Yes — drives one target to a terminal state | `STATUS:` enum (below); self-terminates on `DONE`/`WAITING`/`MERGED` | ~270s, cache-warm |
+| **Hub** | `/my-work watch` | No — the queue refills; there is no "done" | A per-tick roll-up (`CHANGES` / `AUTO-ACTED`), **not** `STATUS:`; terminates on your action or an empty queue | idle-tick, ~15–30 min |
+
+The **shepherd** sections below (`STATUS:`, cache-warm cadence, self-termination)
+apply to shepherd loops. A **hub** loop borrows only the re-fire mechanism: it
+would be a lie for it to emit a `STATUS:` line — every tick is perpetually
+"working" because the hub never arrives. Its cadence inverts the cache-warm rule:
+with no terminal-state race, checking under 5 minutes buys nothing, so it uses the
+idle-tick regime (`delaySeconds` ≈ 1200) and accepts the cache miss. The hub's own
+vocabulary and control flow live in its command file (`/my-work watch`).
 
 ## The `STATUS:` contract
 
