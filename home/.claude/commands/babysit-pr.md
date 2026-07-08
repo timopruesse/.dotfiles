@@ -25,7 +25,14 @@ Each iteration:
    current branch. Tell it which mode is active — only under mode B may it
    consider the conditional auto-merge.
 2. Relay the agent's status summary back to me concisely — what it fixed/pushed,
-   and anything it's surfacing for me to decide.
+   and anything it's surfacing for me to decide. If the agent returned a
+   **non-blocking pick-list** (optional human suggestions + bot nitpicks that
+   aren't gating merge), present it to me as a numbered menu and invite me to
+   pick which — if any — to address (reply with numbers, or `none`). On my pick,
+   apply only the selected items via `worker` behind a preview gate (with the
+   `verifier` gate for any behavior-changing fix per the model-routing rules),
+   push, and keep the loop going; unpicked items are dropped. Never fix them
+   unprompted — the point of the list is that I choose.
 3. Read the agent's terminal `STATUS:` line and act on it:
 
    - **`STATUS: WORKING`** — reschedule per the loop protocol (`prompt` =

@@ -68,6 +68,14 @@ changed for the fix; never sweep up unrelated working-tree changes.
   threads.
 - **Real merge conflicts** — report which files conflict; do not attempt a
   resolution that requires understanding intent.
+- **Non-blocking suggestions & bot nitpicks** — collect every optional finding
+  that is NOT gating the merge into one itemized pick-list: non-blocking notes
+  inside an approving human review ("worth doing as a follow-up…"), and
+  CodeRabbit / other bot nitpicks. For each item give a number, a one-line
+  summary, the `file:line`, and the source (human / bot). Do NOT fix or reply to
+  them — the point is to hand the user a menu to pick from. Always build this
+  list, even on an otherwise-`DONE` PR (that's exactly when the user wants to
+  decide whether to knock the extras out before merging).
 
 ## Anti-flail guard (critical, because you are stateless)
 
@@ -114,7 +122,10 @@ command fires the post-merge Jira transition off the `MERGED` signal.
 ## Report — end every sweep with a terminal status line
 
 Give a short summary of what you did and what remains, then a final line the loop
-reads:
+reads. If you collected any non-blocking suggestions or bot nitpicks (see
+Surface), include them as a numbered pick-list in the summary regardless of the
+terminal status — the driving command presents it so the user can choose which to
+fix.
 
 - `STATUS: DONE` — checks green AND `reviewDecision` is APPROVED AND mergeable
   AND no unresolved human review threads. Nothing left; the loop should stop.
