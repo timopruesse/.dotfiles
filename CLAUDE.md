@@ -35,30 +35,12 @@ machine_setup.yaml           # Main setup orchestration
 personal_repositories.yaml   # Clones personal repos after setup
 ```
 
-## Neovim Configuration Architecture
+## Neovim Configuration
 
-The Neovim config (`home/.config/nvim/`) uses **Lazy.nvim** and is organized under `lua/timopruesse/`:
-
-- `init.lua` — top-level entry, bootstraps Lazy.nvim and loads plugin specs
-- `sets.lua` — editor options
-- `theme.lua` — Catppuccin theme setup
-- `lsp.lua` — LSP server configuration (via mason.nvim + nvim-lspconfig)
-- `telescope.lua` — fuzzy finder setup
-- `keymaps/` — keybindings split by context (lsp, rust, node, navigation, etc.)
-- `snippets/` — LuaSnip snippets per language (js, rust, lua, svelte)
-- `autocommands/` — filetype-specific auto-commands
-- `helpers/` — shared utilities (keymap helper, run_on_save)
-
-Formatting on save is handled by **conform.nvim**:
-
-- JS/TS/JSON/YAML/HTML/CSS/GraphQL/Markdown → Prettier
-- Rust → rustfmt
-- Lua → stylua
-- Python → black
-- Shell → shfmt
-- Go → goimports + gofmt
-
-LSP servers are managed by **mason.nvim** and configured individually in `lsp.lua`.
+The Neovim config lives under `home/.config/nvim/` (Lazy.nvim-based). Its
+architecture, formatting-on-save setup, and LSP conventions are documented in
+[`home/.config/nvim/CLAUDE.md`](home/.config/nvim/CLAUDE.md), which loads only when
+working in that directory.
 
 ## Git Identity Setup
 
