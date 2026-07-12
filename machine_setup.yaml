@@ -411,6 +411,19 @@ tasks:
           uninstall:
             - "brew uninstall awscli"
 
+  # Claude Code CLI. Native installer (cross-platform) → ~/.local/bin (already on
+  # PATH); auto-updates in the background. Re-run the installer to update, same
+  # rationale as cursor_cli. Previously unmanaged — .zshrc/aliases assumed it on
+  # PATH.
+  claude_cli:
+    commands:
+      - run:
+          install: "curl -fsSL https://claude.ai/install.sh | bash"
+          update: "curl -fsSL https://claude.ai/install.sh | bash"
+          uninstall:
+            - "rm -f ~/.local/bin/claude"
+            - "rm -rf ~/.local/share/claude"
+
   # Cursor CLI (cursor-agent). Cross-platform installer → ~/.local/bin (already
   # on PATH). Re-run the installer to update: machine_setup's run-shell may not
   # have the .zshrc PATH, and it's idempotent — same pattern as neovim.
