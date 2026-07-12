@@ -79,3 +79,55 @@ function clist() {
 function cj() {
   "$HOME/.tmux/scripts/claude_picker.sh"
 }
+
+# agents-link: make Cursor read the same instructions as Claude by symlinking
+# AGENTS.md -> CLAUDE.md (Cursor reads AGENTS.md, Claude reads CLAUDE.md; one
+# source of bytes). CLAUDE.md stays the real file. Relative symlink so it
+# survives moving/cloning the repo.
+#   agents-link [dir]     link a single CLAUDE.md (default: $PWD)
+#   agents-link --all     link every CLAUDE.md in the repo (skips .git/node_modules)
+#   agents-link -f ...     replace an existing AGENTS.md symlink (never a real file)
+function agents-link() {
+  local force=0 all=0
+  while [[ "$1" == -* ]]; do
+    case "$1" in
+      -f|--force) force=1 ;;
+      --all) all=1 ;;
+      -h|--help)
+        echo "usage: agents-link [-f] [--all] [dir]"; return 0 ;;
+      *) echo "agents-link: unknown flag $1"; return 1 ;;
+    esac
+    shift
+  done
+
+  _agents_link_one() {
+    local dir="$1"
+    if [[ ! -f "$dir/CLAUDE.md" ]]; then
+      echo "✗ $dir: no CLAUDE.md"; return 1
+    fi
+    local target="$dir/AGENTS.md"
+    if [[ -L "$target" ]]; then
+      if [[ "$(readlink "$target")" == "CLAUDE.md" ]]; then
+        echo "• $dir/AGENTS.md already linked"; return 0
+      fi
+      if (( ! force )); then
+        echo "✗ $dir/AGENTS.md is a symlink to something else (readlink: $(readlink "$target")); pass -f to replace"; return 1
+      fi
+      rm "$target"
+    elif [[ -e "$target" ]]; then
+      echo "✗ $dir/AGENTS.md is a real file — refusing to clobber. Merge it into CLAUDE.md first."; return 1
+    fi
+    ( cd "$dir" && ln -s CLAUDE.md AGENTS.md ) && echo "✓ $dir/AGENTS.md -> CLAUDE.md"
+  }
+
+  if (( all )); then
+    local root; root=$(git rev-parse --show-toplevel 2>/dev/null) || root="$PWD"
+    local f
+    find "$root" \( -name .git -o -name node_modules \) -prune -o -name CLAUDE.md -print 2>/dev/null | while read -r f; do
+      _agents_link_one "${f:h}"
+    done
+  else
+    _agents_link_one "${1:-$PWD}"
+  fi
+  unfunction _agents_link_one 2>/dev/null
+}

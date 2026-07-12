@@ -104,6 +104,9 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 | `cpi` | `echo 'code' \| cpi 'instruction'` | Pipe stdin to Claude in a new tmux window |
 | `clist` | — | List all tmux panes running Claude across sessions |
 | `cj` | — | fzf picker to jump to a running Claude agent |
+| `agents-link [dir]` | `ln -s CLAUDE.md AGENTS.md` | Symlink `AGENTS.md` → `CLAUDE.md` so Cursor reads the same instructions as Claude (one source of bytes) |
+| `agents-link --all` | — | Do it for every `CLAUDE.md` in the repo (skips `.git`/`node_modules`) |
+| `agents-link -f …` | — | Replace an existing `AGENTS.md` **symlink** (never clobbers a real file) |
 
 ## Mermaid (`mermaid.zsh`)
 
