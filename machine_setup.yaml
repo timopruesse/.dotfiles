@@ -411,6 +411,15 @@ tasks:
           uninstall:
             - "brew uninstall awscli"
 
+  # Cursor CLI (cursor-agent). Cross-platform installer → ~/.local/bin (already
+  # on PATH). Re-run the installer to update: machine_setup's run-shell may not
+  # have the .zshrc PATH, and it's idempotent — same pattern as neovim.
+  cursor_cli:
+    commands:
+      - run:
+          install: "curl https://cursor.com/install -fsS | bash"
+          update: "curl https://cursor.com/install -fsS | bash"
+
   ghostty_macos:
     os: ["macos"]
     commands:
