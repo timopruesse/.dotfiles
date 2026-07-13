@@ -99,9 +99,11 @@ Roughly the PR lifecycle, front to back:
   offer `/babysit-pr`. Doesn't run `worker` or touch Jira. This is what finally
   wires the otherwise command-less `committer`.
 - **`/open-pr [base]`** — open a ready-for-review PR from the current branch:
-  why-focused title/body from the branch's commits+diff → preview → `go` opens it,
-  Jira key linked. No pre-flight. Fires the In-Review transition and advances to
-  `/babysit-pr` (auto under mode B, one-line offer/gate under mode A).
+  why-focused title/body from the branch's commits+diff → prints the draft, then
+  auto-opens (no `go` — the body preview is print-only in both modes; `--wait`
+  re-adds the pause, `--draft` opens a draft), Jira key linked. No pre-flight.
+  Fires the In-Review transition and advances to `/babysit-pr` (auto under mode B,
+  one-line offer/gate under mode A).
 - **`/babysit-pr [pr]`** — self-looping shepherd for one PR (or the current
   branch's PR). In auto-mode (launched inside a `/ship` chain) it may **conditionally
   auto-merge** — only if approved + green + mergeable + no unresolved threads + not

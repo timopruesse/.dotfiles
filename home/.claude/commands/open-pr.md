@@ -3,9 +3,11 @@ description: Open a ready-for-review PR from the current branch (why-focused bod
 argument-hint: "[base branch] (default: repo's default branch)"
 ---
 
-Open a pull request from the current branch. Default flow: generate → preview →
-open ready-for-review. NEVER open the PR before I confirm the preview — unless
-mode B says otherwise (below).
+Open a pull request from the current branch. Default flow: generate → print
+preview → open ready-for-review **without pausing**. The draft is printed for
+the record, not for sign-off — I've opted into auto-open because the drafts are
+reliably good. Escape hatches: `--wait` (alias `--review`) re-enables the
+approval pause for a specific PR; `--draft` opens it as a draft.
 
 Mode (A default vs B pre-authorized, set at `/dispatch`/`/land`) is carried in
 session context — see [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md) for the
@@ -31,12 +33,13 @@ inherit, so it behaves as mode A.
   bar as a good commit message). Put the Jira key in the title matching my
   convention (`[KEY]` / `KEY:`) and reference it in the body so Mill's Jira↔GitHub
   integration auto-links it.
-- Print the title + body as a single **preview block**. Under mode A, STOP for my
-  `go`. Under mode B, this gate is **AUTO** (per
-  [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md)'s taxonomy) — show the same
-  preview but open without pausing, and open **ready-for-review** (the default for
-  B, not draft). (`--yes`/`now` in `$ARGUMENTS` skips the pause under mode A too;
-  `--draft` opens a draft PR regardless of mode — a manual override.)
+- Print the title + body as a single **preview block** — for the record, not for
+  sign-off — then proceed straight to opening it (§3). This body preview is a
+  **print-only, AUTO gate in both modes** (per
+  [`HANDOFF-PROTOCOL.md`](../HANDOFF-PROTOCOL.md)'s taxonomy): never STOP for `go`
+  here by default. Overrides via `$ARGUMENTS`: `--wait`/`--review` re-enables the
+  pause and STOPS for my `go` before opening; `--draft` opens a draft PR instead
+  of ready-for-review.
 
 ## 3. Open
 

@@ -19,7 +19,7 @@ Auto-chaining always applies; the mode only decides what happens *at a gate*.
 
 | Mode | How you get it | Behavior |
 |---|---|---|
-| **A** — auto-chain (default) | the normal flow | Each step auto-invokes its successor, but **pauses at every preview gate** for a one-word `go`. You never navigate or re-type the next command; you still confirm each gate. |
+| **A** — auto-chain (default) | the normal flow | Each step auto-invokes its successor, but **pauses at every preview gate** for a one-word `go`. You never navigate or re-type the next command; you still confirm each gate. (Sole exception: the `/open-pr` body preview is print-only and auto-opens — see the gate table.) |
 | **B** — pre-authorized (opt-in) | `--auto` / `/ship` / hub `ship <nums>` | Runs the spine through, **auto-approving AUTO gates** (below) and **stopping only at STOP gates**. |
 
 Mode is set once at the spine entry (`/dispatch`) and carried in the session
@@ -84,7 +84,7 @@ you'd want to see before it leaves the machine. **When unsure, STOP.**
 | external-blocker detected on a merge candidate (see auto-merge) | **STOP** always |
 | any error / MCP-auth / `gh` failure | **STOP** always |
 | `/land` commit preview | **AUTO** under B |
-| `/open-pr` body preview (opens **ready-for-review**) | **AUTO** under B |
+| `/open-pr` body preview (opens **ready-for-review**) | **AUTO** in **both** modes — prints the draft, then opens (drafts are reliably good); `--wait` re-adds the pause |
 | Jira transition (see mapping) | **AUTO** under B |
 | conditional auto-merge, all conditions met | **AUTO** under B |
 | handoff offers (`/land`→`/open-pr`→`/babysit-pr`, etc.) | **AUTO** — under A they become auto-advance-to-next-gate; under B, no pause |
