@@ -1,1 +1,16 @@
-/Users/timopruesse/github/timopruesse/.dotfiles/./home/agents/model-map.yaml
+# Platform model pins for abstract agent + command-orchestrator tiers.
+# Edit here, then run: home/agents/sync-agents and/or home/commands/sync-commands
+# Agent sources: home/agents/*.md → home/.claude/agents/ + home/.cursor/agents/
+# Command sources: home/commands/*.md → home/.claude/commands/ + home/.cursor/commands/
+# Do not edit the generated trees by hand.
+
+tiers:
+  cheap:
+    claude: haiku
+    cursor: kimi-k2.7-code
+  mid:
+    claude: sonnet
+    cursor: composer-2.5-fast
+  strong:
+    claude: opus
+    cursor: cursor-grok-4.5-high-fast

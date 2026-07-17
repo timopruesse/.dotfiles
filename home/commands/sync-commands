@@ -195,9 +195,16 @@ def install_protocols() -> None:
         # Repo-owned .claude copies become symlinks into ../protocols/
         link_into(src, CLAUDE_ROOT / name, replace_file=True)
         link_into(src, CURSOR_PROTOCOLS / name, replace_file=True)
-    # So `~/protocols/…` resolves even when home/ isn't bulk-symlinked to ~.
+    # File-level links into ~/protocols (not a dir symlink into the repo).
+    # A directory symlink here breaks `ms` force file-symlinking of home/ → ~
+    # by writing self-links over the sources.
     live_protocols = Path.home() / "protocols"
-    link_into(PROTOCOLS_DIR, live_protocols, replace_file=False)
+    if live_protocols.is_symlink():
+        live_protocols.unlink()
+    live_protocols.mkdir(parents=True, exist_ok=True)
+    for src in sorted(PROTOCOLS_DIR.iterdir()):
+        if src.is_file() and not src.is_symlink():
+            link_into(src, live_protocols / src.name)
 
 
 def install_live_cursor(paths: list[Path], keep: set[str]) -> None:
