@@ -181,8 +181,8 @@ tasks:
           force: true
           src: "./home"
           target: "~"
-          # Cursor owns ~/.cursor (chats, extensions, state). Agent pins are
-          # installed into ~/.cursor/agents + rules by sync-agents below.
+          # Cursor owns ~/.cursor (chats, extensions, state). Agent/command pins
+          # are installed into ~/.cursor/{agents,commands,rules} by sync scripts.
           ignore: [".cursor"]
       # Regenerate Claude/Cursor agent pins from home/agents/ (tier → model map).
       # Also symlinks into ~/.cursor/agents + rules (does not replace ~/.cursor).
@@ -191,6 +191,12 @@ tasks:
             - "./home/agents/sync-agents"
           update:
             - "./home/agents/sync-agents"
+      # Regenerate Claude/Cursor slash commands + protocol links.
+      - run:
+          install:
+            - "./home/commands/sync-commands"
+          update:
+            - "./home/commands/sync-commands"
 
   # register the Catppuccin Mocha theme bundled in ~/.config/bat/themes so bat
   # and delta can use it. Runs after the dotfiles symlink puts the theme in place.

@@ -23,8 +23,10 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 ```
 home/             # Symlinked to ~ — contains all user config files
   agents/         # Shared subagent sources (tier + prompts); run sync-agents
-  .claude/        # Claude Code config (settings, statusline, CLAUDE.md, generated agents/)
-  .cursor/        # Cursor agent pins + rules (NOT bulk-symlinked; sync-agents installs into ~/.cursor)
+  commands/       # Shared slash-command sources; run sync-commands
+  protocols/      # Shared HANDOFF + LOOP protocols (→ ~/protocols)
+  .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
+  .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/) — NOT bulk-symlinked; sync scripts install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .zshrc          # Zsh shell config
   .tmux.conf      # Tmux config
@@ -63,7 +65,13 @@ All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grou
 
 ## Workflows Reference
 
-The Claude Code slash commands (`home/.claude/commands/`) and the subagents they orchestrate (authored in `home/agents/`, generated to `home/.claude/agents/` and `home/.cursor/agents/`) are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md) — roughly the PR lifecycle, front to back. The prose reference lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
+The slash commands (authored in `home/commands/`, generated to
+`home/.claude/commands/` and `home/.cursor/commands/`) and the subagents they
+orchestrate (authored in `home/agents/`, generated to `home/.claude/agents/` and
+`home/.cursor/agents/`) are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md)
+— roughly the PR lifecycle, front to back. The prose reference lives in
+[`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Shared spine/loop contracts are
+in [`home/protocols/`](home/protocols/).
 
 ## Key Behaviors
 

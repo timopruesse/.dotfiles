@@ -1,9 +1,11 @@
 # Workflows
 
-A visual map of the Claude Code **commands** (`home/.claude/commands/`) and the
-**subagents** (authored in `home/agents/`, generated to `home/.claude/agents/`
-and `home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle,
-front to back. See [`CLAUDE.md`](home/.claude/CLAUDE.md) for the prose reference.
+A visual map of the **commands** (authored in `home/commands/`, generated to
+`home/.claude/commands/` and `home/.cursor/commands/`) and the **subagents**
+(authored in `home/agents/`, generated to `home/.claude/agents/` and
+`home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle, front to
+back. See [`CLAUDE.md`](home/.claude/CLAUDE.md) for the prose reference; shared
+contracts live in [`home/protocols/`](home/protocols/).
 
 ## The flow graph
 
@@ -167,7 +169,7 @@ flowchart TD
   `CHANGES` roll-up instead of `STATUS:`, runs on a slow idle-tick cadence, and
   stops on your action or an empty queue. Both shapes — the `STATUS:` enum, the two
   cadences, and the shape split — are defined once in
-  [`home/.claude/LOOP-PROTOCOL.md`](home/.claude/LOOP-PROTOCOL.md).
+  [`home/protocols/LOOP-PROTOCOL.md`](home/protocols/LOOP-PROTOCOL.md).
 - The `/dispatch → … → merged` **spine auto-chains** in one of two modes: **A**
   (default) auto-invokes each successor but pauses at every preview gate for a
   one-word `go`; **B** (via `/ship`, `--auto`, or the hubs' `ship <nums>`) runs
@@ -177,7 +179,7 @@ flowchart TD
   the conditional **auto-merge** (fail-closed, mode-B only — the `auto-mode +
   all-clear?` gate), and the **Jira lifecycle** (In Progress → In Review → Ready
   for Release) are defined once in
-  [`home/.claude/HANDOFF-PROTOCOL.md`](home/.claude/HANDOFF-PROTOCOL.md) — the
+  [`home/protocols/HANDOFF-PROTOCOL.md`](home/protocols/HANDOFF-PROTOCOL.md) — the
   synchronous sibling of `LOOP-PROTOCOL.md`.
 - **Notifications:** a `Notification` hook
   ([`home/.claude/hooks/notify.sh`](home/.claude/hooks/notify.sh)) pings macOS
