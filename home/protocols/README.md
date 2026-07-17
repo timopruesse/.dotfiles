@@ -7,3 +7,6 @@ Canonical contracts used by slash commands on both Claude Code and Cursor:
 
 Symlinked into `~/.claude/` (and `home/.cursor/protocols/`) by `home/commands/sync-commands`.
 Edit here; do not maintain separate copies under `.claude/` or `.cursor/`.
+
+Session cost / debug logging (separate from these contracts) lives in
+[`SESSION-COST-LOGGING.md`](../../SESSION-COST-LOGGING.md).

@@ -73,6 +73,11 @@ orchestrate (authored in `home/agents/`, generated to `home/.claude/agents/` and
 [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Shared spine/loop contracts are
 in [`home/protocols/`](home/protocols/).
 
+## Session cost logging
+
+Per-session JSONL logs (Claude estimated USD + tokens; Cursor duration / status /
+subagents) are documented in [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md).
+
 ## Key Behaviors
 
 - **WSL-specific**: `.zshrc` sets `DISPLAY`, `BROWSER=wslview`, and D3D12 GPU acceleration for WSL2.

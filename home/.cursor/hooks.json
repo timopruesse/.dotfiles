@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "./hooks/log-session.sh"
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": "./hooks/log-session.sh"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "./hooks/log-session.sh"
+      }
+    ]
+  }
+}

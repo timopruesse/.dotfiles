@@ -13,6 +13,17 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-session.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   },
   "statusLine": {

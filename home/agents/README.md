@@ -11,9 +11,13 @@ That regenerates:
 - `home/.claude/agents/` — Claude Code pins (`haiku` / `sonnet` / `opus`)
 - `home/.cursor/agents/` — Cursor pins (Kimi / Composer fast / Grok fast)
 
-and installs live symlinks into `~/.cursor/agents/` +
-`~/.cursor/rules/subagent-model-fallback.mdc` (Cursor owns `~/.cursor/`; we only
-link individual agent/rule files).
+and installs live symlinks into `~/.cursor/agents/`,
+`~/.cursor/rules/subagent-model-fallback.mdc`, and
+`~/.cursor/hooks{,.json}` (Cursor owns `~/.cursor/`; we only link managed
+agent/rule/hook paths — never the whole tree).
 
 Do **not** hand-edit the generated trees; they are overwritten on sync.
 `machine_setup` runs the sync after the home symlink.
+
+Session cost logging (Claude + Cursor hooks) is documented in
+[`SESSION-COST-LOGGING.md`](../../SESSION-COST-LOGGING.md).
