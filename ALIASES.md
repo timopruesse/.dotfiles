@@ -36,7 +36,7 @@ All ZSH aliases and functions, grouped by source file.
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
 | `lg` | `lazygit` | Open lazygit |
-| `agent` | `cursor agent` | Shorthand for Cursor Agent CLI |
+| `agent` | `cursor agent --auto-review` | Cursor Agent CLI (Smart Auto); pass `--yolo`/`--force` to skip |
 | `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
 | `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
 | `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
