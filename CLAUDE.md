@@ -22,8 +22,10 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 
 ```
 home/             # Symlinked to ~ — contains all user config files
+  agents/         # Shared subagent sources (tier + prompts); run sync-agents
+  .claude/        # Claude Code config (settings, statusline, CLAUDE.md, generated agents/)
+  .cursor/        # Cursor agent pins + rules (NOT bulk-symlinked; sync-agents installs into ~/.cursor)
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
-  .claude/        # Claude Code config (settings, statusline, CLAUDE.md, agents/)
   .zshrc          # Zsh shell config
   .tmux.conf      # Tmux config
   .gitconfig*     # Git config with conditional includes per directory
@@ -61,7 +63,7 @@ All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grou
 
 ## Workflows Reference
 
-The Claude Code slash commands (`home/.claude/commands/`) and the subagents they orchestrate (`home/.claude/agents/`) are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md) — roughly the PR lifecycle, front to back. The prose reference lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
+The Claude Code slash commands (`home/.claude/commands/`) and the subagents they orchestrate (authored in `home/agents/`, generated to `home/.claude/agents/` and `home/.cursor/agents/`) are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md) — roughly the PR lifecycle, front to back. The prose reference lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
 
 ## Key Behaviors
 

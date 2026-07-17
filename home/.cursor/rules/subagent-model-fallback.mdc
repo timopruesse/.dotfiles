@@ -1,0 +1,30 @@
+---
+description: Subagent model pins and rate-limit fallback to auto
+alwaysApply: true
+---
+
+# Subagent model routing (Cursor)
+
+Custom subagents live in `~/.cursor/agents/` (generated from `~/agents/`). Prefer
+them by name when the task matches: `scout`, `scout-explain`, `sweep`, `worker`,
+`committer`, `verifier`, `pr-babysitter`, `pr-reviewer`, `boba-watcher`.
+
+Pinned models (from the agent frontmatter):
+
+| Tier | Agents | Model |
+| --- | --- | --- |
+| cheap | `scout`, `committer` | `kimi-k2.7-code` |
+| mid | `scout-explain`, `sweep`, `worker`, `pr-babysitter`, `pr-reviewer`, `boba-watcher` | `composer-2.5-fast` |
+| strong | `verifier` | `cursor-grok-4.5-high-fast` |
+
+## Rate-limit / quota fallback
+
+If spawning a custom subagent fails because the pinned model is rate-limited,
+out of quota, unavailable, or returns a plan/usage error:
+
+1. Retry **once** with the same subagent but model `auto` (or omit `model` so it
+   inherits / uses Auto).
+2. If the retry also fails, surface the error — do not keep retrying or silently
+   swap to an unrelated model.
+3. Do **not** fall back to `auto` for ordinary task failures (bad prompt, tool
+   errors, wrong agent choice). Only for model availability / usage limits.

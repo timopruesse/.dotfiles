@@ -1,7 +1,8 @@
 # Workflows
 
 A visual map of the Claude Code **commands** (`home/.claude/commands/`) and the
-**subagents** (`home/.claude/agents/`) they orchestrate — roughly the PR lifecycle,
+**subagents** (authored in `home/agents/`, generated to `home/.claude/agents/`
+and `home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle,
 front to back. See [`CLAUDE.md`](home/.claude/CLAUDE.md) for the prose reference.
 
 ## The flow graph

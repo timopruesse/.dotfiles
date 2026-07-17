@@ -3,35 +3,47 @@
 > A visual flow graph of these commands + agents is in
 > [`WORKFLOWS.md`](../../WORKFLOWS.md).
 
-Nine user-scoped agents live in the `.dotfiles` repo
-(`home/.claude/agents/`) and are symlinked into `~/.claude/`. `sweep`, `worker`,
-`pr-babysitter`, `pr-reviewer`, `boba-watcher`, and `scout-explain` are pinned to
-Sonnet 5; `committer` and `scout` are pinned to Haiku (routine plumbing / cheap
-retrieval); `verifier` is pinned to Opus (adversarial reasoning — see below).
+Nine user-scoped agents are authored once under `home/agents/` (abstract
+`tier: cheap|mid|strong`) and generated into platform trees via
+`home/agents/sync-agents` + [`model-map.yaml`](../agents/model-map.yaml):
 
-- **`scout`** (Haiku) — read-only LOCATE agent: pinpoint "where/how does X work"
+| Tier | Agents | Claude Code | Cursor |
+| --- | --- | --- | --- |
+| cheap | `scout`, `committer` | `haiku` | `kimi-k2.7-code` |
+| mid | `scout-explain`, `sweep`, `worker`, `pr-babysitter`, `pr-reviewer`, `boba-watcher` | `sonnet` | `composer-2.5-fast` |
+| strong | `verifier` | `opus` | `cursor-grok-4.5-high-fast` |
+
+Generated outputs: `home/.claude/agents/` (Claude) and `home/.cursor/agents/`
+(Cursor; wins over `.claude/` on name conflict). Edit sources in `home/agents/`,
+not the generated files. On Cursor, if a pinned model is rate-limited / out of
+quota, the parent retries once with `auto` (see
+`~/.cursor/rules/subagent-model-fallback.mdc`).
+
+- **`scout`** (cheap) — read-only LOCATE agent: pinpoint "where/how does X work"
   via excerpts + `file:line`, or run a read-only gather (a `gh`/JQL query, a
   search) and return a compact result. The cheap default retriever the hubs and
   lifecycle commands fan out to. Prefer it over the built-in
-  `Explore`/`general-purpose` agents for pure retrieval, since those inherit Opus.
-- **`scout-explain`** (Sonnet) — read-only EXPLAIN agent: read a subsystem in full
+  `Explore`/`general-purpose` agents for pure retrieval, since those inherit the
+  strong / orchestrator model.
+- **`scout-explain`** (mid) — read-only EXPLAIN agent: read a subsystem in full
   and return an architecture/data-flow walkthrough to *understand* a codebase.
   Reach for it (not `scout`) when depth of understanding is the point — that's what
-  justifies Sonnet over Haiku here.
+  justifies mid-tier over cheap here.
 - **`sweep`** — mechanical fix loops (tsc/type errors, lint, formatting).
 - **`worker`** — implementer for small, clearly-specified coding changes. Use
-  over the Opus `general-purpose` agent only when the spec is concrete and
-  low-ambiguity; route anything needing design judgment to Opus. **After `worker`
-  reports a behavior-changing change, gate it through `verifier`** (orchestrator
-  step — spawn `verifier` yourself; feed any `BREAKS` input back to `worker`,
-  escalate design-level failures to Opus). Skip the gate for no-runtime-surface
-  or mechanical changes. On the current-branch path this conveyor is codified as
+  over the strong/orchestrator `general-purpose` agent only when the spec is
+  concrete and low-ambiguity; route anything needing design judgment to the
+  strong / orchestrator model. **After `worker` reports a behavior-changing
+  change, gate it through `verifier`** (orchestrator step — spawn `verifier`
+  yourself; feed any `BREAKS` input back to `worker`, escalate design-level
+  failures to the strong model). Skip the gate for no-runtime-surface or
+  mechanical changes. On the current-branch path this conveyor is codified as
   `/land` (verifier gate → commit → hand off).
 - **`committer`** — routine git plumbing (staging, commit messages, commit,
   push). Delegate the mechanical "commit this" / "commit and push" step to it
-  once the work is done, instead of spending Opus on it. Orchestrated by `/land`
-  as the commit stage of the post-`worker` conveyor.
-- **`verifier`** (Opus) — composable adversarial verifier. Tries to BREAK a
+  once the work is done, instead of spending the strong model on it.
+  Orchestrated by `/land` as the commit stage of the post-`worker` conveyor.
+- **`verifier`** (strong) — composable adversarial verifier. Tries to BREAK a
   change by driving its real behavior, returns `VERDICT: HOLDS/BREAKS/
   INCONCLUSIVE`. Not a diff review (that's `/code-review`) — an independent
   correctness gate other agents call. Risk-gate before spawning: skip
@@ -44,7 +56,7 @@ retrieval); `verifier` is pinned to Opus (adversarial reasoning — see below).
   comments and real conflicts instead of acting on them. Each sweep reports a
   `STATUS: DONE/WORKING/WAITING` line. Invoke via `/babysit-pr [pr]` (self-loops,
   no `/loop` wrapper) or `/babysit-fleet` (all your open PRs on one loop). Route
-  hard debugging it flags to Opus.
+  hard debugging it flags to the strong / orchestrator model.
 - **`pr-reviewer`** — draft-only reviewer for a single PR (read-only toward
   GitHub; never posts). Reads the diff/intent, reviews adversarially, spawns
   `verifier` for risky logic, returns a draft review + suggested verdict. Fanned
@@ -57,10 +69,11 @@ retrieval); `verifier` is pinned to Opus (adversarial reasoning — see below).
   (+reason) / `WAITING`. It never touches the ticket; the `/watch-boba` command
   orchestrates the reactions. Driven on a loop by `/watch-boba`.
 
-Reserve Opus for reasoning-heavy subagent work: planning/architecture (the
-built-in `Plan` agent), adversarial verification (`verifier`), and hard debugging.
-When a task genuinely needs Opus but no pinned agent fits, pass `model: "opus"` on
-the spawn.
+Reserve the strong / orchestrator model for reasoning-heavy subagent work:
+planning/architecture (the built-in `Plan` agent), adversarial verification
+(`verifier`), and hard debugging. When a task genuinely needs that tier but no
+pinned agent fits, pass the strong model on the spawn (`model: "opus"` in Claude
+Code; `cursor-grok-4.5-high-fast` or `auto` in Cursor).
 
 ## Commands (`home/.claude/commands/`)
 
