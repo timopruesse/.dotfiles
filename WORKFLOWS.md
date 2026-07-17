@@ -142,10 +142,13 @@ flowchart TD
 
 - **Rounded blue** nodes are slash **commands** you invoke; **rectangles** are
   **subagents** they spawn. **Hexagons** are decision / preview **gates**.
-- Node colors encode the model pin: 🟢 Sonnet, 🟣 Opus (`verifier`), ⚪ Haiku
-  (`committer`, `scout`). `scout` is the cheap Haiku LOCATE/gather retriever; its
-  Sonnet sibling `scout-explain` (deep subsystem walkthroughs) isn't wired into the
-  lifecycle flows, so it's listed in the table below rather than drawn here.
+- Node colors encode the **subagent** model pin: 🟢 Sonnet, 🟣 Opus (`verifier`),
+  ⚪ Haiku (`committer`, `scout`). Command **orchestrators** are pinned separately
+  (cheap/mid via `tier:` in `home/commands/` — see
+  [`home/commands/README.md`](home/commands/README.md)); none need strong/Opus.
+  `scout` is the cheap Haiku LOCATE/gather retriever; its Sonnet sibling
+  `scout-explain` (deep subsystem walkthroughs) isn't wired into the lifecycle
+  flows, so it's listed in the table below rather than drawn here.
 - The single **`verifier`** node is one agent invoked from several flows (the
   `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
   arrows show its reuse, not multiple agents.
@@ -198,8 +201,9 @@ flowchart TD
 | `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor) |
 | `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body); conditional fail-closed auto-merge in auto-mode | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |
-| `boba-watcher` | Sonnet | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
+| `boba-watcher` | Sonnet (escalate→strong once on `ESCALATE`) | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
 | `sweep` | Sonnet | mechanical fix loops (tsc / lint / formatting) | ad hoc (not bound to a command) |
 
-> Opus is reserved for reasoning-heavy work: the built-in `Plan` agent,
-> `verifier`, and hard debugging.
+> Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,
+> `verifier`, hard debugging, and `/watch-boba`'s mid→strong carve-outs
+> (ambiguous re-classify; scope/approach unblock drafts).

@@ -1,6 +1,7 @@
 ---
 description: A hub of your open work (PRs, reviews, Jira) with one-word dispatch into your agents
 argument-hint: "[watch [--auto]] [optional gh/jira scope]"
+tier: mid
 ---
 
 Show me my open work for the day as a dispatch hub. Gather, then present an

@@ -1,6 +1,7 @@
 ---
 description: Scaffold a Jira ticket — fresh worktree + branch off main, ticket context loaded
 argument-hint: "<JIRA-KEY> (e.g. ECW-1060)"
+tier: mid
 ---
 
 Start work on the Jira ticket `$ARGUMENTS` by scaffolding an isolated worktree and

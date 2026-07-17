@@ -1,7 +1,8 @@
-# Platform model pins for abstract agent tiers.
-# Edit here, then run: home/agents/sync-agents
-# Sources live in home/agents/*.md; generated trees are home/.claude/agents/
-# and home/.cursor/agents/ — do not edit those by hand.
+# Platform model pins for abstract agent + command-orchestrator tiers.
+# Edit here, then run: home/agents/sync-agents and/or home/commands/sync-commands
+# Agent sources: home/agents/*.md → home/.claude/agents/ + home/.cursor/agents/
+# Command sources: home/commands/*.md → home/.claude/commands/ + home/.cursor/commands/
+# Do not edit the generated trees by hand.
 
 tiers:
   cheap:

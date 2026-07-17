@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Generate platform-specific slash commands from home/commands/*.md.
 
-Sources keep Claude-style frontmatter + `$ARGUMENTS`. Outputs:
+Sources keep Claude-style frontmatter + `$ARGUMENTS`, with abstract
+`tier: cheap|mid|strong` (same map as agents). Outputs:
 
-  home/.claude/commands/  — frontmatter + `$ARGUMENTS` (Claude Code)
-  home/.cursor/commands/  — plain markdown + positional `$1`/`$2`/… (Cursor)
+  home/.claude/commands/  — frontmatter + `model:` pin + `$ARGUMENTS` (Claude Code)
+  home/.cursor/commands/  — plain markdown + positional `$1`/`$2`/… + model note
 
 Also installs live symlinks into ~/.cursor/commands/ and keeps protocol
 symlinks under home/.claude/ → home/protocols/.
@@ -21,6 +22,7 @@ from pathlib import Path
 COMMANDS_DIR = Path(__file__).resolve().parent
 REPO_HOME = COMMANDS_DIR.parent  # home/
 PROTOCOLS_DIR = REPO_HOME / "protocols"
+MAP_PATH = REPO_HOME / "agents" / "model-map.yaml"
 CLAUDE_OUT = REPO_HOME / ".claude" / "commands"
 CURSOR_OUT = REPO_HOME / ".cursor" / "commands"
 CLAUDE_ROOT = REPO_HOME / ".claude"
@@ -34,23 +36,78 @@ GENERATED_BANNER = (
 
 FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---\n(.*)\Z", re.DOTALL)
 
-CURSOR_ARGS_PREAMBLE = """\
-## Arguments (Cursor)
-
-Positional args from the slash invocation: `$1`, `$2`, `$3`, … .
-When this prompt mentions `$ARGUMENTS`, treat it as the joined remainder
-`"$1 $2 $3 …"` (trim; empty if no args). Multi-token parsers (e.g. `/dispatch`)
-still apply: `$1` = first token (key), later tokens / flags as documented below.
-
-"""
+# Fields emitted into Claude frontmatter, in stable order. `tier` is source-only.
+CLAUDE_FM_ORDER = ("description", "argument-hint", "model", "allowed-tools", "disable-model-invocation")
 
 
-def split_command(path: Path) -> tuple[str, str]:
+def parse_model_map(path: Path) -> dict[str, dict[str, str]]:
+    """Parse the small fixed-shape model-map.yaml without PyYAML."""
+    tiers: dict[str, dict[str, str]] = {}
+    current: str | None = None
+    in_tiers = False
+    for raw in path.read_text().splitlines():
+        line = raw.split("#", 1)[0].rstrip()
+        if not line.strip():
+            continue
+        if line.strip() == "tiers:":
+            in_tiers = True
+            continue
+        if not in_tiers:
+            continue
+        tier_m = re.match(r"^  (\w+):\s*$", line)
+        if tier_m:
+            current = tier_m.group(1)
+            tiers[current] = {}
+            continue
+        pin_m = re.match(r"^    (claude|cursor):\s+(\S+)\s*$", line)
+        if pin_m and current:
+            tiers[current][pin_m.group(1)] = pin_m.group(2)
+            continue
+        raise SystemExit(f"unrecognized line in {path}: {raw!r}")
+    for name, pins in tiers.items():
+        if set(pins) != {"claude", "cursor"}:
+            raise SystemExit(f"tier {name!r} missing claude/cursor pins: {pins}")
+    return tiers
+
+
+def split_command(path: Path) -> tuple[dict[str, str], str]:
     text = path.read_text()
     m = FRONTMATTER_RE.match(text)
     if not m:
         raise SystemExit(f"{path}: missing YAML frontmatter")
-    return m.group(1), m.group(2)
+    fm_raw, body = m.group(1), m.group(2)
+    fields: dict[str, str] = {}
+    for line in fm_raw.splitlines():
+        if not line.strip():
+            continue
+        kv = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
+        if not kv:
+            raise SystemExit(f"{path}: cannot parse frontmatter line: {line!r}")
+        fields[kv.group(1)] = kv.group(2)
+    if "tier" not in fields:
+        raise SystemExit(f"{path}: missing required `tier` field (cheap|mid|strong)")
+    if "description" not in fields:
+        raise SystemExit(f"{path}: missing required `description` field")
+    return fields, body
+
+
+def render_claude_frontmatter(fields: dict[str, str], model: str) -> str:
+    lines = ["---"]
+    emitted: set[str] = set()
+    for key in CLAUDE_FM_ORDER:
+        if key == "model":
+            lines.append(f"model: {model}")
+            emitted.add("model")
+            continue
+        if key in fields:
+            lines.append(f"{key}: {fields[key]}")
+            emitted.add(key)
+    for key, val in fields.items():
+        if key in emitted or key == "tier":
+            continue
+        lines.append(f"{key}: {val}")
+    lines.append("---")
+    return "\n".join(lines) + "\n"
 
 
 def rewrite_protocol_links_for_claude(body: str) -> str:
@@ -60,7 +117,27 @@ def rewrite_protocol_links_for_claude(body: str) -> str:
     return body
 
 
-def to_cursor_body(body: str) -> str:
+def cursor_preamble(cursor_model: str, tier: str) -> str:
+    return (
+        f"## Orchestrator model (Cursor)\n"
+        f"\n"
+        f"Preferred session model for this command: `{cursor_model}` "
+        f"(tier `{tier}` via `home/agents/model-map.yaml`). "
+        f"Cursor slash commands inherit the chat model — switch the model "
+        f"picker to that pin before invoking if the session is on a stronger "
+        f"tier. Subagents keep their own frontmatter pins.\n"
+        f"\n"
+        f"## Arguments (Cursor)\n"
+        f"\n"
+        f"Positional args from the slash invocation: `$1`, `$2`, `$3`, … .\n"
+        f"When this prompt mentions `$ARGUMENTS`, treat it as the joined remainder\n"
+        f"`\"$1 $2 $3 …\"` (trim; empty if no args). Multi-token parsers (e.g. `/dispatch`)\n"
+        f"still apply: `$1` = first token (key), later tokens / flags as documented below.\n"
+        f"\n"
+    )
+
+
+def to_cursor_body(body: str, cursor_model: str, tier: str) -> str:
     body = rewrite_protocol_links_for_claude(body)
     # Relative links from .claude/commands → protocols become absolute for Cursor
     body = re.sub(
@@ -68,17 +145,15 @@ def to_cursor_body(body: str) -> str:
         r"](~/protocols/\1.md)",
         body,
     )
-    # Keep $ARGUMENTS in prose but Cursor preamble explains the mapping.
-    # Also rewrite explicit "$ARGUMENTS" in ScheduleWakeup examples to joined form.
-    return CURSOR_ARGS_PREAMBLE + body
+    return cursor_preamble(cursor_model, tier) + body
 
 
-def write_claude(name: str, fm: str, body: str) -> Path:
+def write_claude(name: str, fields: dict[str, str], body: str, model: str) -> Path:
     CLAUDE_OUT.mkdir(parents=True, exist_ok=True)
     body = rewrite_protocol_links_for_claude(body)
     if not body.startswith("\n"):
         body = "\n" + body
-    content = f"---\n{fm}\n---\n{GENERATED_BANNER}{body}"
+    content = render_claude_frontmatter(fields, model) + GENERATED_BANNER + body
     if not content.endswith("\n"):
         content += "\n"
     path = CLAUDE_OUT / f"{name}.md"
@@ -86,12 +161,12 @@ def write_claude(name: str, fm: str, body: str) -> Path:
     return path
 
 
-def write_cursor(name: str, body: str) -> Path:
+def write_cursor(name: str, body: str, cursor_model: str, tier: str) -> Path:
     CURSOR_OUT.mkdir(parents=True, exist_ok=True)
-    body = to_cursor_body(body)
+    body = to_cursor_body(body, cursor_model, tier)
     if not body.endswith("\n"):
         body += "\n"
-    # Cursor: no frontmatter. Banner first is fine (plain markdown).
+    # Cursor: no YAML frontmatter (treated as prompt). Banner first is fine.
     content = GENERATED_BANNER + "\n" + body
     path = CURSOR_OUT / f"{name}.md"
     path.write_text(content)
@@ -139,6 +214,11 @@ def main() -> int:
     if not PROTOCOLS_DIR.is_dir():
         print(f"missing {PROTOCOLS_DIR}", file=sys.stderr)
         return 1
+    if not MAP_PATH.is_file():
+        print(f"missing {MAP_PATH}", file=sys.stderr)
+        return 1
+    tiers = parse_model_map(MAP_PATH)
+
     sources = sorted(p for p in COMMANDS_DIR.glob("*.md") if p.name != "README.md")
     if not sources:
         print(f"no command sources in {COMMANDS_DIR}", file=sys.stderr)
@@ -148,11 +228,17 @@ def main() -> int:
 
     cursor_paths: list[Path] = []
     for src in sources:
-        fm, body = split_command(src)
+        fields, body = split_command(src)
+        tier = fields["tier"].strip()
+        if tier not in tiers:
+            print(f"{src}: unknown tier {tier!r}; known: {sorted(tiers)}", file=sys.stderr)
+            return 1
         name = src.stem
-        write_claude(name, fm, body)
-        cursor_paths.append(write_cursor(name, body))
-        print(f"  {name}")
+        claude_model = tiers[tier]["claude"]
+        cursor_model = tiers[tier]["cursor"]
+        write_claude(name, fields, body, claude_model)
+        cursor_paths.append(write_cursor(name, body, cursor_model, tier))
+        print(f"  {name}: tier={tier} → claude={claude_model} cursor={cursor_model}")
 
     keep = {p.stem for p in sources}
     for out_dir in (CLAUDE_OUT, CURSOR_OUT):

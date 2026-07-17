@@ -1,6 +1,7 @@
 ---
 description: Land the current branch's work — verifier gate, commit (committer), then advance to /open-pr or /babysit-pr
 argument-hint: "[--yes to skip the commit preview]"
+tier: mid
 ---
 
 Land the work on the current branch: run the `verifier` gate, commit via

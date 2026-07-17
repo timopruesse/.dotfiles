@@ -1,6 +1,7 @@
 ---
 description: Summarize what you shipped (git + merged PRs + Jira) over a timeframe
 argument-hint: "[since — e.g. '24h', 'yesterday', '1 week'; default 24h]"
+tier: cheap
 ---
 
 Produce a digest of what I SHIPPED over the timeframe in `$ARGUMENTS` (default:

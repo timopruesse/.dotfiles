@@ -1,6 +1,7 @@
 ---
 description: Browse open items in a board's active sprint (default ECW) and pick what to start
 argument-hint: "[board/project key — defaults to ECW]"
+tier: mid
 ---
 
 Show me the unassigned, startable items in the active sprint so I can pick what to

@@ -1,6 +1,7 @@
 ---
 description: Draft reviews for all PRs awaiting your review (fan-out, never posts)
 argument-hint: "[optional gh search qualifiers, e.g. org:chewielabs]"
+tier: mid
 ---
 
 Draft a review for every open pull request where my review is requested. This is

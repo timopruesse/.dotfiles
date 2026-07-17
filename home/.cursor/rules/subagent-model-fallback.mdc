@@ -17,6 +17,11 @@ Pinned models (from the agent frontmatter):
 | mid | `scout-explain`, `sweep`, `worker`, `pr-babysitter`, `pr-reviewer`, `boba-watcher` | `composer-2.5-fast` |
 | strong | `verifier` | `cursor-grok-4.5-high-fast` |
 
+`boba-watcher` stays mid for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
+`/watch-boba` may re-spawn it **once** with the strong pin (`cursor-grok-4.5-high-fast`
+or `auto`). Scope/approach unblock drafts from `/watch-boba` also use the strong
+model. Do not upgrade the whole watch loop.
+
 ## Rate-limit / quota fallback
 
 If spawning a custom subagent fails because the pinned model is rate-limited,

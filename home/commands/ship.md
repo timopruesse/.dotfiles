@@ -1,6 +1,7 @@
 ---
 description: Ship one ticket end-to-end unattended (pre-authorized) — /dispatch --auto, stops only at judgment calls
 argument-hint: "<JIRA-KEY> (e.g. ECW-1061)"
+tier: mid
 ---
 
 Ship the Jira ticket `$ARGUMENTS` end-to-end in **pre-authorized (mode B)**: run

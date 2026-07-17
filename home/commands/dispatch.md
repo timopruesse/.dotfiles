@@ -1,6 +1,7 @@
 ---
 description: Start one ready Jira ticket the right way — Boba label vs /start + worker
 argument-hint: "<JIRA-KEY> [boba|no-boba] [--auto] (e.g. ECW-1061 boba)"
+tier: cheap
 ---
 
 Dispatch ONE ready Jira ticket (`$ARGUMENTS`) into implementation. This is the

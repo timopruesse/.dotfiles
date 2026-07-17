@@ -1,6 +1,7 @@
 ---
 description: Babysit a PR on a self-paced loop until it's mergeable (CI, base drift, reviews, body)
 argument-hint: "[pr number | url | branch] (defaults to current branch's PR)"
+tier: mid
 ---
 
 Babysit the pull request identified by `$ARGUMENTS` (if empty, the PR for the

@@ -1,6 +1,7 @@
 ---
 description: Babysit ALL your open PRs on one self-paced fleet loop until each is mergeable
 argument-hint: "[optional gh search qualifiers, e.g. repo:owner/name]"
+tier: mid
 ---
 
 Babysit every open PR I authored, as a single fleet loop over the existing

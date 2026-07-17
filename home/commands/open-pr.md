@@ -1,6 +1,7 @@
 ---
 description: Open a ready-for-review PR from the current branch (why-focused body, Jira-linked)
 argument-hint: "[base branch] (default: repo's default branch)"
+tier: mid
 ---
 
 Open a pull request from the current branch. Default flow: generate → print

@@ -1,6 +1,7 @@
 ---
 description: Work through unresolved review threads on your PR — apply code (gated); ack reply + resolve on landed fixes go through automatically
 argument-hint: "[pr number] (default: current branch's PR)"
+tier: mid
 ---
 
 Help me address the unresolved review comments on ONE pull request (`$ARGUMENTS`,
