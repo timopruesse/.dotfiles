@@ -103,6 +103,42 @@ case ":$PATH:" in
 esac
 # pnpm end
 
+# Keep the machine awake while running a CLI session (claude / agent):
+#   macOS -> caffeinate -i prefix (blocks system idle sleep, lets display off)
+#   WSL   -> background powershell.exe holding an ES_SYSTEM_REQUIRED assertion
+#            (the Windows equivalent), killed when this function returns
+# On bare Linux neither exists, so this is a plain passthrough.
+_keep_awake_run() {
+  local name_or_path="$1"
+  shift
+  local resolved
+  resolved=$(whence -p "$name_or_path" 2>/dev/null)
+  [[ -z "$resolved" && -x "$name_or_path" ]] && resolved="$name_or_path"
+
+  if command -v caffeinate &>/dev/null && [[ -n "$resolved" ]]; then
+    caffeinate -i "$resolved" "$@"
+    return $?
+  fi
+
+  if [[ -n "$WSL_DISTRO_NAME" ]]; then
+    local pwsh
+    pwsh=$(command -v powershell.exe 2>/dev/null || command -v pwsh.exe 2>/dev/null)
+    if [[ -n "$pwsh" ]]; then
+      # 2147483649 = ES_CONTINUOUS (0x80000000) | ES_SYSTEM_REQUIRED (0x1)
+      "$pwsh" -NoProfile -Command '$s = Add-Type -MemberDefinition "[DllImport(`"kernel32.dll`")] public static extern uint SetThreadExecutionState(uint e);" -Name Power -Namespace Win32 -PassThru; $s::SetThreadExecutionState(2147483649); while ($true) { Start-Sleep 3600 }' &>/dev/null &
+      local keepawake_pid=$!
+      disown 2>/dev/null
+      trap "kill $keepawake_pid 2>/dev/null" EXIT
+    fi
+  fi
+
+  if [[ -n "$resolved" ]]; then
+    "$resolved" "$@"
+  else
+    command "$name_or_path" "$@"
+  fi
+}
+
 # claude code: use worktree when inside a git repo with commits (pass --here to opt out)
 claude() {
   # --here: skip worktree, run on current branch
@@ -116,30 +152,8 @@ claude() {
     args+=("$arg")
   done
 
-  # keep the machine awake for the duration of the run:
-  #   macOS -> caffeinate -i prefix (blocks system idle sleep, lets display off)
-  #   WSL   -> background powershell.exe holding an ES_SYSTEM_REQUIRED assertion
-  #            (the Windows equivalent), killed on return via the EXIT trap
-  # On bare Linux neither exists, so this stays a plain `command claude`.
-  local run=(command claude)
-  if command -v caffeinate &>/dev/null; then
-    local claude_bin
-    claude_bin=$(whence -p claude 2>/dev/null)
-    [[ -n "$claude_bin" ]] && run=(caffeinate -i "$claude_bin")
-  elif [[ -n "$WSL_DISTRO_NAME" ]]; then
-    local pwsh
-    pwsh=$(command -v powershell.exe 2>/dev/null || command -v pwsh.exe 2>/dev/null)
-    if [[ -n "$pwsh" ]]; then
-      # 2147483649 = ES_CONTINUOUS (0x80000000) | ES_SYSTEM_REQUIRED (0x1)
-      "$pwsh" -NoProfile -Command '$s = Add-Type -MemberDefinition "[DllImport(`"kernel32.dll`")] public static extern uint SetThreadExecutionState(uint e);" -Name Power -Namespace Win32 -PassThru; $s::SetThreadExecutionState(2147483649); while ($true) { Start-Sleep 3600 }' &>/dev/null &
-      local keepawake_pid=$!
-      disown 2>/dev/null
-      trap "kill $keepawake_pid 2>/dev/null" EXIT
-    fi
-  fi
-
   if $force_here; then
-    "${run[@]}" "${args[@]}"
+    _keep_awake_run claude "${args[@]}"
     return
   fi
 
@@ -163,10 +177,16 @@ claude() {
   fi
 
   if $use_worktree; then
-    "${run[@]}" "${args[@]}" --worktree
+    _keep_awake_run claude "${args[@]}" --worktree
   else
-    "${run[@]}" "${args[@]}"
+    _keep_awake_run claude "${args[@]}"
   fi
+}
+
+# Cursor Agent CLI — same idle-sleep prevention as claude(). Call the real
+# ~/.local/bin/agent via whence -p inside _keep_awake_run (never recurse).
+agent() {
+  _keep_awake_run agent "$@"
 }
 
 # open buffer line in editor
