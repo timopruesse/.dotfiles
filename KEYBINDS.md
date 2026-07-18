@@ -309,7 +309,10 @@ panes** at the edges (`vim-tmux-navigator`).
 
 ### 99 (AI Agent — inline)
 
-Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99), wired to the `claude` CLI via `ClaudeCodeProvider`.
+Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99). Provider follows
+the same cwd routing as coding-agent launchers (`ClaudeCodeProvider` for
+chewielabs, `CursorAgentProvider` otherwise); re-syncs on `DirChanged`. Override
+temporarily with `<leader>9p`.
 
 | Key          | Mode   | Action                                          |
 | ------------ | ------ | ----------------------------------------------- |

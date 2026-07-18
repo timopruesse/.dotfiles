@@ -64,9 +64,10 @@ When adding new work contexts, add matching `includeIf` blocks and an identity f
 
 ## Coding agent routing (Claude vs Cursor)
 
-Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), tmux binds (`prefix H`/`V`/`R`/`S`), and
-Neovim `<leader>z*` share one resolver:
+Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), tmux binds (`prefix H`/`V`/`R`/`S`),
+Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 [`home/.tmux/scripts/coding_agent_resolve.sh`](home/.tmux/scripts/coding_agent_resolve.sh).
+(Neovim also exposes it as `timopruesse.coding_agent`.)
 
 Precedence: `CODING_AGENT=claude|agent` → git remote org → path
 (`~/github/chewielabs` → Claude Code; everything else → Cursor `agent`).

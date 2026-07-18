@@ -1,15 +1,8 @@
 local M = {}
 
-local last_agent_pane = nil
+local coding_agent = require("timopruesse.coding_agent")
 
-local function resolve_cli(cwd)
-	local script = vim.fn.expand("~/.tmux/scripts/coding_agent_resolve.sh")
-	local result = vim.trim(vim.fn.system({ script, cwd }))
-	if result == "claude" or result == "agent" then
-		return result
-	end
-	return "agent"
-end
+local last_agent_pane = nil
 
 local function tmux_pane(mode, cwd)
 	local tmux_arg
@@ -82,7 +75,7 @@ function M.send_to_claude(text, opts)
 
 	local mode = opts.mode or "vsplit"
 	local cwd = vim.fn.getcwd()
-	local cli = resolve_cli(cwd)
+	local cli = coding_agent.resolve_cli(cwd)
 
 	local tmpfile = write_temp(text)
 	if not tmpfile then
@@ -232,7 +225,7 @@ function M.open_claude(opts)
 	opts = opts or {}
 	local mode = opts.mode or "vsplit"
 	local cwd = vim.fn.getcwd()
-	local cli = resolve_cli(cwd)
+	local cli = coding_agent.resolve_cli(cwd)
 
 	local pane_id = tmux_pane(mode, cwd)
 	if not pane_id then
