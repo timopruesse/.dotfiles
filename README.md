@@ -8,7 +8,7 @@ Declarative, YAML-driven dotfiles for a cross-platform development environment (
 - **Shell**: Zsh + [zcomet](https://github.com/agkozak/zcomet) + [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
 - **Terminal**: [Ghostty](https://ghostty.org) (macOS) / [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) (WSL) + tmux (Catppuccin themed)
 - **OS**: WSL2 (Ubuntu) on Windows; macOS (Apple Silicon)
-- **AI**: Claude Code integration in both Neovim and tmux
+- **AI**: Claude Code (chewielabs work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, tmux, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md)
 
 ## Setup
 

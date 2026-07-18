@@ -15,6 +15,7 @@ reviews and sync tooling should use these names.
 | **sync** | `home/sync/` — deep module that parses the map, generates platform trees, emits the tier catalog. Entry points: `home/agents/sync-agents`, `home/commands/sync-commands`. |
 | **live-install** | `home/sync/live-install` — Cursor adapter that installs agents/commands/hooks/rules and merges CLI prefs into `~/.cursor` without replacing that tree. |
 | **session-log** | `home/session_log/` — shared JSONL append/error core; Claude and Cursor hooks are adapters. |
+| **coding-agent resolve** | `home/.tmux/scripts/coding_agent_resolve.sh` — picks `claude` vs `agent` for shared zsh/tmux/Neovim launchers (env → remote org → path). Same work/personal split as git identity. |
 
 ## Workflow vocabulary
 
@@ -39,4 +40,5 @@ reviews and sync tooling should use these names.
 - Flow graph: [`WORKFLOWS.md`](WORKFLOWS.md)
 - Host routing prose: [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md)
 - Session cost logging: [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md)
+- Shell / tmux / Neovim launchers: [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md)
 - Repo setup: [`CLAUDE.md`](CLAUDE.md)

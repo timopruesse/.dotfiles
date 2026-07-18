@@ -2,6 +2,8 @@
 
 > Domain glossary: [`CONTEXT.md`](CONTEXT.md). Flow graph of commands + agents:
 > see below. Host routing prose: [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
+> Shell/tmux/Neovim CLI launchers (Claude vs Cursor by cwd): [`ALIASES.md`](ALIASES.md),
+> [`KEYBINDS.md`](KEYBINDS.md), [`CLAUDE.md`](CLAUDE.md#coding-agent-routing-claude-vs-cursor).
 
 A visual map of the **commands** (authored in `home/commands/`, generated to
 `home/.claude/commands/` and `home/.cursor/commands/`) and the **subagents**

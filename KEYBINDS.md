@@ -30,9 +30,11 @@ Prefix key: **Ctrl+Space**
 | `prefix e`   | Harpoon: open the pinned-sessions menu (fzf)   |
 | `Alt+1`..`Alt+4` | Harpoon: jump straight to pinned slot 1–4 (no prefix) |
 
-Launch binds resolve Claude Code vs Cursor Agent from `#{pane_current_path}`
-(chewielabs → Claude; otherwise Cursor — see `coding_agent_resolve.sh`). Override
-with `CODING_AGENT=claude|agent`.
+Launch binds resolve Claude Code vs Cursor Agent from `#{pane_current_path}` via
+`coding_agent_resolve.sh` / `coding_agent_launch.sh` (env → git remote org →
+path: chewielabs → Claude; otherwise Cursor). Override with
+`CODING_AGENT=claude|agent`. These binds exec the CLI directly (no zsh worktree
+wrapper); use shell `c`/`ch`/… when you want default `--worktree` / `-w`.
 
 The picker (`prefix C`) and sidebar (`prefix a`) list **both** CLIs. Status is
 also reflected in the status bar (`[ai: N ⚠ M]`):
@@ -322,8 +324,8 @@ Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99), wired to the 
 
 ### Coding agent (Tmux Integration)
 
-Same cwd routing as the shell aliases / tmux binds (`chewielabs` → Claude Code,
-otherwise Cursor Agent). Keymaps are unchanged.
+Same cwd routing as the shell aliases / tmux binds (env → remote org → path;
+chewielabs → Claude Code, otherwise Cursor Agent). Keymaps are unchanged.
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |

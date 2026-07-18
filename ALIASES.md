@@ -36,7 +36,8 @@ All ZSH aliases and functions, grouped by source file.
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
 | `lg` | `lazygit` | Open lazygit |
-| `agent` | `_keep_awake_run agent` (in `~/.zshrc`) | Cursor Agent CLI; prevents idle sleep (same as `claude`). Defaults to `-w` (isolated git worktree) inside a repo — pass `--here` to stay on the current branch. Skips worktrees for this dotfiles repo and for subcommands like `login` / `mcp` / `update`. |
+| `claude` | wrapper in `~/.zshrc` | Claude Code CLI; keep-awake + defaults to `--worktree` inside a repo — pass `--here` to stay on the current branch. Skips this dotfiles repo and subcommands like `auth` / `mcp` / `update`. |
+| `agent` | wrapper in `~/.zshrc` | Cursor Agent CLI; keep-awake + defaults to `-w` (isolated git worktree) inside a repo — pass `--here` to stay on the current branch. Skips this dotfiles repo and subcommands like `login` / `mcp` / `update`. |
 | `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
 | `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
 | `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
@@ -102,6 +103,12 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 
 Per-invocation override: pass `--claude` or `--agent` / `--cursor` to any of the
 launchers (e.g. `c --claude`, `ch --agent "fix the flaky test"`).
+
+Launchers `send-keys` into an interactive shell, so the `claude` / `agent`
+wrappers apply (keep-awake + default worktree). Tmux `prefix H`/`V`/`R`/`S` go
+through `coding_agent_launch.sh` (resolve + exec) and do **not** add worktree
+flags themselves — use `c`/`ch`/… or type `claude`/`agent` when you want the
+wrapper defaults.
 
 | Function | Command | Description |
 |----------|---------|-------------|

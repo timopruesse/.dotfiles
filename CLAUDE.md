@@ -30,9 +30,10 @@ home/             # Symlinked to ~ — contains all user config files
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
   .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
-  .zshrc          # Zsh shell config
-  .tmux.conf      # Tmux config
-  .gitconfig*     # Git config with conditional includes per directory
+  .zshrc          # Zsh shell config (claude/agent wrappers: keep-awake + worktrees)
+  .tmux.conf      # Tmux config (coding-agent binds resolve Claude vs Cursor)
+  .tmux/scripts/  # coding_agent_resolve/launch + session picker/sidebar helpers
+  .gitconfig*     # Git config with conditional includes per directory / remote
   *.sh            # Utility scripts (lazygit installer, tmux starter, etc.)
 terminal/         # Windows Terminal settings (copied, not symlinked)
 etc/              # System config (wsl.conf — requires copy with sudo)
@@ -51,12 +52,33 @@ working in that directory.
 
 ## Git Identity Setup
 
-`.gitconfig` uses conditional includes to switch identities based on working directory:
+`.gitconfig` uses conditional includes to switch identities. Path rules cover the
+common clone layouts; remote-URL rules win for worktrees / odd checkout paths:
 
-- `~/` → `.gitconfig_personal`
-- `~/github/chewielabs/` → `.gitconfig_mill`
+- `gitdir:~/` → `.gitconfig_personal`
+- `gitdir:~/github/chewielabs/` → `.gitconfig_mill`
+- remote `github.com/chewielabs/**` → `.gitconfig_mill`
+- remote `github.com/timopruesse/**` → `.gitconfig_personal`
 
-When adding new work contexts, add an `includeIf "gitdir:..."` block to `.gitconfig` and create a corresponding identity file.
+When adding new work contexts, add matching `includeIf` blocks and an identity file.
+
+## Coding agent routing (Claude vs Cursor)
+
+Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), tmux binds (`prefix H`/`V`/`R`/`S`), and
+Neovim `<leader>z*` share one resolver:
+[`home/.tmux/scripts/coding_agent_resolve.sh`](home/.tmux/scripts/coding_agent_resolve.sh).
+
+Precedence: `CODING_AGENT=claude|agent` → git remote org → path
+(`~/github/chewielabs` → Claude Code; everything else → Cursor `agent`).
+Per-call overrides: `--claude` / `--agent` on the launchers.
+
+Both `claude` and `agent` wrappers in `.zshrc` default to an isolated git
+worktree inside a repo (`--worktree` / `-w`); pass `--here` to stay on the
+current branch. Dotfiles itself is excluded so symlink edits take effect
+immediately. Session listing (`clist`/`cj`, `prefix C`/`a`, status `[ai: N]`)
+tracks both CLIs.
+
+Canonical docs: [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md).
 
 ## Keybinds Reference
 
@@ -64,7 +86,7 @@ All Tmux and Neovim keybindings are documented in [`KEYBINDS.md`](KEYBINDS.md). 
 
 ## Aliases Reference
 
-All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grouped by source file (git, system, tmux, browser, claude).
+All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grouped by source file (git, system, tmux, coding agent, …).
 
 ## Workflows Reference
 
@@ -83,4 +105,5 @@ subagents) are documented in [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md
 - **WSL-specific**: `.zshrc` sets `DISPLAY`, `BROWSER=wslview`, and D3D12 GPU acceleration for WSL2.
 - **Session persistence**: Tmux uses `tmux-resurrect` + `tmux-continuum` to auto-restore sessions.
 - **SSH via keychain**: `.zshrc` loads SSH keys through `keychain` on shell start.
+- **Keep-awake CLI sessions**: `claude` / `agent` wrappers hold idle sleep (macOS `caffeinate` / WSL `ES_SYSTEM_REQUIRED`).
 - **Neovim plugins auto-install**: Lazy.nvim installs missing plugins on first launch; Treesitter parsers via `:TSUpdate`.
