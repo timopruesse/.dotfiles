@@ -1,3 +1,11 @@
+# Cursor Agent tool shells: skip interactive config (keychain, p10k, plugins,
+# the `agent` function that shadows ~/.local/bin/agent). Heavy rc loading breaks
+# command-completion detection and can leave the CLI unable to exit cleanly.
+# https://forum.cursor.com/t/guide-fix-cursor-agent-terminal-hangs-caused-by-zshrc/107260
+if [[ -n "$CURSOR_AGENT" ]]; then
+  return
+fi
+
 # load identity
 keychain ~/.ssh/id_rsa
 

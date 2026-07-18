@@ -13,12 +13,27 @@ alias pn=pnpm
 
 alias lg=lazygit
 
-# cursor agent with Smart Auto by default; --yolo/--force skip it
+# Cursor Agent CLI with Smart Auto by default.
+# Named `agent` like the real ~/.local/bin/agent binary — call via whence -p so we
+# never recurse through this function or the IDE `cursor agent` shim. Skip Smart
+# Auto for --yolo/--force/--auto-review and for CLI subcommands (login, mcp, …).
+# Agent tool shells should not load this (see CURSOR_AGENT guard in ~/.zshrc).
 function agent() {
-  if (( ${@[(I)--yolo|--force]} )); then
-    command cursor agent "$@"
+  local bin
+  bin=$(whence -p agent) || {
+    print -u2 "agent: Cursor Agent CLI not found in PATH"
+    return 127
+  }
+
+  local -a skip_auto=(
+    login logout mcp plugin about status whoami models update
+    create-chat generate-rule rule worker help
+    install-shell-integration uninstall-shell-integration
+  )
+  if (( ${@[(I)--yolo|--force|--auto-review]} )) || (( ${skip_auto[(Ie)${1:-}]} )); then
+    "$bin" "$@"
   else
-    command cursor agent --auto-review "$@"
+    "$bin" --auto-review "$@"
   fi
 }
 
