@@ -13,8 +13,10 @@ That regenerates:
 
 and installs live symlinks into `~/.cursor/agents/`,
 `~/.cursor/rules/subagent-model-fallback.mdc`, and
-`~/.cursor/hooks{,.json}` (Cursor owns `~/.cursor/`; we only link managed
-agent/rule/hook paths — never the whole tree).
+`~/.cursor/hooks{,.json}`, plus merges
+`home/.cursor/cli-config.json` prefs into `~/.cursor/cli-config.json`
+(Cursor owns `~/.cursor/` — auth/caches stay local; we never replace the whole
+tree or symlink the live CLI config).
 
 Do **not** hand-edit the generated trees; they are overwritten on sync.
 `machine_setup` runs the sync after the home symlink.

@@ -203,10 +203,11 @@ tasks:
           src: "./home"
           target: "~"
           # Cursor owns ~/.cursor (chats, extensions, state). Agent/command pins
-          # are installed into ~/.cursor/{agents,commands,rules} by sync scripts.
+          # + CLI prefs are installed into ~/.cursor by sync scripts.
           ignore: [".cursor"]
       # Regenerate Claude/Cursor agent pins from home/agents/ (tier → model map).
-      # Also symlinks into ~/.cursor/agents + rules (does not replace ~/.cursor).
+      # Also installs into ~/.cursor/agents + rules + hooks + merges cli-config
+      # prefs (does not replace ~/.cursor or symlink cli-config.json).
       - run:
           install:
             - "./home/agents/sync-agents"

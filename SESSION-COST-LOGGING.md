@@ -65,16 +65,17 @@ USD billing, so `usage` and `cost_usd_estimate` are `null`. Subagents are
 accumulated in scratch during the session and flushed on end.
 
 `~/.cursor` is **not** fully symlinked (Cursor owns chats, extensions, auth).
-Managed hook files are linked into the live tree by
+Managed paths are installed into the live tree by
 [`home/agents/sync-agents`](home/agents/sync-agents):
 
 | Repo | Live |
 |------|------|
-| `home/.cursor/hooks.json` | `~/.cursor/hooks.json` |
-| `home/.cursor/hooks/` | `~/.cursor/hooks/` |
+| `home/.cursor/hooks.json` | `~/.cursor/hooks.json` (symlink) |
+| `home/.cursor/hooks/` | `~/.cursor/hooks/` (symlink) |
+| `home/.cursor/cli-config.json` | `~/.cursor/cli-config.json` (prefs merged; auth/caches preserved) |
 
-Re-run `./home/agents/sync-agents` after changing hooks (also runs from
-`machine_setup`).
+Re-run `./home/agents/sync-agents` after changing hooks or CLI prefs (also runs
+from `machine_setup`).
 
 ## Record schema
 

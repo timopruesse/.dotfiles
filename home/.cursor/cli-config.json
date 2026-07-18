@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "approvalMode": "unrestricted",
+  "autoAcceptWebSearch": true,
+  "sandbox": {
+    "mode": "disabled",
+    "networkAccess": "user_config_with_defaults"
+  },
+  "permissions": {
+    "allow": [
+      "Shell(ls)",
+      "Shell(git status)",
+      "Shell(git diff)",
+      "Shell(git log)",
+      "Shell(git add)",
+      "Shell(git commit)",
+      "Shell(cat)",
+      "Shell(git push)"
+    ],
+    "deny": []
+  },
+  "editor": {
+    "vimMode": true
+  },
+  "display": {
+    "showLineNumbers": true,
+    "showThinkingBlocks": false,
+    "showStatusIndicators": false,
+    "showStatusLineRunningTime": false
+  },
+  "notifications": true,
+  "hints": true,
+  "modelSlashCommands": true,
+  "rewind": true,
+  "channel": "lab",
+  "network": {
+    "useHttp1ForAgent": false
+  },
+  "attribution": {
+    "attributeCommitsToAgent": false,
+    "attributePRsToAgent": false
+  }
+}

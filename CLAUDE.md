@@ -26,7 +26,7 @@ home/             # Symlinked to ~ — contains all user config files
   commands/       # Shared slash-command sources; run sync-commands
   protocols/      # Shared HANDOFF + LOOP protocols (→ ~/protocols)
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
-  .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/) — NOT bulk-symlinked; sync scripts install into ~/.cursor
+  .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/, cli-config.json) — NOT bulk-symlinked; sync scripts install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .zshrc          # Zsh shell config
   .tmux.conf      # Tmux config
