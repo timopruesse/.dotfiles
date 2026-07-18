@@ -31,7 +31,7 @@ the spine with auto-mode set; the protocol governs everything downstream.
    - At each **AUTO** gate, approve and proceed without asking. At each **STOP** gate
      (design snag, `verifier` BREAKS, `WAITING`, Boba `BLOCKED`, external-blocker on
      a merge candidate, repeated-bail, any error), **`HALT`** — stop, surface exactly
-     what needs me, and let the notify hook ping. Never override a STOP.
+     what needs me, and let native notifications ping. Never override a STOP.
    - Fire the Jira transitions from the protocol's lifecycle mapping automatically
      (In Progress → In Review → Ready for Release).
 3. The synchronous run **ends by launching the async loop** (`/babysit-pr` or

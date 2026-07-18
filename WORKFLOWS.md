@@ -184,11 +184,11 @@ flowchart TD
   for Release) are defined once in
   [`home/protocols/HANDOFF-PROTOCOL.md`](home/protocols/HANDOFF-PROTOCOL.md) — the
   synchronous sibling of `LOOP-PROTOCOL.md`.
-- **Notifications:** a `Notification` hook
-  ([`home/.claude/hooks/notify.sh`](home/.claude/hooks/notify.sh)) pings macOS
-  (desktop notification + chime) when a loop **needs you** — a preview gate,
-  permission, or idle wait — so you can fire off a loop and walk away. OS-aware;
-  falls back to `notify-send` / a terminal bell off macOS.
+- **Notifications:** Claude Code (`preferredNotifChannel: auto`) and Cursor CLI
+  (`notifications: true`) send native desktop notifications when a session
+  **needs you** — idle wait or permission — so you can fire off a loop and walk
+  away. Relies on the terminal (Ghostty / Kitty / iTerm2) + OS notification
+  permission.
 
 ## Agents at a glance
 

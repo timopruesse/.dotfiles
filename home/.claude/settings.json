@@ -4,16 +4,6 @@
   },
   "model": "opus[1m]",
   "hooks": {
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/notify.sh\" attention"
-          }
-        ]
-      }
-    ],
     "SessionEnd": [
       {
         "hooks": [

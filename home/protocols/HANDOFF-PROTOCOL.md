@@ -60,7 +60,7 @@ of `verifier`) ends with exactly one terminal line the orchestrator reads:
 | Terminal line | Mode A | Mode B |
 |---|---|---|
 | `ADVANCE → X` | invoke `X`, run it **up to its next preview gate, and wait** for `go` | invoke `X`, run it **through**, auto-approving only its AUTO gates |
-| `HALT: <reason>` | **stop**, surface the reason (the notify hook pings) | same — B never overrides a STOP |
+| `HALT: <reason>` | **stop**, surface the reason (native notifications ping) | same — B never overrides a STOP |
 
 The async tail (`/babysit-pr`, `/watch-boba`) is a self-scheduling loop governed
 by `LOOP-PROTOCOL.md`. A spine run **ends by launching that loop and returning** —
@@ -101,7 +101,7 @@ you'd want to see before it leaves the machine. **When unsure, STOP.**
   is the furthest thing from a gate).
 
 The STOP taxonomy **is** the bail-out — a B run yanks you back the moment it hits
-any judgment call, and the notify hook pings. No separate pause/kill switch.
+any judgment call, and native notifications ping. No separate pause/kill switch.
 
 ## Conditional auto-merge (mode B only)
 
