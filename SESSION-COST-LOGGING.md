@@ -66,7 +66,8 @@ accumulated in scratch during the session and flushed on end.
 
 `~/.cursor` is **not** fully symlinked (Cursor owns chats, extensions, auth).
 Managed paths are installed into the live tree by
-[`home/agents/sync-agents`](home/agents/sync-agents):
+[`home/sync/live-install`](home/sync/live-install) (after
+[`sync-agents`](home/agents/sync-agents) / [`sync-commands`](home/commands/sync-commands)):
 
 | Repo | Live |
 |------|------|
@@ -74,8 +75,9 @@ Managed paths are installed into the live tree by
 | `home/.cursor/hooks/` | `~/.cursor/hooks/` (symlink) |
 | `home/.cursor/cli-config.json` | `~/.cursor/cli-config.json` (prefs merged; auth/caches preserved) |
 
-Re-run `./home/agents/sync-agents` after changing hooks or CLI prefs (also runs
-from `machine_setup`).
+Re-run `./home/sync/live-install` after changing hooks or CLI prefs (also runs
+from `machine_setup`). Shared append/error helpers live in
+[`home/session_log/`](home/session_log/).
 
 ## Record schema
 
@@ -133,7 +135,7 @@ tail -20 ~/.cursor/logs/sessions.jsonl | jq '{session_id, success, ended_reason,
 
 - Claude `cost_usd_estimate` tracks list API prices and can drift from Max/Team
   subscription economics or provider changes. Update the table in
-  `home/.claude/hooks/log_session.py` when Anthropic revises rates.
+  `home/.claude/hooks/log_session.py` (Claude adapter) when Anthropic revises rates.
 - Unknown model IDs set `cost_estimate_incomplete: true` and omit that slice
   from the dollar total.
 - Cursor cannot log USD/tokens until the product exposes them on hooks.

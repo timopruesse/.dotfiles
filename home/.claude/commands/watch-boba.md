@@ -12,9 +12,9 @@ given, ask for one — there's no branch to infer a Boba ticket from.
 **Orchestrator tier:** mid by default (this command's pin). The one carve-out
 among lifecycle commands: you may **escalate to the strong tier** when judgment
 is load-bearing — (a) re-classify after `boba-watcher` returns `ESCALATE`, or
-(b) draft a scope/approach unblock. Pass the strong model on that spawn
-(`model: "opus"` in Claude Code; `cursor-grok-4.5-high-fast` or `auto` in
-Cursor). Do not upgrade the whole loop to strong; keep routine ticks on mid.
+(b) draft a scope/approach unblock. Pass the strong-tier model on that spawn
+(`model: "opus"`). Do not upgrade the whole loop to strong; keep routine ticks
+on mid.
 
 The `STATUS:` vocabulary and `ScheduleWakeup` cadence are defined once in
 `~/protocols/LOOP-PROTOCOL.md`; the per-status handling below is this command's

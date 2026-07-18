@@ -1,11 +1,13 @@
 # Workflows
 
+> Domain glossary: [`CONTEXT.md`](CONTEXT.md). Flow graph of commands + agents:
+> see below. Host routing prose: [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
+
 A visual map of the **commands** (authored in `home/commands/`, generated to
 `home/.claude/commands/` and `home/.cursor/commands/`) and the **subagents**
 (authored in `home/agents/`, generated to `home/.claude/agents/` and
 `home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle, front to
-back. See [`CLAUDE.md`](home/.claude/CLAUDE.md) for the prose reference; shared
-contracts live in [`home/protocols/`](home/protocols/).
+back. Shared contracts live in [`home/protocols/`](home/protocols/).
 
 ## The flow graph
 
@@ -120,19 +122,19 @@ flowchart TD
     AR -->|"apply code"| WK
     AR --> DRP
 
-    %% ---------- styling ----------
+    %% ---------- styling (tier colors, not host model names) ----------
     classDef command fill:#dbeafe,stroke:#2563eb,color:#0b2559;
-    classDef sonnet  fill:#dcfce7,stroke:#16a34a,color:#052e16;
-    classDef opus    fill:#ede9fe,stroke:#7c3aed,color:#2e1065;
-    classDef haiku   fill:#f1f5f9,stroke:#64748b,color:#0f172a;
+    classDef mid     fill:#dcfce7,stroke:#16a34a,color:#052e16;
+    classDef strong  fill:#ede9fe,stroke:#7c3aed,color:#2e1065;
+    classDef cheap   fill:#f1f5f9,stroke:#64748b,color:#0f172a;
     classDef gate    fill:#fef9c3,stroke:#ca8a04,color:#422006;
     classDef human   fill:#fee2e2,stroke:#dc2626,color:#450a0a;
     classDef done    fill:#bbf7d0,stroke:#15803d,color:#052e16;
 
     class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND,SHIP command;
-    class BW,WK,PRB,PRR sonnet;
-    class VER opus;
-    class CM,SCOUT haiku;
+    class BW,WK,PRB,PRR mid;
+    class VER strong;
+    class CM,SCOUT cheap;
     class DISP,PG,VG,LPG,PRQ,AM gate;
     class HUM1,HUM2 human;
     class MERGE,MRG done;
@@ -142,11 +144,11 @@ flowchart TD
 
 - **Rounded blue** nodes are slash **commands** you invoke; **rectangles** are
   **subagents** they spawn. **Hexagons** are decision / preview **gates**.
-- Node colors encode the **subagent** model pin: 🟢 Sonnet, 🟣 Opus (`verifier`),
-  ⚪ Haiku (`committer`, `scout`). Command **orchestrators** are pinned separately
+- Node colors encode the **subagent tier**: 🟢 mid, 🟣 strong (`verifier`),
+  ⚪ cheap (`committer`, `scout`). Command **orchestrators** are pinned separately
   (cheap/mid via `tier:` in `home/commands/` — see
-  [`home/commands/README.md`](home/commands/README.md)); none need strong/Opus.
-  `scout` is the cheap Haiku LOCATE/gather retriever; its Sonnet sibling
+  [`home/commands/README.md`](home/commands/README.md)); none need strong.
+  `scout` is the cheap LOCATE/gather retriever; its mid sibling
   `scout-explain` (deep subsystem walkthroughs) isn't wired into the lifecycle
   flows, so it's listed in the table below rather than drawn here.
 - The single **`verifier`** node is one agent invoked from several flows (the

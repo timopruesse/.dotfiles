@@ -14,27 +14,16 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# home/session_log — hooks live at home/.cursor/hooks/
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from session_log.core import append_jsonl, log_err, now_iso, read_hook_payload  # noqa: E402
 
 LOG_DIR = Path.home() / ".cursor" / "logs"
 SCRATCH_DIR = LOG_DIR / "scratch"
 LOG_FILE = LOG_DIR / "sessions.jsonl"
-ERR_FILE = LOG_DIR / "sessions.errors.log"
-
-
-def now_iso() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def log_err(msg: str) -> None:
-    try:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-        with ERR_FILE.open("a", encoding="utf-8") as f:
-            f.write(f"{now_iso()} {msg}\n")
-    except OSError:
-        pass
 
 
 def session_key(payload: dict[str, Any]) -> str:
@@ -155,7 +144,9 @@ def handle_session_end(payload: dict[str, Any]) -> None:
         "final_status": payload.get("final_status"),
         "error_message": payload.get("error_message"),
         "duration_ms": payload.get("duration_ms"),
-        "is_background_agent": payload.get("is_background_agent", state.get("is_background_agent")),
+        "is_background_agent": payload.get(
+            "is_background_agent", state.get("is_background_agent")
+        ),
         "models": state.get("models") or [],
         "subagents": state.get("subagents") or [],
         "usage": None,
@@ -164,9 +155,7 @@ def handle_session_end(payload: dict[str, Any]) -> None:
         "workspace_roots": state.get("workspace_roots") or payload.get("workspace_roots"),
     }
 
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    with LOG_FILE.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(record, separators=(",", ":")) + "\n")
+    append_jsonl(LOG_FILE, record)
 
     try:
         scratch_path(sid).unlink(missing_ok=True)
@@ -176,16 +165,12 @@ def handle_session_end(payload: dict[str, Any]) -> None:
 
 def main() -> int:
     try:
-        raw = sys.stdin.read()
-        payload = json.loads(raw) if raw.strip() else {}
-        if not isinstance(payload, dict):
-            return 0
+        payload = read_hook_payload(sys.stdin.read())
         event = (
             payload.get("hook_event_name")
             or payload.get("event")
             or ""
         ).strip()
-        # Cursor may pass camelCase event names.
         key = event.replace("-", "").lower()
         if key in ("sessionstart",):
             handle_session_start(payload)
@@ -194,7 +179,6 @@ def main() -> int:
         elif key in ("sessionend",):
             handle_session_end(payload)
         else:
-            # Unknown / missing — if it looks like an end payload, flush.
             if "duration_ms" in payload and "reason" in payload:
                 handle_session_end(payload)
             elif payload.get("subagent_type") or payload.get("status") in (
@@ -206,7 +190,7 @@ def main() -> int:
             else:
                 handle_session_start(payload)
     except Exception as exc:  # noqa: BLE001
-        log_err(str(exc))
+        log_err(LOG_DIR, str(exc))
     return 0
 
 

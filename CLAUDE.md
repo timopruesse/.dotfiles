@@ -25,8 +25,10 @@ home/             # Symlinked to ~ — contains all user config files
   agents/         # Shared subagent sources (tier + prompts); run sync-agents
   commands/       # Shared slash-command sources; run sync-commands
   protocols/      # Shared HANDOFF + LOOP protocols (→ ~/protocols)
+  sync/           # Deep sync module + live-install (Claude/Cursor pins)
+  session_log/    # Shared session JSONL core (hooks are adapters)
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
-  .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/, cli-config.json) — NOT bulk-symlinked; sync scripts install into ~/.cursor
+  .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .zshrc          # Zsh shell config
   .tmux.conf      # Tmux config
@@ -35,6 +37,7 @@ home/             # Symlinked to ~ — contains all user config files
 terminal/         # Windows Terminal settings (copied, not symlinked)
 etc/              # System config (wsl.conf — requires copy with sudo)
 fonts/            # MesloLGS NF fonts for Powerlevel10k
+CONTEXT.md                   # Domain glossary (agents, tiers, spine, sync)
 machine_setup.yaml           # Main setup orchestration
 personal_repositories.yaml   # Clones personal repos after setup
 ```
@@ -65,13 +68,10 @@ All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grou
 
 ## Workflows Reference
 
-The slash commands (authored in `home/commands/`, generated to
-`home/.claude/commands/` and `home/.cursor/commands/`) and the subagents they
-orchestrate (authored in `home/agents/`, generated to `home/.claude/agents/` and
-`home/.cursor/agents/`) are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md)
-— roughly the PR lifecycle, front to back. The prose reference lives in
-[`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Shared spine/loop contracts are
-in [`home/protocols/`](home/protocols/).
+Domain glossary: [`CONTEXT.md`](CONTEXT.md). The slash commands and subagents
+are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md). Host routing prose
+lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Shared spine/loop
+contracts are in [`home/protocols/`](home/protocols/).
 
 ## Session cost logging
 

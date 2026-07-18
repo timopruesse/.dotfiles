@@ -14,6 +14,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# home/session_log — hooks live at home/.claude/hooks/
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from session_log.core import append_jsonl, log_err, now_iso, read_hook_payload  # noqa: E402
+
 LOG_DIR = Path.home() / ".claude" / "logs"
 LOG_FILE = LOG_DIR / "sessions.jsonl"
 
@@ -104,7 +108,6 @@ def estimate_cost(model: str | None, usage: dict[str, int]) -> tuple[float | Non
         + usage["cache_read_input_tokens"]
     )
     if rates is None:
-        # Ignore zero-usage / synthetic placeholders.
         if not model or model.startswith("<") or tokens == 0:
             return None, False
         return None, True
@@ -120,7 +123,6 @@ def estimate_cost(model: str | None, usage: dict[str, int]) -> tuple[float | Non
         cost += w5 * rates["cache_write_5m"] / m
         cost += w1 * rates["cache_write_1h"] / m
     else:
-        # Fallback when breakdown is absent: treat all cache writes as 5m.
         cost += usage["cache_creation_input_tokens"] * rates["cache_write_5m"] / m
     return round(cost, 6), False
 
@@ -225,7 +227,6 @@ def summarize_calls(
 
 def load_subagents(transcript_path: Path, session_id: str) -> list[dict[str, Any]]:
     """Scan sibling subagents/ dir for agent types + per-agent usage."""
-    # Layout: .../<sessionId>.jsonl  and  .../<sessionId>/subagents/*.jsonl
     parent = transcript_path.parent
     candidates = [
         parent / session_id / "subagents",
@@ -248,7 +249,6 @@ def load_subagents(transcript_path: Path, session_id: str) -> list[dict[str, Any
             except (OSError, json.JSONDecodeError):
                 pass
         if not agent_type:
-            # Fallback: agent-a<label>-<hash>.jsonl
             name = jsonl.stem
             agent_type = name.removeprefix("agent-")
 
@@ -297,7 +297,6 @@ def build_record(payload: dict[str, Any]) -> dict[str, Any]:
     usage, models, main_cost, incomplete = summarize_calls(main_calls)
     subagents = load_subagents(transcript, session_id) if transcript else []
 
-    # Roll subagent usage + cost into session totals (matches /cost including agents).
     for sub in subagents:
         for k in (
             "input_tokens",
@@ -330,7 +329,7 @@ def build_record(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
     return {
-        "ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ts": now_iso(),
         "tool": "claude",
         "session_id": session_id,
         "cwd": cwd,
@@ -357,21 +356,11 @@ def build_record(payload: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> int:
     try:
-        raw = sys.stdin.read()
-        payload = json.loads(raw) if raw.strip() else {}
-        if not isinstance(payload, dict):
-            payload = {}
+        payload = read_hook_payload(sys.stdin.read())
         record = build_record(payload)
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-        with LOG_FILE.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(record, separators=(",", ":")) + "\n")
+        append_jsonl(LOG_FILE, record)
     except Exception as exc:  # noqa: BLE001 — never fail the session
-        try:
-            LOG_DIR.mkdir(parents=True, exist_ok=True)
-            with (LOG_DIR / "sessions.errors.log").open("a", encoding="utf-8") as f:
-                f.write(f"{datetime.now(timezone.utc).isoformat()} {exc}\n")
-        except OSError:
-            pass
+        log_err(LOG_DIR, str(exc))
     return 0
 
 
