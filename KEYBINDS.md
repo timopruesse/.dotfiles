@@ -19,26 +19,30 @@ Prefix key: **Ctrl+Space**
 | `prefix r`   | Reload tmux config                             |
 | `prefix Tab` | Toggle last window                             |
 | `` prefix ` ``| Open popup terminal (75%x80%)                 |
-| `prefix S`   | Browse/resume Claude sessions (new window)     |
-| `prefix R`   | Resume last Claude session (new window)        |
-| `prefix H`   | Open Claude in horizontal split (current dir)  |
-| `prefix V`   | Open Claude in vertical split (current dir)    |
-| `prefix C`   | fzf popup to jump to a running Claude agent     |
-| `prefix a`   | Toggle live Claude sessions sidebar (split right) |
+| `prefix S`   | Browse/resume coding-agent sessions (new window; Claude vs Cursor by cwd) |
+| `prefix R`   | Continue last coding-agent session (new window; Claude vs Cursor by cwd) |
+| `prefix H`   | Open coding agent in horizontal split (cwd → Claude or Cursor) |
+| `prefix V`   | Open coding agent in vertical split (cwd → Claude or Cursor) |
+| `prefix C`   | fzf popup to jump to a running Claude / Cursor Agent pane |
+| `prefix a`   | Toggle live coding-agent sessions sidebar (split right) |
 | `prefix A`   | AWS profile picker (fzf)                       |
 | `prefix m`   | Harpoon: pin the current pane to a slot        |
 | `prefix e`   | Harpoon: open the pinned-sessions menu (fzf)   |
 | `Alt+1`..`Alt+4` | Harpoon: jump straight to pinned slot 1–4 (no prefix) |
 
-The Claude picker (`prefix C`) and sidebar (`prefix a`) show each session's
-status, also reflected in the status bar (`[claude: N ⚠ M]`):
+Launch binds resolve Claude Code vs Cursor Agent from `#{pane_current_path}`
+(chewielabs → Claude; otherwise Cursor — see `coding_agent_resolve.sh`). Override
+with `CODING_AGENT=claude|agent`.
+
+The picker (`prefix C`) and sidebar (`prefix a`) list **both** CLIs. Status is
+also reflected in the status bar (`[ai: N ⚠ M]`):
 
 - 🔴 `input` — waiting on your confirmation/permission (needs you now)
 - 🟢 `idle` — finished, awaiting your next prompt (your turn)
 - ⚪ `working` — busy, no action needed
 
 In the sidebar, `enter` jumps to a session, `ctrl-r` refreshes (it also
-auto-refreshes every 3s), and `esc` or pressing `prefix a` again closes it.
+auto-refreshes every 5s), and `esc` or pressing `prefix a` again closes it.
 
 **Harpoon** (session pinning, à la ThePrimeagen's nvim plugin): pin the panes
 you're juggling with `prefix m`, then flip between them instantly with
@@ -50,9 +54,9 @@ panes are pruned automatically) and isn't limited to Claude panes.
 > `prefix m` replaces the default mark-pane binding, and `Alt+1`–`Alt+4` are
 > bound in the root table (active without the prefix).
 
-Claude **windows are auto-named after their current task** (truncated) in the
-status bar window list, e.g. `1:Add session overview sid…`; other windows keep
-their command name.
+Coding-agent **windows are auto-named after their current task** (truncated) in
+the status bar window list, e.g. `1:Add session overview sid…`; other windows
+keep their command name.
 
 ### Pane Navigation
 
@@ -316,22 +320,25 @@ Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99), wired to the 
 | `<leader>9m` | Normal | Telescope: select model                         |
 | `<leader>9p` | Normal | Telescope: select provider                      |
 
-### Claude (Tmux Integration)
+### Coding agent (Tmux Integration)
+
+Same cwd routing as the shell aliases / tmux binds (`chewielabs` → Claude Code,
+otherwise Cursor Agent). Keymaps are unchanged.
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |
-| `<leader>zo` | Normal | Open Claude in vertical tmux split                 |
-| `<leader>zh` | Normal | Open Claude in horizontal tmux split               |
-| `<leader>zw` | Normal | Open Claude in new tmux window                     |
-| `<leader>zs` | Visual | Send selection to Claude (new pane)                |
+| `<leader>zo` | Normal | Open coding agent in vertical tmux split           |
+| `<leader>zh` | Normal | Open coding agent in horizontal tmux split         |
+| `<leader>zw` | Normal | Open coding agent in new tmux window               |
+| `<leader>zs` | Visual | Send selection to agent (new pane)                 |
 | `<leader>zp` | Visual | Prompt for instruction + send selection (new pane) |
-| `<leader>zr` | Visual | Send selection to existing Claude pane             |
-| `<leader>zR` | Visual | Prompt + send selection to existing Claude pane    |
-| `<leader>zf` | Normal | Send current file to Claude                        |
-| `<leader>zd` | Normal | Send current line diagnostics to Claude            |
-| `<leader>zD` | Normal | Send diagnostics to existing Claude pane           |
-| `<leader>zg` | Normal | Send git diff for current file to Claude           |
-| `<leader>zG` | Normal | Prompt for instruction + send git diff to Claude   |
+| `<leader>zr` | Visual | Send selection to existing agent pane              |
+| `<leader>zR` | Visual | Prompt + send selection to existing agent pane     |
+| `<leader>zf` | Normal | Send current file to agent                         |
+| `<leader>zd` | Normal | Send current line diagnostics to agent             |
+| `<leader>zD` | Normal | Send diagnostics to existing agent pane            |
+| `<leader>zg` | Normal | Send git diff for current file to agent            |
+| `<leader>zG` | Normal | Prompt for instruction + send git diff to agent    |
 
 ### Miscellaneous
 

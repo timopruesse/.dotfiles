@@ -183,10 +183,54 @@ claude() {
   fi
 }
 
-# Cursor Agent CLI — same idle-sleep prevention as claude(). Call the real
-# ~/.local/bin/agent via whence -p inside _keep_awake_run (never recurse).
+# Cursor Agent CLI — same idle-sleep prevention + worktree default as claude().
+# Call the real ~/.local/bin/agent via whence -p inside _keep_awake_run (never
+# recurse). Pass --here to opt out of -w/--worktree.
 agent() {
-  _keep_awake_run agent "$@"
+  local args=()
+  local force_here=false
+  local already_worktree=false
+  for arg in "$@"; do
+    if [[ "$arg" == "--here" ]]; then
+      force_here=true
+      continue
+    fi
+    # User already asked for a worktree (with or without a name).
+    if [[ "$arg" == "-w" || "$arg" == --worktree || "$arg" == -w=* || "$arg" == --worktree=* ]]; then
+      already_worktree=true
+    fi
+    args+=("$arg")
+  done
+
+  if $force_here; then
+    _keep_awake_run agent "${args[@]}"
+    return
+  fi
+
+  local use_worktree=false
+  if ! $already_worktree && git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
+    local repo_root
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+
+    # skip worktree for dotfiles repo (symlinks need to take effect immediately)
+    if [[ "$repo_root" != "$DOTFILES" ]]; then
+      use_worktree=true
+
+      # don't append -w to subcommands that don't support it
+      local subcommands="about|create-chat|generate-rule|rule|install-shell-integration|uninstall-shell-integration|login|logout|mcp|models|plugin|status|whoami|update|upgrade|worker"
+      for arg in "${args[@]}"; do
+        [[ "$arg" == -* ]] && continue
+        [[ "$arg" =~ ^($subcommands)$ ]] && use_worktree=false
+        break
+      done
+    fi
+  fi
+
+  if $use_worktree; then
+    _keep_awake_run agent "${args[@]}" -w
+  else
+    _keep_awake_run agent "${args[@]}"
+  fi
 }
 
 # open buffer line in editor

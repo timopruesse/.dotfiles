@@ -1,6 +1,15 @@
 local M = {}
 
-local last_claude_pane = nil
+local last_agent_pane = nil
+
+local function resolve_cli(cwd)
+	local script = vim.fn.expand("~/.tmux/scripts/coding_agent_resolve.sh")
+	local result = vim.trim(vim.fn.system({ script, cwd }))
+	if result == "claude" or result == "agent" then
+		return result
+	end
+	return "agent"
+end
 
 local function tmux_pane(mode, cwd)
 	local tmux_arg
@@ -53,26 +62,27 @@ end
 function M.send_to_claude(text, opts)
 	opts = opts or {}
 
-	if opts.existing and last_claude_pane and pane_exists(last_claude_pane) then
+	if opts.existing and last_agent_pane and pane_exists(last_agent_pane) then
 		local tmpfile = write_temp(text)
 		if not tmpfile then
 			return
 		end
 		vim.fn.system({ "tmux", "load-buffer", tmpfile })
-		vim.fn.system({ "tmux", "paste-buffer", "-t", last_claude_pane })
+		vim.fn.system({ "tmux", "paste-buffer", "-t", last_agent_pane })
 		vim.defer_fn(function()
-			vim.fn.system({ "tmux", "send-keys", "-t", last_claude_pane, "Enter" })
+			vim.fn.system({ "tmux", "send-keys", "-t", last_agent_pane, "Enter" })
 			os.remove(tmpfile)
 		end, 100)
 		return
 	end
 
 	if opts.existing then
-		vim.notify("No active Claude pane — opening new one.", vim.log.levels.INFO)
+		vim.notify("No active agent pane — opening new one.", vim.log.levels.INFO)
 	end
 
 	local mode = opts.mode or "vsplit"
 	local cwd = vim.fn.getcwd()
+	local cli = resolve_cli(cwd)
 
 	local tmpfile = write_temp(text)
 	if not tmpfile then
@@ -84,9 +94,9 @@ function M.send_to_claude(text, opts)
 		return
 	end
 
-	last_claude_pane = pane_id
+	last_agent_pane = pane_id
 
-	local cmd = string.format("__cp=$(cat '%s') && rm -f '%s' && claude \"$__cp\"", tmpfile, tmpfile)
+	local cmd = string.format("__cp=$(cat '%s') && rm -f '%s' && %s \"$__cp\"", tmpfile, tmpfile, cli)
 	tmux_send(pane_id, cmd)
 end
 
@@ -119,7 +129,7 @@ function M.prompt_and_send(opts)
 	local ft = vim.bo.filetype
 
 	vim.schedule(function()
-		vim.ui.input({ prompt = "Claude: " }, function(input)
+		vim.ui.input({ prompt = "Agent: " }, function(input)
 			if not input or input == "" then
 				return
 			end
@@ -207,7 +217,7 @@ function M.prompt_and_send_git_diff(opts)
 	end
 
 	vim.schedule(function()
-		vim.ui.input({ prompt = "Claude: " }, function(input)
+		vim.ui.input({ prompt = "Agent: " }, function(input)
 			if not input or input == "" then
 				return
 			end
@@ -222,14 +232,15 @@ function M.open_claude(opts)
 	opts = opts or {}
 	local mode = opts.mode or "vsplit"
 	local cwd = vim.fn.getcwd()
+	local cli = resolve_cli(cwd)
 
 	local pane_id = tmux_pane(mode, cwd)
 	if not pane_id then
 		return
 	end
 
-	last_claude_pane = pane_id
-	tmux_send(pane_id, "claude")
+	last_agent_pane = pane_id
+	tmux_send(pane_id, cli)
 end
 
 return M

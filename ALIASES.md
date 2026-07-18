@@ -36,7 +36,7 @@ All ZSH aliases and functions, grouped by source file.
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
 | `lg` | `lazygit` | Open lazygit |
-| `agent` | `_keep_awake_run agent` (in `~/.zshrc`) | Cursor Agent CLI; prevents idle sleep for the session (macOS `caffeinate` / WSL `ES_SYSTEM_REQUIRED`, same as `claude`) |
+| `agent` | `_keep_awake_run agent` (in `~/.zshrc`) | Cursor Agent CLI; prevents idle sleep (same as `claude`). Defaults to `-w` (isolated git worktree) inside a repo — pass `--here` to stay on the current branch. Skips worktrees for this dotfiles repo and for subcommands like `login` / `mcp` / `update`. |
 | `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
 | `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
 | `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
@@ -91,20 +91,27 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 | `awsc` | — | Print the currently active AWS profile |
 | `awsu` | — | Unset AWS profile (revert to default) |
 
-## Claude (`claude_aliases.zsh`)
+## Coding agent (`claude_aliases.zsh`)
+
+`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Cursor Agent** from the cwd
+(same rules as git identity — see `~/.tmux/scripts/coding_agent_resolve.sh`):
+
+1. `CODING_AGENT=claude|agent` env override
+2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `agent`
+3. Path: `~/github/chewielabs/*` → `claude`, everything else → `agent`
+
+Per-invocation override: pass `--claude` or `--agent` / `--cursor` to any of the
+launchers (e.g. `c --claude`, `ch --agent "fix the flaky test"`).
 
 | Function | Command | Description |
 |----------|---------|-------------|
-| `c` | `tmux new-window "claude"` | Open Claude Code in a new tmux window |
-| `c <prompt>` | `tmux new-window "claude -p \"...\""` | Open Claude Code with a prompt in a new tmux window |
-| `ch` | `tmux split-window -h "claude"` | Open Claude Code in a horizontal split |
-| `ch <prompt>` | `tmux split-window -h "claude -p \"...\""` | Open Claude Code with a prompt in a horizontal split |
-| `cv` | `tmux split-window -v "claude"` | Open Claude Code in a vertical split |
-| `cv <prompt>` | `tmux split-window -v "claude -p \"...\""` | Open Claude Code with a prompt in a vertical split |
-| `cr` | `tmux new-window "claude --continue"` | Resume last Claude Code session in a new tmux window |
-| `cpi` | `echo 'code' \| cpi 'instruction'` | Pipe stdin to Claude in a new tmux window |
-| `clist` | — | List all tmux panes running Claude across sessions |
-| `cj` | — | fzf picker to jump to a running Claude agent |
+| `c` | new tmux window with resolved CLI | Open coding agent in a new tmux window |
+| `c <prompt>` | … with positional prompt | Open with an initial prompt |
+| `ch` / `cv` | horizontal / vertical split | Same, in a split |
+| `cr` | `… --continue` | Continue the last session for that CLI |
+| `cpi` | `… -p "…"` | Pipe stdin / instruction in print mode |
+| `clist` | — | List tmux panes running Claude or Cursor Agent |
+| `cj` | — | fzf picker to jump to a running coding-agent pane |
 | `agents-link [dir]` | `ln -s CLAUDE.md AGENTS.md` | Symlink `AGENTS.md` → `CLAUDE.md` so Cursor reads the same instructions as Claude (one source of bytes) |
 | `agents-link --all` | — | Do it for every `CLAUDE.md` in the repo (skips `.git`/`node_modules`) |
 | `agents-link -f …` | — | Replace an existing `AGENTS.md` **symlink** (never clobbers a real file) |

@@ -1,6 +1,7 @@
 #!/bin/sh
-# Toggle a Claude sessions sidebar: a split to the right that lists every
-# running Claude session with its status, refreshes live, and lets you jump.
+# Toggle a coding-agent sessions sidebar: a split to the right that lists every
+# running Claude Code / Cursor Agent session with its status, refreshes live,
+# and lets you jump.
 
 . "$HOME/.tmux/scripts/claude_lib.sh"
 

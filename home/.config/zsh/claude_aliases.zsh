@@ -1,13 +1,30 @@
-function _claude_tmux() {
+# coding-agent aliases: path/remote-aware launcher for Claude Code vs Cursor Agent.
+# Resolve rules live in ~/.tmux/scripts/coding_agent_resolve.sh
+#   chewielabs (remote or ~/github/chewielabs) → claude
+#   everything else → agent
+# Override: CODING_AGENT=claude|agent, or pass --claude / --agent to c/ch/cv/cr/cpi.
+
+function _coding_agent_tmux() {
   local mode="$1"
   shift
-  command -v claude >/dev/null || { echo "claude not found in PATH"; return 1; }
 
-  local colors=(red blue green yellow purple orange pink cyan)
-  local state_file="${XDG_STATE_HOME:-$HOME/.local/state}/claude_color_index"
-  local idx=$(($(cat "$state_file" 2>/dev/null || echo 0) % ${#colors[@]} + 1))
-  echo "$idx" > "$state_file"
-  local color="${colors[$idx]}"
+  local force=""
+  local args=()
+  for arg in "$@"; do
+    case "$arg" in
+      --claude) force=claude ;;
+      --agent|--cursor) force=agent ;;
+      *) args+=("$arg") ;;
+    esac
+  done
+
+  local cli
+  if [[ -n "$force" ]]; then
+    cli=$force
+  else
+    cli=$("$HOME/.tmux/scripts/coding_agent_resolve.sh" "$PWD")
+  fi
+  command -v "$cli" >/dev/null || { echo "$cli not found in PATH"; return 1; }
 
   local pane_id
   case "$mode" in
@@ -16,29 +33,37 @@ function _claude_tmux() {
     vsplit) pane_id=$(tmux split-window -v -c "$PWD" -P -F '#{pane_id}') ;;
   esac
 
-  if [ -z "$1" ]; then
-    tmux send-keys -t "$pane_id" "claude" Enter
+  if (( ${#args[@]} == 0 )); then
+    tmux send-keys -t "$pane_id" "$cli" Enter
   else
-    tmux send-keys -t "$pane_id" "claude $(printf '%q' "$*")" Enter
+    tmux send-keys -t "$pane_id" "$cli $(printf '%q ' "${args[@]}")" Enter
   fi
 
-  { sleep 3 && tmux send-keys -t "$pane_id" "/color $color" && sleep 0.2 && tmux send-keys -t "$pane_id" Escape && sleep 0.1 && tmux send-keys -t "$pane_id" Enter; } &!
+  # Claude-only: rotate pane color after the TUI is up.
+  if [[ "$cli" == claude ]]; then
+    local colors=(red blue green yellow purple orange pink cyan)
+    local state_file="${XDG_STATE_HOME:-$HOME/.local/state}/claude_color_index"
+    local idx=$(($(cat "$state_file" 2>/dev/null || echo 0) % ${#colors[@]} + 1))
+    echo "$idx" > "$state_file"
+    local color="${colors[$idx]}"
+    { sleep 3 && tmux send-keys -t "$pane_id" "/color $color" && sleep 0.2 && tmux send-keys -t "$pane_id" Escape && sleep 0.1 && tmux send-keys -t "$pane_id" Enter; } &!
+  fi
 }
 
 function c() {
-  _claude_tmux window "$@"
+  _coding_agent_tmux window "$@"
 }
 
 function ch() {
-  _claude_tmux hsplit "$@"
+  _coding_agent_tmux hsplit "$@"
 }
 
 function cv() {
-  _claude_tmux vsplit "$@"
+  _coding_agent_tmux vsplit "$@"
 }
 
 function cr() {
-  _claude_tmux window "--continue"
+  _coding_agent_tmux window --continue "$@"
 }
 
 function cpi() {
@@ -47,6 +72,17 @@ function cpi() {
     input=$(cat)
   fi
   local instruction="$*"
+  # Strip override flags from the prompt; re-pass them to the launcher.
+  local force_flags=()
+  local prompt_parts=()
+  for arg in "$@"; do
+    case "$arg" in
+      --claude|--agent|--cursor) force_flags+=("$arg") ;;
+      *) prompt_parts+=("$arg") ;;
+    esac
+  done
+  instruction="${prompt_parts[*]}"
+
   local prompt=""
   if [ -n "$instruction" ] && [ -n "$input" ]; then
     prompt="${instruction}\n\n${input}"
@@ -58,18 +94,17 @@ function cpi() {
     echo "Usage: echo 'code' | cpi 'instruction'  OR  cpi 'prompt'"
     return 1
   fi
-  _claude_tmux window "-p $(printf '%q' "$prompt")"
+  _coding_agent_tmux window "${force_flags[@]}" -p "$prompt"
 }
 
-# clist / cj share one definition of "a running Claude session" (and one jump)
-# with the tmux scripts: claude_sessions.sh enumerates, claude_picker.sh picks
-# and jumps. Re-implementing the enumeration here drifted out of sync with
-# is_claude_cmd (it missed version-only panes and matched ~/.claude paths).
+# clist / cj share one definition of "a running coding-agent session" (and one
+# jump) with the tmux scripts: claude_sessions.sh enumerates, claude_picker.sh
+# picks and jumps.
 function clist() {
   local rows
   rows=$("$HOME/.tmux/scripts/claude_sessions.sh")
   if [[ -z "$rows" ]]; then
-    echo "No Claude agents running"
+    echo "No coding agents running"
     return 0
   fi
   # Show: status marker, target (session:window.pane), task title.
