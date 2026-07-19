@@ -166,6 +166,37 @@ tasks:
           uninstall:
             - "brew uninstall gh"
 
+  # Google Chrome — required by the chrome-devtools MCP server. Uses Google's
+  # apt repo so `apt upgrade` keeps it current.
+  chrome_linux:
+    os: ["linux"]
+    commands:
+      - run:
+          install:
+            - "sudo mkdir -p -m 755 /etc/apt/keyrings"
+            - "wget -qO- https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg"
+            - "sudo chmod go+r /etc/apt/keyrings/google-chrome.gpg"
+            - 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null'
+            - "sudo apt-get update"
+            - "sudo apt-get install -y google-chrome-stable"
+          update:
+            - "sudo apt-get upgrade -y google-chrome-stable"
+          uninstall:
+            - "sudo apt-get remove -y google-chrome-stable"
+            - "sudo rm -f /etc/apt/sources.list.d/google-chrome.list"
+            - "sudo rm -f /etc/apt/keyrings/google-chrome.gpg"
+
+  chrome_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install --cask google-chrome"
+          update:
+            - "brew upgrade --cask google-chrome"
+          uninstall:
+            - "brew uninstall --cask google-chrome"
+
   tpm:
     commands:
       - clone:
