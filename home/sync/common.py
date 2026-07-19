@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -50,15 +51,20 @@ def parse_model_map(path: Path) -> dict[str, dict[str, str]]:
 
 
 def link_into(target: Path, link: Path, *, replace_file: bool = False) -> None:
-    """Symlink `link` → `target`, replacing a prior symlink; refuse to clobber files."""
+    """Symlink `link` → `target`, replacing a prior symlink; refuse to clobber files.
+
+    Uses a path relative to `link`'s parent so in-repo links stay portable across
+    machines (e.g. macOS /Users/... vs WSL /home/...).
+    """
     link.parent.mkdir(parents=True, exist_ok=True)
+    rel = Path(os.path.relpath(target.resolve(), start=link.parent.resolve()))
     if link.is_symlink() or not link.exists():
         link.unlink(missing_ok=True)
-        link.symlink_to(target)
+        link.symlink_to(rel)
         return
     if replace_file and link.is_file() and not link.is_symlink():
         link.unlink()
-        link.symlink_to(target)
+        link.symlink_to(rel)
         return
     raise SystemExit(f"refusing to replace non-symlink {link} (would install {target})")
 

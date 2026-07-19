@@ -1,1 +1,1 @@
-/Users/timopruesse/github/timopruesse/.dotfiles/home/protocols/HANDOFF-PROTOCOL.md
+../protocols/HANDOFF-PROTOCOL.md

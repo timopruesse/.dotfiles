@@ -6,5 +6,9 @@ ngrok.yml
 # temp files
 tmp
 
+# Python
+__pycache__/
+*.py[cod]
+
 # Playwright MCP
 .playwright-mcp/

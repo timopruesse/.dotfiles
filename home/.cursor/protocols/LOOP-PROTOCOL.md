@@ -1,1 +1,1 @@
-/Users/timopruesse/github/timopruesse/.dotfiles/home/protocols/LOOP-PROTOCOL.md
+../../protocols/LOOP-PROTOCOL.md
