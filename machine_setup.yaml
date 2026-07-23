@@ -57,6 +57,14 @@ tasks:
           target: "/etc/wsl.conf"
           sudo: true
 
+  # Windows-side WSL2 limits (%UserProfile%\.wslconfig). Takes effect after `wsl --shutdown`.
+  wsl_user_config:
+    os: ["linux"]
+    commands:
+      - copy:
+          src: "./etc/wslconfig"
+          target: "/mnt/c/Users/Timo/.wslconfig"
+
   win32yank_wsl:
     os: ["linux"]
     commands:
