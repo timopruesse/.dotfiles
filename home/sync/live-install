@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI: install managed Cursor agents/commands/hooks/rules/cli prefs into ~/.cursor."""
+"""CLI: install managed agents/commands/skills/hooks/rules/cli prefs into ~/.cursor (+ Claude skills)."""
 
 from __future__ import annotations
 

@@ -22,6 +22,10 @@ not the generated files. On Cursor, if a pinned model is rate-limited / out of
 quota, the parent retries once with `auto` (see
 `~/.cursor/rules/subagent-model-fallback.mdc`).
 
+When choosing whom to spawn (or whether to stay in the parent), prefer the
+`route-agents` skill (`~/skills/route-agents/SKILL.md`, also live-installed under
+`~/.cursor/skills/` / `~/.claude/skills/`).
+
 - **`scout`** (cheap) — read-only LOCATE agent: pinpoint "where/how does X work"
   via excerpts + `file:line`, or run a read-only gather (a `gh`/JQL query, a
   search) and return a compact result. The cheap default retriever the hubs and

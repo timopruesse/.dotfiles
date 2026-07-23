@@ -15,10 +15,14 @@ That regenerates:
 - marked tables in `home/.claude/CLAUDE.md` and `home/commands/README.md`
 
 `live-install` installs live symlinks into `~/.cursor/agents/`,
-`~/.cursor/rules/`, `~/.cursor/hooks{,.json}`, and merges
+`~/.cursor/rules/`, `~/.cursor/hooks{,.json}`, `~/.cursor/skills/`,
+`~/.claude/skills/`, and merges
 `home/.cursor/cli-config.json` prefs into `~/.cursor/cli-config.json`
 (Cursor owns `~/.cursor/` — auth/caches stay local; we never replace the whole
 tree or symlink the live CLI config).
+
+Orchestrator routing heuristics live in [`home/skills/route-agents/`](../skills/route-agents/)
+(not in agent prompts).
 
 Shared sync logic lives in [`home/sync/`](../sync/). Do **not** hand-edit the
 generated trees; they are overwritten on sync. `machine_setup` runs the sync

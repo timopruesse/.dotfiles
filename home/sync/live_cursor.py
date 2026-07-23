@@ -10,6 +10,7 @@ from typing import Any
 from sync.common import deep_merge, link_into, repo_home
 
 REPO_HOME = repo_home()
+SKILLS_SRC = REPO_HOME / "skills"
 CURSOR_OUT_AGENTS = REPO_HOME / ".cursor" / "agents"
 CURSOR_OUT_COMMANDS = REPO_HOME / ".cursor" / "commands"
 CURSOR_RULE = REPO_HOME / ".cursor" / "rules" / "subagent-model-fallback.mdc"
@@ -24,6 +25,8 @@ LIVE_RULES = LIVE_CURSOR / "rules"
 LIVE_HOOKS_JSON = LIVE_CURSOR / "hooks.json"
 LIVE_HOOKS_DIR = LIVE_CURSOR / "hooks"
 LIVE_CLI_CONFIG = LIVE_CURSOR / "cli-config.json"
+LIVE_CURSOR_SKILLS = LIVE_CURSOR / "skills"
+LIVE_CLAUDE_SKILLS = Path.home() / ".claude" / "skills"
 
 
 def install_md_links(src_dir: Path, live_dir: Path, keep: set[str] | None = None) -> None:
@@ -92,6 +95,50 @@ def install_cli_config() -> None:
     print(f"  merged cli-config prefs → {LIVE_CLI_CONFIG}")
 
 
+def _managed_skill_dirs() -> list[Path]:
+    if not SKILLS_SRC.is_dir():
+        return []
+    return sorted(
+        p
+        for p in SKILLS_SRC.iterdir()
+        if p.is_dir() and not p.name.startswith(".") and (p / "SKILL.md").is_file()
+    )
+
+
+def _prune_stale_managed_skills(live_root: Path, keep: set[str]) -> None:
+    """Remove live skill symlinks that pointed at our managed src but are gone."""
+    if not live_root.is_dir():
+        return
+    src_root = SKILLS_SRC.resolve()
+    for entry in live_root.iterdir():
+        if entry.name in keep or not entry.is_symlink():
+            continue
+        try:
+            resolved = entry.resolve()
+        except OSError:
+            continue
+        if resolved == src_root or src_root in resolved.parents:
+            entry.unlink()
+            print(f"  removed stale live skill {entry}")
+
+
+def install_skills() -> None:
+    """Link home/skills/<name> into ~/.cursor/skills and ~/.claude/skills.
+
+    Only prunes symlinks that resolve under the managed skills source — leaves
+    unrelated personal/plugin skills alone.
+    """
+    skills = _managed_skill_dirs()
+    if not skills:
+        return
+    keep = {p.name for p in skills}
+    for live_root in (LIVE_CURSOR_SKILLS, LIVE_CLAUDE_SKILLS):
+        for skill_dir in skills:
+            link_into(skill_dir, live_root / skill_dir.name)
+        _prune_stale_managed_skills(live_root, keep)
+        print(f"  linked {len(keep)} skills → {live_root}")
+
+
 def install_all(
     *,
     agents: bool = True,
@@ -99,6 +146,7 @@ def install_all(
     hooks: bool = True,
     rule: bool = True,
     cli_config: bool = True,
+    skills: bool = True,
 ) -> None:
     if agents and CURSOR_OUT_AGENTS.is_dir():
         keep = {p.stem for p in CURSOR_OUT_AGENTS.glob("*.md")}
@@ -108,6 +156,8 @@ def install_all(
         keep = {p.stem for p in CURSOR_OUT_COMMANDS.glob("*.md")}
         install_md_links(CURSOR_OUT_COMMANDS, LIVE_COMMANDS, keep)
         print(f"  linked {len(keep)} commands → {LIVE_COMMANDS}")
+    if skills:
+        install_skills()
     if rule:
         install_rule()
     if hooks:

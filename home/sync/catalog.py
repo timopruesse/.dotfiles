@@ -134,6 +134,9 @@ alwaysApply: true
 Custom subagents live in `~/.cursor/agents/` (generated from `~/agents/`). Prefer
 them by name when the task matches: {names_csv}.
 
+When choosing whom to spawn (or whether to stay in the parent), read the
+`route-agents` skill (`~/.cursor/skills/route-agents/SKILL.md`).
+
 Pinned models (from the agent frontmatter):
 
 {table}

@@ -24,6 +24,7 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 home/             # Symlinked to ~ — contains all user config files
   agents/         # Shared subagent sources (tier + prompts); run sync-agents
   commands/       # Shared slash-command sources; run sync-commands
+  skills/         # Orchestrator skills (route-agents, …); live-install
   protocols/      # Shared HANDOFF + LOOP protocols (→ ~/protocols)
   sync/           # Deep sync module + live-install (Claude/Cursor pins)
   session_log/    # Shared session JSONL core (hooks are adapters)

@@ -208,12 +208,13 @@ tasks:
       - clone:
           url: "git@github.com:timopruesse/.dotfiles.git"
           target: "."
-      # If ~/agents|protocols|commands are directory symlinks into this repo,
-      # force file-symlinking would replace sources with self-links. Unwrap first.
+      # If ~/agents|protocols|commands|skills are directory symlinks into this
+      # repo, force file-symlinking would replace sources with self-links.
+      # Unwrap first.
       - run:
           install:
             - |
-              for name in agents protocols commands; do
+              for name in agents protocols commands skills; do
                 p="$HOME/$name"
                 if [ -L "$p" ]; then
                   rm "$p"
@@ -222,7 +223,7 @@ tasks:
               done
           update:
             - |
-              for name in agents protocols commands; do
+              for name in agents protocols commands skills; do
                 p="$HOME/$name"
                 if [ -L "$p" ]; then
                   rm "$p"
@@ -248,8 +249,9 @@ tasks:
             - "./home/commands/sync-commands --no-live"
           update:
             - "./home/commands/sync-commands --no-live"
-      # Install managed paths into ~/.cursor (agents, commands, hooks, rules,
-      # cli-config merge). Cursor owns ~/.cursor — never replace the whole tree.
+      # Install managed paths into ~/.cursor (agents, commands, skills, hooks,
+      # rules, cli-config merge) and Claude skills. Cursor owns ~/.cursor —
+      # never replace the whole tree.
       - run:
           install:
             - "./home/sync/live-install"
