@@ -163,6 +163,3 @@ tail -20 ~/.cursor/logs/sessions.jsonl | jq '{session_id, success, ended_reason,
 - Claude `SessionEnd` must finish within the configured timeout (15s here);
   very large transcripts may truncate parsing if the OS is extremely slow —
   raise `timeout` in `settings.json` if needed.
-- Claude now merges `Agent` tool_use spawns from the parent transcript when the
-  `subagents/` folder is missing or incomplete, so routing analytics are less
-  blind.

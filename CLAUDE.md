@@ -92,12 +92,11 @@ All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grou
 
 ## Workflows Reference
 
-Domain glossary: [`CONTEXT.md`](CONTEXT.md). The slash commands and subagents
-are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md) (includes hard
-**agent-routing**, `researcher` prep, and the locate/explain/research seam).
-Host routing prose lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
-Shared spine/loop contracts are in [`home/protocols/`](home/protocols/).
-Orchestrator whom-table: [`home/skills/route-agents/`](home/skills/route-agents/).
+Domain glossary: [`CONTEXT.md`](CONTEXT.md). Flow graph:
+[`WORKFLOWS.md`](WORKFLOWS.md). Host routing + generated **agent-routing**:
+[`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Spine/loop contracts:
+[`home/protocols/`](home/protocols/). Whom-table:
+[`home/skills/route-agents/`](home/skills/route-agents/).
 
 ## Session cost logging
 

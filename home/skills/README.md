@@ -22,10 +22,8 @@ put always-on procedure in the agent prompt (or sync-time includes) instead.
 | [`route-agents`](route-agents/) | Whom-table — which pinned agent / command to spawn |
 | [`improve-codebase-architecture`](improve-codebase-architecture/) | Architecture review HTML report + grill loop; fans out via `scout` / `scout-explain` (never Explore) |
 
-Hard must-nots (locate → scout, commit → committer/`/land`, missing terminal =
-HALT) are **not** only in skills — sync emits **agent-routing** into
-`home/.cursor/rules/agent-routing.mdc` and `home/.claude/CLAUDE.md`. See
-[`CONTEXT.md`](../../CONTEXT.md) and [`WORKFLOWS.md`](../../WORKFLOWS.md).
+Hard rules: generated **agent-routing** (see [`CONTEXT.md`](../../CONTEXT.md)).
+Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md).
 
 `machine_setup` runs live-install after sync. Sources under `home/skills/` also
 land at `~/skills/` via the home symlink (same unwrap pattern as `agents/`).

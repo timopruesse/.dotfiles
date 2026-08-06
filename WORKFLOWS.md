@@ -13,22 +13,6 @@ A visual map of the **commands** (authored in `home/commands/`, generated to
 `home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle, front to
 back. Shared contracts live in [`home/protocols/`](home/protocols/).
 
-## Hard routing (always-on)
-
-Parents must follow **agent-routing** (not optional style). Soft detail stays in
-`route-agents`. Summary:
-
-| Job | Do | Do not |
-| --- | --- | --- |
-| Locate / gather | `scout` | builtin Explore / generalPurpose |
-| Explain subsystem | `scout-explain` | Explore / parent Opus for a map |
-| Spike / research ticket | `researcher` (opt-in prep) | Mode-B `/dispatch` while still a spike |
-| Implement | `worker` → `ADVANCE → /land` | `worker`/`parent` `git commit` |
-| Lint/tsc loop | `sweep` | strong parent fix loop |
-| Behavior change land | `/land` | parent commit |
-| Docs-only commit | `committer` | parent commit |
-| Missing terminal line | treat as `HALT` | invent ADVANCE from prose |
-
 ## The flow graph
 
 ```mermaid
@@ -170,8 +154,8 @@ flowchart TD
 
 ## Read agents (locate · explain · research)
 
-Not every read job is “scout.” Three cheap/mid **read agents** share a sharp seam;
-architecture critique stays on the parent (strong).
+Glossary: [`CONTEXT.md`](CONTEXT.md) (Read agents). Seam at a glance (never
+Explore / `generalPurpose`):
 
 ```mermaid
 flowchart LR
@@ -203,20 +187,16 @@ flowchart LR
   ⚪ cheap (`committer`, `scout`, `researcher`). Command **orchestrators** are pinned separately
   (cheap/mid via `tier:` in `home/commands/` — see
   [`home/commands/README.md`](home/commands/README.md)); none need strong.
-- **`researcher`** sits *above* `/dispatch`: `/open-work` may offer it for
-  research/spike tickets; it returns `ADVANCE → parent` with a brief. Never
-  Mode-B auto-dispatch a spike that still needs prep.
+- **`researcher`** sits *above* `/dispatch` on the graph (opt-in prep; contract
+  in [`HANDOFF-PROTOCOL.md`](home/protocols/HANDOFF-PROTOCOL.md)).
 - **`scout-explain`** and **`sweep`** are real agents (see table) but mostly
-  ad-hoc — not drawn on the spine. `sweep` ends `ADVANCE → /land` or
-  `ADVANCE → done`.
+  ad-hoc — not drawn on the spine.
 - The single **`verifier`** node is one agent invoked from several flows (the
   `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
   arrows show its reuse, not multiple agents.
-- **`/land`** is the local counterpart to the Boba loop's `boba-watcher → /babysit-pr`
-  hand-off: it closes the seam between `worker` and `/open-pr` by owning the
-  post-`worker` conveyor (verifier gate → commit preview → `committer` → offer the
-  next step). **`worker` never commits.** Docs-only commits may spawn `committer`
-  without `/land`. Parent never runs `git commit`.
+- **`/land`** closes the seam between `worker` and `/open-pr` (verifier → commit
+  preview → `committer`). If a PR already exists it offers `/babysit-pr` instead
+  of `/open-pr`. Commit rules: **agent-routing** (worker/parent never `git commit`).
 - **Red "needs you"** nodes are where a flow deliberately STOPS for a human: the
   design philosophy is *auto-fix the deterministic, surface the judgment calls*.
   The one carve-out: a review thread whose fix you actually applied and pushed

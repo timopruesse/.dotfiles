@@ -49,9 +49,9 @@ reviews and sync tooling should use these names.
 
 ## Where to read next
 
-- Flow graph + hard routing: [`WORKFLOWS.md`](WORKFLOWS.md)
-- Host routing prose: [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md)
-- Whom-table skill: [`home/skills/route-agents/`](home/skills/route-agents/)
+- Flow graph: [`WORKFLOWS.md`](WORKFLOWS.md)
+- Hard must-nots (**agent-routing**): generated in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md) / `~/.cursor/rules/agent-routing.mdc`
+- Whom-table: [`home/skills/route-agents/`](home/skills/route-agents/)
 - Session cost logging: [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md)
 - Shell / tmux / Neovim launchers: [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md)
 - Repo setup: [`CLAUDE.md`](CLAUDE.md)

@@ -22,8 +22,8 @@ Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you'r
 Then spawn the pinned **`scout-explain`** agent (mid) — or **`scout`** (cheap) for
 pinpoint locate/gather only — to walk the codebase. Do **not** use builtin
 `Explore` / `generalPurpose` / untyped Task for this step; those inherit the
-strong/orchestrator model and violate agent-routing. Walk the tree organically and note
-where you experience friction:
+strong/orchestrator model and violate agent-routing. From the spawn report (and
+your own reading of glossary/ADRs), note where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?
