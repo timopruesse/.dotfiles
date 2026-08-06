@@ -1,7 +1,9 @@
 # Workflows
 
-> Domain glossary: [`CONTEXT.md`](CONTEXT.md). Flow graph of commands + agents:
-> see below. Host routing prose: [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
+> Domain glossary: [`CONTEXT.md`](CONTEXT.md). Host routing prose:
+> [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Hard must-nots:
+> **agent-routing** (generated into `~/.cursor/rules/agent-routing.mdc` +
+> `CLAUDE.md`). Whom-table: [`home/skills/route-agents/`](home/skills/route-agents/).
 > Shell/tmux/Neovim CLI launchers (Claude vs Cursor by cwd): [`ALIASES.md`](ALIASES.md),
 > [`KEYBINDS.md`](KEYBINDS.md), [`CLAUDE.md`](CLAUDE.md#coding-agent-routing-claude-vs-cursor).
 
@@ -10,6 +12,22 @@ A visual map of the **commands** (authored in `home/commands/`, generated to
 (authored in `home/agents/`, generated to `home/.claude/agents/` and
 `home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle, front to
 back. Shared contracts live in [`home/protocols/`](home/protocols/).
+
+## Hard routing (always-on)
+
+Parents must follow **agent-routing** (not optional style). Soft detail stays in
+`route-agents`. Summary:
+
+| Job | Do | Do not |
+| --- | --- | --- |
+| Locate / gather | `scout` | builtin Explore / generalPurpose |
+| Explain subsystem | `scout-explain` | Explore / parent Opus for a map |
+| Spike / research ticket | `researcher` (opt-in prep) | Mode-B `/dispatch` while still a spike |
+| Implement | `worker` → `ADVANCE → /land` | `worker`/`parent` `git commit` |
+| Lint/tsc loop | `sweep` | strong parent fix loop |
+| Behavior change land | `/land` | parent commit |
+| Docs-only commit | `committer` | parent commit |
+| Missing terminal line | treat as `HALT` | invent ADVANCE from prose |
 
 ## The flow graph
 
@@ -29,18 +47,20 @@ flowchart TD
         DISP{{"project Boba-enabled?"}}
         LBL["add 'boba' label<br/>→ boba_fetch pipeline"]
         ST(["/start<br/>worktree + branch"])
+        RSH["researcher<br/>spike prep"]
+        PREP{{"brief buildable?"}}
     end
 
     subgraph boba["🫧 Boba watch loop"]
         WB(["/watch-boba"])
         BW["boba-watcher<br/>read-only classify"]
-        UNB["draft ticket update<br/>scout / Opus"]
+        UNB["draft ticket update<br/>scout / strong"]
         PG{{"preview gate"}}
         APP["apply update<br/>→ Boba re-analyzes"]
     end
 
     subgraph impl["🛠 Local implementation"]
-        WK["worker"]
+        WK["worker<br/>no commit"]
         LND(["/land"])
         VG{{"behavior change?"}}
         VER["verifier"]
@@ -76,10 +96,15 @@ flowchart TD
     MW -->|"CI-red PR"| BP
     MW -->|"awaiting my review"| RR
     MW -.->|"watch · ambient loop"| MW
-    OW -->|"pick from pool"| DSP
+    OW -->|"ready · pick"| DSP
+    OW -->|"research/spike · opt-in"| RSH
+    RSH -->|"ADVANCE → parent"| PREP
+    PREP -->|"yes · you confirm"| DSP
+    PREP -->|"still needs you"| HUM1
+    RSH -->|"HALT"| HUM1
     SD --> SCOUT
 
-    SHIP -->|"mode B · --auto"| DSP
+    SHIP -->|"mode B · --auto<br/>ready only"| DSP
     DSP --> DISP
     DISP -->|"yes"| LBL
     DISP -->|"no / unsure"| ST
@@ -96,7 +121,8 @@ flowchart TD
     BW -->|"WAITING / 2nd bail"| HUM1
     PG -->|"design call"| HUM1
 
-    WK -. "done · you: /land" .-> LND
+    WK -->|"ADVANCE → /land"| LND
+    WK -->|"HALT"| HUM1
     LND --> VG
     VG -->|"runtime surface"| VER
     VG -->|"docs / mechanical"| LPG
@@ -136,10 +162,37 @@ flowchart TD
     class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND,SHIP command;
     class BW,WK,PRB,PRR mid;
     class VER strong;
-    class CM,SCOUT cheap;
-    class DISP,PG,VG,LPG,PRQ,AM gate;
+    class CM,SCOUT,RSH cheap;
+    class DISP,PG,VG,LPG,PRQ,AM,PREP gate;
     class HUM1,HUM2 human;
     class MERGE,MRG done;
+```
+
+## Read agents (locate · explain · research)
+
+Not every read job is “scout.” Three cheap/mid **read agents** share a sharp seam;
+architecture critique stays on the parent (strong).
+
+```mermaid
+flowchart LR
+    NEED{{"what do you need?"}}
+    NEED -->|"where / gather"| SCOUT["scout<br/>cheap · LOCATE"]
+    NEED -->|"how is it built"| SEX["scout-explain<br/>mid · EXPLAIN"]
+    NEED -->|"spike / undecided"| RSH["researcher<br/>cheap · RESEARCH"]
+    NEED -->|"design judgment"| PAR["parent strong"]
+    SCOUT -.->|"never"| BAD["Explore / generalPurpose"]
+    SEX -.->|"never"| BAD
+    RSH -.->|"never"| BAD
+    classDef cheap fill:#f1f5f9,stroke:#64748b,color:#0f172a;
+    classDef mid fill:#dcfce7,stroke:#16a34a,color:#052e16;
+    classDef strong fill:#ede9fe,stroke:#7c3aed,color:#2e1065;
+    classDef gate fill:#fef9c3,stroke:#ca8a04,color:#422006;
+    classDef bad fill:#fee2e2,stroke:#dc2626,color:#450a0a;
+    class SCOUT,RSH cheap;
+    class SEX mid;
+    class PAR strong;
+    class NEED gate;
+    class BAD bad;
 ```
 
 ## Reading the graph
@@ -150,17 +203,20 @@ flowchart TD
   ⚪ cheap (`committer`, `scout`, `researcher`). Command **orchestrators** are pinned separately
   (cheap/mid via `tier:` in `home/commands/` — see
   [`home/commands/README.md`](home/commands/README.md)); none need strong.
-  `scout` is the cheap LOCATE/gather retriever; its mid sibling
-  `scout-explain` (deep subsystem walkthroughs) and cheap sibling `researcher`
-  (spike/research prep) aren't drawn in the lifecycle graph — see the table.
+- **`researcher`** sits *above* `/dispatch`: `/open-work` may offer it for
+  research/spike tickets; it returns `ADVANCE → parent` with a brief. Never
+  Mode-B auto-dispatch a spike that still needs prep.
+- **`scout-explain`** and **`sweep`** are real agents (see table) but mostly
+  ad-hoc — not drawn on the spine. `sweep` ends `ADVANCE → /land` or
+  `ADVANCE → done`.
 - The single **`verifier`** node is one agent invoked from several flows (the
   `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
   arrows show its reuse, not multiple agents.
 - **`/land`** is the local counterpart to the Boba loop's `boba-watcher → /babysit-pr`
   hand-off: it closes the seam between `worker` and `/open-pr` by owning the
   post-`worker` conveyor (verifier gate → commit preview → `committer` → offer the
-  next step). If a PR already exists it pushes the follow-up commit and offers
-  `/babysit-pr` instead of `/open-pr`.
+  next step). **`worker` never commits.** Docs-only commits may spawn `committer`
+  without `/land`. Parent never runs `git commit`.
 - **Red "needs you"** nodes are where a flow deliberately STOPS for a human: the
   design philosophy is *auto-fix the deterministic, surface the judgment calls*.
   The one carve-out: a review thread whose fix you actually applied and pushed
@@ -182,10 +238,11 @@ flowchart TD
   one-word `go`; **B** (via `/ship`, `--auto`, or the hubs' `ship <nums>`) runs
   through, auto-approving the deterministic (AUTO) gates and stopping only at
   judgment (STOP) gates. Every spine step ends with an `ADVANCE → <next>` or
-  `HALT: <reason>` line the orchestrator dispatches on. The spine, the taxonomy,
-  the conditional **auto-merge** (fail-closed, mode-B only — the `auto-mode +
-  all-clear?` gate), and the **Jira lifecycle** (In Progress → In Review → Ready
-  for Release) are defined once in
+  `HALT: <reason>` line the orchestrator dispatches on — missing line ⇒
+  `HALT: missing terminal contract`. The spine, the taxonomy, the conditional
+  **auto-merge** (fail-closed, mode-B only — the `auto-mode + all-clear?` gate),
+  and the **Jira lifecycle** (In Progress → In Review → Ready for Release) are
+  defined once in
   [`home/protocols/HANDOFF-PROTOCOL.md`](home/protocols/HANDOFF-PROTOCOL.md) — the
   synchronous sibling of `LOOP-PROTOCOL.md`.
 - **Notifications:** Claude Code (`preferredNotifChannel: auto`) and Cursor CLI
@@ -199,16 +256,17 @@ flowchart TD
 | Agent | Model | Role | Driven by |
 |---|---|---|---|
 | `scout` | Haiku | read-only LOCATE / gather (excerpts, `file:line`, compact query results) | gather in `/my-work`, `/open-work`, `/ship-digest`; Boba unblock locate |
-| `scout-explain` | Sonnet | read-only EXPLAIN — full-subsystem architecture/data-flow walkthrough | ad-hoc, when understanding (not locating) is the goal |
-| `researcher` | Haiku | read-only RESEARCH / spike prep (hypotheses, open questions) | `/open-work` opt-in before `/dispatch` on research/spike tickets |
-| `worker` | Sonnet | implementer for concrete, low-ambiguity specs (never commits) | `/start`, `/address-reviews`, Boba unblock |
-| `verifier` | Opus | adversarial correctness gate (tries to BREAK a change) | `/land` gate, `pr-babysitter`, `pr-reviewer` |
-| `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor); docs-only commits |
+| `scout-explain` | Sonnet | read-only EXPLAIN — full-subsystem architecture/data-flow walkthrough | ad-hoc; architecture-review skills; never Explore |
+| `researcher` | Haiku | read-only RESEARCH / spike prep (hypotheses, open questions); `ADVANCE → parent` | `/open-work` opt-in before `/dispatch` on research/spike tickets |
+| `worker` | Sonnet | implementer for concrete, low-ambiguity specs; **never commits**; `ADVANCE → /land` | `/start`, `/address-reviews`, Boba unblock |
+| `verifier` | Opus | adversarial correctness gate (tries to BREAK a change); `VERDICT:` | `/land` gate, `pr-babysitter`, `pr-reviewer` |
+| `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor); docs-only commits from parent |
 | `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body); conditional fail-closed auto-merge in auto-mode | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |
 | `boba-watcher` | Sonnet (escalate→strong once on `ESCALATE`) | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
 | `sweep` | Sonnet | mechanical fix loops (tsc / lint / formatting); `ADVANCE → /land` or `done` | ad hoc (not bound to a command) |
 
 > Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,
-> `verifier`, hard debugging, and `/watch-boba`'s mid→strong carve-outs
-> (ambiguous re-classify; scope/approach unblock drafts).
+> `verifier`, hard debugging, architecture critique, and `/watch-boba`'s
+> mid→strong carve-outs (ambiguous re-classify; scope/approach unblock drafts).
+> Never use Explore / generalPurpose for locate — that burns strong-tier cost.

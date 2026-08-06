@@ -25,3 +25,4 @@ Entry points (also invoked from `machine_setup.yaml`):
 
 Skills are authored under [`home/skills/`](../skills/) (no generate step) and
 linked by live-install into `~/.cursor/skills/` and `~/.claude/skills/`.
+Flow graph + hard **agent-routing** summary: [`WORKFLOWS.md`](../../WORKFLOWS.md).

@@ -53,3 +53,8 @@ pin the whole command to strong.
 
 Do **not** hand-edit the generated trees; they are overwritten on sync.
 `machine_setup` runs sync-agents → sync-commands → live-install.
+
+Flow graph (incl. `/open-work` → `researcher` prep → `/dispatch`, hard
+**agent-routing**): [`WORKFLOWS.md`](../../WORKFLOWS.md). Whom-table:
+[`home/skills/route-agents/`](../skills/route-agents/). Glossary:
+[`CONTEXT.md`](../../CONTEXT.md).

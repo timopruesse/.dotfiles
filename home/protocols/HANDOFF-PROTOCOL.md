@@ -30,17 +30,22 @@ context; every auto-advanced successor inherits it.
 
 The auto-chain unit is **one ticket, `/dispatch` → mergeable (→ merged)**.
 Selection (`/my-work` · `/open-work` picking numbers) sits **above** the spine and
-is always manual — it is never auto-advanced.
+is always manual — it is never auto-advanced. Research/spike tickets may run
+**`researcher`** as opt-in prep *before* `/dispatch` (returns `ADVANCE → parent`);
+never Mode-B `/ship` a spike that still needs that brief.
 
 ```
+/open-work · research/spike ─opt-in─▶ researcher ─ADVANCE→parent─▶ (you) ─▶ /dispatch …
 /dispatch <KEY>
    ├─ boba-enabled  → label 'boba' ─────────────▶ /watch-boba   (async loop)
    └─ local         → /start → worker → /land → /open-pr → /babysit-pr  (async loop)
+                      (worker never commits; /land owns verifier + committer)
 ```
 
 **Branch points** (where "advance" is not a single fixed successor — the step
 resolves and names it):
 
+- `/open-work` — ready → `/dispatch` vs research/spike → optional `researcher` prep.
 - `/dispatch` — boba-enabled vs local.
 - `/land` — a PR already exists (→ `/babysit-pr`) vs none yet (→ `/open-pr`).
 

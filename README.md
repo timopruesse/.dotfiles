@@ -8,7 +8,7 @@ Declarative, YAML-driven dotfiles for a cross-platform development environment (
 - **Shell**: Zsh + [zcomet](https://github.com/agkozak/zcomet) + [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
 - **Terminal**: [Ghostty](https://ghostty.org) (macOS) / [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) (WSL) + tmux (Catppuccin themed)
 - **OS**: WSL2 (Ubuntu) on Windows; macOS (Apple Silicon)
-- **AI**: Claude Code (chewielabs work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, tmux, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md)
+- **AI**: Claude Code (chewielabs work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, tmux, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md). Agent/command spine + flow graphs: [`WORKFLOWS.md`](WORKFLOWS.md), glossary [`CONTEXT.md`](CONTEXT.md).
 
 ## Setup
 
@@ -27,6 +27,14 @@ Declarative, YAML-driven dotfiles for a cross-platform development environment (
 ### WSL2 (Ubuntu)
 
 The SSH key is sourced from a Windows OneDrive path; see the `ssh:` task in `machine_setup.yaml`. Run `ms` after `machine_setup` is installed.
+
+## Workflows & agent harness
+
+Slash commands, pinned subagents (including `researcher` spike prep), and the
+PR-lifecycle spine are mapped in [`WORKFLOWS.md`](WORKFLOWS.md). Domain terms
+(agent-routing, land path, scout vs scout-explain vs researcher):
+[`CONTEXT.md`](CONTEXT.md). Session cost / routing telemetry:
+[`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md).
 
 ## Keybinds
 

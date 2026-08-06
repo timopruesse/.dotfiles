@@ -15,14 +15,14 @@ This command is _informed_ by the project's domain model and built on a shared d
 
 ## Process
 
-### 1. Explore
+### 1. Survey
 
 Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first.
 
 Then spawn the pinned **`scout-explain`** agent (mid) — or **`scout`** (cheap) for
 pinpoint locate/gather only — to walk the codebase. Do **not** use builtin
 `Explore` / `generalPurpose` / untyped Task for this step; those inherit the
-strong/orchestrator model and violate agent-routing. Explore organically and note
+strong/orchestrator model and violate agent-routing. Walk the tree organically and note
 where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?

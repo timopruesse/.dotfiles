@@ -22,15 +22,21 @@ flowchart TB
   subgraph claudePath [Claude Code]
     CEnd[SessionEnd hook] --> CParse[Parse transcript JSONL]
     CParse --> CSub[Scan subagents folder]
-    CSub --> CEst[Estimate USD from pricing table]
-    CEst --> CLog["~/.claude/logs/sessions.jsonl"]
+    CParse --> CAgent[Agent tool_use spawns]
+    CParse --> CCmd[Detect /command stems]
+    CSub --> CMerge[Merge subagents<br/>kind: pinned vs builtin]
+    CAgent --> CMerge
+    CMerge --> CEst[Estimate USD from pricing table]
+    CEst --> CLog["~/.claude/logs/sessions.jsonl<br/>+ commands[]"]
+    CCmd --> CLog
   end
 
   subgraph cursorPath [Cursor CLI and IDE]
     SStart[sessionStart] --> Scratch["~/.cursor/logs/scratch/session_id.json"]
     SStop[subagentStop] --> Scratch
     SEnd[sessionEnd] --> Scratch
-    Scratch --> CFlush["~/.cursor/logs/sessions.jsonl"]
+    Scratch --> TParse[Parse transcript Task/Agent<br/>if hooks missed spawns]
+    TParse --> CFlush["~/.cursor/logs/sessions.jsonl<br/>+ commands[] + kind"]
   end
 ```
 
@@ -46,9 +52,12 @@ Claude does **not** put USD on the hook payload. The logger:
 1. Dedupes assistant usage by `requestId` (keep max `output_tokens` — one API
    call is split across multiple transcript lines).
 2. Rolls in `…/<sessionId>/subagents/*.jsonl` (+ `*.meta.json` for `agentType`).
-3. Estimates `cost_usd_estimate` from a local Opus / Sonnet / Haiku pricing
+3. Merges `Agent` tool_use spawns from the parent transcript when the folder is
+   missing/incomplete; tags each with `kind: pinned|builtin` and `source`.
+4. Detects slash-command stems (`/land`, `/dispatch`, …) into `commands[]`.
+5. Estimates `cost_usd_estimate` from a local Opus / Sonnet / Haiku pricing
    table (incl. cache write/read). Labeled estimate — not billing truth.
-4. Sets `success` from the exit `reason` (`other`, `clear`, `prompt_input_exit`,
+6. Sets `success` from the exit `reason` (`other`, `clear`, `prompt_input_exit`,
    etc.).
 
 Because `home/` is symlinked to `~`, Claude hooks apply as soon as this repo

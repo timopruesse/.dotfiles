@@ -24,12 +24,12 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 home/             # Symlinked to ~ — contains all user config files
   agents/         # Shared subagent sources (tier + prompts); run sync-agents
   commands/       # Shared slash-command sources; run sync-commands
-  skills/         # Orchestrator skills (route-agents, …); live-install
+  skills/         # Orchestrator skills (route-agents, improve-codebase-architecture, …); live-install
   protocols/      # Shared HANDOFF + LOOP protocols (→ ~/protocols)
-  sync/           # Deep sync module + live-install (Claude/Cursor pins)
+  sync/           # Deep sync module + live-install (Claude/Cursor pins + agent-routing rules)
   session_log/    # Shared session JSONL core (hooks are adapters)
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
-  .cursor/        # Cursor pins (agents/, commands/, rules/, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
+  .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .zshrc          # Zsh shell config (claude/agent wrappers: keep-awake + worktrees)
   .tmux.conf      # Tmux config (coding-agent binds resolve Claude vs Cursor)
@@ -93,9 +93,11 @@ All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grou
 ## Workflows Reference
 
 Domain glossary: [`CONTEXT.md`](CONTEXT.md). The slash commands and subagents
-are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md). Host routing prose
-lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Shared spine/loop
-contracts are in [`home/protocols/`](home/protocols/).
+are mapped as a flow graph in [`WORKFLOWS.md`](WORKFLOWS.md) (includes hard
+**agent-routing**, `researcher` prep, and the locate/explain/research seam).
+Host routing prose lives in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md).
+Shared spine/loop contracts are in [`home/protocols/`](home/protocols/).
+Orchestrator whom-table: [`home/skills/route-agents/`](home/skills/route-agents/).
 
 ## Session cost logging
 
