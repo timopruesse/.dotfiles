@@ -1,0 +1,34 @@
+---
+description: Copy .env.local into every new git worktree after creation
+alwaysApply: true
+---
+
+# Worktree local env
+
+Whenever you create a new git worktree (Cursor `~/.cursor/worktrees/…`,
+`~/worktrees/<repo>/…`, `.worktrees/…`, `git worktree add`, `/start`, or any
+native worktree tool), **immediately copy `.env.local` from the primary checkout
+into the new worktree**.
+
+```bash
+# Primary checkout = first entry from `git worktree list`
+PRIMARY="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+WT="<new-worktree-path>"
+
+if [ -f "$PRIMARY/.env.local" ]; then
+  cp "$PRIMARY/.env.local" "$WT/.env.local"
+elif [ -f "$PRIMARY/.env" ] && [ ! -f "$WT/.env" ]; then
+  # Fallback only when the repo uses `.env` instead of `.env.local`
+  cp "$PRIMARY/.env" "$WT/.env"
+fi
+```
+
+Rules:
+
+- Prefer **copy**, not symlink — each worktree keeps its own file.
+- Do **not** overwrite an existing `$WT/.env.local` unless the user asks.
+- If the primary has no `.env.local` (and no `.env`), say so and continue — do not
+  invent secrets.
+- Never commit `.env.local` / `.env`.
+- Apply this on Cursor-managed worktrees under `~/.cursor/worktrees/` too; those
+  do not inherit ignored env files from the main checkout.

@@ -43,6 +43,18 @@ longer waits on a separate "go" to hand off; `worker`'s own downstream gates
   `<KEY>-<short-slug>` (slug derived from the ticket summary, lowercase-kebab)
   based off `origin/<default>`:
   `git worktree add ~/worktrees/<repo>/<KEY> -b <KEY>-<slug> origin/<default>`.
+- **Copy local env into the new worktree** (gitignored files are not shared):
+  ```bash
+  PRIMARY="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+  WT="$HOME/worktrees/<repo>/<KEY>"
+  if [ -f "$PRIMARY/.env.local" ]; then
+    cp "$PRIMARY/.env.local" "$WT/.env.local"
+  elif [ -f "$PRIMARY/.env" ] && [ ! -f "$WT/.env" ]; then
+    cp "$PRIMARY/.env" "$WT/.env"
+  fi
+  ```
+  Prefer copy over symlink. Skip if the worktree already has `.env.local`. If the
+  primary has neither file, say so and continue — do not invent secrets.
 - Report the worktree path and branch. This is where work for this ticket lives —
   parallel Claude sessions on other tickets won't collide with it.
 

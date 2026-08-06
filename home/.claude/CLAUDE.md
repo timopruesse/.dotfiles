@@ -134,7 +134,8 @@ Roughly the PR lifecycle, front to back:
   owns selection + the batch gate; `/dispatch` just dispatches the one key.
 - **`/start <JIRA-KEY>`** — scaffold a ticket: self-prune stale worktrees, then
   create a fresh worktree at `~/worktrees/<repo>/<KEY>` + branch `<KEY>-<slug>`
-  off `main`, load the ticket's AC as context, offer the opt-in Jira transition.
+  off `main`, copy `.env.local` from the primary checkout into the new worktree,
+  load the ticket's AC as context, offer the opt-in Jira transition.
   Doesn't auto-implement; offers `worker` in the new worktree. (The non-Boba branch
   of `/dispatch`.)
 - **`/watch-boba <JIRA-KEY>`** — self-looping watcher for a `boba`-labeled ticket

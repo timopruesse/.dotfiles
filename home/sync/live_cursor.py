@@ -13,7 +13,7 @@ REPO_HOME = repo_home()
 SKILLS_SRC = REPO_HOME / "skills"
 CURSOR_OUT_AGENTS = REPO_HOME / ".cursor" / "agents"
 CURSOR_OUT_COMMANDS = REPO_HOME / ".cursor" / "commands"
-CURSOR_RULE = REPO_HOME / ".cursor" / "rules" / "subagent-model-fallback.mdc"
+CURSOR_RULES_DIR = REPO_HOME / ".cursor" / "rules"
 CURSOR_HOOKS_JSON = REPO_HOME / ".cursor" / "hooks.json"
 CURSOR_HOOKS_DIR = REPO_HOME / ".cursor" / "hooks"
 CURSOR_CLI_CONFIG = REPO_HOME / ".cursor" / "cli-config.json"
@@ -55,10 +55,21 @@ def install_hooks() -> None:
         print(f"  installed hooks/ → {LIVE_HOOKS_DIR}")
 
 
-def install_rule() -> None:
-    if CURSOR_RULE.is_file():
-        link_into(CURSOR_RULE, LIVE_RULES / CURSOR_RULE.name)
-        print(f"  installed rule → {LIVE_RULES / CURSOR_RULE.name}")
+def install_rules() -> None:
+    """Link every managed `.mdc` rule into ~/.cursor/rules/."""
+    if not CURSOR_RULES_DIR.is_dir():
+        return
+    LIVE_RULES.mkdir(parents=True, exist_ok=True)
+    keep: set[str] = set()
+    for path in sorted(CURSOR_RULES_DIR.glob("*.mdc")):
+        keep.add(path.name)
+        link_into(path, LIVE_RULES / path.name)
+        print(f"  installed rule → {LIVE_RULES / path.name}")
+    if LIVE_RULES.is_dir():
+        for stale in LIVE_RULES.glob("*.mdc"):
+            if stale.name not in keep and stale.is_symlink():
+                stale.unlink()
+                print(f"  removed stale live link {stale}")
 
 
 def install_cli_config() -> None:
@@ -159,7 +170,7 @@ def install_all(
     if skills:
         install_skills()
     if rule:
-        install_rule()
+        install_rules()
     if hooks:
         install_hooks()
     if cli_config:
