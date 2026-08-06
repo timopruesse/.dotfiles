@@ -16,7 +16,15 @@ from typing import Any
 
 # home/session_log — hooks live at home/.claude/hooks/
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from session_log.core import append_jsonl, log_err, now_iso, read_hook_payload  # noqa: E402
+from session_log.core import (  # noqa: E402
+    append_jsonl,
+    extract_commands_from_transcript,
+    extract_spawns_from_transcript,
+    log_err,
+    merge_subagent_lists,
+    now_iso,
+    read_hook_payload,
+)
 
 LOG_DIR = Path.home() / ".claude" / "logs"
 LOG_FILE = LOG_DIR / "sessions.jsonl"
@@ -265,6 +273,8 @@ def load_subagents(transcript_path: Path, session_id: str) -> list[dict[str, Any
                 "status": "completed",
                 "duration_ms": duration_ms,
                 "models": models,
+                "kind": "pinned",
+                "source": "subagents_dir",
                 "usage": {
                     k: usage[k]
                     for k in (
@@ -295,7 +305,15 @@ def build_record(payload: dict[str, Any]) -> dict[str, Any]:
         main_calls, first_ts, last_ts = collect_api_calls(transcript)
 
     usage, models, main_cost, incomplete = summarize_calls(main_calls)
-    subagents = load_subagents(transcript, session_id) if transcript else []
+    folder_subs = load_subagents(transcript, session_id) if transcript else []
+    transcript_subs: list[dict[str, Any]] = []
+    commands: list[str] = []
+    if transcript and transcript.is_file():
+        transcript_subs = extract_spawns_from_transcript(
+            transcript, tool_names=frozenset({"Agent"})
+        )
+        commands = extract_commands_from_transcript(transcript)
+    subagents = merge_subagent_lists(folder_subs, transcript_subs)
 
     for sub in subagents:
         for k in (
@@ -343,10 +361,13 @@ def build_record(payload: dict[str, Any]) -> dict[str, Any]:
                 "description": s.get("description"),
                 "status": s.get("status"),
                 "duration_ms": s.get("duration_ms"),
-                "models": s.get("models"),
+                "models": s.get("models") or [],
+                "kind": s.get("kind"),
+                "source": s.get("source"),
             }
             for s in subagents
         ],
+        "commands": commands,
         "usage": public_usage,
         "cost_usd_estimate": main_cost,
         "cost_estimate_incomplete": incomplete or None,

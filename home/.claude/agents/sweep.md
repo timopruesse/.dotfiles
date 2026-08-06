@@ -23,3 +23,15 @@ fixing; your job is to make the check pass, not to redesign anything.
   rather than guessing.
 - Report what you changed and the final command output (pass/fail) honestly. If
   it still fails, say so with the output.
+- **Never `git commit` or `git push`.** Hand commit to `committer` / `/land`.
+
+## Report — end with a terminal line
+
+The parent tells you which handoff applies. End every run with exactly one of:
+
+- `ADVANCE → /land` — checks are green (or you fixed them) and this sweep sits on
+  the post-`worker` / pre-land conveyor; next step is `/land`.
+- `ADVANCE → done` — checks are green and the parent only asked to clean the
+  tree (no commit expected).
+- `HALT: <reason>` — a failure needs a real design decision, or the check still
+  fails after honest fixes.

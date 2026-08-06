@@ -3,9 +3,51 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# Builtin host explorers (not pinned agents under home/agents/).
+BUILTIN_SUBAGENT_TYPES = frozenset(
+    {
+        "explore",
+        "Explore",
+        "generalPurpose",
+        "general-purpose",
+        "general_purpose",
+        "Plan",
+        "plan",
+        "Bash",
+        "bash",
+    }
+)
+
+# Slash commands authored under home/commands/ (stem without leading /).
+KNOWN_COMMAND_STEMS = frozenset(
+    {
+        "address-reviews",
+        "babysit-fleet",
+        "babysit-pr",
+        "dispatch",
+        "land",
+        "my-work",
+        "open-pr",
+        "open-work",
+        "review-requests",
+        "ship",
+        "ship-digest",
+        "start",
+        "watch-boba",
+    }
+)
+
+COMMAND_TOKEN_RE = re.compile(
+    r"(?:^|[\s`])/(address-reviews|babysit-fleet|babysit-pr|dispatch|land|"
+    r"my-work|open-pr|open-work|review-requests|ship-digest|ship|start|watch-boba)"
+    r"(?=$|[\s`\"'])",
+    re.MULTILINE,
+)
 
 
 def now_iso() -> str:
@@ -32,3 +74,155 @@ def read_hook_payload(raw: str) -> dict[str, Any]:
         return {}
     data = json.loads(raw)
     return data if isinstance(data, dict) else {}
+
+
+def classify_subagent_kind(agent_type: str | None) -> str | None:
+    if not agent_type:
+        return None
+    if agent_type in BUILTIN_SUBAGENT_TYPES or agent_type.lower() in {
+        x.lower() for x in BUILTIN_SUBAGENT_TYPES
+    }:
+        return "builtin"
+    return "pinned"
+
+
+def _iter_jsonl_objects(path: Path):
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        try:
+            yield json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+
+def _tool_uses_from_entry(entry: dict[str, Any]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    msg = entry.get("message")
+    content = None
+    if isinstance(msg, dict):
+        content = msg.get("content")
+    elif isinstance(entry.get("content"), list):
+        content = entry.get("content")
+    if not isinstance(content, list):
+        return out
+    for block in content:
+        if isinstance(block, dict) and block.get("type") == "tool_use":
+            out.append(block)
+        elif isinstance(block, dict) and block.get("name") and block.get("input") is not None:
+            # Cursor sometimes omits type
+            out.append(block)
+    return out
+
+
+def extract_spawns_from_transcript(
+    path: Path,
+    *,
+    tool_names: frozenset[str],
+    type_keys: tuple[str, ...] = ("subagent_type", "agent_type", "type"),
+) -> list[dict[str, Any]]:
+    """Parse parent transcript for Agent/Task tool_use spawns."""
+    found: list[dict[str, Any]] = []
+    seen: set[tuple[str | None, str | None]] = set()
+    for entry in _iter_jsonl_objects(path) or []:
+        if not isinstance(entry, dict):
+            continue
+        for block in _tool_uses_from_entry(entry):
+            name = block.get("name")
+            if name not in tool_names:
+                continue
+            inp = block.get("input") or {}
+            if not isinstance(inp, dict):
+                continue
+            agent_type = None
+            for key in type_keys:
+                if inp.get(key):
+                    agent_type = str(inp.get(key))
+                    break
+            description = inp.get("description") or inp.get("task")
+            if isinstance(description, str):
+                description = description.strip() or None
+            else:
+                description = None
+            key = (agent_type, description)
+            if key in seen:
+                continue
+            seen.add(key)
+            found.append(
+                {
+                    "type": agent_type or "untyped",
+                    "description": description,
+                    "status": "completed",
+                    "duration_ms": None,
+                    "models": [],
+                    "kind": classify_subagent_kind(agent_type),
+                    "source": "transcript",
+                }
+            )
+    return found
+
+
+def extract_commands_from_transcript(path: Path) -> list[str]:
+    """Detect slash-command stems mentioned in user-facing transcript lines."""
+    found: list[str] = []
+    seen: set[str] = set()
+    for entry in _iter_jsonl_objects(path) or []:
+        if not isinstance(entry, dict):
+            continue
+        texts: list[str] = []
+        role = None
+        msg = entry.get("message")
+        if isinstance(msg, dict):
+            role = msg.get("role") or entry.get("role")
+            content = msg.get("content")
+            if isinstance(content, str):
+                texts.append(content)
+            elif isinstance(content, list):
+                for block in content:
+                    if isinstance(block, dict) and block.get("type") == "text":
+                        texts.append(str(block.get("text") or ""))
+                    elif isinstance(block, str):
+                        texts.append(block)
+        elif entry.get("role") == "user" and isinstance(entry.get("content"), str):
+            role = "user"
+            texts.append(entry["content"])
+        # Prefer user/system; also scan tool results that echo command bodies
+        if role not in (None, "user", "system") and entry.get("type") not in (
+            "user",
+            "system",
+            "prompt",
+        ):
+            continue
+        for text in texts:
+            for m in COMMAND_TOKEN_RE.finditer(text):
+                stem = m.group(1)
+                if stem in KNOWN_COMMAND_STEMS and stem not in seen:
+                    seen.add(stem)
+                    found.append(stem)
+    return found
+
+
+def merge_subagent_lists(
+    primary: list[dict[str, Any]], extra: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Prefer primary (e.g. subagents/ folder) entries; append transcript-only."""
+    out = []
+    seen: set[tuple[str | None, str | None]] = set()
+    for item in primary + extra:
+        t = item.get("type")
+        d = item.get("description")
+        key = (t, d)
+        if key in seen and t not in (None, "untyped"):
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        kind = item.get("kind") or classify_subagent_kind(t if t != "untyped" else None)
+        merged = dict(item)
+        merged["kind"] = kind
+        out.append(merged)
+    return out

@@ -54,6 +54,10 @@ of `verifier`) ends with exactly one terminal line the orchestrator reads:
   resolve and name it (e.g. `ADVANCE → /open-pr`, `ADVANCE → /babysit-pr 123`).
 - **`HALT: <reason>`** — a STOP gate tripped (design snag, `verifier` BREAKS,
   error, or any always-STOP row below). Nothing advances without you.
+- **Missing terminal line** — if a spine agent/`worker`/`sweep` reply has no
+  `ADVANCE` / `HALT` / `VERDICT:` / `STATUS:` line as required by that agent,
+  the orchestrator treats it as `HALT: missing terminal contract` and does not
+  continue. Do not invent an ADVANCE from prose like "Committed" or "done."
 
 **Orchestrator dispatch:**
 

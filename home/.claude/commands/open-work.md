@@ -40,12 +40,19 @@ buildable now) vs **needs your design input** — be honest; a half-baked ticket
 research/spike, or one with unresolved "confirm with X / resolve at grooming"
 blockers handed off unattended wastes a run.
 
+For items flagged **needs you (research/spike)**, the start plan may offer
+**`researcher <KEY>`** as an opt-in prep step *before* `/dispatch` — never
+auto-dispatch a research ticket to Boba/`worker` under Mode B. `researcher`
+returns `ADVANCE → parent` with a spike brief (or `HALT:`); only then may I
+choose `/dispatch` when the brief is buildable.
+
 ## 3. Select + start (behind the preview gate)
 
 I reply with the numbers I want (e.g. `1 3`), or `ship <nums>` (e.g. `ship 1 3`).
 There is no bare `go`/`all` here — a sprint pool isn't a safe-to-auto set, so
 nothing starts without explicit numbers. **`ship` likewise requires explicit
-numbers; there is no bare `ship`.**
+numbers; there is no bare `ship`.** `ship` is for **ready** buildable tickets
+only — do not Mode-B a research/spike that still needs `researcher` prep.
 
 - Plain numbers are mode **A** (normal per-gate confirm); `ship <nums>` is mode
   **B** (pre-authorized) per
@@ -53,7 +60,8 @@ numbers; there is no bare `ship`.**
   through, auto-approving downstream AUTO gates instead of pausing at each.
 - **Show the start plan and STOP for one confirmation** — for numbers and `ship`
   alike. Print a one-screen plan: each selected item → the label/command it'll
-  run → a one-line intent. This is the only thing I see before it runs; for a
+  run → a one-line intent. For research/spike picks, show `researcher <KEY>`
+  (prep) vs `/dispatch` explicitly. This is the only thing I see before it runs; for a
   `ship` selection this one confirmation IS the pre-authorization — only the
   per-step gates downstream are skipped, not this batch gate.
 - On my `go`, start each selected ticket in parallel and report back as each returns.
@@ -61,7 +69,10 @@ numbers; there is no bare `ship`.**
     probe once (ideally fold this into the step-1 `scout` gather): JQL `project =
     <KEY> AND labels = boba`. Non-empty → Boba-enabled; absence, or an inconclusive
     probe → **not** (`worker` is the safe default). Hold the verdict for dispatch.
-  - **Dispatch each ticket** → `/dispatch <KEY> <verdict>` (append `--auto` if it
+  - **Research/spike picks** → spawn `researcher` with the ticket key/context when
+    the plan said prep; do **not** call `/dispatch` until I confirm the brief is
+    enough (or I explicitly skip prep).
+  - **Ready picks** → `/dispatch <KEY> <verdict>` (append `--auto` if it
     was selected via `ship`), passing the board's verdict (`boba` / `no-boba`) so
     it doesn't re-probe. `/dispatch` owns the mechanism: label for the Boba
     pipeline (which owns branch/worktree/implementation) or scaffold via `/start`

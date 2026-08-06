@@ -147,12 +147,12 @@ flowchart TD
 - **Rounded blue** nodes are slash **commands** you invoke; **rectangles** are
   **subagents** they spawn. **Hexagons** are decision / preview **gates**.
 - Node colors encode the **subagent tier**: 🟢 mid, 🟣 strong (`verifier`),
-  ⚪ cheap (`committer`, `scout`). Command **orchestrators** are pinned separately
+  ⚪ cheap (`committer`, `scout`, `researcher`). Command **orchestrators** are pinned separately
   (cheap/mid via `tier:` in `home/commands/` — see
   [`home/commands/README.md`](home/commands/README.md)); none need strong.
   `scout` is the cheap LOCATE/gather retriever; its mid sibling
-  `scout-explain` (deep subsystem walkthroughs) isn't wired into the lifecycle
-  flows, so it's listed in the table below rather than drawn here.
+  `scout-explain` (deep subsystem walkthroughs) and cheap sibling `researcher`
+  (spike/research prep) aren't drawn in the lifecycle graph — see the table.
 - The single **`verifier`** node is one agent invoked from several flows (the
   `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
   arrows show its reuse, not multiple agents.
@@ -200,13 +200,14 @@ flowchart TD
 |---|---|---|---|
 | `scout` | Haiku | read-only LOCATE / gather (excerpts, `file:line`, compact query results) | gather in `/my-work`, `/open-work`, `/ship-digest`; Boba unblock locate |
 | `scout-explain` | Sonnet | read-only EXPLAIN — full-subsystem architecture/data-flow walkthrough | ad-hoc, when understanding (not locating) is the goal |
-| `worker` | Sonnet | implementer for concrete, low-ambiguity specs | `/start`, `/address-reviews`, Boba unblock |
+| `researcher` | Haiku | read-only RESEARCH / spike prep (hypotheses, open questions) | `/open-work` opt-in before `/dispatch` on research/spike tickets |
+| `worker` | Sonnet | implementer for concrete, low-ambiguity specs (never commits) | `/start`, `/address-reviews`, Boba unblock |
 | `verifier` | Opus | adversarial correctness gate (tries to BREAK a change) | `/land` gate, `pr-babysitter`, `pr-reviewer` |
-| `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor) |
+| `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor); docs-only commits |
 | `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body); conditional fail-closed auto-merge in auto-mode | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |
 | `boba-watcher` | Sonnet (escalate→strong once on `ESCALATE`) | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
-| `sweep` | Sonnet | mechanical fix loops (tsc / lint / formatting) | ad hoc (not bound to a command) |
+| `sweep` | Sonnet | mechanical fix loops (tsc / lint / formatting); `ADVANCE → /land` or `done` | ad hoc (not bound to a command) |
 
 > Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,
 > `verifier`, hard debugging, and `/watch-boba`'s mid→strong carve-outs

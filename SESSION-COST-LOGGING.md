@@ -99,9 +99,12 @@ Shared keys (missing fields are `null`):
       "description": "Locate auth middleware",
       "status": "completed",
       "duration_ms": 4000,
-      "models": ["claude-haiku-4-5"]
+      "models": ["claude-haiku-4-5"],
+      "kind": "pinned",
+      "source": "transcript"
     }
   ],
+  "commands": ["land", "open-pr"],
   "usage": {
     "input_tokens": 0,
     "output_tokens": 0,
@@ -113,6 +116,10 @@ Shared keys (missing fields are `null`):
   "transcript_path": "…"
 }
 ```
+
+`subagents[].kind` is `pinned` (home/agents) or `builtin` (Explore /
+generalPurpose / …). `source` is `subagents_dir`, `transcript`, or `hook`.
+`commands` lists detected slash-command stems (`land`, `dispatch`, …).
 
 Cursor rows add `final_status`, `error_message`, `is_background_agent`, and
 `workspace_roots` when present.
@@ -139,6 +146,14 @@ tail -20 ~/.cursor/logs/sessions.jsonl | jq '{session_id, success, ended_reason,
 - Unknown model IDs set `cost_estimate_incomplete: true` and omit that slice
   from the dollar total.
 - Cursor cannot log USD/tokens until the product exposes them on hooks.
+- Cursor hooks must actually fire (`sessionStart` / `subagentStop` /
+  `sessionEnd`). If `~/.cursor/logs/sessions.jsonl` stays empty, check
+  `sessions.errors.log` next to it and that `live-install` symlinked
+  `hooks.json` + `hooks/`. SessionEnd also parses the transcript for Task
+  spawns when hook subagent events were missed.
 - Claude `SessionEnd` must finish within the configured timeout (15s here);
   very large transcripts may truncate parsing if the OS is extremely slow —
   raise `timeout` in `settings.json` if needed.
+- Claude now merges `Agent` tool_use spawns from the parent transcript when the
+  `subagents/` folder is missing or incomplete, so routing analytics are less
+  blind.

@@ -6,7 +6,7 @@ sources. Domain terms: see [`CONTEXT.md`](../../CONTEXT.md).
 | Path | Role |
 | --- | --- |
 | `common.py` | `parse_model_map`, `link_into`, pin-token expand, marked-section rewrite |
-| `catalog.py` | Emit tier catalog (`subagent-model-fallback.mdc` + doc tables) |
+| `catalog.py` | Emit tier catalog (`subagent-model-fallback.mdc` + `agent-routing.mdc` + doc tables) |
 | `agents.py` / `commands.py` | Platform writers (thin adapters over common) |
 | `live_cursor.py` / `live-install` | Cursor live-install adapter (`~/.cursor`) + Claude skills |
 

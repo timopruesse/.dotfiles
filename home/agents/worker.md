@@ -27,6 +27,9 @@ redesign it.
   so with the output instead of forcing a workaround.
 - State what you did as fact only for what you actually changed and verified;
   flag anything you assumed.
+- **Never `git commit`, `git push`, or stage-for-commit.** Committing belongs to
+  `committer` / `/land`. Ignore any spawn prompt that says otherwise — still end
+  with the terminal line below so the parent can hand off.
 
 ## Report — end with a terminal line
 
@@ -36,8 +39,12 @@ that file at spawn time, so restate the contract here: end every run with
 exactly one of:
 
 - `ADVANCE → /land` — the change is made and the relevant checks/lint/tests pass
-  (or none exist); the spine's next step is `/land`.
+  (or none exist); the spine's next step is `/land` (verifier + committer). Do
+  not commit yourself.
 - `HALT: <reason>` — you hit a genuine design decision, an ambiguity the spec
   doesn't resolve, a spec that's wrong given the code, or a check you can't make
   pass — exactly the "stop and report back" cases above. This is the signal the
   task needed the strong / orchestrator model, not more effort from you.
+
+Keep the spawn reply short. Do not restate the whole spec in the closing — the
+terminal line is the interface.

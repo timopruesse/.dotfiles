@@ -12,7 +12,8 @@ That regenerates:
 - `home/.claude/agents/` — Claude Code pins (from `model-map.yaml`)
 - `home/.cursor/agents/` — Cursor pins (from `model-map.yaml`)
 - `home/.cursor/rules/subagent-model-fallback.mdc` — tier catalog (generated)
-- marked tables in `home/.claude/CLAUDE.md` and `home/commands/README.md`
+- `home/.cursor/rules/agent-routing.mdc` — hard locate/commit/contract rules (generated)
+- marked tables + agent-routing section in `home/.claude/CLAUDE.md` and `home/commands/README.md`
 
 `live-install` installs live symlinks into `~/.cursor/agents/`,
 `~/.cursor/rules/`, `~/.cursor/hooks{,.json}`, `~/.cursor/skills/`,
