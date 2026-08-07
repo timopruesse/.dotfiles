@@ -38,6 +38,7 @@ reviews and sync tooling should use these names.
 | **Boba** | External Jira→PR pipeline (`boba_fetch`); `/dispatch` may label, `/watch-boba` shepherds until a PR opens. |
 | **ADVANCE / HALT** | Terminal line every spine step emits for the handoff contract. Parent treats a missing terminal line as `HALT: missing terminal contract`. |
 | **land path** | Behavior-changing work → `/land` (verifier → committer → handoff). Docs/types/renames/formatting only → spawn `committer` directly. Parent never runs `git commit`. |
+| **wrap-up** | Standalone command `/wrap-up` — manual re-entry into the spine when work was done free-form outside `/dispatch`. Closes the branch and opens the PR without making the user re-invoke `/land` then `/open-pr`. |
 
 ## Authoring rules
 

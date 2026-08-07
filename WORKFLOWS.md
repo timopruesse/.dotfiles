@@ -73,6 +73,8 @@ flowchart TD
 
     SCOUT["scout"]
     OP(["/open-pr"])
+    WU(["/wrap-up<br/>free-form re-entry"])
+    FF(["free-form ticket prompt"])
     HUM1(["needs you"])
 
     %% ---------- edges ----------
@@ -89,6 +91,7 @@ flowchart TD
     SD --> SCOUT
 
     SHIP -->|"mode B · --auto<br/>ready only"| DSP
+    FF -->|auto-route| DSP
     DSP --> DISP
     DISP -->|"yes"| LBL
     DISP -->|"no / unsure"| ST
@@ -106,6 +109,7 @@ flowchart TD
     PG -->|"design call"| HUM1
 
     WK -->|"ADVANCE → /land"| LND
+    WU -->|"manual re-entry"| LND
     WK -->|"HALT"| HUM1
     LND --> VG
     VG -->|"runtime surface"| VER
@@ -143,7 +147,7 @@ flowchart TD
     classDef human   fill:#fee2e2,stroke:#dc2626,color:#450a0a;
     classDef done    fill:#bbf7d0,stroke:#15803d,color:#052e16;
 
-    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND,SHIP command;
+    class MW,OW,SD,WB,DSP,ST,OP,BP,FL,RR,AR,LND,SHIP,WU,FF command;
     class BW,WK,PRB,PRR mid;
     class VER strong;
     class CM,SCOUT,RSH cheap;
@@ -230,6 +234,18 @@ flowchart LR
   **needs you** — idle wait or permission — so you can fire off a loop and walk
   away. Relies on the terminal (Ghostty / Kitty / iTerm2) + OS notification
   permission.
+
+## Free-form prompts and async triage
+
+- **Free-form ticket prompts** (e.g. "investigate ECW-1231" or a Jira URL) are
+  routed to the spine by the parent, not executed directly. The parent extracts
+  the key and calls `/dispatch <KEY>` (mode A) or `/ship <KEY>` (mode B).
+- **`/wrap-up`** is the manual re-entry point for work done outside the spine.
+  It forwards to `/land` and auto-advances to `/open-pr`, so the user does not
+  need to invoke two commands to finish.
+- **Security-review findings** pushed after the PR belong to the async tail:
+  route them to `/babysit-pr` or a security inbox, not back into the parent
+  session, unless they touch code this work changed.
 
 ## Agents at a glance
 

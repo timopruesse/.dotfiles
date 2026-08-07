@@ -43,7 +43,7 @@ Current pins (orchestrator only — hard reasoning stays on `verifier` / escalat
 | Tier | Commands |
 | --- | --- |
 | cheap | `/dispatch`, `/ship-digest` |
-| mid | `/address-reviews`, `/babysit-fleet`, `/babysit-pr`, `/land`, `/my-work`, `/open-pr`, `/open-work`, `/review-requests`, `/ship`, `/start`, `/watch-boba` |
+| mid | `/address-reviews`, `/babysit-fleet`, `/babysit-pr`, `/land`, `/my-work`, `/open-pr`, `/open-work`, `/review-requests`, `/ship`, `/start`, `/watch-boba`, `/wrap-up` |
 <!-- END GENERATED COMMAND TIER TABLE -->
 
 **Exception — `/watch-boba`:** mid by default, but may escalate individual

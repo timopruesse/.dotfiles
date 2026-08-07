@@ -176,6 +176,24 @@ Pinned agents: {names_csv}.
 Whom-table detail: `route-agents` skill. These rules are **must-nots** — treat
 violations as errors, not style nits.
 
+## Free-form prompt intake
+
+A free-form request that names a Jira ticket (URL, key, or phrasing like
+"investigate/fix this issue") is **not** an invitation for the parent to absorb
+all the work. It is a prompt to enter the spine.
+
+- Extract the Jira key and route to `/dispatch <KEY>` (default mode A) or
+  `/ship <KEY>` (mode B) when the user asks to investigate, fix, or implement a
+  ticket. Do not run a manual code search, edit, or PR opening in the parent.
+- If you are already on a `<KEY>-...` branch with uncommitted or unpushed work
+  and the user says they are done, route to `/wrap-up` to close the spine and
+  open the PR — do not make them re-enter `/open-pr` manually.
+- Only stay in the parent for genuine ad-hoc questions (no ticket, no
+  implementation intent, no branch context) or explicit "explain" requests.
+
+This keeps the parent interface thin and puts the deep work behind the spine's
+pinned, tiered agents.
+
 ## Locate / explain / research
 
 - Repo locate or compact gather → spawn **`scout`** (cheap).
@@ -211,6 +229,19 @@ violations as errors, not style nits.
   `HALT: missing terminal contract` and do **not** continue the spine.
 - `sweep`: `ADVANCE → /land` when on the pre-land conveyor; `ADVANCE → done`
   when the parent only asked to clean the tree; else `HALT:`.
+
+## Security-review triage
+
+Push-time security review findings (e.g. from the security-guidance plugin) are
+not a parent context-switch. The parent already opened the PR; deeper
+investigation of out-of-scope or pre-existing code belongs in the async tail.
+
+- If the finding is for code this work did not touch, acknowledge it briefly and
+  route it to `/babysit-pr <number>` or a security inbox for triage — do not
+  investigate, blame, or propose fixes in the parent session.
+- If the finding is for code this work touched, surface it as a `HALT:` and
+  hand the fix back to `worker` through the normal spine.
+- Never let a post-push security notification re-open the PR opening gate.
 """
 
 
