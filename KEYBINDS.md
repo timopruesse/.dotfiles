@@ -13,6 +13,7 @@ Config: `~/.config/herdr/config.toml` (from `home/.config/herdr/`).
 | Key | Action |
 | --- | --- |
 | `prefix c` | New tab |
+| `prefix n` / `prefix p` | Next / previous tab (within the current space) |
 | `prefix \` or `prefix v` | Vertical split (right) |
 | `prefix -` | Horizontal split (down) |
 | `prefix r` | Reload herdr config |
@@ -23,12 +24,12 @@ Config: `~/.config/herdr/config.toml` (from `home/.config/herdr/`).
 
 ### Spaces / agents
 
-Herdr calls spaces **workspaces**. `next_workspace` / `previous_workspace` /
-`next_agent` / `previous_agent` are unset — jump via pickers / sidebar instead
-of cycling.
+Herdr calls spaces **workspaces**. `next_agent` / `previous_agent` stay unset —
+jump agents via goto / sidebar.
 
 | Key | Action |
 | --- | --- |
+| `prefix (` / `prefix )` | Previous / next space |
 | `prefix w` | Space picker (go to / switch space) |
 | `prefix+shift+N` | New space |
 | `prefix g` / `prefix C` | Goto picker (spaces / agents / panes) — also the jump-to-agent path |
