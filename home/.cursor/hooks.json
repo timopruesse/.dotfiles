@@ -1,23 +1,26 @@
 {
-  "version": 1,
   "hooks": {
+    "sessionEnd": [
+      {
+        "command": "./hooks/log-session.sh"
+      }
+    ],
     "sessionStart": [
       {
         "command": "./hooks/log-session.sh"
       },
       {
         "command": "bash \"$HOME/.cursor/herdr-agent-state.sh\" session"
+      },
+      {
+        "command": "bash '/home/timo/.cursor/herdr-agent-state.sh' session"
       }
     ],
     "subagentStop": [
       {
         "command": "./hooks/log-session.sh"
       }
-    ],
-    "sessionEnd": [
-      {
-        "command": "./hooks/log-session.sh"
-      }
     ]
-  }
+  },
+  "version": 1
 }
