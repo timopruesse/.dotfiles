@@ -1,12 +1,32 @@
 # coding-agent aliases: path/remote-aware launcher for Claude Code vs Cursor Agent.
-# Resolve rules live in ~/.tmux/scripts/coding_agent_resolve.sh
+# Resolve rules live in ~/.config/herdr/scripts/coding_agent_resolve.sh
 #   chewielabs (remote or ~/github/chewielabs) → claude
 #   everything else → agent
 # Override: CODING_AGENT=claude|agent, or pass --claude / --agent to c/ch/cv/cr/cpi.
 
-function _coding_agent_tmux() {
+_CODING_AGENT_SCRIPTS="${HOME}/.config/herdr/scripts"
+
+function _herdr_pane_id_from_json() {
+  python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+r = d.get("result") or {}
+p = r.get("pane") or r.get("root_pane") or {}
+if isinstance(p, dict):
+    print(p.get("pane_id") or "")
+elif isinstance(p, str):
+    print(p)
+'
+}
+
+function _coding_agent_herdr() {
   local mode="$1"
   shift
+
+  if [ "${HERDR_ENV:-}" != 1 ]; then
+    echo "Not inside herdr — run \`herdr\` first, or launch the agent in this shell."
+    return 1
+  fi
 
   local force=""
   local args=()
@@ -22,21 +42,38 @@ function _coding_agent_tmux() {
   if [[ -n "$force" ]]; then
     cli=$force
   else
-    cli=$("$HOME/.tmux/scripts/coding_agent_resolve.sh" "$PWD")
+    cli=$("$_CODING_AGENT_SCRIPTS/coding_agent_resolve.sh" "$PWD")
   fi
   command -v "$cli" >/dev/null || { echo "$cli not found in PATH"; return 1; }
 
-  local pane_id
+  local resp pane_id
   case "$mode" in
-    window) pane_id=$(tmux new-window -c "$PWD" -P -F '#{pane_id}') ;;
-    hsplit) pane_id=$(tmux split-window -h -c "$PWD" -P -F '#{pane_id}') ;;
-    vsplit) pane_id=$(tmux split-window -v -c "$PWD" -P -F '#{pane_id}') ;;
+    window)
+      resp=$(herdr tab create --cwd "$PWD" --focus)
+      ;;
+    hsplit)
+      resp=$(herdr pane split --current --direction right --cwd "$PWD" --focus)
+      ;;
+    vsplit)
+      resp=$(herdr pane split --current --direction down --cwd "$PWD" --focus)
+      ;;
+    *)
+      echo "unknown mode: $mode"; return 1
+      ;;
   esac
 
+  pane_id=$(printf '%s\n' "$resp" | _herdr_pane_id_from_json)
+  if [[ -z "$pane_id" ]]; then
+    echo "herdr: failed to create pane"
+    printf '%s\n' "$resp"
+    return 1
+  fi
+
   if (( ${#args[@]} == 0 )); then
-    tmux send-keys -t "$pane_id" "$cli" Enter
+    herdr pane run "$pane_id" "$cli"
   else
-    tmux send-keys -t "$pane_id" "$cli $(printf '%q ' "${args[@]}")" Enter
+    # Join args into one shell command line for pane run.
+    herdr pane run "$pane_id" "$cli $(printf '%q ' "${args[@]}")"
   fi
 
   # Claude-only: rotate pane color after the TUI is up.
@@ -46,24 +83,32 @@ function _coding_agent_tmux() {
     local idx=$(($(cat "$state_file" 2>/dev/null || echo 0) % ${#colors[@]} + 1))
     echo "$idx" > "$state_file"
     local color="${colors[$idx]}"
-    { sleep 3 && tmux send-keys -t "$pane_id" "/color $color" && sleep 0.2 && tmux send-keys -t "$pane_id" Escape && sleep 0.1 && tmux send-keys -t "$pane_id" Enter; } &!
+    {
+      sleep 3
+      herdr pane send-text "$pane_id" "/color $color"
+      herdr pane send-keys "$pane_id" enter
+      sleep 0.2
+      herdr pane send-keys "$pane_id" esc
+      sleep 0.1
+      herdr pane send-keys "$pane_id" enter
+    } &!
   fi
 }
 
 function c() {
-  _coding_agent_tmux window "$@"
+  _coding_agent_herdr window "$@"
 }
 
 function ch() {
-  _coding_agent_tmux hsplit "$@"
+  _coding_agent_herdr hsplit "$@"
 }
 
 function cv() {
-  _coding_agent_tmux vsplit "$@"
+  _coding_agent_herdr vsplit "$@"
 }
 
 function cr() {
-  _coding_agent_tmux window --continue "$@"
+  _coding_agent_herdr window --continue "$@"
 }
 
 function cpi() {
@@ -94,25 +139,23 @@ function cpi() {
     echo "Usage: echo 'code' | cpi 'instruction'  OR  cpi 'prompt'"
     return 1
   fi
-  _coding_agent_tmux window "${force_flags[@]}" -p "$prompt"
+  _coding_agent_herdr window "${force_flags[@]}" -p "$prompt"
 }
 
-# clist / cj share one definition of "a running coding-agent session" (and one
-# jump) with the tmux scripts: claude_sessions.sh enumerates, claude_picker.sh
-# picks and jumps.
+# Agent list / jump: use herdr's native sidebar (prefix+a) and goto (prefix+g).
 function clist() {
-  local rows
-  rows=$("$HOME/.tmux/scripts/claude_sessions.sh")
-  if [[ -z "$rows" ]]; then
-    echo "No coding agents running"
-    return 0
+  if [ "${HERDR_ENV:-}" != 1 ]; then
+    echo "Not inside herdr — run \`herdr\` first."
+    return 1
   fi
-  # Show: status marker, target (session:window.pane), task title.
-  printf '%s\n' "$rows" | awk -F '\t' '{ printf "%s  %-18s  %s\n", $1, $2, $3 }'
+  herdr agent list
 }
 
 function cj() {
-  "$HOME/.tmux/scripts/claude_picker.sh"
+  echo "Use herdr sidebar (prefix+a) or goto (prefix+g / prefix+C) to jump to agents."
+  if [ "${HERDR_ENV:-}" = 1 ]; then
+    herdr agent list
+  fi
 }
 
 # agents-link: make Cursor read the same instructions as Claude by symlinking

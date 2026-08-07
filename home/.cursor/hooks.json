@@ -4,6 +4,9 @@
     "sessionStart": [
       {
         "command": "./hooks/log-session.sh"
+      },
+      {
+        "command": "bash \"$HOME/.cursor/herdr-agent-state.sh\" session"
       }
     ],
     "subagentStop": [

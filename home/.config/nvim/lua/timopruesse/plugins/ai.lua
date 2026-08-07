@@ -18,7 +18,7 @@ return {
 				return _99.Providers.CursorAgentProvider
 			end
 
-			-- Match shell/tmux/Neovim <leader>z* routing: chewielabs → Claude,
+			-- Match shell/herdr/Neovim <leader>z* routing: chewielabs → Claude,
 			-- otherwise Cursor Agent. Re-apply on DirChanged so project switches
 			-- pick up the right CLI (manual <leader>9p still works until then).
 			local function apply_resolved_provider()

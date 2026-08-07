@@ -4,7 +4,7 @@
 > [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Hard must-nots:
 > **agent-routing** (generated into `~/.cursor/rules/agent-routing.mdc` +
 > `CLAUDE.md`). Whom-table: [`home/skills/route-agents/`](home/skills/route-agents/).
-> Shell/tmux/Neovim CLI launchers (Claude vs Cursor by cwd): [`ALIASES.md`](ALIASES.md),
+> Shell/herdr/Neovim CLI launchers (Claude vs Cursor by cwd): [`ALIASES.md`](ALIASES.md),
 > [`KEYBINDS.md`](KEYBINDS.md), [`CLAUDE.md`](CLAUDE.md#coding-agent-routing-claude-vs-cursor).
 
 A visual map of the **commands** (authored in `home/commands/`, generated to

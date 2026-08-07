@@ -4,35 +4,56 @@ local coding_agent = require("timopruesse.coding_agent")
 
 local last_agent_pane = nil
 
-local function tmux_pane(mode, cwd)
-	local tmux_arg
+local function herdr_json_pane_id(json)
+	local ok, data = pcall(vim.json.decode, json)
+	if not ok or type(data) ~= "table" then
+		return nil
+	end
+	local result = data.result or {}
+	local pane = result.pane or result.root_pane
+	if type(pane) == "table" and type(pane.pane_id) == "string" and pane.pane_id ~= "" then
+		return pane.pane_id
+	end
+	if type(pane) == "string" and pane ~= "" then
+		return pane
+	end
+	return nil
+end
+
+local function herdr_pane(mode, cwd)
+	local cmd
 	if mode == "window" then
-		tmux_arg = "new-window"
+		cmd = { "herdr", "tab", "create", "--cwd", cwd, "--focus" }
 	elseif mode == "vsplit" then
-		tmux_arg = "split-window -h"
+		cmd = { "herdr", "pane", "split", "--current", "--direction", "right", "--cwd", cwd, "--focus" }
 	elseif mode == "hsplit" then
-		tmux_arg = "split-window -v"
+		cmd = { "herdr", "pane", "split", "--current", "--direction", "down", "--cwd", cwd, "--focus" }
+	else
+		vim.notify("herdr: unknown mode " .. tostring(mode), vim.log.levels.ERROR)
+		return nil
 	end
 
-	local cmd = string.format("tmux %s -c %s -P -F '#{pane_id}'", tmux_arg, vim.fn.shellescape(cwd))
-	local pane_id = vim.trim(vim.fn.system(cmd))
+	local resp = vim.fn.system(cmd)
 	if vim.v.shell_error ~= 0 then
-		vim.notify("tmux: " .. pane_id, vim.log.levels.ERROR)
+		vim.notify("herdr: " .. resp, vim.log.levels.ERROR)
+		return nil
+	end
+
+	local pane_id = herdr_json_pane_id(resp)
+	if not pane_id then
+		vim.notify("herdr: failed to parse pane id\n" .. resp, vim.log.levels.ERROR)
 		return nil
 	end
 	return pane_id
 end
 
-local function tmux_send(pane_id, keys)
-	vim.fn.jobstart({ "tmux", "send-keys", "-t", pane_id, keys, "Enter" })
+local function herdr_run(pane_id, command)
+	vim.fn.jobstart({ "herdr", "pane", "run", pane_id, command })
 end
 
 local function pane_exists(pane_id)
-	local result = vim.fn.system(
-		-- -x: match the whole line, so pane %1 doesn't spuriously match %10/%11.
-		string.format("tmux list-panes -a -F '#{pane_id}' | grep -qxF '%s' && echo ok || echo no", pane_id)
-	)
-	return vim.trim(result) == "ok"
+	local result = vim.trim(vim.fn.system({ "herdr", "pane", "get", pane_id }))
+	return vim.v.shell_error == 0 and result ~= "" and not result:find('"error"')
 end
 
 local function write_temp(text)
@@ -56,16 +77,15 @@ function M.send_to_claude(text, opts)
 	opts = opts or {}
 
 	if opts.existing and last_agent_pane and pane_exists(last_agent_pane) then
-		local tmpfile = write_temp(text)
-		if not tmpfile then
-			return
+		-- agent prompt submits text + Enter atomically when the pane hosts an agent.
+		local result = vim.fn.system({ "herdr", "agent", "prompt", last_agent_pane, text })
+		if vim.v.shell_error ~= 0 then
+			vim.fn.system({ "herdr", "pane", "send-text", last_agent_pane, text })
+			vim.fn.system({ "herdr", "pane", "send-keys", last_agent_pane, "enter" })
+			if vim.v.shell_error ~= 0 then
+				vim.notify("herdr send failed: " .. result, vim.log.levels.ERROR)
+			end
 		end
-		vim.fn.system({ "tmux", "load-buffer", tmpfile })
-		vim.fn.system({ "tmux", "paste-buffer", "-t", last_agent_pane })
-		vim.defer_fn(function()
-			vim.fn.system({ "tmux", "send-keys", "-t", last_agent_pane, "Enter" })
-			os.remove(tmpfile)
-		end, 100)
 		return
 	end
 
@@ -82,15 +102,15 @@ function M.send_to_claude(text, opts)
 		return
 	end
 
-	local pane_id = tmux_pane(mode, cwd)
+	local pane_id = herdr_pane(mode, cwd)
 	if not pane_id then
 		return
 	end
 
 	last_agent_pane = pane_id
 
-	local cmd = string.format("__cp=$(cat '%s') && rm -f '%s' && %s \"$__cp\"", tmpfile, tmpfile, cli)
-	tmux_send(pane_id, cmd)
+	local cmd = string.format("__cp=$(cat %s) && rm -f %s && %s \"$__cp\"", vim.fn.shellescape(tmpfile), vim.fn.shellescape(tmpfile), cli)
+	herdr_run(pane_id, cmd)
 end
 
 function M.send_selection(opts)
@@ -227,13 +247,13 @@ function M.open_claude(opts)
 	local cwd = vim.fn.getcwd()
 	local cli = coding_agent.resolve_cli(cwd)
 
-	local pane_id = tmux_pane(mode, cwd)
+	local pane_id = herdr_pane(mode, cwd)
 	if not pane_id then
 		return
 	end
 
 	last_agent_pane = pane_id
-	tmux_send(pane_id, cli)
+	herdr_run(pane_id, cli)
 end
 
 return M

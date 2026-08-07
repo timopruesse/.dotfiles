@@ -1,10 +1,7 @@
 local key = require("timopruesse.helpers.keymap")
 
--- split navigation (seamless across nvim splits and tmux panes)
-key.nnoremap("<M-h>", "<cmd>TmuxNavigateLeft<cr>")
-key.nnoremap("<M-j>", "<cmd>TmuxNavigateDown<cr>")
-key.nnoremap("<M-k>", "<cmd>TmuxNavigateUp<cr>")
-key.nnoremap("<M-l>", "<cmd>TmuxNavigateRight<cr>")
+-- split navigation (seamless across nvim splits and herdr panes via herdr-navigator)
+-- <M-h/j/k/l> mappings are installed by willfish/herdr-navigator.nvim when HERDR_ENV is set.
 
 -- arrow keys as alternative
 key.nnoremap("<C-Down>", "<C-W><C-J>")

@@ -10,12 +10,6 @@ zstyle ':completion:*:git-checkout:*' sort false
 # switch completion groups with < and >
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
-# render the picker in a tmux popup when inside tmux
-if [[ -n $TMUX ]]; then
-  zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-  zstyle ':fzf-tab:*' popup-min-size 80 12
-fi
-
 # preview directory contents when completing cd / zoxide
 zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons $realpath'
 zstyle ':fzf-tab:complete:z:*'  fzf-preview 'eza -1 --color=always --icons $realpath'

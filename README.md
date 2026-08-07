@@ -6,9 +6,9 @@ Declarative, YAML-driven dotfiles for a cross-platform development environment (
 
 - **Editor**: Neovim (Lua, [Lazy.nvim](https://github.com/folke/lazy.nvim)) with [Catppuccin Mocha](https://github.com/catppuccin/nvim) theme
 - **Shell**: Zsh + [zcomet](https://github.com/agkozak/zcomet) + [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
-- **Terminal**: [Ghostty](https://ghostty.org) (macOS) / [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) (WSL) + tmux (Catppuccin themed)
+- **Terminal**: [Ghostty](https://ghostty.org) (macOS) / [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) (WSL) + [Herdr](https://herdr.dev) (Catppuccin)
 - **OS**: WSL2 (Ubuntu) on Windows; macOS (Apple Silicon)
-- **AI**: Claude Code (chewielabs work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, tmux, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md). Spine + glossary: [Workflows & agent harness](#workflows--agent-harness).
+- **AI**: Claude Code (chewielabs work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, herdr, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md). Spine + glossary: [Workflows & agent harness](#workflows--agent-harness).
 
 ## Setup
 
@@ -55,7 +55,7 @@ The config is written in Lua and lives in [`home/.config/nvim/`](https://github.
 
 The `home/` directory is symlinked to `~`, so edits take effect immediately. System-level files (`etc/wsl.conf`, `terminal/settings.json`) are copied by the setup tool. See `machine_setup.yaml` for the full task list.
 
-Tasks suffixed with `_linux` or `_macos` use the YAML `os:` filter so each platform only runs the relevant ones. Cross-platform tasks (`rust`, `bun`, `nvim-npm`, `tpm`, `dotfiles`, `personal_repos`) have no filter.
+Tasks suffixed with `_linux` or `_macos` use the YAML `os:` filter so each platform only runs the relevant ones. Cross-platform tasks (`rust`, `bun`, `nvim-npm`, `dotfiles`, `personal_repos`) have no filter.
 
 Platform-specific shell config is split into `home/.config/zsh/{wsl,linux,macos}.zsh`, each self-guarded so the loader at the bottom of `.zshrc` picks up only the right one.
 

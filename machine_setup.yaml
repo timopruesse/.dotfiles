@@ -114,7 +114,7 @@ tasks:
           commands:
             - "sudo add-apt-repository -y ppa:git-core/ppa"
             - "sudo apt-get update && sudo apt-get upgrade -y"
-            - "sudo apt-get install -y git tmux fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
+            - "sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
             - "sudo locale-gen en_US.UTF-8"
 
@@ -123,7 +123,7 @@ tasks:
     commands:
       - run:
           commands:
-            - "brew install git tmux ripgrep fzf fd bat git-delta wget keychain cmake pkg-config eza fswatch luarocks zoxide terminal-notifier"
+            - "brew install git ripgrep fzf fd bat git-delta wget keychain cmake pkg-config eza fswatch luarocks zoxide terminal-notifier"
 
   atuin_linux:
     os: ["linux"]
@@ -204,12 +204,6 @@ tasks:
             - "brew upgrade --cask google-chrome"
           uninstall:
             - "brew uninstall --cask google-chrome"
-
-  tpm:
-    commands:
-      - clone:
-          url: "https://github.com/tmux-plugins/tpm"
-          target: "~/.tmux/plugins/tpm"
 
   dotfiles:
     commands:
@@ -339,6 +333,49 @@ tasks:
           commands:
             - "cargo install cargo-tarpaulin"
             - "cargo install tree-sitter-cli"
+
+  # After rust: navigator plugin builds with cargo.
+  herdr_macos:
+    os: ["macos"]
+    commands:
+      - run:
+          install:
+            - "brew install herdr"
+          update:
+            - "brew upgrade herdr"
+          uninstall:
+            - "brew uninstall herdr"
+      - run:
+          install:
+            - "herdr integration install claude || true"
+            - "herdr integration install cursor || true"
+            - "herdr plugin install willfish/herdr-navigator --yes || true"
+          update:
+            - "herdr integration install claude || true"
+            - "herdr integration install cursor || true"
+            - "herdr plugin install willfish/herdr-navigator --yes || true"
+
+  herdr_linux:
+    os: ["linux"]
+    commands:
+      - run:
+          install:
+            - "curl -fsSL https://herdr.dev/install.sh | sh"
+          update:
+            - "herdr update"
+          uninstall:
+            - "herdr server stop || true"
+            - "rm -f ~/.local/bin/herdr"
+            - "rm -rf ~/.local/share/herdr ~/.config/herdr/current"
+      - run:
+          install:
+            - "herdr integration install claude || true"
+            - "herdr integration install cursor || true"
+            - "herdr plugin install willfish/herdr-navigator --yes || true"
+          update:
+            - "herdr integration install claude || true"
+            - "herdr integration install cursor || true"
+            - "herdr plugin install willfish/herdr-navigator --yes || true"
 
   bun:
     commands:

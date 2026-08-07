@@ -75,15 +75,6 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 | `html`, `htm`, `css`, `scss`, `sass` | `$EDITOR` |
 | `conf`, `cfg`, `ini`, `env` | `$EDITOR` |
 
-## Tmux (`tmux_aliases.zsh`)
-
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `ss` | `$HOME/start_tmux.sh` | Start/attach tmux session |
-| `timo` | `ss timo` | Start personal session |
-| `work` | `ss mill` | Start work session |
-| `ks` | `tmux kill-session -t` | Kill a tmux session |
-
 ## AWS (`aws_aliases.zsh`)
 
 | Function | Command | Description |
@@ -95,7 +86,7 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 ## Coding agent (`claude_aliases.zsh`)
 
 `c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Cursor Agent** from the cwd
-(same rules as git identity — see `~/.tmux/scripts/coding_agent_resolve.sh`):
+(same rules as git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`):
 
 1. `CODING_AGENT=claude|agent` env override
 2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `agent`
@@ -104,21 +95,22 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 Per-invocation override: pass `--claude` or `--agent` / `--cursor` to any of the
 launchers (e.g. `c --claude`, `ch --agent "fix the flaky test"`).
 
-Launchers `send-keys` into an interactive shell, so the `claude` / `agent`
-wrappers apply (keep-awake + default worktree). Tmux `prefix H`/`V`/`R`/`S` go
-through `coding_agent_launch.sh` (resolve + exec) and do **not** add worktree
-flags themselves — use `c`/`ch`/… or type `claude`/`agent` when you want the
-wrapper defaults.
+Launchers run inside herdr (`HERDR_ENV=1`): they create a tab/split then
+`herdr pane run` the CLI, so the `claude` / `agent` wrappers apply (keep-awake +
+default worktree). Herdr `prefix+shift+H`/`V`/`R`/`S` go through
+`coding_agent_launch.sh` (resolve + exec) and do **not** add worktree flags
+themselves — use `c`/`ch`/… or type `claude`/`agent` when you want the wrapper
+defaults.
 
 | Function | Command | Description |
 |----------|---------|-------------|
-| `c` | new tmux window with resolved CLI | Open coding agent in a new tmux window |
+| `c` | new herdr tab with resolved CLI | Open coding agent in a new tab |
 | `c <prompt>` | … with positional prompt | Open with an initial prompt |
-| `ch` / `cv` | horizontal / vertical split | Same, in a split |
+| `ch` / `cv` | vertical / horizontal split | Same, in a split |
 | `cr` | `… --continue` | Continue the last session for that CLI |
 | `cpi` | `… -p "…"` | Pipe stdin / instruction in print mode |
-| `clist` | — | List tmux panes running Claude or Cursor Agent |
-| `cj` | — | fzf picker to jump to a running coding-agent pane |
+| `clist` | `herdr agent list` | List detected coding agents |
+| `cj` | — | Reminder to use sidebar / goto (lists agents) |
 | `agents-link [dir]` | `ln -s CLAUDE.md AGENTS.md` | Symlink `AGENTS.md` → `CLAUDE.md` so Cursor reads the same instructions as Claude (one source of bytes) |
 | `agents-link --all` | — | Do it for every `CLAUDE.md` in the repo (skips `.git`/`node_modules`) |
 | `agents-link -f …` | — | Replace an existing `AGENTS.md` **symlink** (never clobbers a real file) |
@@ -140,7 +132,7 @@ Interactive enhancements wired into the shell (not aliases, but worth knowing):
 | Tool | Where | What it does |
 |------|-------|--------------|
 | **atuin** | `Ctrl-R` / `↑` | SQLite-backed shell history with fuzzy search. `Ctrl-R` searches **all** history; `↑` searches history scoped to the **current directory**. `Enter` runs the selected command; press `Tab` to drop it on the prompt for editing. E2E-encrypted sync via `atuin sync` (config: `~/.config/atuin/config.toml`). |
-| **fzf-tab** | `Tab` | Replaces zsh's completion menu with an fzf picker. Previews dirs with `eza` and files with `bat`. Renders in a tmux popup when inside tmux. Switch completion groups with `<` / `>`. |
+| **fzf-tab** | `Tab` | Replaces zsh's completion menu with an fzf picker. Previews dirs with `eza` and files with `bat`. Switch completion groups with `<` / `>`. |
 | **delta** | `git diff`, `gd`, lazygit | Syntax-highlighted, line-numbered diff pager (Catppuccin Mocha). Press `n` / `N` to jump between files. |
 | **bat** | `bat <file>` | Syntax-highlighted `cat` (Catppuccin Mocha). `cat` itself is left untouched. |
 

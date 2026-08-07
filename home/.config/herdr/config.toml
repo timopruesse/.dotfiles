@@ -1,0 +1,90 @@
+# Herdr config — managed by .dotfiles (home/ → ~)
+# Docs: https://herdr.dev/docs/configuration/
+
+onboarding = false
+
+[theme]
+name = "catppuccin"
+
+[terminal]
+default_shell = "zsh"
+new_cwd = "follow"
+
+[keys]
+prefix = "ctrl+space"
+
+# Muscle-memory remaps from former tmux.conf
+reload_config = "prefix+r"
+toggle_sidebar = "prefix+a"
+goto = ["prefix+g", "prefix+shift+c"]
+split_vertical = ["prefix+v", "prefix+\\\\"]
+split_horizontal = "prefix+minus"
+last_pane = "prefix+tab"
+
+# Free prefix+shift+h/v from default swap so coding-agent binds can use them
+# (tmux used capital H/V/S/R). Swap remains available via mouse / other keys.
+# Coding-agent launchers (Claude vs Cursor by cwd):
+[[keys.command]]
+key = "prefix+shift+h"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/coding_agent_bind.sh right"
+description = "coding agent (vertical split)"
+
+[[keys.command]]
+key = "prefix+shift+v"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/coding_agent_bind.sh down"
+description = "coding agent (horizontal split)"
+
+[[keys.command]]
+key = "prefix+shift+s"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/coding_agent_bind.sh tab resume"
+description = "coding agent resume (new tab)"
+
+[[keys.command]]
+key = "prefix+shift+r"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/coding_agent_bind.sh tab continue"
+description = "coding agent continue (new tab)"
+
+[[keys.command]]
+key = "prefix+backtick"
+type = "popup"
+command = 'exec "${SHELL:-zsh}"'
+description = "scratch terminal"
+width = "75%"
+height = "80%"
+
+[[keys.command]]
+key = "prefix+shift+a"
+type = "popup"
+command = "zsh -ic awsp"
+description = "AWS profile picker"
+width = "60%"
+height = "40%"
+
+# Seamless Neovim ↔ herdr pane navigation (willfish/herdr-navigator plugin)
+[[keys.command]]
+key = "alt+h"
+type = "plugin_action"
+command = "willfish.herdr-navigator.left"
+description = "navigate left (nvim/herdr)"
+
+[[keys.command]]
+key = "alt+j"
+type = "plugin_action"
+command = "willfish.herdr-navigator.down"
+description = "navigate down (nvim/herdr)"
+
+[[keys.command]]
+key = "alt+k"
+type = "plugin_action"
+command = "willfish.herdr-navigator.up"
+description = "navigate up (nvim/herdr)"
+
+[[keys.command]]
+key = "alt+l"
+type = "plugin_action"
+command = "willfish.herdr-navigator.right"
+description = "navigate right (nvim/herdr)"

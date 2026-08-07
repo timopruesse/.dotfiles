@@ -1,5 +1,5 @@
 function _aws_state_file() {
-  local session=$(tmux display-message -p '#{session_name}' 2>/dev/null || echo "default")
+  local session="${HERDR_SESSION:-default}"
   echo "${XDG_STATE_HOME:-$HOME/.local/state}/aws_profile_${session}"
 }
 

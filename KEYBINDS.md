@@ -2,90 +2,62 @@
 
 ---
 
-## Tmux
+## Herdr
 
 Prefix key: **Ctrl+Space**
 
-### Session / Window Management
+Config: `~/.config/herdr/config.toml` (from `home/.config/herdr/`).
 
-| Key          | Action                                         |
-| ------------ | ---------------------------------------------- |
-| `prefix s`   | List/switch sessions                           |
-| `prefix (`   | Switch to previous session                     |
-| `prefix )`   | Switch to next session                         |
-| `prefix c`   | New window (current directory)                 |
-| `prefix \`   | Vertical split (current directory)             |
-| `prefix -`   | Horizontal split (current directory)           |
-| `prefix r`   | Reload tmux config                             |
-| `prefix Tab` | Toggle last window                             |
-| `` prefix ` ``| Open popup terminal (75%x80%)                 |
-| `prefix S`   | Browse/resume coding-agent sessions (new window; Claude vs Cursor by cwd) |
-| `prefix R`   | Continue last coding-agent session (new window; Claude vs Cursor by cwd) |
-| `prefix H`   | Open coding agent in horizontal split (cwd → Claude or Cursor) |
-| `prefix V`   | Open coding agent in vertical split (cwd → Claude or Cursor) |
-| `prefix C`   | fzf popup to jump to a running Claude / Cursor Agent pane |
-| `prefix a`   | Toggle live coding-agent sessions sidebar (split right) |
-| `prefix A`   | AWS profile picker (fzf)                       |
-| `prefix m`   | Harpoon: pin the current pane to a slot        |
-| `prefix e`   | Harpoon: open the pinned-sessions menu (fzf)   |
-| `Alt+1`..`Alt+4` | Harpoon: jump straight to pinned slot 1–4 (no prefix) |
+### Session / tabs / panes
 
-Launch binds resolve Claude Code vs Cursor Agent from `#{pane_current_path}` via
-`coding_agent_resolve.sh` / `coding_agent_launch.sh` (env → git remote org →
-path: chewielabs → Claude; otherwise Cursor). Override with
-`CODING_AGENT=claude|agent`. These binds exec the CLI directly (no zsh worktree
-wrapper); use shell `c`/`ch`/… when you want default `--worktree` / `-w`.
+| Key | Action |
+| --- | --- |
+| `prefix c` | New tab |
+| `prefix \` or `prefix v` | Vertical split (right) |
+| `prefix -` | Horizontal split (down) |
+| `prefix r` | Reload herdr config |
+| `prefix Tab` | Toggle last pane |
+| `` prefix ` `` | Scratch popup terminal (75%×80%) |
+| `prefix a` | Toggle agent/workspace sidebar |
+| `prefix g` / `prefix C` | Goto picker (workspaces / agents / panes) |
+| `prefix+shift+S` | Coding agent resume (new tab; Claude vs Cursor by cwd) |
+| `prefix+shift+R` | Coding agent continue (new tab) |
+| `prefix+shift+H` | Coding agent in vertical split |
+| `prefix+shift+V` | Coding agent in horizontal split |
+| `prefix+shift+A` | AWS profile picker (`awsp` popup) |
+| `prefix ?` | Show live keybind help |
 
-The picker (`prefix C`) and sidebar (`prefix a`) list **both** CLIs. Status is
-also reflected in the status bar (`[ai: N ⚠ M]`):
+Launch binds resolve Claude Code vs Cursor Agent via
+`~/.config/herdr/scripts/coding_agent_resolve.sh` /
+`coding_agent_launch.sh` (env → git remote org → path: chewielabs → Claude;
+otherwise Cursor). Override with `CODING_AGENT=claude|agent`. These binds exec
+the CLI directly (no zsh worktree wrapper); use shell `c`/`ch`/… when you want
+default `--worktree` / `-w`.
 
-- 🔴 `input` — waiting on your confirmation/permission (needs you now)
-- 🟢 `idle` — finished, awaiting your next prompt (your turn)
-- ⚪ `working` — busy, no action needed
+Agent status lives in herdr’s native sidebar (install integrations with
+`herdr integration install claude` / `cursor`). Use the sidebar or goto to jump
+between agents — there is no custom harpoon or fzf picker anymore.
 
-In the sidebar, `enter` jumps to a session, `ctrl-r` refreshes (it also
-auto-refreshes every 5s), and `esc` or pressing `prefix a` again closes it.
+### Pane navigation
 
-**Harpoon** (session pinning, à la ThePrimeagen's nvim plugin): pin the panes
-you're juggling with `prefix m`, then flip between them instantly with
-`Alt+1`–`Alt+4` — no prefix, no list to scan. `prefix e` opens a menu (same
-status markers) where `enter` jumps and `ctrl-x` unpins. The list is stored in
-`~/.tmux/claude_harpoon` (by pane id, so it lasts the life of the panes; dead
-panes are pruned automatically) and isn't limited to Claude panes.
+Seamless across herdr panes **and** nvim splits via
+`willfish/herdr-navigator` (+ `herdr-navigator.nvim`): if the active pane runs
+(n)vim the key moves nvim splits first; at an edge it focuses the adjacent
+herdr pane.
 
-> `prefix m` replaces the default mark-pane binding, and `Alt+1`–`Alt+4` are
-> bound in the root table (active without the prefix).
-
-Coding-agent **windows are auto-named after their current task** (truncated) in
-the status bar window list, e.g. `1:Add session overview sid…`; other windows
-keep their command name.
-
-### Pane Navigation
-
-Seamless across tmux panes **and** nvim splits via `vim-tmux-navigator`: if the
-active pane runs (n)vim the key is forwarded to nvim, otherwise tmux switches panes.
-
-| Key     | Action                       |
-| ------- | ---------------------------- |
-| `Alt+h` | Select pane / nvim split left  |
-| `Alt+j` | Select pane / nvim split down  |
-| `Alt+k` | Select pane / nvim split up    |
+| Key | Action |
+| --- | --- |
+| `Alt+h` | Select pane / nvim split left |
+| `Alt+j` | Select pane / nvim split down |
+| `Alt+k` | Select pane / nvim split up |
 | `Alt+l` | Select pane / nvim split right |
-
-### Window Reordering
-
-| Key                | Action            |
-| ------------------ | ----------------- |
-| `Ctrl+Shift+Left`  | Swap window left  |
-| `Ctrl+Shift+Right` | Swap window right |
 
 ### Notes
 
-- Vi mode enabled for copy mode (`mode-keys vi`)
-- Mouse support enabled
-- Windows/panes are 1-indexed; windows auto-renumber on close
-- Yank in copy mode (`y`) and mouse-drag-end pipe to the OS clipboard via OSC 52
-- Sessions saved by tmux-resurrect + tmux-continuum; restore manually with `prefix Ctrl-r`
+- Mouse-first UI (click panes/tabs, drag borders, right-click menus)
+- Detach with `prefix q`; reattach with `herdr`
+- Session restore is built into herdr (detach keeps processes; server restart
+  restores layout + native agent resume when integrations are installed)
 
 ---
 
@@ -132,15 +104,15 @@ Leader key: **Space**
 
 #### Split Navigation
 
-`<M-h/j/k/l>` navigate nvim splits and **cross seamlessly into adjacent tmux
-panes** at the edges (`vim-tmux-navigator`).
+`<M-h/j/k/l>` navigate nvim splits and **cross seamlessly into adjacent herdr
+panes** at the edges (`herdr-navigator.nvim`).
 
 | Key         | Mode   | Action                  |
 | ----------- | ------ | ----------------------- |
-| `<M-h>`     | Normal | Navigate left (split or tmux pane)  |
-| `<M-j>`     | Normal | Navigate down (split or tmux pane)  |
-| `<M-k>`     | Normal | Navigate up (split or tmux pane)    |
-| `<M-l>`     | Normal | Navigate right (split or tmux pane) |
+| `<M-h>`     | Normal | Navigate left (split or herdr pane)  |
+| `<M-j>`     | Normal | Navigate down (split or herdr pane)  |
+| `<M-k>`     | Normal | Navigate up (split or herdr pane)    |
+| `<M-l>`     | Normal | Navigate right (split or herdr pane) |
 | `<C-Left>`  | Normal | Navigate to left split  |
 | `<C-Down>`  | Normal | Navigate to below split |
 | `<C-Up>`    | Normal | Navigate to above split |
@@ -327,14 +299,14 @@ temporarily with `<leader>9p`.
 
 ### Coding agent (Tmux Integration)
 
-Same cwd routing as the shell aliases / tmux binds (env → remote org → path;
+Same cwd routing as the shell aliases / herdr binds (env → remote org → path;
 chewielabs → Claude Code, otherwise Cursor Agent). Keymaps are unchanged.
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |
-| `<leader>zo` | Normal | Open coding agent in vertical tmux split           |
-| `<leader>zh` | Normal | Open coding agent in horizontal tmux split         |
-| `<leader>zw` | Normal | Open coding agent in new tmux window               |
+| `<leader>zo` | Normal | Open coding agent in vertical herdr split           |
+| `<leader>zh` | Normal | Open coding agent in horizontal herdr split         |
+| `<leader>zw` | Normal | Open coding agent in new herdr tab                  |
 | `<leader>zs` | Visual | Send selection to agent (new pane)                 |
 | `<leader>zp` | Visual | Prompt for instruction + send selection (new pane) |
 | `<leader>zr` | Visual | Send selection to existing agent pane              |
