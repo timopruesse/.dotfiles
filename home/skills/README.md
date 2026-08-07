@@ -26,4 +26,4 @@ Hard rules: generated **agent-routing** (see [`CONTEXT.md`](../../CONTEXT.md)).
 Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md).
 
 `machine_setup` runs live-install after sync. Sources under `home/skills/` also
-land at `~/skills/` via the home symlink (same unwrap pattern as `agents/`).
+land at `~/skills/` via the home symlink (same pattern as `agents/`).
