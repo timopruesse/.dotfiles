@@ -16,16 +16,35 @@ Config: `~/.config/herdr/config.toml` (from `home/.config/herdr/`).
 | `prefix \` or `prefix v` | Vertical split (right) |
 | `prefix -` | Horizontal split (down) |
 | `prefix r` | Reload herdr config |
-| `prefix Tab` | Toggle last pane |
+| `prefix Tab` | Toggle last pane (Neovim `<C-o>`-style back-and-forth) |
 | `` prefix ` `` | Scratch popup terminal (75%×80%) |
-| `prefix a` | Toggle agent/workspace sidebar |
-| `prefix g` / `prefix C` | Goto picker (workspaces / agents / panes) |
+| `prefix+shift+A` | AWS profile picker (`awsp` popup) |
+| `prefix ?` | Show live keybind help |
+
+### Spaces / agents
+
+Herdr calls spaces **workspaces**. `next_workspace` / `previous_workspace` /
+`next_agent` / `previous_agent` are unset — jump via pickers / sidebar instead
+of cycling.
+
+| Key | Action |
+| --- | --- |
+| `prefix w` | Space picker (go to / switch space) |
+| `prefix+shift+N` | New space |
+| `prefix g` / `prefix C` | Goto picker (spaces / agents / panes) — also the jump-to-agent path |
+| `prefix a` | Toggle agent/space sidebar |
+
+Agent status lives in herdr’s native sidebar (install integrations with
+`herdr integration install claude` / `cursor`). No custom harpoon or fzf picker.
+
+### Coding-agent launch
+
+| Key | Action |
+| --- | --- |
 | `prefix+shift+S` | Coding agent resume (new tab; Claude vs Cursor by cwd) |
 | `prefix+shift+R` | Coding agent continue (new tab) |
 | `prefix+shift+H` | Coding agent in vertical split |
 | `prefix+shift+V` | Coding agent in horizontal split |
-| `prefix+shift+A` | AWS profile picker (`awsp` popup) |
-| `prefix ?` | Show live keybind help |
 
 Launch binds resolve Claude Code vs Cursor Agent via
 `~/.config/herdr/scripts/coding_agent_resolve.sh` /
@@ -33,10 +52,6 @@ Launch binds resolve Claude Code vs Cursor Agent via
 otherwise Cursor). Override with `CODING_AGENT=claude|agent`. These binds exec
 the CLI directly (no zsh worktree wrapper); use shell `c`/`ch`/… when you want
 default `--worktree` / `-w`.
-
-Agent status lives in herdr’s native sidebar (install integrations with
-`herdr integration install claude` / `cursor`). Use the sidebar or goto to jump
-between agents — there is no custom harpoon or fzf picker anymore.
 
 ### Pane navigation
 

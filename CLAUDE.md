@@ -76,8 +76,9 @@ Per-call overrides: `--claude` / `--agent` on the launchers.
 Both `claude` and `agent` wrappers in `.zshrc` default to an isolated git
 worktree inside a repo (`--worktree` / `-w`); pass `--here` to stay on the
 current branch. Dotfiles itself is excluded so symlink edits take effect
-immediately. Agent overview: herdr sidebar (`prefix+a`) / goto (`prefix+g`);
-`clist` wraps `herdr agent list`.
+immediately. Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
+(`prefix+g` / `prefix+C`) or sidebar (`prefix+a`); `clist` wraps
+`herdr agent list`. Last pane: `prefix+Tab`.
 
 Canonical docs: [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md).
 

@@ -142,7 +142,8 @@ function cpi() {
   _coding_agent_herdr window "${force_flags[@]}" -p "$prompt"
 }
 
-# Agent list / jump: use herdr's native sidebar (prefix+a) and goto (prefix+g).
+# Agent list / jump: goto (prefix+g / prefix+C) or sidebar (prefix+a).
+# Spaces: picker prefix+w; new space prefix+shift+N. Last pane: prefix+Tab.
 function clist() {
   if [ "${HERDR_ENV:-}" != 1 ]; then
     echo "Not inside herdr — run \`herdr\` first."
@@ -152,7 +153,7 @@ function clist() {
 }
 
 function cj() {
-  echo "Use herdr sidebar (prefix+a) or goto (prefix+g / prefix+C) to jump to agents."
+  echo "Jump agents: goto (prefix+g / prefix+C) or sidebar (prefix+a). Spaces: prefix+w."
   if [ "${HERDR_ENV:-}" = 1 ]; then
     herdr agent list
   fi

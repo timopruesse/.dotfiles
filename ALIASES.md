@@ -110,7 +110,7 @@ defaults.
 | `cr` | `… --continue` | Continue the last session for that CLI |
 | `cpi` | `… -p "…"` | Pipe stdin / instruction in print mode |
 | `clist` | `herdr agent list` | List detected coding agents |
-| `cj` | — | Reminder to use sidebar / goto (lists agents) |
+| `cj` | — | Reminder: jump agents via goto (`prefix+g`/`prefix+C`) or sidebar; spaces via `prefix+w` (lists agents) |
 | `agents-link [dir]` | `ln -s CLAUDE.md AGENTS.md` | Symlink `AGENTS.md` → `CLAUDE.md` so Cursor reads the same instructions as Claude (one source of bytes) |
 | `agents-link --all` | — | Do it for every `CLAUDE.md` in the repo (skips `.git`/`node_modules`) |
 | `agents-link -f …` | — | Replace an existing `AGENTS.md` **symlink** (never clobbers a real file) |
