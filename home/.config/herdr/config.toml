@@ -17,7 +17,7 @@ prefix = "ctrl+space"
 reload_config = "prefix+r"
 toggle_sidebar = "prefix+a"
 goto = ["prefix+g", "prefix+shift+c"]
-split_vertical = ["prefix+v", "prefix+\\\\"]
+split_vertical = ["prefix+v", "prefix+backslash"]
 split_horizontal = "prefix+minus"
 last_pane = "prefix+tab"
 
