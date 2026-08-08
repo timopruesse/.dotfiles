@@ -1,5 +1,9 @@
 ---
 default_shell: "zsh"
+# Independent tasks run concurrently. depends_on builds layers so apt/brew
+# prerequisites and git@ clones still serialize correctly. Cross-platform
+# tasks list both OS-specific prereqs; the wrong-OS task is skipped.
+parallel: true
 
 tasks:
   homebrew_macos:
@@ -25,6 +29,7 @@ tasks:
             - "brew tap homebrew/core"
             - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
 
+  # Apt chain head (linux): zsh → tools → gh → chrome → go → python → docker
   zsh_linux:
     os: ["linux"]
     commands:
@@ -40,6 +45,7 @@ tasks:
 
   zsh_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           commands:
@@ -67,6 +73,7 @@ tasks:
 
   win32yank_wsl:
     os: ["linux"]
+    depends_on: ["tools_linux"]
     commands:
       - run:
           env:
@@ -109,6 +116,7 @@ tasks:
 
   tools_linux:
     os: ["linux"]
+    depends_on: ["zsh_linux"]
     commands:
       - run:
           commands:
@@ -120,6 +128,7 @@ tasks:
 
   tools_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           commands:
@@ -127,6 +136,7 @@ tasks:
 
   atuin_linux:
     os: ["linux"]
+    depends_on: ["rust"]
     commands:
       - run:
           install:
@@ -138,6 +148,7 @@ tasks:
 
   atuin_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -149,6 +160,7 @@ tasks:
 
   gh_linux:
     os: ["linux"]
+    depends_on: ["tools_linux"]
     commands:
       - run:
           install:
@@ -165,6 +177,7 @@ tasks:
 
   gh_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -178,6 +191,7 @@ tasks:
   # apt repo so `apt upgrade` keeps it current.
   chrome_linux:
     os: ["linux"]
+    depends_on: ["gh_linux"]
     commands:
       - run:
           install:
@@ -196,6 +210,7 @@ tasks:
 
   chrome_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -206,6 +221,7 @@ tasks:
             - "brew uninstall --cask google-chrome"
 
   dotfiles:
+    depends_on: ["ssh", "tools_linux", "tools_macos"]
     commands:
       - clone:
           url: "git@github.com:timopruesse/.dotfiles.git"
@@ -241,6 +257,7 @@ tasks:
   # register the Catppuccin Mocha theme bundled in ~/.config/bat/themes so bat
   # and delta can use it. Runs after the dotfiles symlink puts the theme in place.
   bat_theme:
+    depends_on: ["dotfiles", "tools_linux", "tools_macos"]
     commands:
       - run:
           install:
@@ -250,6 +267,7 @@ tasks:
 
   lazygit_linux:
     os: ["linux"]
+    depends_on: ["dotfiles", "tools_linux"]
     commands:
       - run:
           install:
@@ -257,6 +275,7 @@ tasks:
 
   lazygit_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -265,6 +284,7 @@ tasks:
 
   neovim_linux:
     os: ["linux"]
+    depends_on: ["tools_linux"]
     commands:
       - run:
           install:
@@ -286,6 +306,7 @@ tasks:
 
   neovim_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos", "tools_macos"]
     commands:
       - run:
           install:
@@ -297,6 +318,7 @@ tasks:
             - "brew uninstall neovim"
 
   rust:
+    depends_on: ["tools_linux", "tools_macos"]
     commands:
       - run:
           install:
@@ -315,6 +337,7 @@ tasks:
   # After rust: navigator plugin builds with cargo.
   herdr_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos", "rust", "dotfiles"]
     commands:
       - run:
           install:
@@ -335,6 +358,7 @@ tasks:
 
   herdr_linux:
     os: ["linux"]
+    depends_on: ["rust", "dotfiles"]
     commands:
       - run:
           install:
@@ -363,6 +387,7 @@ tasks:
 
   node_linux:
     os: ["linux"]
+    depends_on: ["rust"]
     commands:
       - run:
           install:
@@ -377,6 +402,7 @@ tasks:
 
   node_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -389,6 +415,7 @@ tasks:
             - "brew uninstall fnm"
 
   nvim-npm:
+    depends_on: ["node_linux", "node_macos"]
     commands:
       - run:
           env:
@@ -399,6 +426,7 @@ tasks:
 
   python_linux:
     os: ["linux"]
+    depends_on: ["go_linux"]
     commands:
       - run:
           install:
@@ -413,6 +441,7 @@ tasks:
 
   python_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -425,6 +454,7 @@ tasks:
 
   go_linux:
     os: ["linux"]
+    depends_on: ["chrome_linux"]
     commands:
       - run:
           install:
@@ -436,6 +466,7 @@ tasks:
 
   go_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -447,6 +478,7 @@ tasks:
 
   docker:
     os: ["linux"]
+    depends_on: ["python_linux"]
     commands:
       - run:
           install:
@@ -467,6 +499,7 @@ tasks:
 
   colima_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -478,6 +511,7 @@ tasks:
 
   aws_cli_linux:
     os: ["linux"]
+    depends_on: ["tools_linux"]
     commands:
       - run:
           env:
@@ -501,6 +535,7 @@ tasks:
 
   aws_cli_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -534,6 +569,7 @@ tasks:
 
   ghostty_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -545,6 +581,7 @@ tasks:
 
   font_macos:
     os: ["macos"]
+    depends_on: ["homebrew_macos"]
     commands:
       - run:
           install:
@@ -554,6 +591,7 @@ tasks:
 
   font_linux:
     os: ["linux"]
+    depends_on: ["tools_linux"]
     commands:
       - run:
           env:
@@ -567,6 +605,7 @@ tasks:
             - "fc-cache -fv"
 
   personal_repos:
+    depends_on: ["ssh", "tools_linux", "tools_macos"]
     commands:
       - machine_setup:
           config: "$DOTFILES/personal_repositories.yaml"
