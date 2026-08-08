@@ -273,7 +273,7 @@ def load_subagents(transcript_path: Path, session_id: str) -> list[dict[str, Any
                 "status": "completed",
                 "duration_ms": duration_ms,
                 "models": models,
-                "kind": "pinned",
+                # kind is derived in session_log.merge_subagent_lists — never here
                 "source": "subagents_dir",
                 "usage": {
                     k: usage[k]

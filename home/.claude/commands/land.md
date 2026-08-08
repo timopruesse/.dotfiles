@@ -12,8 +12,9 @@ already made the edits) and `/open-pr` — the local counterpart to how
 **current branch/worktree**; it does NOT run `worker` (that already happened) and
 does NOT open the PR itself (it advances into `/open-pr`). Mode (A default vs B
 pre-authorized, set at `/dispatch`) is carried in session context — see
-[`~/protocols/HANDOFF-PROTOCOL.md`](../protocols/HANDOFF-PROTOCOL.md) for the AUTO/STOP taxonomy this
-command follows below.
+[`~/protocols/HANDOFF-PROTOCOL.md`](../protocols/HANDOFF-PROTOCOL.md) for the
+AUTO/STOP taxonomy and the **land path** (risk-gate + obvious BREAKS) this
+command applies below.
 
 ## 1. Pre-flight (read-only)
 
@@ -31,39 +32,15 @@ command follows below.
 - Check whether a PR already exists for the branch (`gh pr view --json number,url`);
   hold the answer — it decides §4.
 
-## 2. Verify — the gate (behavior-changing changes only)
+## 2. Verify — apply the land path
 
-- Look at the **branch diff vs base** (`git diff <base>...HEAD` plus any uncommitted
-  changes) and apply the risk-gate yourself: **skip `verifier`** for no-runtime-surface
-  diffs (docs, comments, formatting, config/lockfile bumps) and mechanical/
-  compiler-validated edits (types, lint, pure renames). **Spawn `verifier`** when
-  there's real runtime surface, giving it the specific behavior the change is meant
-  to produce and letting it try to break it.
-- **On `VERDICT: BREAKS`** — do NOT commit yet. Classify the break, then either
-  auto-repair or `HALT` (taxonomy in
-  [`~/protocols/HANDOFF-PROTOCOL.md`](../protocols/HANDOFF-PROTOCOL.md)):
-
-  **Obvious (AUTO in both modes)** — all must hold:
-  1. Verifier gave a concrete failing input and expected vs observed behavior.
-  2. The fix restores the *claimed* contract only — no product/API redesign,
-     no picking among multiple plausible behaviors.
-  3. The fix is localized: live-install drift (missing/stale symlink for a file
-     already in the repo; chmod), sourced-vs-executed main guards, missing
-     arity/empty-arg checks, one-branch null/path typos, copy `.env.local` into
-     a new worktree, or similarly mechanical one-site repairs.
-
-  **How to auto-repair:** briefly name the break + fix (one line, no `go`
-  pause). Parent may apply install/live-link fixes and small mechanical guards
-  in already-touched files; otherwise spawn `worker` with the verifier's repro
-  as a thin spec. Re-spawn `verifier` after each repair. Budget: **≤3**
-  auto-fix→re-verify cycles per `/land`. Same failing case after a fix counts
-  against the budget — do not thrash.
-
-  **Not obvious, or budget exhausted** — `HALT: <reason>` with the failing
-  input. Offer a fresh `worker` retry only on my `go`. When unsure whether it
-  is obvious → STOP (same as the protocol's default).
+Apply the **land path** in
+[`~/protocols/HANDOFF-PROTOCOL.md`](../protocols/HANDOFF-PROTOCOL.md) (risk-gate
+→ spawn or skip `verifier` → obvious BREAKS auto-repair ≤3 cycles → else
+`HALT`). Do not restate the taxonomy here.
 
 - On `HOLDS` (or a skipped gate), continue.
+- On non-obvious / budget-exhausted `BREAKS`, `HALT` — do not commit.
 
 ## 3. Commit (preview → mode-aware)
 

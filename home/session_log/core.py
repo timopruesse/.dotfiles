@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -23,31 +24,59 @@ BUILTIN_SUBAGENT_TYPES = frozenset(
     }
 )
 
-# Slash commands authored under home/commands/ (stem without leading /).
-KNOWN_COMMAND_STEMS = frozenset(
-    {
-        "address-reviews",
-        "babysit-fleet",
-        "babysit-pr",
-        "dispatch",
-        "land",
-        "my-work",
-        "open-pr",
-        "open-work",
-        "review-requests",
-        "ship",
-        "ship-digest",
-        "start",
-        "watch-boba",
-    }
-)
+_HOME = Path(__file__).resolve().parent.parent
+_COMMANDS_DIR = _HOME / "commands"
+_AGENTS_DIR = _HOME / "agents"
+_EXCLUDE_MD = frozenset({"README.md"})
 
-COMMAND_TOKEN_RE = re.compile(
-    r"(?:^|[\s`])/(address-reviews|babysit-fleet|babysit-pr|dispatch|land|"
-    r"my-work|open-pr|open-work|review-requests|ship-digest|ship|start|watch-boba)"
-    r"(?=$|[\s`\"'])",
-    re.MULTILINE,
-)
+
+def home_dir() -> Path:
+    """Repo `home/` (parent of session_log)."""
+    return _HOME
+
+
+@lru_cache(maxsize=1)
+def command_stems() -> frozenset[str]:
+    """Slash-command stems from authored `home/commands/*.md` (runtime glob)."""
+    if not _COMMANDS_DIR.is_dir():
+        return frozenset()
+    return frozenset(
+        p.stem
+        for p in _COMMANDS_DIR.glob("*.md")
+        if p.name not in _EXCLUDE_MD and p.is_file()
+    )
+
+
+@lru_cache(maxsize=1)
+def pinned_agent_names() -> frozenset[str]:
+    """Pinned agent names from authored `home/agents/*.md` (runtime glob)."""
+    if not _AGENTS_DIR.is_dir():
+        return frozenset()
+    return frozenset(
+        p.stem
+        for p in _AGENTS_DIR.glob("*.md")
+        if p.name not in _EXCLUDE_MD and p.is_file()
+    )
+
+
+def _command_token_re(stems: frozenset[str]) -> re.Pattern[str] | None:
+    if not stems:
+        return None
+    # Longer stems first so e.g. ship-digest wins over ship.
+    alt = "|".join(re.escape(s) for s in sorted(stems, key=len, reverse=True))
+    return re.compile(
+        rf"(?:^|[\s`])/({alt})(?=$|[\s`\"'])",
+        re.MULTILINE,
+    )
+
+
+def __getattr__(name: str) -> Any:
+    """Lazy aliases for older imports (`KNOWN_COMMAND_STEMS`, `COMMAND_TOKEN_RE`)."""
+    if name == "KNOWN_COMMAND_STEMS":
+        return command_stems()
+    if name == "COMMAND_TOKEN_RE":
+        return _command_token_re(command_stems())
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def now_iso() -> str:
@@ -77,13 +106,15 @@ def read_hook_payload(raw: str) -> dict[str, Any]:
 
 
 def classify_subagent_kind(agent_type: str | None) -> str | None:
-    if not agent_type:
+    """Derive kind from spawn type: pinned | builtin | unknown (never trust adapters)."""
+    if not agent_type or agent_type == "untyped":
         return None
-    if agent_type in BUILTIN_SUBAGENT_TYPES or agent_type.lower() in {
-        x.lower() for x in BUILTIN_SUBAGENT_TYPES
-    }:
+    builtin_lower = {x.lower() for x in BUILTIN_SUBAGENT_TYPES}
+    if agent_type in BUILTIN_SUBAGENT_TYPES or agent_type.lower() in builtin_lower:
         return "builtin"
-    return "pinned"
+    if agent_type in pinned_agent_names():
+        return "pinned"
+    return "unknown"
 
 
 def _iter_jsonl_objects(path: Path):
@@ -168,6 +199,10 @@ def extract_spawns_from_transcript(
 
 def extract_commands_from_transcript(path: Path) -> list[str]:
     """Detect slash-command stems mentioned in user-facing transcript lines."""
+    stems = command_stems()
+    token_re = _command_token_re(stems)
+    if not token_re:
+        return []
     found: list[str] = []
     seen: set[str] = set()
     for entry in _iter_jsonl_objects(path) or []:
@@ -198,9 +233,9 @@ def extract_commands_from_transcript(path: Path) -> list[str]:
         ):
             continue
         for text in texts:
-            for m in COMMAND_TOKEN_RE.finditer(text):
+            for m in token_re.finditer(text):
                 stem = m.group(1)
-                if stem in KNOWN_COMMAND_STEMS and stem not in seen:
+                if stem in stems and stem not in seen:
                     seen.add(stem)
                     found.append(stem)
     return found
@@ -209,7 +244,10 @@ def extract_commands_from_transcript(path: Path) -> list[str]:
 def merge_subagent_lists(
     primary: list[dict[str, Any]], extra: list[dict[str, Any]]
 ) -> list[dict[str, Any]]:
-    """Prefer primary (e.g. subagents/ folder) entries; append transcript-only."""
+    """Prefer primary (e.g. subagents/ folder) entries; append transcript-only.
+
+    Always reclassifies `kind` from `type` — inbound kind is ignored.
+    """
     out = []
     seen: set[tuple[str | None, str | None]] = set()
     for item in primary + extra:
@@ -221,8 +259,9 @@ def merge_subagent_lists(
         if key in seen:
             continue
         seen.add(key)
-        kind = item.get("kind") or classify_subagent_kind(t if t != "untyped" else None)
         merged = dict(item)
-        merged["kind"] = kind
+        merged["kind"] = classify_subagent_kind(
+            t if isinstance(t, str) and t != "untyped" else None
+        )
         out.append(merged)
     return out

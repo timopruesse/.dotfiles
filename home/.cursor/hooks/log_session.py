@@ -22,7 +22,6 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from session_log.core import (  # noqa: E402
     append_jsonl,
-    classify_subagent_kind,
     extract_commands_from_transcript,
     extract_spawns_from_transcript,
     log_err,
@@ -127,9 +126,7 @@ def handle_subagent_stop(payload: dict[str, Any]) -> None:
             ),
             "tool_call_count": payload.get("tool_call_count"),
             "message_count": payload.get("message_count"),
-            "kind": classify_subagent_kind(
-                str(agent_type) if agent_type else None
-            ),
+            # kind is derived in session_log.merge_subagent_lists — never here
             "source": "hook",
         }
     )
@@ -167,6 +164,9 @@ def handle_session_end(payload: dict[str, Any]) -> None:
 
     transcript = payload.get("transcript_path") or state.get("transcript_path")
     _enrich_from_transcript(state, transcript)
+
+    # Always reclassify kinds in session_log (ignore any adapter-supplied kind).
+    state["subagents"] = merge_subagent_lists(list(state.get("subagents") or []), [])
 
     reason = payload.get("reason") or "unknown"
     success = reason == "completed"

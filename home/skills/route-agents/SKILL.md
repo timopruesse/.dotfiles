@@ -12,8 +12,9 @@ description: >-
 Decision table for the parent / orchestrator. Agent prompts own *how*; this
 skill owns *whom*. Prefer spawning a named agent over re-doing its job here.
 
-Hard must-nots (locate / commit / terminal contracts) also live in the generated
-**agent-routing** rule — follow both.
+Hard must-nots (locate / commit / terminal contracts) also live in the
+**agent-routing** protocol (`~/protocols/AGENT-ROUTING.md`, emitted to Cursor
+rules + Claude host prose) — follow both.
 
 ## Read / research
 
@@ -50,7 +51,7 @@ explain, or research — spawn the pinned agent by name.
 After `worker` lands a behavior change outside `/land`, the parent risk-gates
 and spawns `verifier` itself — but prefer `/land` on the current-branch conveyor.
 Obvious `verifier` BREAKS (concrete repro + mechanical/live-install fix, no
-design fork) are auto-repaired and re-verified per `/land` §2 / HANDOFF; do not
+design fork) are auto-repaired and re-verified per HANDOFF land path; do not
 `HALT` those for `go`.
 
 ## PR / Jira — prefer the command

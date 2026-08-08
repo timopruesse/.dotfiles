@@ -88,7 +88,7 @@ you'd want to see before it leaves the machine. **When unsure, STOP.**
 |---|---|
 | `/my-work` · `/open-work` selection (pick numbers) | **STOP** always (above the spine) |
 | `worker` hits a design decision / ambiguity / wrong spec | **STOP** always |
-| `verifier` returns `BREAKS` — **obvious** fix (see `/land` §2) | **AUTO** repair → re-verify (≤3 cycles); both modes |
+| `verifier` returns `BREAKS` — **obvious** fix (land path below) | **AUTO** repair → re-verify (≤3 cycles); both modes |
 | `verifier` returns `BREAKS` — judgment / unclear / budget exhausted | **STOP** always |
 | `/babysit-pr` `WAITING` (review comments, real conflict, anti-flail) | **STOP** always |
 | `/watch-boba` `BLOCKED` unblock draft (writes generated spec to Jira) | **STOP** always |
@@ -100,6 +100,49 @@ you'd want to see before it leaves the machine. **When unsure, STOP.**
 | Jira transition (see mapping) | **AUTO** under B |
 | conditional auto-merge, all conditions met | **AUTO** under B |
 | handoff offers (`/land`→`/open-pr`→`/babysit-pr`, etc.) | **AUTO** — under A they become auto-advance-to-next-gate; under B, no pause |
+
+## Land path — risk-gate and obvious BREAKS
+
+Owned here so `/land` and any parent-run verifier gate share one contract.
+`/land` is the thin command adapter that **applies** this taxonomy; it does not
+re-define it.
+
+### Risk-gate (whether to spawn `verifier`)
+
+Look at the branch diff vs base (plus uncommitted changes):
+
+- **Skip `verifier`** for no-runtime-surface diffs (docs, comments, formatting,
+  config/lockfile bumps) and mechanical / compiler-validated edits (types, lint,
+  pure renames).
+- **Spawn `verifier`** when there is real runtime surface, giving it the specific
+  behavior the change is meant to produce.
+
+### On `VERDICT: BREAKS`
+
+Do **not** commit yet. Classify the break, then either auto-repair or `HALT`.
+
+**Obvious (AUTO in both modes)** — all must hold:
+
+1. Verifier gave a concrete failing input and expected vs observed behavior.
+2. The fix restores the *claimed* contract only — no product/API redesign, no
+   picking among multiple plausible behaviors.
+3. The fix is localized: live-install drift (missing/stale symlink for a file
+   already in the repo; chmod), sourced-vs-executed main guards, missing
+   arity/empty-arg checks, one-branch null/path typos, copy `.env.local` into a
+   new worktree, or similarly mechanical one-site repairs.
+
+**How to auto-repair:** briefly name the break + fix (one line, no `go` pause).
+Parent may apply install/live-link fixes and small mechanical guards in
+already-touched files; otherwise spawn `worker` with the verifier's repro as a
+thin spec. Re-spawn `verifier` after each repair. Budget: **≤3**
+auto-fix→re-verify cycles per land. Same failing case after a fix counts against
+the budget — do not thrash.
+
+**Not obvious, or budget exhausted** — `HALT: <reason>` with the failing input.
+Offer a fresh `worker` retry only on `go`. When unsure whether it is obvious →
+STOP (same as the default above).
+
+On `HOLDS` (or a skipped gate), continue the land conveyor (commit → handoff).
 
 ## Triggers (mode B)
 

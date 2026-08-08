@@ -113,7 +113,7 @@ Shared keys (missing fields are `null`):
       "source": "transcript"
     }
   ],
-  "commands": ["land", "open-pr"],
+  "commands": ["land", "open-pr", "wrap-up"],
   "usage": {
     "input_tokens": 0,
     "output_tokens": 0,
@@ -126,9 +126,11 @@ Shared keys (missing fields are `null`):
 }
 ```
 
-`subagents[].kind` is `pinned` (home/agents) or `builtin` (Explore /
-generalPurpose / …). `source` is `subagents_dir`, `transcript`, or `hook`.
-`commands` lists detected slash-command stems (`land`, `dispatch`, …).
+`subagents[].kind` is derived in `session_log` (never by host adapters):
+`pinned` (authored under `home/agents/`), `builtin` (Explore / generalPurpose /
+…), or `unknown` (named but neither). `source` is `subagents_dir`, `transcript`,
+or `hook`. `commands` lists slash-command stems detected from the authored set
+under `home/commands/` (runtime glob — includes `/wrap-up`, etc.).
 
 Cursor rows add `final_status`, `error_message`, `is_background_agent`, and
 `workspace_roots` when present.

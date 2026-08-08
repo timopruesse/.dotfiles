@@ -34,7 +34,7 @@ the spine with auto-mode set; the protocol governs everything downstream.
      Boba `BLOCKED`, external-blocker on a merge candidate, repeated-bail, any
      error), **`HALT`** — stop, surface exactly what needs me, and let native
      notifications ping. Never override a STOP. Obvious `verifier` BREAKS are
-     **AUTO** repaired per `/land` §2 / the handoff taxonomy (≤3 cycles) — do not
+     **AUTO** repaired per the HANDOFF land-path taxonomy (≤3 cycles) — do not
      treat those as STOP.
    - Fire the Jira transitions from the protocol's lifecycle mapping automatically
      (In Progress → In Review → Ready for Release).
