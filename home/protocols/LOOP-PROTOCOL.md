@@ -58,11 +58,11 @@ current run received).
 > **What actually costs tokens per tick.** The ~270s "cache-warm" window below
 > keeps the *wakeup turn* cheap (the main-session context stays within a ~5-minute
 > prompt-cache TTL where the host supports it). But the dominant cost per tick is
-> the **sweep agent** — a fresh mid-tier `pr-babysitter`/`boba-watcher` invocation
-> whose context is *not* covered by that cache. So a tight cadence is worth paying
-> only when a terminal-state race is live (something changed, or a flip is
-> imminent); while purely idle-waiting it just burns sweeps. Hence the flavor
-> split:
+> the **sweep agent** — a fresh `pr-babysitter` (mid) / `boba-watcher` (cheap)
+> invocation whose context is *not* covered by that cache. So a tight cadence is
+> worth paying only when a terminal-state race is live (something changed, or a
+> flip is imminent); while purely idle-waiting it just burns sweeps. Hence the
+> flavor split:
 
 - **Baseline ~270s, kept under 300s** so a ~5-minute prompt cache stays warm for
   the wakeup turn (when the host has one).
@@ -71,8 +71,8 @@ current run received).
   state looks close. Something moved; check back soon.
 - **`WORKING — pending`** (nothing to do — checks/analysis still running): **back
   off.** Double the delay on each *consecutive* pending sweep — 270 → 540 → 900 —
-  capping at ~900s. Idling at 270s spends a mid-tier sweep every 4.5 min to
-  re-learn "still running." **Snap back** to the tight cadence the instant a
+  capping at ~900s. Idling at 270s spends a babysitter/watcher sweep every 4.5 min
+  to re-learn "still running." **Snap back** to the tight cadence the instant a
   sweep reports `progress`, goes near-terminal, or shows any state change. Track
   the consecutive-pending count in the main session — its context survives each
   wakeup, so the current delay carries across wakeups.

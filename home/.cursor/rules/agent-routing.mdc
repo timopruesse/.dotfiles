@@ -7,7 +7,7 @@ alwaysApply: true
 
 # Agent routing (hard)
 
-Pinned agents: `committer`, `researcher`, `scout`, `boba-watcher`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
+Pinned agents: `boba-watcher`, `committer`, `researcher`, `scout`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
 
 Whom-table detail: `route-agents` skill. These rules are **must-nots** — treat
 violations as errors, not style nits.

@@ -46,10 +46,10 @@ Current pins (orchestrator only — hard reasoning stays on `verifier` / escalat
 | mid | `/address-reviews`, `/babysit-fleet`, `/babysit-pr`, `/land`, `/my-work`, `/open-pr`, `/open-work`, `/review-requests`, `/ship`, `/start`, `/watch-boba`, `/wrap-up` |
 <!-- END GENERATED COMMAND TIER TABLE -->
 
-**Exception — `/watch-boba`:** mid by default, but may escalate individual
-spawns to strong when `boba-watcher` returns `ESCALATE` (one re-classify) or
-when drafting a scope/approach unblock. Routine loop ticks stay mid; do not
-pin the whole command to strong.
+**Exception — `/watch-boba`:** mid orchestrator by default; `boba-watcher`
+routine ticks stay cheap. Escalate individual spawns to strong when
+`boba-watcher` returns `ESCALATE` (one re-classify) or when drafting a
+scope/approach unblock. Do not pin the whole command to strong.
 
 Do **not** hand-edit the generated trees; they are overwritten on sync.
 `machine_setup` runs sync-agents → sync-commands → live-install.

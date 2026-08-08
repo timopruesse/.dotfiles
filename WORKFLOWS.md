@@ -259,10 +259,10 @@ flowchart LR
 | `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor); docs-only commits from parent |
 | `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body); conditional fail-closed auto-merge in auto-mode | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |
-| `boba-watcher` | Sonnet (escalate→strong once on `ESCALATE`) | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
+| `boba-watcher` | Haiku (escalate→strong once on `ESCALATE`) | classify a Boba-dispatched ticket's latest signal | `/watch-boba` |
 | `sweep` | Sonnet | mechanical fix loops (tsc / lint / formatting); `ADVANCE → /land` or `done` | ad hoc (not bound to a command) |
 
 > Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,
 > `verifier`, hard debugging, architecture critique, and `/watch-boba`'s
-> mid→strong carve-outs (ambiguous re-classify; scope/approach unblock drafts).
+> cheap→strong carve-outs (ambiguous re-classify; scope/approach unblock drafts).
 > Never use Explore / generalPurpose for locate — that burns strong-tier cost.

@@ -8,7 +8,7 @@ alwaysApply: true
 # Subagent model routing (Cursor)
 
 Custom subagents live in `~/.cursor/agents/` (generated from `~/agents/`). Prefer
-them by name when the task matches: `committer`, `researcher`, `scout`, `boba-watcher`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
+them by name when the task matches: `boba-watcher`, `committer`, `researcher`, `scout`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
 
 When choosing whom to spawn (or whether to stay in the parent), read the
 `route-agents` skill (`~/.cursor/skills/route-agents/SKILL.md`).
@@ -17,11 +17,11 @@ Pinned models (from the agent frontmatter):
 
 | Tier | Agents | Model |
 | --- | --- | --- |
-| cheap | `committer`, `researcher`, `scout` | `kimi-k2.7-code` |
-| mid | `boba-watcher`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker` | `composer-2.5-fast` |
+| cheap | `boba-watcher`, `committer`, `researcher`, `scout` | `kimi-k2.7-code` |
+| mid | `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker` | `composer-2.5-fast` |
 | strong | `verifier` | `cursor-grok-4.5-high-fast` |
 
-`boba-watcher` stays mid for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
+`boba-watcher` stays cheap for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
 `/watch-boba` may re-spawn it **once** with the strong pin (`cursor-grok-4.5-high-fast`
 or `auto`). Scope/approach unblock drafts from `/watch-boba` also use the strong
 model. Do not upgrade the whole watch loop.

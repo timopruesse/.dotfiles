@@ -9,12 +9,13 @@ Watch the Boba-dispatched Jira ticket `$ARGUMENTS` on a self-paced loop until Bo
 Fetch (`chewielabs/boba_fetch`) either opens a PR or gets stuck. If no key is
 given, ask for one — there's no branch to infer a Boba ticket from.
 
-**Orchestrator tier:** mid by default (this command's pin). The one carve-out
-among lifecycle commands: you may **escalate to the strong tier** when judgment
-is load-bearing — (a) re-classify after `boba-watcher` returns `ESCALATE`, or
-(b) draft a scope/approach unblock. Pass the strong-tier model on that spawn
-(`model: "opus"`). Do not upgrade the whole loop to strong; keep routine ticks
-on mid.
+**Orchestrator tier:** mid by default (this command's pin). `boba-watcher`
+routine ticks stay on its **cheap** pin. The one carve-out among lifecycle
+commands: you may **escalate to the strong tier** when judgment is load-bearing
+— (a) re-classify after `boba-watcher` returns `ESCALATE`, or (b) draft a
+scope/approach unblock. Pass the strong-tier model on that spawn
+(`model: "opus"`). Do not upgrade the whole loop to strong; keep the orchestrator
+and routine watcher ticks on their default pins.
 
 The `STATUS:` vocabulary and `ScheduleWakeup` cadence are defined once in
 `~/protocols/LOOP-PROTOCOL.md`; the per-status handling below is this command's
@@ -23,7 +24,7 @@ bindings on top of it (Boba adds the `BLOCKED` gated-unblock path).
 Each iteration:
 
 1. Spawn the `boba-watcher` agent for ONE read-only sweep of `$ARGUMENTS`
-   (mid pin — leave its frontmatter model alone unless step 2 says escalate).
+   (cheap pin — leave its frontmatter model alone unless step 2 says escalate).
    It classifies Boba's latest signal and returns a terminal `STATUS:` line plus a
    payload (PR URL, or blocker Reason/Suggestions). Relay its summary to me
    concisely.
@@ -72,7 +73,7 @@ Each iteration:
         it may need a manual re-trigger (re-applying the `boba` label).
 
    - **`STATUS: WAITING — ESCALATE`** (or `WAITING` with an `ESCALATE` token) —
-     `boba-watcher` could not classify confidently on mid. **Once:** re-spawn
+     `boba-watcher` could not classify confidently on cheap. **Once:** re-spawn
      `boba-watcher` with the strong model override and tell it this is the
      escalate re-classify (so it won't ask for a second escalate). Use that
      result. If the strong sweep still returns `WAITING` / `ESCALATE`, stop and

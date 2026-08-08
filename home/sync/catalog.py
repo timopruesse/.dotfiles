@@ -144,7 +144,7 @@ Pinned models (from the agent frontmatter):
 
 {table}
 
-`boba-watcher` stays mid for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
+`boba-watcher` stays cheap for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
 `/watch-boba` may re-spawn it **once** with the strong pin (`{strong}`
 or `auto`). Scope/approach unblock drafts from `/watch-boba` also use the strong
 model. Do not upgrade the whole watch loop.
