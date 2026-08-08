@@ -1,23 +1,10 @@
 # coding-agent aliases: path/remote-aware launcher for Claude Code vs Cursor Agent.
-# Resolve rules live in ~/.config/herdr/scripts/coding_agent_resolve.sh
+# Resolve + herdr split/tab live in ~/.config/herdr/scripts/coding_agent_herdr.sh
 #   chewielabs (remote or ~/github/chewielabs) → claude
 #   everything else → agent
 # Override: CODING_AGENT=claude|agent, or pass --claude / --agent to c/ch/cv/cr/cpi.
 
 _CODING_AGENT_SCRIPTS="${HOME}/.config/herdr/scripts"
-
-function _herdr_pane_id_from_json() {
-  python3 -c '
-import json, sys
-d = json.load(sys.stdin)
-r = d.get("result") or {}
-p = r.get("pane") or r.get("root_pane") or {}
-if isinstance(p, dict):
-    print(p.get("pane_id") or "")
-elif isinstance(p, str):
-    print(p)
-'
-}
 
 function _coding_agent_herdr() {
   local mode="$1"
@@ -28,20 +15,30 @@ function _coding_agent_herdr() {
     return 1
   fi
 
-  # Best-effort project-agents for Cursor Task enum.
-  if [[ -x "$_CODING_AGENT_SCRIPTS/coding_agent_ensure.sh" ]]; then
-    "$_CODING_AGENT_SCRIPTS/coding_agent_ensure.sh" >/dev/null 2>&1 || true
-  fi
+  local layout
+  case "$mode" in
+    window) layout=window ;;
+    hsplit) layout=hsplit ;;
+    vsplit) layout=vsplit ;;
+    *)
+      echo "unknown mode: $mode"
+      return 1
+      ;;
+  esac
 
   local force=""
-  local args=()
+  local arg
   for arg in "$@"; do
     case "$arg" in
       --claude) force=claude ;;
       --agent|--cursor) force=agent ;;
-      *) args+=("$arg") ;;
     esac
   done
+
+  local pane_id
+  pane_id=$("$_CODING_AGENT_SCRIPTS/coding_agent_herdr.sh" "$layout" "$@") || return 1
+  pane_id=${pane_id##*$'\n'}
+  pane_id=${pane_id//$'\r'/}
 
   local cli
   if [[ -n "$force" ]]; then
@@ -49,40 +46,9 @@ function _coding_agent_herdr() {
   else
     cli=$("$_CODING_AGENT_SCRIPTS/coding_agent_resolve.sh" "$PWD")
   fi
-  command -v "$cli" >/dev/null || { echo "$cli not found in PATH"; return 1; }
-
-  local resp pane_id
-  case "$mode" in
-    window)
-      resp=$(herdr tab create --cwd "$PWD" --focus)
-      ;;
-    hsplit)
-      resp=$(herdr pane split --current --direction right --cwd "$PWD" --focus)
-      ;;
-    vsplit)
-      resp=$(herdr pane split --current --direction down --cwd "$PWD" --focus)
-      ;;
-    *)
-      echo "unknown mode: $mode"; return 1
-      ;;
-  esac
-
-  pane_id=$(printf '%s\n' "$resp" | _herdr_pane_id_from_json)
-  if [[ -z "$pane_id" ]]; then
-    echo "herdr: failed to create pane"
-    printf '%s\n' "$resp"
-    return 1
-  fi
-
-  if (( ${#args[@]} == 0 )); then
-    herdr pane run "$pane_id" "$cli"
-  else
-    # Join args into one shell command line for pane run.
-    herdr pane run "$pane_id" "$cli $(printf '%q ' "${args[@]}")"
-  fi
 
   # Claude-only: rotate pane color after the TUI is up.
-  if [[ "$cli" == claude ]]; then
+  if [[ "$cli" == claude && -n "$pane_id" ]]; then
     local colors=(red blue green yellow purple orange pink cyan)
     local state_file="${XDG_STATE_HOME:-$HOME/.local/state}/claude_color_index"
     local idx=$(($(cat "$state_file" 2>/dev/null || echo 0) % ${#colors[@]} + 1))
@@ -113,7 +79,7 @@ function cv() {
 }
 
 function cr() {
-  _coding_agent_herdr window --continue "$@"
+  _coding_agent_herdr window continue "$@"
 }
 
 function cpi() {

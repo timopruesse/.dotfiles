@@ -48,11 +48,10 @@ Agent status lives in herdr’s native sidebar (install integrations with
 | `prefix+shift+V` | Coding agent in horizontal split |
 
 Launch binds resolve Claude Code vs Cursor Agent via
-`~/.config/herdr/scripts/coding_agent_resolve.sh` /
-`coding_agent_launch.sh` (env → git remote org → path: chewielabs → Claude;
-otherwise Cursor). Override with `CODING_AGENT=claude|agent`. These binds exec
-the CLI directly (no zsh worktree wrapper); use shell `c`/`ch`/… when you want
-default `--worktree` / `-w`.
+`~/.config/herdr/scripts/coding_agent_resolve.sh` and launch through
+`coding_agent_herdr.sh` → `coding_agent_launch.sh` (same worktree + keep-awake
+policy as the `claude` / `agent` shell wrappers). Override with
+`CODING_AGENT=claude|agent` or `--claude` / `--agent` on the launch script.
 
 ### Pane navigation
 
@@ -313,16 +312,19 @@ temporarily with `<leader>9p`.
 | `<leader>9m` | Normal | Telescope: select model                         |
 | `<leader>9p` | Normal | Telescope: select provider                      |
 
-### Coding agent (Tmux Integration)
+### Coding agent (Herdr Integration)
 
-Same cwd routing as the shell aliases / herdr binds (env → remote org → path;
-chewielabs → Claude Code, otherwise Cursor Agent). Keymaps are unchanged.
+Same cwd routing and launch policy as the shell aliases / herdr binds (env →
+remote org → path; chewielabs → Claude Code, otherwise Cursor Agent). Opens go
+through `coding_agent_herdr.sh` (ensure project-agents + worktree/keep-awake).
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |
 | `<leader>zo` | Normal | Open coding agent in vertical herdr split           |
 | `<leader>zh` | Normal | Open coding agent in horizontal herdr split         |
 | `<leader>zw` | Normal | Open coding agent in new herdr tab                  |
+| `<leader>zS` | Normal | Resume coding agent (new tab; mirrors `prefix+shift+S`) |
+| `<leader>zc` | Normal | Continue coding agent (new tab; mirrors `prefix+shift+R`) |
 | `<leader>zs` | Visual | Send selection to agent (new pane)                 |
 | `<leader>zp` | Visual | Prompt for instruction + send selection (new pane) |
 | `<leader>zr` | Visual | Send selection to existing agent pane              |

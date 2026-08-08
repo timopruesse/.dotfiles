@@ -53,8 +53,20 @@ coding_agent_resolve() {
 }
 
 # When executed (not sourced), resolve for the given dir / $PWD.
-case ${0##*/} in
-coding_agent_resolve.sh)
-  coding_agent_resolve "${1:-.}"
-  ;;
+# Under zsh `source`, $0 is this filename (FUNCTION_ARGZERO) — do not use $0 alone.
+_coding_agent_resolve_run=1
+case ${ZSH_EVAL_CONTEXT:-} in
+*:file*) _coding_agent_resolve_run=0 ;;
 esac
+if [ -n "${BASH_VERSION:-}" ]; then
+  # shellcheck disable=SC3054
+  [ "${BASH_SOURCE[0]}" != "$0" ] && _coding_agent_resolve_run=0
+fi
+if [ "$_coding_agent_resolve_run" -eq 1 ]; then
+  case ${0##*/} in
+  coding_agent_resolve.sh)
+    coding_agent_resolve "${1:-.}"
+    ;;
+  esac
+fi
+unset _coding_agent_resolve_run

@@ -103,134 +103,18 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Keep the machine awake while running a CLI session (claude / agent):
-#   macOS -> caffeinate -i prefix (blocks system idle sleep, lets display off)
-#   WSL   -> background powershell.exe holding an ES_SYSTEM_REQUIRED assertion
-#            (the Windows equivalent), killed when this function returns
-# On bare Linux neither exists, so this is a plain passthrough.
-_keep_awake_run() {
-  local name_or_path="$1"
-  shift
-  local resolved
-  resolved=$(whence -p "$name_or_path" 2>/dev/null)
-  [[ -z "$resolved" && -x "$name_or_path" ]] && resolved="$name_or_path"
+# Coding-agent launch policy (keep-awake + default worktree) — shared with
+# herdr keybinds via ~/.config/herdr/scripts/coding_agent_launch.sh
+source "${HOME}/.config/herdr/scripts/coding_agent_policy.zsh"
 
-  if command -v caffeinate &>/dev/null && [[ -n "$resolved" ]]; then
-    caffeinate -i "$resolved" "$@"
-    return $?
-  fi
-
-  if [[ -n "$WSL_DISTRO_NAME" ]]; then
-    local pwsh
-    pwsh=$(command -v powershell.exe 2>/dev/null || command -v pwsh.exe 2>/dev/null)
-    if [[ -n "$pwsh" ]]; then
-      # 2147483649 = ES_CONTINUOUS (0x80000000) | ES_SYSTEM_REQUIRED (0x1)
-      "$pwsh" -NoProfile -Command '$s = Add-Type -MemberDefinition "[DllImport(`"kernel32.dll`")] public static extern uint SetThreadExecutionState(uint e);" -Name Power -Namespace Win32 -PassThru; $s::SetThreadExecutionState(2147483649); while ($true) { Start-Sleep 3600 }' &>/dev/null &
-      local keepawake_pid=$!
-      disown 2>/dev/null
-      trap "kill $keepawake_pid 2>/dev/null" EXIT
-    fi
-  fi
-
-  if [[ -n "$resolved" ]]; then
-    "$resolved" "$@"
-  else
-    command "$name_or_path" "$@"
-  fi
-}
-
-# claude code: use worktree when inside a git repo with commits (pass --here to opt out)
+# Thin wrappers: real binary via whence -p inside coding_agent_keep_awake_run.
+# Pass --here to stay on the current branch (skip default worktree).
 claude() {
-  # --here: skip worktree, run on current branch
-  local args=()
-  local force_here=false
-  for arg in "$@"; do
-    if [[ "$arg" == "--here" ]]; then
-      force_here=true
-      continue
-    fi
-    args+=("$arg")
-  done
-
-  if $force_here; then
-    _keep_awake_run claude "${args[@]}"
-    return
-  fi
-
-  local use_worktree=false
-  if git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
-    local repo_root
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
-
-    # skip worktree for dotfiles repo (symlinks need to take effect immediately)
-    if [[ "$repo_root" != "$DOTFILES" ]]; then
-      use_worktree=true
-
-      # don't append --worktree to subcommands that don't support it
-      local subcommands="agents|auth|auto-mode|doctor|install|mcp|plugin|plugins|setup-token|update|upgrade"
-      for arg in "${args[@]}"; do
-        [[ "$arg" == -* ]] && continue
-        [[ "$arg" =~ ^($subcommands)$ ]] && use_worktree=false
-        break
-      done
-    fi
-  fi
-
-  if $use_worktree; then
-    _keep_awake_run claude "${args[@]}" --worktree
-  else
-    _keep_awake_run claude "${args[@]}"
-  fi
+  coding_agent_with_policy claude "$@"
 }
 
-# Cursor Agent CLI — same idle-sleep prevention + worktree default as claude().
-# Call the real ~/.local/bin/agent via whence -p inside _keep_awake_run (never
-# recurse). Pass --here to opt out of -w/--worktree.
 agent() {
-  local args=()
-  local force_here=false
-  local already_worktree=false
-  for arg in "$@"; do
-    if [[ "$arg" == "--here" ]]; then
-      force_here=true
-      continue
-    fi
-    # User already asked for a worktree (with or without a name).
-    if [[ "$arg" == "-w" || "$arg" == --worktree || "$arg" == -w=* || "$arg" == --worktree=* ]]; then
-      already_worktree=true
-    fi
-    args+=("$arg")
-  done
-
-  if $force_here; then
-    _keep_awake_run agent "${args[@]}"
-    return
-  fi
-
-  local use_worktree=false
-  if ! $already_worktree && git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
-    local repo_root
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
-
-    # skip worktree for dotfiles repo (symlinks need to take effect immediately)
-    if [[ "$repo_root" != "$DOTFILES" ]]; then
-      use_worktree=true
-
-      # don't append -w to subcommands that don't support it
-      local subcommands="about|create-chat|generate-rule|rule|install-shell-integration|uninstall-shell-integration|login|logout|mcp|models|plugin|status|whoami|update|upgrade|worker"
-      for arg in "${args[@]}"; do
-        [[ "$arg" == -* ]] && continue
-        [[ "$arg" =~ ^($subcommands)$ ]] && use_worktree=false
-        break
-      done
-    fi
-  fi
-
-  if $use_worktree; then
-    _keep_awake_run agent "${args[@]}" -w
-  else
-    _keep_awake_run agent "${args[@]}"
-  fi
+  coding_agent_with_policy agent "$@"
 }
 
 # open buffer line in editor

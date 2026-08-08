@@ -95,12 +95,10 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 Per-invocation override: pass `--claude` or `--agent` / `--cursor` to any of the
 launchers (e.g. `c --claude`, `ch --agent "fix the flaky test"`).
 
-Launchers run inside herdr (`HERDR_ENV=1`): they create a tab/split then
-`herdr pane run` the CLI, so the `claude` / `agent` wrappers apply (keep-awake +
-default worktree). Herdr `prefix+shift+H`/`V`/`R`/`S` go through
-`coding_agent_launch.sh` (resolve + exec) and do **not** add worktree flags
-themselves — use `c`/`ch`/… or type `claude`/`agent` when you want the wrapper
-defaults.
+Launchers run inside herdr (`HERDR_ENV=1`): they call
+`coding_agent_herdr.sh` (split/tab + `coding_agent_launch.sh`), so keep-awake and
+default worktree apply the same as typing `claude` / `agent`. Herdr
+`prefix+shift+H`/`V`/`R`/`S` use the same path.
 
 | Function | Command | Description |
 |----------|---------|-------------|

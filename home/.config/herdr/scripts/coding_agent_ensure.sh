@@ -25,8 +25,20 @@ coding_agent_ensure_project_agents() {
   return 0
 }
 
-case ${0##*/} in
-coding_agent_ensure.sh)
-  coding_agent_ensure_project_agents "$@"
-  ;;
+# Under zsh `source`, $0 is this filename (FUNCTION_ARGZERO) — do not use $0 alone.
+_coding_agent_ensure_run=1
+case ${ZSH_EVAL_CONTEXT:-} in
+*:file*) _coding_agent_ensure_run=0 ;;
 esac
+if [ -n "${BASH_VERSION:-}" ]; then
+  # shellcheck disable=SC3054
+  [ "${BASH_SOURCE[0]}" != "$0" ] && _coding_agent_ensure_run=0
+fi
+if [ "$_coding_agent_ensure_run" -eq 1 ]; then
+  case ${0##*/} in
+  coding_agent_ensure.sh)
+    coding_agent_ensure_project_agents "$@"
+    ;;
+  esac
+fi
+unset _coding_agent_ensure_run

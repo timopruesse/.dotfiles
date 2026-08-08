@@ -17,6 +17,7 @@ CURSOR_RULES_DIR = REPO_HOME / ".cursor" / "rules"
 CURSOR_HOOKS_JSON = REPO_HOME / ".cursor" / "hooks.json"
 CURSOR_HOOKS_DIR = REPO_HOME / ".cursor" / "hooks"
 CURSOR_CLI_CONFIG = REPO_HOME / ".cursor" / "cli-config.json"
+CURSOR_STATUSLINE = REPO_HOME / ".cursor" / "statusline.sh"
 
 LIVE_CURSOR = Path.home() / ".cursor"
 LIVE_AGENTS = LIVE_CURSOR / "agents"
@@ -25,6 +26,7 @@ LIVE_RULES = LIVE_CURSOR / "rules"
 LIVE_HOOKS_JSON = LIVE_CURSOR / "hooks.json"
 LIVE_HOOKS_DIR = LIVE_CURSOR / "hooks"
 LIVE_CLI_CONFIG = LIVE_CURSOR / "cli-config.json"
+LIVE_STATUSLINE = LIVE_CURSOR / "statusline.sh"
 LIVE_CURSOR_SKILLS = LIVE_CURSOR / "skills"
 LIVE_CLAUDE_SKILLS = Path.home() / ".claude" / "skills"
 
@@ -70,6 +72,19 @@ def install_rules() -> None:
             if stale.name not in keep and stale.is_symlink():
                 stale.unlink()
                 print(f"  removed stale live link {stale}")
+
+
+def install_statusline() -> None:
+    """Link the managed CLI statusline script into ~/.cursor/statusline.sh."""
+    if not CURSOR_STATUSLINE.is_file():
+        return
+    link_into(CURSOR_STATUSLINE, LIVE_STATUSLINE)
+    # Ensure executable even if the link target lost +x somehow.
+    try:
+        CURSOR_STATUSLINE.chmod(CURSOR_STATUSLINE.stat().st_mode | 0o111)
+    except OSError:
+        pass
+    print(f"  installed statusline → {LIVE_STATUSLINE}")
 
 
 def install_cli_config() -> None:
@@ -157,6 +172,7 @@ def install_all(
     hooks: bool = True,
     rule: bool = True,
     cli_config: bool = True,
+    statusline: bool = True,
     skills: bool = True,
 ) -> None:
     if agents and CURSOR_OUT_AGENTS.is_dir():
@@ -173,6 +189,8 @@ def install_all(
         install_rules()
     if hooks:
         install_hooks()
+    if statusline:
+        install_statusline()
     if cli_config:
         install_cli_config()
 

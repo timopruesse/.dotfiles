@@ -31,8 +31,8 @@ home/             # Symlinked to ~ — contains all user config files
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
   .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
-  .config/herdr/  # Herdr config + coding_agent_resolve/launch scripts
-  .zshrc          # Zsh shell config (claude/agent wrappers: keep-awake + worktrees)
+  .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch/policy scripts
+  .zshrc          # Zsh shell config (claude/agent wrappers → coding_agent_policy.zsh)
   .gitconfig*     # Git config with conditional includes per directory / remote
   *.sh            # Utility scripts (lazygit installer, etc.)
 terminal/         # Windows Terminal settings (copied, not symlinked)
@@ -67,13 +67,16 @@ When adding new work contexts, add matching `includeIf` blocks and an identity f
 Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), herdr binds (`prefix+shift+H`/`V`/`R`/`S`),
 Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 [`home/.config/herdr/scripts/coding_agent_resolve.sh`](home/.config/herdr/scripts/coding_agent_resolve.sh).
-(Neovim also exposes it as `timopruesse.coding_agent`.)
+(Neovim also exposes it as `timopruesse.coding_agent`.) Herdr launches go through
+[`coding_agent_herdr.sh`](home/.config/herdr/scripts/coding_agent_herdr.sh) →
+[`coding_agent_launch.sh`](home/.config/herdr/scripts/coding_agent_launch.sh)
+(shared worktree + keep-awake policy).
 
 Precedence: `CODING_AGENT=claude|agent` → git remote org → path
 (`~/github/chewielabs` → Claude Code; everything else → Cursor `agent`).
 Per-call overrides: `--claude` / `--agent` on the launchers.
 
-Both `claude` and `agent` wrappers in `.zshrc` default to an isolated git
+Both `claude` and `agent` wrappers in `.zshrc` (and herdr/nvim launches) default to an isolated git
 worktree inside a repo (`--worktree` / `-w`); pass `--here` to stay on the
 current branch. Dotfiles itself is excluded so symlink edits take effect
 immediately. Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
