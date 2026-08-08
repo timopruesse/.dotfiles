@@ -1,0 +1,1 @@
+../../home/.cursor/agents/scout.md

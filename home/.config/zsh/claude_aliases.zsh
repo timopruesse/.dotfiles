@@ -28,6 +28,11 @@ function _coding_agent_herdr() {
     return 1
   fi
 
+  # Best-effort project-agents for Cursor Task enum.
+  if [[ -x "$_CODING_AGENT_SCRIPTS/coding_agent_ensure.sh" ]]; then
+    "$_CODING_AGENT_SCRIPTS/coding_agent_ensure.sh" >/dev/null 2>&1 || true
+  fi
+
   local force=""
   local args=()
   for arg in "$@"; do

@@ -59,6 +59,12 @@ pinned, tiered agents.
   untyped Task/Agent for those jobs. If the pinned agent fails to start, surface
   the error — do not silently fall back to a builtin explorer (model `auto`
   retry once still uses the **same** pinned agent name).
+- Cursor Task/`subagent_type` often only lists **project-agents** under
+  `<git-root>/.cursor/agents/` (not `~/.cursor/agents/`). If a pinned name is
+  rejected as an invalid enum value: run `home/sync/ensure-project-agents` (or
+  open a coding-agent launcher, which ensures best-effort), confirm the
+  symlinks exist, then start a **new** Agent session so the Task enum reloads.
+  Still never fall back to Explore/`generalPurpose`.
 
 ## Commit / land
 

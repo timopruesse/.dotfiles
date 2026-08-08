@@ -9,6 +9,10 @@ cwd=${HERDR_ACTIVE_PANE_CWD:-${PWD}}
 scripts=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 launch="$scripts/coding_agent_launch.sh"
 
+# Best-effort project-agents for Cursor Task enum (cwd's git root).
+. "$scripts/coding_agent_ensure.sh"
+coding_agent_ensure_project_agents "$cwd"
+
 pane_id_from_json() {
   python3 -c '
 import json, sys

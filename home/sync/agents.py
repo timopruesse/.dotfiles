@@ -14,6 +14,7 @@ from sync.common import (
     repo_home,
 )
 from sync.live_cursor import install_all as live_install
+from sync.project_agents import DOTFILES_ROOT, ensure_project_agents
 
 AGENTS_DIR = repo_home() / "agents"
 MAP_PATH = AGENTS_DIR / "model-map.yaml"
@@ -165,6 +166,9 @@ def sync_agents(*, install_live: bool = True) -> int:
             rule=True,
             cli_config=True,
         )
+
+    # Keep this checkout's project-agents in sync for Cursor Task discovery.
+    ensure_project_agents(DOTFILES_ROOT, quiet=False)
 
     print(
         f"synced {len(sources)} agents → "

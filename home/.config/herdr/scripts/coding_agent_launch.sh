@@ -4,7 +4,10 @@
 #
 # Usage: coding_agent_launch.sh [resume|continue] [extra args...]
 
-. "$(dirname "$0")/coding_agent_resolve.sh"
+scripts=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+. "$scripts/coding_agent_resolve.sh"
+. "$scripts/coding_agent_ensure.sh"
+coding_agent_ensure_project_agents
 
 mode=
 case "${1:-}" in

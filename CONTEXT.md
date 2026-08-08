@@ -18,6 +18,10 @@ reviews and sync tooling should use these names.
 | **live-install** | `home/sync/live-install` — Cursor adapter that installs agents/commands/skills/hooks/rules and merges CLI prefs into `~/.cursor` (plus Claude skills) without replacing that tree. |
 | **session-log** | `home/session_log/` — shared JSONL append/error core; Claude and Cursor hooks are adapters. Logs should record pinned vs builtin subagent types, and injected slash **command** names when detectable. |
 | **coding-agent resolve** | `home/.config/herdr/scripts/coding_agent_resolve.sh` — picks `claude` vs `agent` for shared zsh/herdr/Neovim launchers (env → remote org → path). Same work/personal split as git identity. |
+| **herdr host** | The herdr multiplexer (config, panes, tabs, integrations). Thin keybind surface in `home/.config/herdr/config.toml`; not the place for coding-agent policy. |
+| **coding-agent herdr launch** | Deep module (planned collapse of bind.sh / zsh `_coding_agent_herdr` / nvim `herdr_pane`) that owns split/tab, pane-id parse, and `herdr pane run`. Adapters stay thin. |
+| **coding-agent launch policy** | Shared worktree + keep-awake defaults for `claude` / `agent` (today in `.zshrc` wrappers; should also apply on the herdr keybind path). |
+| **project-agents** | Cursor Task/`subagent_type` discovery for pinned agents via `<git-root>/.cursor/agents/` (CLI often ignores `~/.cursor/agents/`). Ensured by `home/sync/ensure-project-agents`; this repo commits links to `home/.cursor/agents/`. |
 
 ## Read agents (locate / explain / research)
 
