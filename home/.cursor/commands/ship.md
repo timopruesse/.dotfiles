@@ -37,9 +37,12 @@ the spine with auto-mode set; the protocol governs everything downstream.
      → launch `/babysit-pr` (which, in auto-mode, conditionally auto-merges).
    - **boba branch:** label `boba` → launch `/watch-boba`.
    - At each **AUTO** gate, approve and proceed without asking. At each **STOP** gate
-     (design snag, `verifier` BREAKS, `WAITING`, Boba `BLOCKED`, external-blocker on
-     a merge candidate, repeated-bail, any error), **`HALT`** — stop, surface exactly
-     what needs me, and let native notifications ping. Never override a STOP.
+     (design snag, non-obvious or budget-exhausted `verifier` BREAKS, `WAITING`,
+     Boba `BLOCKED`, external-blocker on a merge candidate, repeated-bail, any
+     error), **`HALT`** — stop, surface exactly what needs me, and let native
+     notifications ping. Never override a STOP. Obvious `verifier` BREAKS are
+     **AUTO** repaired per `/land` §2 / the handoff taxonomy (≤3 cycles) — do not
+     treat those as STOP.
    - Fire the Jira transitions from the protocol's lifecycle mapping automatically
      (In Progress → In Review → Ready for Release).
 3. The synchronous run **ends by launching the async loop** (`/babysit-pr` or

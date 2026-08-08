@@ -56,6 +56,10 @@ pinned, tiered agents.
   directly.
 - **`worker` must not commit.** Keep worker spawn prompts thin (spec + paths);
   never instruct the worker to commit.
+- On `/land` (or any parent-run verifier gate): **obvious** `VERDICT: BREAKS`
+  (concrete repro + mechanical/live-install fix, no design fork) → auto-repair
+  and re-verify (≤3 cycles) without waiting for `go`. Non-obvious or
+  budget-exhausted BREAKS still `HALT`.
 
 ## Mechanical cleanup + review
 

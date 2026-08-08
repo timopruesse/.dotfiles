@@ -46,11 +46,30 @@ command follows below.
   compiler-validated edits (types, lint, pure renames). **Spawn `verifier`** when
   there's real runtime surface, giving it the specific behavior the change is meant
   to produce and letting it try to break it.
-- **On `VERDICT: BREAKS`** — do NOT commit. Surface the verifier's failing input
-  and the observed wrong behavior, and `HALT: <reason>` (a `verifier` BREAKS is a
-  STOP always, per the protocol's taxonomy — B never overrides it). Offer to hand
-  the failing case to a fresh `worker` as a new spec — but only on my `go`; never
-  auto-retry, never loop unattended. One verifier attempt, then it's my call.
+- **On `VERDICT: BREAKS`** — do NOT commit yet. Classify the break, then either
+  auto-repair or `HALT` (taxonomy in
+  [`~/protocols/HANDOFF-PROTOCOL.md`](~/protocols/HANDOFF-PROTOCOL.md)):
+
+  **Obvious (AUTO in both modes)** — all must hold:
+  1. Verifier gave a concrete failing input and expected vs observed behavior.
+  2. The fix restores the *claimed* contract only — no product/API redesign,
+     no picking among multiple plausible behaviors.
+  3. The fix is localized: live-install drift (missing/stale symlink for a file
+     already in the repo; chmod), sourced-vs-executed main guards, missing
+     arity/empty-arg checks, one-branch null/path typos, copy `.env.local` into
+     a new worktree, or similarly mechanical one-site repairs.
+
+  **How to auto-repair:** briefly name the break + fix (one line, no `go`
+  pause). Parent may apply install/live-link fixes and small mechanical guards
+  in already-touched files; otherwise spawn `worker` with the verifier's repro
+  as a thin spec. Re-spawn `verifier` after each repair. Budget: **≤3**
+  auto-fix→re-verify cycles per `/land`. Same failing case after a fix counts
+  against the budget — do not thrash.
+
+  **Not obvious, or budget exhausted** — `HALT: <reason>` with the failing
+  input. Offer a fresh `worker` retry only on my `go`. When unsure whether it
+  is obvious → STOP (same as the protocol's default).
+
 - On `HOLDS` (or a skipped gate), continue.
 
 ## 3. Commit (preview → mode-aware)
@@ -83,5 +102,7 @@ Under mode A, advancing runs the next step up to its own preview gate and waits
 for `go` there; under mode B it runs through, auto-approving that step's AUTO
 gates. Do not fire the Jira transition here — that's `/open-pr`'s (In Review)
 step; landing isn't review-ready by itself. Report what you did honestly — the
-verdict, what was committed/pushed, and the step advanced to. If `verifier`
-returned BREAKS, or a commit/push failed, `HALT: <reason>` rather than proceeding.
+verdict (including any auto-repairs), what was committed/pushed, and the step
+advanced to. If `verifier` still BREAKS after the obvious-fix budget (or the
+break was never obvious), or a commit/push failed, `HALT: <reason>` rather than
+proceeding.

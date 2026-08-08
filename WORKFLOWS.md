@@ -48,6 +48,7 @@ flowchart TD
         LND(["/land"])
         VG{{"behavior change?"}}
         VER["verifier"]
+        FIX["obvious auto-fix<br/>≤3 cycles"]
         LPG{{"commit preview"}}
         CM["committer"]
         PRQ{{"PR exists?"}}
@@ -115,7 +116,9 @@ flowchart TD
     VG -->|"runtime surface"| VER
     VG -->|"docs / mechanical"| LPG
     VER -->|"HOLDS"| LPG
-    VER -->|"BREAKS · gated retry"| HUM1
+    VER -->|"BREAKS · obvious"| FIX
+    FIX -->|"re-verify ≤3"| VER
+    VER -->|"BREAKS · judgment / budget"| HUM1
     LPG -->|"you: go"| CM
     CM --> PRQ
     PRQ -->|"no PR · offer"| OP
@@ -199,8 +202,10 @@ flowchart LR
   `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
   arrows show its reuse, not multiple agents.
 - **`/land`** closes the seam between `worker` and `/open-pr` (verifier → commit
-  preview → `committer`). If a PR already exists it offers `/babysit-pr` instead
-  of `/open-pr`. Commit rules: **agent-routing** (worker/parent never `git commit`).
+  preview → `committer`). Obvious `verifier` BREAKS auto-repair and re-verify
+  (≤3 cycles); judgment / budget-exhausted BREAKS still STOP. If a PR already
+  exists it offers `/babysit-pr` instead of `/open-pr`. Commit rules:
+  **agent-routing** (worker/parent never `git commit`).
 - **Red "needs you"** nodes are where a flow deliberately STOPS for a human: the
   design philosophy is *auto-fix the deterministic, surface the judgment calls*.
   The one carve-out: a review thread whose fix you actually applied and pushed

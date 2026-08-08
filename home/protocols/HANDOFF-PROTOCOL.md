@@ -57,8 +57,9 @@ of `verifier`) ends with exactly one terminal line the orchestrator reads:
 - **`ADVANCE → <next>`** — this stage succeeded; proceed. Linear stages may write
   just `ADVANCE` (the successor is the spine default above); the two branch stages
   resolve and name it (e.g. `ADVANCE → /open-pr`, `ADVANCE → /babysit-pr 123`).
-- **`HALT: <reason>`** — a STOP gate tripped (design snag, `verifier` BREAKS,
-  error, or any always-STOP row below). Nothing advances without you.
+- **`HALT: <reason>`** — a STOP gate tripped (design snag, non-obvious or
+  budget-exhausted `verifier` BREAKS, error, or any always-STOP row below).
+  Nothing advances without you.
 - **Missing terminal line** — if a spine agent/`worker`/`sweep` reply has no
   `ADVANCE` / `HALT` / `VERDICT:` / `STATUS:` line as required by that agent,
   the orchestrator treats it as `HALT: missing terminal contract` and does not
@@ -87,7 +88,8 @@ you'd want to see before it leaves the machine. **When unsure, STOP.**
 |---|---|
 | `/my-work` · `/open-work` selection (pick numbers) | **STOP** always (above the spine) |
 | `worker` hits a design decision / ambiguity / wrong spec | **STOP** always |
-| `verifier` returns `BREAKS` | **STOP** always |
+| `verifier` returns `BREAKS` — **obvious** fix (see `/land` §2) | **AUTO** repair → re-verify (≤3 cycles); both modes |
+| `verifier` returns `BREAKS` — judgment / unclear / budget exhausted | **STOP** always |
 | `/babysit-pr` `WAITING` (review comments, real conflict, anti-flail) | **STOP** always |
 | `/watch-boba` `BLOCKED` unblock draft (writes generated spec to Jira) | **STOP** always |
 | `REPEATED-BAIL` | **STOP** always |

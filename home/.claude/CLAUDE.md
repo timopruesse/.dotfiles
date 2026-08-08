@@ -75,6 +75,10 @@ pinned, tiered agents.
   directly.
 - **`worker` must not commit.** Keep worker spawn prompts thin (spec + paths);
   never instruct the worker to commit.
+- On `/land` (or any parent-run verifier gate): **obvious** `VERDICT: BREAKS`
+  (concrete repro + mechanical/live-install fix, no design fork) → auto-repair
+  and re-verify (≤3 cycles) without waiting for `go`. Non-obvious or
+  budget-exhausted BREAKS still `HALT`.
 
 ## Mechanical cleanup + review
 
@@ -132,8 +136,9 @@ When choosing whom to spawn (or whether to stay in the parent), prefer the
   strong / orchestrator model. **Never commits** — ends `ADVANCE → /land` or
   `HALT:`. **After `worker` reports a behavior-changing
   change, gate it through `verifier`** (orchestrator step — spawn `verifier`
-  yourself; feed any `BREAKS` input back to `worker`, escalate design-level
-  failures to the strong model). Skip the gate for no-runtime-surface or
+  yourself). On `BREAKS`, auto-repair **obvious** failures per `/land` §2 /
+  HANDOFF (≤3 cycles); escalate design-level / non-obvious failures to the strong
+  model and `HALT` for `go`. Skip the gate for no-runtime-surface or
   mechanical changes. On the current-branch path this conveyor is codified as
   `/land` (verifier gate → commit → hand off).
 - **`committer`** — routine git plumbing (staging, commit messages, commit,
@@ -240,12 +245,14 @@ Roughly the PR lifecycle, front to back:
 - **`/land`** — the local counterpart to the Boba loop's `boba-watcher → /babysit-pr`
   hand-off: closes the seam between `worker` and `/open-pr`. Runs on the current
   branch/worktree (no arg), owning the post-`worker` conveyor — orchestrator
-  risk-gates the diff and spawns `verifier` on runtime surface (on `BREAKS`,
-  surfaces + offers a gated `worker` retry, never auto-loops), commits via
-  `committer` behind a preview gate, then branches on whether a PR exists: none →
-  offer `/open-pr` (which owns the push); PR exists → push the follow-up commit and
-  offer `/babysit-pr`. Doesn't run `worker` or touch Jira. This is what finally
-  wires the otherwise command-less `committer`.
+  risk-gates the diff and spawns `verifier` on runtime surface. On `BREAKS`,
+  **auto-repairs obvious failures** (live-install drift, arity/empty guards,
+  sourced-vs-executed mains, etc. — see `/land` §2) up to 3 fix→re-verify
+  cycles; non-obvious or budget-exhausted BREAKS still `HALT` for `go`. Then
+  commits via `committer` behind a preview gate, then branches on whether a PR
+  exists: none → offer `/open-pr` (which owns the push); PR exists → push the
+  follow-up commit and offer `/babysit-pr`. Doesn't run `worker` up-front or
+  touch Jira. This is what finally wires the otherwise command-less `committer`.
 - **`/open-pr [base]`** — open a ready-for-review PR from the current branch:
   why-focused title/body from the branch's commits+diff → prints the draft, then
   auto-opens (no `go` — the body preview is print-only in both modes; `--wait`
@@ -281,10 +288,10 @@ Roughly the PR lifecycle, front to back:
 - **`/ship <JIRA-KEY>`** — the mode-B entry to the spine: exactly
   `/dispatch <KEY> --auto`. Runs one ticket end-to-end **unattended**, auto-approving
   the deterministic gates and stopping only at judgment calls (design snag,
-  `verifier` BREAKS, `WAITING`, Boba `BLOCKED`, external-blocker on a merge
-  candidate, error). Ends by launching the async loop (`/babysit-pr` or
-  `/watch-boba`) and returning. The hubs expose the same via a `ship <nums>` selector
-  (explicit numbers only — no bare `ship`).
+  non-obvious or budget-exhausted `verifier` BREAKS, `WAITING`, Boba `BLOCKED`,
+  external-blocker on a merge candidate, error). Ends by launching the async loop
+  (`/babysit-pr` or `/watch-boba`) and returning. The hubs expose the same via a
+  `ship <nums>` selector (explicit numbers only — no bare `ship`).
 
 ## Two run modes + the handoff spine
 

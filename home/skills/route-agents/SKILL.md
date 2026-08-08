@@ -42,13 +42,16 @@ explain, or research — spawn the pinned agent by name.
 
 | Need | Agent / command |
 | --- | --- |
-| Behavior change with a runtime surface | `/land` (verifier → committer) |
+| Behavior change with a runtime surface | `/land` (verifier → committer; obvious BREAKS auto-fix ≤3) |
 | Docs / comments / types / renames / formatting only | `committer` (cheap) directly |
 | Green tests alone on behavior-changing code | still `/land` / `verifier` |
 | Parent-run `git commit` | **forbidden** — always `committer` or `/land` |
 
 After `worker` lands a behavior change outside `/land`, the parent risk-gates
 and spawns `verifier` itself — but prefer `/land` on the current-branch conveyor.
+Obvious `verifier` BREAKS (concrete repro + mechanical/live-install fix, no
+design fork) are auto-repaired and re-verified per `/land` §2 / HANDOFF; do not
+`HALT` those for `go`.
 
 ## PR / Jira — prefer the command
 
