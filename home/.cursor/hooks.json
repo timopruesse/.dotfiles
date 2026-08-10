@@ -11,9 +11,6 @@
       },
       {
         "command": "bash \"$HOME/.cursor/herdr-agent-state.sh\" session"
-      },
-      {
-        "command": "bash '/home/timo/.cursor/herdr-agent-state.sh' session"
       }
     ],
     "subagentStop": [
