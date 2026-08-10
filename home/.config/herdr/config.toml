@@ -94,3 +94,6 @@ key = "alt+l"
 type = "plugin_action"
 command = "willfish.herdr-navigator.right"
 description = "navigate right (nvim/herdr)"
+
+[ui]
+agent_panel_sort = "spaces"
