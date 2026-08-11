@@ -351,10 +351,14 @@ tasks:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
             - "herdr plugin install willfish/herdr-navigator --yes || true"
+            - "mkdir -p \"$HOME/.claude/hooks\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
             - "herdr plugin install willfish/herdr-navigator --yes || true"
+            - "mkdir -p \"$HOME/.claude/hooks\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
 
   herdr_linux:
     os: ["linux"]
@@ -374,10 +378,14 @@ tasks:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
             - "herdr plugin install willfish/herdr-navigator --yes || true"
+            - "mkdir -p \"$HOME/.claude/hooks\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
             - "herdr plugin install willfish/herdr-navigator --yes || true"
+            - "mkdir -p \"$HOME/.claude/hooks\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
 
   bun:
     commands:

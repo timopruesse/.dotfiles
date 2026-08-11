@@ -33,6 +33,7 @@ esac
 cwd=${HERDR_ACTIVE_PANE_CWD:-${PWD}}
 scripts=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 launch="$scripts/coding_agent_launch.sh"
+pane_context="$scripts/pane_context.sh"
 
 . "$scripts/coding_agent_ensure.sh"
 coding_agent_ensure_project_agents "$cwd"
@@ -65,13 +66,54 @@ if [ -z "$pane" ]; then
   exit 1
 fi
 
+# Resolve agent CLI for pane-context decoration (launch still receives full "$@").
+force=
+for arg in "$@"; do
+  case "$arg" in
+  --claude) force=claude ;;
+  --agent | --cursor) force=agent ;;
+  esac
+done
+
+if [ -n "$force" ]; then
+  cli=$force
+else
+  cli=$("$scripts/coding_agent_resolve.sh" "$cwd")
+fi
+
 # Run launch in the new pane (policy + resolve). Silence pane-run JSON so
 # stdout stays a single pane_id for adapters (nvim / zsh hooks).
-# herdr pane run passes extra argv through to the command (same as old bind.sh).
 if [ "$#" -eq 0 ]; then
   herdr pane run "$pane" "$launch" >/dev/null
 else
   herdr pane run "$pane" "$launch" "$@" >/dev/null
+fi
+
+# Pane context: agent + worktree labels for herdr sidebar / borders.
+if [ -x "$pane_context" ]; then
+  HERDR_PANE_ID=$pane "$pane_context" set-agent "$cli" "$pane" || true
+  wt=$("$pane_context" worktree-name "$cwd" 2>/dev/null || true)
+  if [ -n "$wt" ]; then
+    HERDR_PANE_ID=$pane "$pane_context" set-wt "$wt" "$pane" || true
+  fi
+fi
+
+# Claude-only: rotate pane color after the TUI is up.
+if [ "$cli" = claude ]; then
+  colors="red blue green yellow purple orange pink cyan"
+  state_file="${XDG_STATE_HOME:-$HOME/.local/state}/claude_color_index"
+  idx=$(($(cat "$state_file" 2>/dev/null || echo 0) % 8 + 1))
+  printf '%s\n' "$idx" >"$state_file"
+  color=$(printf '%s\n' $colors | sed -n "${idx}p")
+  {
+    sleep 3
+    herdr pane send-text "$pane" "/color $color"
+    herdr pane send-keys "$pane" enter
+    sleep 0.2
+    herdr pane send-keys "$pane" esc
+    sleep 0.1
+    herdr pane send-keys "$pane" enter
+  } &
 fi
 
 printf '%s\n' "$pane"

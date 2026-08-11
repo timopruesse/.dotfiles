@@ -19,7 +19,7 @@ Config: `~/.config/herdr/config.toml` (from `home/.config/herdr/`).
 | `prefix r` | Reload herdr config |
 | `prefix Tab` | Toggle last pane (Neovim `<C-o>`-style back-and-forth) |
 | `` prefix ` `` | Scratch popup terminal (75%×80%) |
-| `prefix+shift+A` | AWS profile picker (`awsp` popup) |
+| `prefix+shift+A` | AWS profile picker (`awsp` popup → **focused** pane, not the popup itself) |
 | `prefix ?` | Show live keybind help |
 
 ### Spaces / agents

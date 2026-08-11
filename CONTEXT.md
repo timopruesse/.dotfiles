@@ -21,6 +21,8 @@ reviews and sync tooling should use these names.
 | **herdr host** | The herdr multiplexer (config, panes, tabs, integrations). Thin keybind surface in `home/.config/herdr/config.toml`; not the place for coding-agent policy. |
 | **coding-agent herdr launch** | Deep module `home/.config/herdr/scripts/coding_agent_herdr.sh` — owns split/tab, pane-id parse, and `herdr pane run` → `coding_agent_launch.sh`. Thin adapters: `coding_agent_bind.sh`, zsh `c*`/`_coding_agent_herdr`, nvim `coding_agent_herdr.lua`. |
 | **coding-agent launch policy** | Shared worktree + keep-awake for `claude` / `agent` in `coding_agent_policy.zsh` (sourced by `.zshrc` wrappers and `coding_agent_launch.sh`). |
+| **pane context** | Env/display signals owned by a single herdr pane, e.g. AWS profile. Mirrored to herdr chrome via the pane-context reporter. May use a pane-keyed side file when an agent TUI blocks live `export`. Not session- or workspace-scoped. _Avoid_: session profile, “active tab” when the signal is per-pane. |
+| **pane-context reporter** | Deep module under `home/.config/herdr/scripts/` that mirrors pane context into the herdr host via `report-metadata` (sidebar tokens, state labels). Thin adapters: `awsp`/`awsu`, coding-agent launch, and agent shell hooks (Bash/`!` profile detection). |
 | **project-agents** | Cursor Task/`subagent_type` discovery for pinned agents via `<git-root>/.cursor/agents/` (CLI often ignores `~/.cursor/agents/`). Ensured by `home/sync/ensure-project-agents`; this repo commits links to `home/.cursor/agents/`. Missing pin in the Task enum → fail closed (surface error); never fall back to builtin Explore/`generalPurpose`. |
 
 ## Read agents (locate / explain / research)

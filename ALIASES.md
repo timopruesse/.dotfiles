@@ -77,11 +77,13 @@ Typing a bare `path/to/file.ext` opens it in `$EDITOR` (Neovim). Useful when you
 
 ## AWS (`aws_aliases.zsh`)
 
+Pane-scoped via `pane_context.sh` (see `docs/adr/0001-pane-context-per-pane.md`). Inside herdr, profiles are stored per pane (`HERDR_PANE_ID`), mirrored to the sidebar `$aws` token, and pre-injected into agent shell commands when no explicit `--profile` is set.
+
 | Function | Command | Description |
 |----------|---------|-------------|
-| `awsp` | — | fzf picker to select and export an AWS profile |
-| `awsc` | — | Print the currently active AWS profile |
-| `awsu` | — | Unset AWS profile (revert to default) |
+| `awsp` | — | fzf picker; in-pane applies to this pane; `prefix+shift+A` popup sets `PANE_CONTEXT_TARGET=focused` so the picker updates the UI-focused pane |
+| `awsc` | — | Print pane file profile, else `$AWS_PROFILE`, else `default` |
+| `awsu` | — | Clear pane profile file, herdr `$aws` token, and shell exports |
 
 ## Coding agent (`claude_aliases.zsh`)
 

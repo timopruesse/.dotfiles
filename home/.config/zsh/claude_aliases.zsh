@@ -26,44 +26,7 @@ function _coding_agent_herdr() {
       ;;
   esac
 
-  local force=""
-  local arg
-  for arg in "$@"; do
-    case "$arg" in
-      --claude) force=claude ;;
-      --agent|--cursor) force=agent ;;
-    esac
-  done
-
-  local pane_id
-  pane_id=$("$_CODING_AGENT_SCRIPTS/coding_agent_herdr.sh" "$layout" "$@") || return 1
-  pane_id=${pane_id##*$'\n'}
-  pane_id=${pane_id//$'\r'/}
-
-  local cli
-  if [[ -n "$force" ]]; then
-    cli=$force
-  else
-    cli=$("$_CODING_AGENT_SCRIPTS/coding_agent_resolve.sh" "$PWD")
-  fi
-
-  # Claude-only: rotate pane color after the TUI is up.
-  if [[ "$cli" == claude && -n "$pane_id" ]]; then
-    local colors=(red blue green yellow purple orange pink cyan)
-    local state_file="${XDG_STATE_HOME:-$HOME/.local/state}/claude_color_index"
-    local idx=$(($(cat "$state_file" 2>/dev/null || echo 0) % ${#colors[@]} + 1))
-    echo "$idx" > "$state_file"
-    local color="${colors[$idx]}"
-    {
-      sleep 3
-      herdr pane send-text "$pane_id" "/color $color"
-      herdr pane send-keys "$pane_id" enter
-      sleep 0.2
-      herdr pane send-keys "$pane_id" esc
-      sleep 0.1
-      herdr pane send-keys "$pane_id" enter
-    } &!
-  fi
+  "$_CODING_AGENT_SCRIPTS/coding_agent_herdr.sh" "$layout" "$@" >/dev/null || return 1
 }
 
 function c() {

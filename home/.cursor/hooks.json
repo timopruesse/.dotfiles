@@ -17,6 +17,17 @@
       {
         "command": "./hooks/log-session.sh"
       }
+    ],
+    "preToolUse": [
+      {
+        "matcher": "Shell",
+        "command": "bash \"$HOME/.cursor/hooks/pane-context-aws.sh\""
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "bash \"$HOME/.cursor/hooks/pane-context-aws.sh\""
+      }
     ]
   },
   "version": 1

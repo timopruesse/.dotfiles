@@ -65,8 +65,8 @@ height = "80%"
 [[keys.command]]
 key = "prefix+shift+a"
 type = "popup"
-command = "zsh -ic awsp"
-description = "AWS profile picker"
+command = "PANE_CONTEXT_TARGET=focused zsh -ic awsp"
+description = "AWS profile picker (applies to focused pane)"
 width = "60%"
 height = "40%"
 
@@ -96,4 +96,19 @@ command = "willfish.herdr-navigator.right"
 description = "navigate right (nvim/herdr)"
 
 [ui]
+show_agent_labels_on_pane_borders = true
 agent_panel_sort = "spaces"
+
+[ui.sidebar.agents]
+row_gap = 0
+rows = [["state_icon", "tab", "agent"], ["$aws", "$wt"]]
+
+[ui.sidebar.spaces]
+row_gap = 0
+rows = [["state_icon", "workspace", "branch"]]
+
+[ui.toast]
+delivery = "herdr"
+
+[ui.sound]
+enabled = false
