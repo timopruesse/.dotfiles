@@ -16,13 +16,14 @@ reviews and sync tooling should use these names.
 | **sync** | `home/sync/` — deep module that parses the map, generates platform trees, emits the tier catalog **and** always-apply **agent-routing** rules. Entry points: `home/agents/sync-agents`, `home/commands/sync-commands`. |
 | **agent-routing** | Hard always-apply contract authored in `home/protocols/` and emitted by **sync** into Cursor rules + Claude host prose: locate → `scout`/`scout-explain` (never builtin Explore/`generalPurpose`); commit → `committer` or `/land` (parent never `git commit`); missing terminal contract → treat as `HALT`. Soft skill `route-agents` remains the whom-table; agent-routing is the must-not layer. |
 | **live-install** | `home/sync/live-install` — Cursor adapter that installs agents/commands/skills/hooks/rules and merges CLI prefs into `~/.cursor` (plus Claude skills) without replacing that tree. |
-| **session-log** | `home/session_log/` — shared JSONL append/error core; Claude and Cursor hooks are adapters. Subagent **kind** is derived here from spawn type — `pinned` \| `builtin` \| `unknown` — never assigned by host adapters. Injected slash **command** names are drawn from the authored command set (not a parallel stem list). |
+| **session-log** | `home/session_log/` — shared JSONL append/error/query core; Claude and Cursor hooks are adapters. Subagent **kind** is derived here from spawn type — `pinned` \| `builtin` \| `unknown` — never assigned by host adapters. Injected slash **command** names are drawn from the authored command set (not a parallel stem list). `/session-cost` rolls up Claude USD estimates and Cursor duration/counts (never fabricated Cursor USD); optional routing-audit mode flags builtin explorer spawns. |
 | **coding-agent resolve** | `home/.config/herdr/scripts/coding_agent_resolve.sh` — picks `claude` vs `agent` for shared zsh/herdr/Neovim launchers (env → remote org → path). Same work/personal split as git identity. |
 | **herdr host** | The herdr multiplexer (config, panes, tabs, integrations). Thin keybind surface in `home/.config/herdr/config.toml`; not the place for coding-agent policy. |
 | **coding-agent herdr launch** | Deep module `home/.config/herdr/scripts/coding_agent_herdr.sh` — owns split/tab, pane-id parse, and `herdr pane run` → `coding_agent_launch.sh`. Thin adapters: `coding_agent_bind.sh`, zsh `c*`/`_coding_agent_herdr`, nvim `coding_agent_herdr.lua`. |
 | **coding-agent launch policy** | Shared worktree + keep-awake for `claude` / `agent` in `coding_agent_policy.zsh` (sourced by `.zshrc` wrappers and `coding_agent_launch.sh`). |
 | **pane context** | Env/display signals owned by a single herdr pane, e.g. AWS profile. Mirrored to herdr chrome via the pane-context reporter. May use a pane-keyed side file when an agent TUI blocks live `export`. Not session- or workspace-scoped. _Avoid_: session profile, “active tab” when the signal is per-pane. |
 | **pane-context reporter** | Deep module under `home/.config/herdr/scripts/` that mirrors pane context into the herdr host via `report-metadata` (sidebar tokens, state labels). Thin adapters: `awsp`/`awsu`, coding-agent launch, and agent shell hooks (Bash/`!` profile detection). |
+| **signal egress** | Deep module that delivers out-of-session attention pings. Interface is event verbs (`halt`, `changes`, `triage`) — not a generic notify. Spine/shepherd/hub prose shells out explicitly to `home/.config/herdr/scripts/signal_egress.sh`. v1 adapters: macOS + WSL/Linux OS banners. Chat adapters (e.g. WhatsApp) are demand-only later ports — do not stub. Optional herdr chrome is also deferred. Not pane context. |
 | **project-agents** | Cursor Task/`subagent_type` discovery for pinned agents via `<git-root>/.cursor/agents/` (CLI often ignores `~/.cursor/agents/`). Ensured by `home/sync/ensure-project-agents`; this repo commits links to `home/.cursor/agents/`. Missing pin in the Task enum → fail closed (surface error); never fall back to builtin Explore/`generalPurpose`. |
 
 ## Read agents (locate / explain / research)
@@ -32,6 +33,7 @@ reviews and sync tooling should use these names.
 | **scout** | Cheap read-only **locate** — `file:line` pins and compact gathers. Not a subsystem walkthrough. |
 | **scout-explain** | Mid read-only **explain** — architecture/data-flow walkthrough of existing code. Descriptive, not critique. |
 | **researcher** | Cheap read-only **research / spike prep** — external + undecided (web/`gh`/ticket comments) → ranked hypotheses and open questions. Not locate dumps, not codebase explain. Opt-in before `/dispatch`; never a Mode-B auto path. Ends `ADVANCE → parent` or `HALT:`. |
+| **security-triage** | Cheap read-only **classifier** for push-time PR findings (allowlisted security bots). Spawned by `/triage-security`. Ends `ADVANCE → parent` or `HALT:`. |
 
 ## Workflow vocabulary
 
@@ -43,8 +45,9 @@ reviews and sync tooling should use these names.
 | **hub** | Non-converging ambient loop (`/my-work watch`) — re-fire only, no `STATUS:`. |
 | **Boba** | External Jira→PR pipeline (`boba_fetch`); `/dispatch` may label, `/watch-boba` shepherds until a PR opens. |
 | **ADVANCE / HALT** | Terminal line every spine step emits for the handoff contract. Parent treats a missing terminal line as `HALT: missing terminal contract`. |
-| **land path** | Behavior-changing work → `/land` (verifier → committer → handoff). Risk-gate and obvious-BREAKS taxonomy live in **HANDOFF**; `/land` applies them. Docs/types/renames/formatting only → spawn `committer` directly. Parent never runs `git commit`. |
+| **land path** | Behavior-changing work → `/land` (verifier → committer → handoff). Risk-gate and obvious-BREAKS taxonomy live in **HANDOFF**; `/land` applies them. Docs/types/renames/formatting only → spawn `committer` directly. Parent never runs `git commit`. Verifier picks an **exercise surface** by claim (CLI / HTTP / browser via Playwright) — prompt contract only until a second browser stack justifies a skill adapter. |
 | **wrap-up** | Standalone command `/wrap-up` — manual re-entry into the spine when work was done free-form outside `/dispatch`. Closes the branch and opens the PR without making the user re-invoke `/land` then `/open-pr`. |
+| **security triage** | Hub lane + command `/triage-security` for *push-time* PR findings (allowlisted bots: Bugbot, security-guidance, Dependabot security, GitHub code scanning — not CodeRabbit-style nits). Cheap **security-triage** agent classifies → babysit / ignore / needs you; command applies and may `signal_egress triage`. Must not reopen the PR-opening gate. Local `/review-bugbot` / `/review-security` stay outside this seam. |
 
 ## Authoring rules
 

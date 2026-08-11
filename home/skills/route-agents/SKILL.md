@@ -2,7 +2,7 @@
 name: route-agents
 description: >-
   Picks which pinned subagent (or slash command) to use in this environment.
-  Use when choosing among scout, scout-explain, researcher, worker, sweep,
+  Use when choosing among scout, scout-explain, researcher, security-triage, worker, sweep,
   verifier, committer, pr-babysitter, pr-reviewer, boba-watcher, or when unsure
   whether to spawn a pinned agent vs do the work in the parent.
 ---
@@ -23,6 +23,7 @@ rules + Claude host prose) — follow both.
 | Find X, compact gather (`gh`, JQL, ripgrep), `file:line` pin | `scout` (cheap) |
 | Understand a subsystem (data flow, entry points, "start here") | `scout-explain` (mid) |
 | Spike / research ticket prep (web, ticket comments, hypotheses) | `researcher` (cheap) |
+| Classify push-time security / Bugbot findings on open PRs | `security-triage` (cheap) — via `/triage-security` |
 | Critique architecture / design judgment | parent (strong) — not `scout*` / `researcher` |
 
 Never use builtin `Explore` / `generalPurpose` / untyped Task for locate,
@@ -67,6 +68,8 @@ design fork) are auto-repaired and re-verified per HANDOFF land path; do not
 | Shepherd one / many PRs | `/babysit-pr`, `/babysit-fleet` |
 | Draft reviews for your review queue | `/review-requests` → `pr-reviewer` |
 | Apply review threads | `/address-reviews` |
+| Push-time Bugbot / security findings on open PRs | `/triage-security` → `security-triage` |
+| Session spend / duration rollup | `/session-cost` |
 | Boba ticket watch loop | `/watch-boba` |
 
 ## Default: spawn, don't impersonate

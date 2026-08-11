@@ -8,7 +8,7 @@ alwaysApply: true
 # Subagent model routing (Cursor)
 
 Custom subagents live in `~/.cursor/agents/` (generated from `~/agents/`). Prefer
-them by name when the task matches: `boba-watcher`, `committer`, `researcher`, `scout`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
+them by name when the task matches: `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
 
 When choosing whom to spawn (or whether to stay in the parent), read the
 `route-agents` skill (`~/.cursor/skills/route-agents/SKILL.md`).
@@ -17,7 +17,7 @@ Pinned models (from the agent frontmatter):
 
 | Tier | Agents | Model |
 | --- | --- | --- |
-| cheap | `boba-watcher`, `committer`, `researcher`, `scout` | `kimi-k2.7-code` |
+| cheap | `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage` | `kimi-k2.7-code` |
 | mid | `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker` | `composer-2.5-fast` |
 | strong | `verifier` | `cursor-grok-4.5-high-fast` |
 

@@ -78,13 +78,18 @@ pinned, tiered agents.
 
 ## Security-review triage
 
-Push-time security review findings (e.g. from the security-guidance plugin) are
-not a parent context-switch. The parent already opened the PR; deeper
-investigation of out-of-scope or pre-existing code belongs in the async tail.
+Push-time security review findings (e.g. from the security-guidance plugin,
+Bugbot, Dependabot security, GitHub code scanning) are not a parent
+context-switch. The parent already opened the PR; deeper investigation of
+out-of-scope or pre-existing code belongs in the async tail.
 
 - If the finding is for code this work did not touch, acknowledge it briefly and
-  route it to `/babysit-pr <number>` or a security inbox for triage — do not
-  investigate, blame, or propose fixes in the parent session.
-- If the finding is for code this work touched, surface it as a `HALT:` and
-  hand the fix back to `worker` through the normal spine.
+  route to **`/triage-security`** (hub lane + cheap `security-triage` agent) or
+  `/babysit-pr <number>` when already classified — do not investigate, blame, or
+  propose fixes in the parent session.
+- If the finding is for code this work touched, surface it as a `HALT:` (and
+  **signal egress** `halt`) and hand the fix back to `worker` through the normal
+  spine.
 - Never let a post-push security notification re-open the PR opening gate.
+- Local `/review-bugbot` / `/review-security` skills are a different seam
+  (pre-PR local diff) — do not conflate them with `/triage-security`.

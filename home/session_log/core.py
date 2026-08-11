@@ -265,3 +265,106 @@ def merge_subagent_lists(
         )
         out.append(merged)
     return out
+
+
+def _parse_ts(raw: Any) -> datetime | None:
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def load_session_records(
+    paths: list[Path],
+    *,
+    since: datetime | None = None,
+    until: datetime | None = None,
+) -> list[dict[str, Any]]:
+    """Load session JSONL rows from one or more log files, optionally time-filtered."""
+    out: list[dict[str, Any]] = []
+    for path in paths:
+        if not path.is_file():
+            continue
+        for obj in _iter_jsonl_objects(path) or []:
+            if not isinstance(obj, dict):
+                continue
+            ts = _parse_ts(obj.get("ts"))
+            if since is not None and (ts is None or ts < since):
+                continue
+            if until is not None and (ts is None or ts > until):
+                continue
+            out.append(obj)
+    return out
+
+
+def rollup_sessions(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate spend/duration by tool and command stem counts.
+
+    Cursor (and any host without cost) never gets fabricated USD — only duration.
+    """
+    by_tool: dict[str, dict[str, Any]] = {}
+    by_command: dict[str, int] = {}
+
+    for rec in records:
+        tool = str(rec.get("tool") or "unknown")
+        stats = by_tool.setdefault(
+            tool,
+            {"sessions": 0, "cost_usd": None, "duration_ms": None},
+        )
+        stats["sessions"] += 1
+
+        cost = rec.get("cost_usd_estimate")
+        if isinstance(cost, (int, float)):
+            stats["cost_usd"] = (stats["cost_usd"] or 0.0) + float(cost)
+
+        dur = rec.get("duration_ms")
+        if isinstance(dur, (int, float)):
+            stats["duration_ms"] = (stats["duration_ms"] or 0) + int(dur)
+
+        cmds = rec.get("commands")
+        if isinstance(cmds, list):
+            for stem in cmds:
+                if isinstance(stem, str) and stem:
+                    by_command[stem] = by_command.get(stem, 0) + 1
+
+    for stats in by_tool.values():
+        if stats["cost_usd"] is not None:
+            stats["cost_usd"] = round(float(stats["cost_usd"]), 6)
+
+    return {"by_tool": by_tool, "by_command": by_command}
+
+
+def routing_audit_hits(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Sessions that spawned builtin explorers (agent-routing violations)."""
+    hits: list[dict[str, Any]] = []
+    for rec in records:
+        subs = rec.get("subagents")
+        if not isinstance(subs, list):
+            continue
+        builtins: list[str] = []
+        for sub in subs:
+            if not isinstance(sub, dict):
+                continue
+            kind = sub.get("kind")
+            if kind is None:
+                kind = classify_subagent_kind(
+                    sub.get("type") if isinstance(sub.get("type"), str) else None
+                )
+            if kind == "builtin":
+                t = sub.get("type")
+                builtins.append(str(t) if t else "untyped")
+        if builtins:
+            hits.append(
+                {
+                    "ts": rec.get("ts"),
+                    "tool": rec.get("tool"),
+                    "session_id": rec.get("session_id"),
+                    "builtins": builtins,
+                }
+            )
+    return hits

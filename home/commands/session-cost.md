@@ -1,0 +1,32 @@
+---
+description: Roll up session-log spend (Claude USD) and Cursor duration; optional routing-audit for builtin spawns
+argument-hint: "[since — e.g. 24h, 7d; default 24h] [--routing]"
+tier: cheap
+---
+
+Report what the session-log recorded over the timeframe in `$ARGUMENTS`
+(default last 24h). This is the **read** side of session-log — hooks already
+append; this command queries.
+
+## Run the query module
+
+Execute (do not re-implement in prose):
+
+```bash
+python3 "$HOME/session_log/session_cost.py" ${ARGUMENTS:---since 24h}
+```
+
+If `$ARGUMENTS` is empty, use `--since 24h`. If the user passed a bare duration
+(`24h`, `7d`, `yesterday`), map it to `--since <value>`. Pass `--routing` when
+they asked for a routing audit or when `$ARGUMENTS` contains `--routing`.
+
+## Present
+
+Paste the script’s summary. Rules:
+
+- **Claude** — show `cost_usd_estimate` (labeled estimate, not billing truth).
+- **Cursor** — show duration / session counts only; **never invent USD**.
+- **`--routing`** — highlight sessions that spawned `kind: builtin` explorers
+  (`Explore`, `generalPurpose`, …) — agent-routing violations.
+
+If log files are missing, say which path and stop cleanly.

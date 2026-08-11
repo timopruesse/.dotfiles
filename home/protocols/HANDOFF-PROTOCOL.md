@@ -70,7 +70,7 @@ of `verifier`) ends with exactly one terminal line the orchestrator reads:
 | Terminal line | Mode A | Mode B |
 |---|---|---|
 | `ADVANCE → X` | invoke `X`, run it **up to its next preview gate, and wait** for `go` | invoke `X`, run it **through**, auto-approving only its AUTO gates |
-| `HALT: <reason>` | **stop**, surface the reason (native notifications ping) | same — B never overrides a STOP |
+| `HALT: <reason>` | **stop**, surface the reason, then run **signal egress** `halt` (see below) | same — B never overrides a STOP |
 
 The async tail (`/babysit-pr`, `/watch-boba`) is a self-scheduling loop governed
 by `LOOP-PROTOCOL.md`. A spine run **ends by launching that loop and returning** —
@@ -155,7 +155,28 @@ On `HOLDS` (or a skipped gate), continue the land conveyor (commit → handoff).
   is the furthest thing from a gate).
 
 The STOP taxonomy **is** the bail-out — a B run yanks you back the moment it hits
-any judgment call, and native notifications ping. No separate pause/kill switch.
+any judgment call, and **signal egress** pings. No separate pause/kill switch.
+
+## Signal egress (orchestrator)
+
+Out-of-session attention pings are owned by the **signal egress** module
+(`~/.config/herdr/scripts/signal_egress.sh`). Interface is event verbs — not a
+generic notify. On these events the parent **shells out explicitly**:
+
+| Verb | When |
+| --- | --- |
+| `halt` | Every `HALT:` / judgment STOP the orchestrator surfaces (including mode B) |
+| `changes` | `/my-work watch` when `CHANGES SINCE LAST TICK` is non-empty (not baseline) |
+| `triage` | `/triage-security` when a non-empty classification is parked/presented |
+
+```bash
+"$HOME/.config/herdr/scripts/signal_egress.sh" halt "<reason>"
+"$HOME/.config/herdr/scripts/signal_egress.sh" changes "<one-line summary>"
+"$HOME/.config/herdr/scripts/signal_egress.sh" triage "<one-line summary>"
+```
+
+v1 adapters: macOS + WSL/Linux OS banners. Do not stub chat ports. Shepherd
+`STATUS:` ticks do **not** ping (too frequent).
 
 ## Conditional auto-merge (mode B only)
 

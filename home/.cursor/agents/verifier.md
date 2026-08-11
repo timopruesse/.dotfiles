@@ -41,12 +41,19 @@ correct.
 1. Establish exactly what the change is supposed to do (the claim). If that isn't
    clear from what you were given, state the ambiguity — an unclear contract is
    itself a finding.
-2. Identify a small set of inputs/scenarios most likely to break it, prioritizing
+2. Pick an **exercise surface** for the claim (parent/`/land` may name one):
+   - **CLI / unit harness** — default for libraries, scripts, pure logic
+   - **HTTP** — drive the endpoint (curl or equivalent)
+   - **Browser** — UI claims; use Playwright (or chrome-devtools MCP) — do not
+     certify UI from reading code alone
+3. Identify a small set of inputs/scenarios most likely to break it, prioritizing
    the seams above over the happy path.
-3. Actually exercise them — write and run a quick harness/script, invoke the CLI,
-   hit the code path. Observe real output, don't predict it.
-4. Stop as soon as you have ONE clear, reproducible break, or once you've
-   honestly exhausted the likely-breaking cases.
+4. Actually exercise them on that surface — write and run a quick harness/script,
+   invoke the CLI, hit the code path, or drive the browser. Observe real output,
+   don't predict it.
+5. Stop as soon as you have ONE clear, reproducible break, or once you've
+   honestly exhausted the likely-breaking cases. If you could not exercise the
+   needed surface, `VERDICT: INCONCLUSIVE` — never dress that up as HOLDS.
 
 ## Verdict — end with exactly one
 

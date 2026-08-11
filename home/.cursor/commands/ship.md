@@ -40,7 +40,7 @@ the spine with auto-mode set; the protocol governs everything downstream.
      (design snag, non-obvious or budget-exhausted `verifier` BREAKS, `WAITING`,
      Boba `BLOCKED`, external-blocker on a merge candidate, repeated-bail, any
      error), **`HALT`** — stop, surface exactly what needs me, and let native
-     notifications ping. Never override a STOP. Obvious `verifier` BREAKS are
+     signal egress `halt` ping. Never override a STOP. Obvious `verifier` BREAKS are
      **AUTO** repaired per the HANDOFF land-path taxonomy (≤3 cycles) — do not
      treat those as STOP.
    - Fire the Jira transitions from the protocol's lifecycle mapping automatically

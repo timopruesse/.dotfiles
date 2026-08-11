@@ -38,8 +38,20 @@ Apply the **land path** in
 → spawn or skip `verifier` → obvious BREAKS auto-repair ≤3 cycles → else
 `HALT`). Do not restate the taxonomy here.
 
+When spawning `verifier`, name the **exercise surface** for the claim so it
+does not default to read-only `INCONCLUSIVE`:
+
+- **CLI / unit harness** — default for library, script, and pure logic changes
+- **HTTP** — endpoints / handlers (curl or equivalent)
+- **Browser** — UI claims; use the Playwright (or chrome-devtools) MCP/plugin
+  as the browser adapter
+
 - On `HOLDS` (or a skipped gate), continue.
-- On non-obvious / budget-exhausted `BREAKS`, `HALT` — do not commit.
+- On non-obvious / budget-exhausted `BREAKS`, `HALT` — do not commit. On any
+  orchestrator `HALT:`, run signal egress per HANDOFF:
+  ```bash
+  "$HOME/.config/herdr/scripts/signal_egress.sh" halt "<reason>"
+  ```
 
 ## 3. Commit (preview → mode-aware)
 

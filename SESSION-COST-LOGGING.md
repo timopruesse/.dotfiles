@@ -137,6 +137,20 @@ Cursor rows add `final_status`, `error_message`, `is_background_agent`, and
 
 ## Quick queries
 
+Prefer the query module / slash command over one-off `jq` (same filters, dual
+metrics, routing audit):
+
+```bash
+# Last 24h rollup (Claude USD + Cursor duration)
+python3 ~/session_log/session_cost.py --since 24h
+
+# Or: /session-cost 24h
+# Routing audit (builtin Explore / generalPurpose spawns)
+python3 ~/session_log/session_cost.py --since 7d --routing
+```
+
+Raw JSONL still works:
+
 ```bash
 # Last 5 Claude sessions
 tail -5 ~/.claude/logs/sessions.jsonl | jq .

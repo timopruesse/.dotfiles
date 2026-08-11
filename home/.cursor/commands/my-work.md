@@ -32,6 +32,10 @@ Spawn `scout` calls concurrently so the token-fat raw output stays isolated:
   comments waiting on me.
 - **Review requests** (`gh search prs --review-requested=@me --state=open --archived=false`).
 - **My assigned Jira tickets** that are open/in-progress (via the Atlassian MCP).
+- **Security / Bugbot findings** (push-time, allowlisted bots only — see
+  `/triage-security`): unresolved Bugbot, security-guidance, Dependabot
+  security, or GitHub code scanning threads/checks on my open PRs. Compact
+  count + PR numbers; full triage is `/triage-security`, not this hub.
 
 Always pass `--archived=false` on both `gh search prs` calls: a PR (or review
 request) in an archived repo is un-actionable — the repo is read-only, so it can
@@ -47,6 +51,8 @@ One line per item, each PRE-BOUND to a dispatch action and tagged for safety:
 - `JIRA-455 "fix parser" — assigned, spec concrete, non-Boba board` → `/start` + `worker` ✅ ready
 - `JIRA-460 "rework billing" — assigned, needs design input` → **needs you**
 - `2 PRs need your review` → `/review-requests`
+- `PR #12 — Bugbot / security finding` → `/triage-security` (or `/babysit-pr 12`
+  if already classified as actionable)
 
 For each Jira ticket, judge two things: (a) whether it's **ready** (concrete,
 low-ambiguity spec) or **needs your design input** — be honest; a half-baked
@@ -128,7 +134,14 @@ Each tick:
    - 💬 new review comments waiting on you (count delta)
    - ✅ Boba landed a PR / a PR became mergeable
    - ➖ item left the queue (merged, closed, reassigned)
+   - 🛡 new allowlisted security / Bugbot finding on your PR
    On the **first tick** print `baseline — N items` (no diff).
+   When `CHANGES SINCE LAST TICK` is **non-empty** (not the baseline line), run
+   **signal egress** before rendering the hub:
+   ```bash
+   "$HOME/.config/herdr/scripts/signal_egress.sh" changes "<one-line CHANGES summary>"
+   ```
+   Do **not** ping on the baseline tick or when the diff is empty.
 3. **Render the numbered hub** — byte-for-byte the step 2 output, so every
    dispatch selector (`go`, `ship <nums>`, `1 3 5`, `all but 2`) works unchanged.
    You can type a selector at any tick; it drops straight into step 3's gated

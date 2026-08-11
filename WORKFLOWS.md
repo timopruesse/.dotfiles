@@ -249,8 +249,8 @@ flowchart LR
   It forwards to `/land` and auto-advances to `/open-pr`, so the user does not
   need to invoke two commands to finish.
 - **Security-review findings** pushed after the PR belong to the async tail:
-  route them to `/babysit-pr` or a security inbox, not back into the parent
-  session, unless they touch code this work changed.
+  route them to `/triage-security` (or `/babysit-pr` when already classified),
+  not back into the parent session, unless they touch code this work changed.
 
 ## Agents at a glance
 
@@ -259,8 +259,9 @@ flowchart LR
 | `scout` | Haiku | read-only LOCATE / gather (excerpts, `file:line`, compact query results) | gather in `/my-work`, `/open-work`, `/ship-digest`; Boba unblock locate |
 | `scout-explain` | Sonnet | read-only EXPLAIN — full-subsystem architecture/data-flow walkthrough | ad-hoc; architecture-review skills; never Explore |
 | `researcher` | Haiku | read-only RESEARCH / spike prep (hypotheses, open questions); `ADVANCE → parent` | `/open-work` opt-in before `/dispatch` on research/spike tickets |
+| `security-triage` | Haiku | classify push-time Bugbot / security findings → babysit / ignore / needs you | `/triage-security`; hub gather lane in `/my-work` |
 | `worker` | Sonnet | implementer for concrete, low-ambiguity specs; **never commits**; `ADVANCE → /land` | `/start`, `/address-reviews`, Boba unblock |
-| `verifier` | Opus | adversarial correctness gate (tries to BREAK a change); `VERDICT:` | `/land` gate, `pr-babysitter`, `pr-reviewer` |
+| `verifier` | Opus | adversarial correctness gate (tries to BREAK a change); picks exercise surface (CLI / HTTP / browser); `VERDICT:` | `/land` gate, `pr-babysitter`, `pr-reviewer` |
 | `committer` | Haiku | git staging / commit-message / commit / push | `/land` (post-`worker` conveyor); docs-only commits from parent |
 | `pr-babysitter` | Sonnet | shepherd one PR toward mergeable (CI, rebase, body); conditional fail-closed auto-merge in auto-mode | `/babysit-pr`, `/babysit-fleet` |
 | `pr-reviewer` | Sonnet | draft-only adversarial PR review (never posts) | `/review-requests` |

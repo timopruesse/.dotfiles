@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -22,12 +23,15 @@ class SessionLogCoreTests(unittest.TestCase):
         stems = core.command_stems()
         self.assertIn("wrap-up", stems)
         self.assertIn("dispatch", stems)
+        self.assertIn("triage-security", stems)
+        self.assertIn("session-cost", stems)
         self.assertNotIn("README", stems)
 
     def test_pinned_agents_include_scout(self) -> None:
         names = core.pinned_agent_names()
         self.assertIn("scout", names)
         self.assertIn("worker", names)
+        self.assertIn("security-triage", names)
         self.assertNotIn("README", names)
 
     def test_classify_kind_three_way(self) -> None:
@@ -59,6 +63,50 @@ class SessionLogCoreTests(unittest.TestCase):
             )
             cmds = core.extract_commands_from_transcript(path)
             self.assertEqual(cmds, ["wrap-up"])
+
+    def test_rollup_and_routing_audit(self) -> None:
+        records = [
+            {
+                "ts": "2026-08-11T12:00:00Z",
+                "tool": "claude",
+                "session_id": "c1",
+                "cost_usd_estimate": 1.5,
+                "duration_ms": 1000,
+                "commands": ["land", "open-pr"],
+                "subagents": [{"type": "scout", "kind": "pinned"}],
+            },
+            {
+                "ts": "2026-08-11T13:00:00Z",
+                "tool": "cursor",
+                "session_id": "u1",
+                "cost_usd_estimate": None,
+                "duration_ms": 60000,
+                "commands": ["my-work"],
+                "subagents": [{"type": "Explore", "kind": None}],
+            },
+        ]
+        rollup = core.rollup_sessions(records)
+        self.assertEqual(rollup["by_tool"]["claude"]["sessions"], 1)
+        self.assertEqual(rollup["by_tool"]["claude"]["cost_usd"], 1.5)
+        self.assertEqual(rollup["by_tool"]["cursor"]["duration_ms"], 60000)
+        self.assertIsNone(rollup["by_tool"]["cursor"]["cost_usd"])
+        self.assertEqual(rollup["by_command"]["land"], 1)
+        hits = core.routing_audit_hits(records)
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]["builtins"], ["Explore"])
+
+    def test_load_session_records_filters_since(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sessions.jsonl"
+            path.write_text(
+                '{"ts":"2026-08-01T00:00:00Z","tool":"claude","session_id":"old"}\n'
+                '{"ts":"2026-08-11T12:00:00Z","tool":"claude","session_id":"new"}\n',
+                encoding="utf-8",
+            )
+            since = datetime(2026, 8, 10, tzinfo=timezone.utc)
+            rows = core.load_session_records([path], since=since)
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["session_id"], "new")
 
 
 if __name__ == "__main__":
