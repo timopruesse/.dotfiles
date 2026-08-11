@@ -81,6 +81,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# atuin binary (official installer → ~/.atuin/bin; shell init is below)
+export PATH="$HOME/.atuin/bin:$PATH"
+
 # fnm (replaces nvm; ~50× faster shell startup)
 eval "$(fnm env --use-on-cd --shell zsh)"
 

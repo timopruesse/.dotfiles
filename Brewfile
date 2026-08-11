@@ -1,0 +1,38 @@
+# macOS packages — installed by tools_macos via `brew bundle`.
+# Keep non-brew post-steps (chsh, fnm install, pipx, herdr hooks, luarocks)
+# in machine_setup.yaml tasks that depend on tools_macos.
+
+brew "zsh"
+brew "git"
+brew "ripgrep"
+brew "fzf"
+brew "fd"
+brew "bat"
+brew "git-delta"
+brew "wget"
+brew "keychain"
+brew "cmake"
+brew "pkg-config"
+brew "eza"
+brew "fswatch"
+brew "luarocks"
+brew "zoxide"
+brew "terminal-notifier"
+brew "atuin"
+brew "gh"
+brew "lazygit"
+brew "neovim", args: ["HEAD"]
+brew "herdr"
+brew "fnm"
+brew "python"
+brew "pipx"
+brew "go"
+brew "colima"
+brew "docker"
+brew "docker-compose"
+brew "docker-buildx"
+brew "awscli"
+
+cask "google-chrome"
+cask "ghostty"
+cask "font-meslo-lg-nerd-font"
