@@ -98,7 +98,4 @@ if [ -x "$pane_context" ]; then
   fi
 fi
 
-# Claude pane /color rotation runs from SessionStart
-# (~/.claude/hooks/herdr-pane-color.sh) — no launch-time sleep here.
-
 printf '%s\n' "$pane"
