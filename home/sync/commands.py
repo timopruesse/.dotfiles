@@ -14,6 +14,7 @@ from sync.common import (
     parse_model_map,
     prune_stale_md,
     repo_home,
+    write_text_if_changed,
 )
 from sync.live_cursor import install_all as live_install
 
@@ -124,8 +125,7 @@ def write_claude(
     body: str,
     model: str,
     tiers: dict[str, dict[str, str]],
-) -> Path:
-    CLAUDE_OUT.mkdir(parents=True, exist_ok=True)
+) -> bool:
     body = rewrite_protocol_links(body)
     body = expand_pin_tokens(body, tiers, "claude")
     if not body.startswith("\n"):
@@ -134,8 +134,7 @@ def write_claude(
     if not content.endswith("\n"):
         content += "\n"
     path = CLAUDE_OUT / f"{name}.md"
-    path.write_text(content)
-    return path
+    return write_text_if_changed(path, content)
 
 
 def write_cursor(
@@ -144,15 +143,13 @@ def write_cursor(
     cursor_model: str,
     tier: str,
     tiers: dict[str, dict[str, str]],
-) -> Path:
-    CURSOR_OUT.mkdir(parents=True, exist_ok=True)
+) -> bool:
     body = to_cursor_body(body, cursor_model, tier, tiers)
     if not body.endswith("\n"):
         body += "\n"
     content = GENERATED_BANNER + "\n" + body
     path = CURSOR_OUT / f"{name}.md"
-    path.write_text(content)
-    return path
+    return write_text_if_changed(path, content)
 
 
 def install_protocols() -> None:
@@ -188,6 +185,7 @@ def sync_commands(*, install_live: bool = True) -> int:
 
     install_protocols()
 
+    written = 0
     for src in sources:
         fields, body = split_command(src)
         tier = fields["tier"].strip()
@@ -197,9 +195,15 @@ def sync_commands(*, install_live: bool = True) -> int:
         name = src.stem
         claude_model = tiers[tier]["claude"]
         cursor_model = tiers[tier]["cursor"]
-        write_claude(name, fields, body, claude_model, tiers)
-        write_cursor(name, body, cursor_model, tier, tiers)
-        print(f"  {name}: tier={tier} → claude={claude_model} cursor={cursor_model}")
+        changed = write_claude(name, fields, body, claude_model, tiers)
+        changed = write_cursor(name, body, cursor_model, tier, tiers) or changed
+        if changed:
+            written += 1
+            print(f"  {name}: tier={tier} → claude={claude_model} cursor={cursor_model}")
+
+    unchanged = len(sources) - written
+    if unchanged:
+        print(f"  ({unchanged} commands unchanged)")
 
     keep = {p.stem for p in sources}
     for out_dir in (CLAUDE_OUT, CURSOR_OUT):

@@ -6,6 +6,7 @@ Cursor's Task tool / CLI often only loads project-scoped agents, not
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -74,6 +75,43 @@ def ensure_git_exclude(root: Path) -> None:
         f.write(f"{EXCLUDE_LINE}\n")
 
 
+def _git_exclude_ok(root: Path) -> bool:
+    if is_dotfiles_root(root):
+        return True
+    exclude = root / ".git" / "info" / "exclude"
+    if not exclude.is_file():
+        return False
+    try:
+        return any(line.strip() == EXCLUDE_LINE for line in exclude.read_text(encoding="utf-8").splitlines())
+    except OSError:
+        return False
+
+
+def _project_agents_fresh(dest: Path, paths: list[Path]) -> bool:
+    """True when dest already has the right symlinks and no stale agent links."""
+    if not dest.is_dir():
+        return False
+    keep_names = {p.name for p in paths}
+    try:
+        dest_resolved = dest.resolve()
+    except OSError:
+        return False
+    for path in paths:
+        link = dest / path.name
+        if not link.is_symlink():
+            return False
+        try:
+            rel = Path(os.path.relpath(path.resolve(), start=dest_resolved))
+            if link.readlink() != rel:
+                return False
+        except OSError:
+            return False
+    for entry in dest.glob("*.md"):
+        if entry.name not in keep_names and entry.is_symlink():
+            return False
+    return True
+
+
 def ensure_project_agents(root: Path | None = None, *, quiet: bool = False) -> int:
     """Link pinned agent .md files into <root>/.cursor/agents/. Returns count linked."""
     git_root_path = root or git_root()
@@ -98,6 +136,11 @@ def ensure_project_agents(root: Path | None = None, *, quiet: bool = False) -> i
         if not quiet:
             print(f"ensure-project-agents: no *.md in {src}", file=sys.stderr)
         return 0
+
+    if _project_agents_fresh(dest, paths) and _git_exclude_ok(git_root_path):
+        if not quiet:
+            print(f"  project-agents already fresh → {dest}")
+        return len(paths)
 
     keep = {p.stem for p in paths}
     linked = 0

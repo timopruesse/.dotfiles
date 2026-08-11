@@ -1,12 +1,53 @@
 #!/usr/bin/env bash
 # Install lazygit from GitHub releases; skip when already on the latest tag.
+# Latest-tag lookup is cached (24h) under ~/.cache/dotfiles to avoid GitHub API
+# rate limits on every machine_setup / re-run.
 set -euo pipefail
 
-LAZYGIT_VERSION="$(
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles"
+CACHE_FILE="$CACHE_DIR/lazygit-latest.version"
+CACHE_TTL_SECS="${LAZYGIT_VERSION_CACHE_TTL:-86400}" # 1 day
+
+_cache_age_secs() {
+  local file=$1 now mtime
+  now=$(date +%s)
+  mtime=$(stat -c %Y "$file" 2>/dev/null || stat -f %m "$file" 2>/dev/null) || return 1
+  echo $((now - mtime))
+}
+
+_fetch_latest_version() {
   curl -fsSL https://api.github.com/repos/jesseduffield/lazygit/releases/latest \
     | sed -n 's/.*"tag_name":[[:space:]]*"v\([^"]*\)".*/\1/p' \
     | head -1
-)"
+}
+
+resolve_latest_version() {
+  local cached age version
+  if [ -s "$CACHE_FILE" ]; then
+    age=$(_cache_age_secs "$CACHE_FILE" || echo 999999999)
+    if [ "$age" -lt "$CACHE_TTL_SECS" ]; then
+      cat "$CACHE_FILE"
+      return 0
+    fi
+  fi
+
+  if version=$(_fetch_latest_version) && [ -n "$version" ]; then
+    mkdir -p "$CACHE_DIR"
+    printf '%s\n' "$version" >"$CACHE_FILE"
+    printf '%s\n' "$version"
+    return 0
+  fi
+
+  # API failed — fall back to stale cache if present.
+  if [ -s "$CACHE_FILE" ]; then
+    echo "install_lazygit: GitHub API failed; using stale cached version" >&2
+    cat "$CACHE_FILE"
+    return 0
+  fi
+  return 1
+}
+
+LAZYGIT_VERSION="$(resolve_latest_version || true)"
 
 if [ -z "$LAZYGIT_VERSION" ]; then
   echo "install_lazygit: could not resolve latest version" >&2

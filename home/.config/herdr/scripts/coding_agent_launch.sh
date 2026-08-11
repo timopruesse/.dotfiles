@@ -3,17 +3,21 @@
 # Used by coding_agent_herdr.sh / herdr keybinds (cwd already set on the pane).
 #
 # Usage: coding_agent_launch.sh [resume|continue] [--claude|--agent|--cursor]
+#                               [--resolved claude|agent] [--ensured]
 #                               [--prompt-file PATH] [extra args...]
+#
+# --resolved: skip git-remote resolve (herdr already computed the CLI).
+# --ensured:  skip ensure-project-agents (herdr already ran it).
 
 scripts=${0:A:h}
 source "$scripts/coding_agent_resolve.sh"
 source "$scripts/coding_agent_ensure.sh"
 source "$scripts/coding_agent_policy.zsh"
 
-coding_agent_ensure_project_agents
-
 mode=
 force=
+resolved=
+ensured=0
 prompt_file=
 args=()
 
@@ -29,6 +33,26 @@ while (( $# )); do
     ;;
   --agent | --cursor)
     force=agent
+    shift
+    ;;
+  --resolved)
+    if (( $# < 2 )) || [[ -z "$2" ]]; then
+      print -u2 "coding_agent_launch: --resolved requires claude|agent"
+      sleep 2
+      exit 1
+    fi
+    case "$2" in
+    claude | agent) resolved=$2 ;;
+    *)
+      print -u2 "coding_agent_launch: --resolved must be claude|agent (got: $2)"
+      sleep 2
+      exit 1
+      ;;
+    esac
+    shift 2
+    ;;
+  --ensured)
+    ensured=1
     shift
     ;;
   --prompt-file)
@@ -52,6 +76,10 @@ while (( $# )); do
   esac
 done
 
+if (( !ensured )); then
+  coding_agent_ensure_project_agents
+fi
+
 if [[ -n "$prompt_file" ]]; then
   if [[ ! -f "$prompt_file" ]]; then
     print -u2 "coding_agent_launch: prompt file not found: $prompt_file"
@@ -64,6 +92,8 @@ fi
 
 if [[ -n "$force" ]]; then
   cli=$force
+elif [[ -n "$resolved" ]]; then
+  cli=$resolved
 else
   cli=$(coding_agent_resolve "$PWD")
 fi

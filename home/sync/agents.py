@@ -12,6 +12,7 @@ from sync.common import (
     parse_model_map,
     prune_stale_md,
     repo_home,
+    write_text_if_changed,
 )
 from sync.live_cursor import install_all as live_install
 from sync.project_agents import DOTFILES_ROOT, ensure_project_agents
@@ -110,15 +111,14 @@ def render_frontmatter(fields: dict[str, str], model: str) -> str:
     return "\n".join(lines) + "\n"
 
 
-def write_agent(out_dir: Path, name: str, fields: dict[str, str], body: str, model: str) -> Path:
-    out_dir.mkdir(parents=True, exist_ok=True)
+def write_agent(out_dir: Path, name: str, fields: dict[str, str], body: str, model: str) -> bool:
+    """Render and write an agent file. Returns True if the file changed."""
     body_out = body if body.startswith("\n") else "\n" + body
     content = render_frontmatter(fields, model) + GENERATED_BANNER + body_out
     if not content.endswith("\n"):
         content += "\n"
     path = out_dir / f"{name}.md"
-    path.write_text(content)
-    return path
+    return write_text_if_changed(path, content)
 
 
 def sync_agents(*, install_live: bool = True) -> int:
@@ -131,6 +131,8 @@ def sync_agents(*, install_live: bool = True) -> int:
         print(f"no agent sources in {AGENTS_DIR}", file=sys.stderr)
         return 1
 
+    keep: set[str] = set()
+    written = 0
     for src in sources:
         fields, body = split_agent(src)
         tier = fields["tier"].strip()
@@ -138,19 +140,21 @@ def sync_agents(*, install_live: bool = True) -> int:
             print(f"{src}: unknown tier {tier!r}; known: {sorted(tiers)}", file=sys.stderr)
             return 1
         name = fields["name"].strip()
-        write_agent(CLAUDE_OUT, name, fields, body, tiers[tier]["claude"])
-        write_agent(CURSOR_OUT, name, fields, body, tiers[tier]["cursor"])
-        print(
-            f"  {name}: tier={tier} → "
-            f"claude={tiers[tier]['claude']} cursor={tiers[tier]['cursor']}"
-        )
+        keep.add(src.stem)
+        keep.add(name)
+        changed = write_agent(CLAUDE_OUT, name, fields, body, tiers[tier]["claude"])
+        changed = write_agent(CURSOR_OUT, name, fields, body, tiers[tier]["cursor"]) or changed
+        if changed:
+            written += 1
+            print(
+                f"  {name}: tier={tier} → "
+                f"claude={tiers[tier]['claude']} cursor={tiers[tier]['cursor']}"
+            )
 
-    keep = {p.stem for p in sources}
-    # Prefer name from frontmatter when it differs from filename.
-    keep |= {
-        split_agent(p)[0]["name"].strip()
-        for p in sources
-    }
+    unchanged = len(sources) - written
+    if unchanged:
+        print(f"  ({unchanged} agents unchanged)")
+
     for out_dir in (CLAUDE_OUT, CURSOR_OUT):
         prune_stale_md(out_dir, keep, relative_to=repo_home())
 

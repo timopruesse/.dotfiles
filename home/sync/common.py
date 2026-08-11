@@ -50,23 +50,45 @@ def parse_model_map(path: Path) -> dict[str, dict[str, str]]:
     return tiers
 
 
-def link_into(target: Path, link: Path, *, replace_file: bool = False) -> None:
+def link_into(target: Path, link: Path, *, replace_file: bool = False) -> bool:
     """Symlink `link` → `target`, replacing a prior symlink; refuse to clobber files.
 
     Uses a path relative to `link`'s parent so in-repo links stay portable across
-    machines (e.g. macOS /Users/... vs WSL /home/...).
+    machines (e.g. macOS /Users/... vs WSL /home/...). Returns True when the
+    link was created or updated; False when it already pointed at `target`.
     """
     link.parent.mkdir(parents=True, exist_ok=True)
     rel = Path(os.path.relpath(target.resolve(), start=link.parent.resolve()))
-    if link.is_symlink() or not link.exists():
+    if link.is_symlink():
+        try:
+            if link.readlink() == rel:
+                return False
+        except OSError:
+            pass
         link.unlink(missing_ok=True)
         link.symlink_to(rel)
-        return
+        return True
+    if not link.exists():
+        link.symlink_to(rel)
+        return True
     if replace_file and link.is_file() and not link.is_symlink():
         link.unlink()
         link.symlink_to(rel)
-        return
+        return True
     raise SystemExit(f"refusing to replace non-symlink {link} (would install {target})")
+
+
+def write_text_if_changed(path: Path, content: str) -> bool:
+    """Write `content` to `path` only when it differs. Returns True if written."""
+    if path.is_file():
+        try:
+            if path.read_text() == content:
+                return False
+        except OSError:
+            pass
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+    return True
 
 
 def deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:

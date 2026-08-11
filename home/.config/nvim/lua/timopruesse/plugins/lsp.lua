@@ -3,7 +3,13 @@ return {
 	{ "williamboman/mason-lspconfig.nvim", lazy = true },
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		event = "VeryLazy",
+		cmd = {
+			"MasonToolsInstall",
+			"MasonToolsUpdate",
+			"MasonToolsClean",
+			"MasonToolsInstallSync",
+			"MasonToolsUpdateSync",
+		},
 		dependencies = { "williamboman/mason.nvim" },
 		opts = {
 			ensure_installed = {
@@ -13,7 +19,8 @@ return {
 				"goimports",
 				"black",
 			},
-			run_on_start = true,
+			-- Install via :MasonToolsInstall; skip startup ensure checks.
+			run_on_start = false,
 		},
 	},
 	{ "b0o/schemastore.nvim", lazy = true },

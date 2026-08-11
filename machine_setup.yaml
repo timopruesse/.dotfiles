@@ -313,11 +313,13 @@ tasks:
             - "herdr integration install cursor || true"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/herdr-pane-color.sh\" \"$HOME/.claude/hooks/herdr-pane-color.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/herdr-pane-color.sh\" \"$HOME/.claude/hooks/herdr-pane-color.sh\""
 
   herdr_linux:
     os: ["linux"]
@@ -338,11 +340,13 @@ tasks:
             - "herdr integration install cursor || true"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/herdr-pane-color.sh\" \"$HOME/.claude/hooks/herdr-pane-color.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
+            - "ln -sfn \"$DOTFILES/home/.claude/hooks/herdr-pane-color.sh\" \"$HOME/.claude/hooks/herdr-pane-color.sh\""
 
   # Cargo-built navigator plugin — only this step waits on rust.
   herdr_navigator:

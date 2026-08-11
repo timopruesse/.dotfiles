@@ -59,9 +59,11 @@ coding_agent_with_policy() {
   fi
 
   local use_worktree=false
-  if ! $already_worktree && git rev-parse --is-inside-work-tree &>/dev/null && git rev-parse HEAD &>/dev/null; then
-    local repo_root
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null)
+  # One git invocation (inside + toplevel + HEAD). Empty → not a usable repo.
+  local rp=()
+  rp=(${(f)"$(git rev-parse --is-inside-work-tree --show-toplevel HEAD 2>/dev/null)"})
+  if ! $already_worktree && (( ${#rp} >= 3 )) && [[ "${rp[1]}" == true ]]; then
+    local repo_root=${rp[2]}
     # Pane launches may not have sourced environment.zsh.
     local dotfiles="${DOTFILES:-${HOME}/github/timopruesse/.dotfiles}"
 

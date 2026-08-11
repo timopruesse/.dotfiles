@@ -6,7 +6,13 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-from sync.common import FRONTMATTER_RE, parse_model_map, replace_marked_section, repo_home
+from sync.common import (
+    FRONTMATTER_RE,
+    parse_model_map,
+    replace_marked_section,
+    repo_home,
+    write_text_if_changed,
+)
 
 AGENTS_DIR = repo_home() / "agents"
 COMMANDS_DIR = repo_home() / "commands"
@@ -204,21 +210,19 @@ def generate_catalog() -> None:
     commands = load_command_tiers()
 
     CURSOR_RULE.parent.mkdir(parents=True, exist_ok=True)
-    CURSOR_RULE.write_text(render_cursor_mdc(tiers, agents))
-    print(f"  wrote {CURSOR_RULE.relative_to(repo_home().parent)}")
+    if write_text_if_changed(CURSOR_RULE, render_cursor_mdc(tiers, agents)):
+        print(f"  wrote {CURSOR_RULE.relative_to(repo_home().parent)}")
 
-    CURSOR_ROUTING_RULE.write_text(render_cursor_routing_mdc(agents))
-    print(f"  wrote {CURSOR_ROUTING_RULE.relative_to(repo_home().parent)}")
+    if write_text_if_changed(CURSOR_ROUTING_RULE, render_cursor_routing_mdc(agents)):
+        print(f"  wrote {CURSOR_ROUTING_RULE.relative_to(repo_home().parent)}")
 
     agent_table = render_agent_tier_table(tiers, agents)
     if CLAUDE_MD.is_file() and replace_marked_section(
         CLAUDE_MD, BEGIN_AGENTS, END_AGENTS, agent_table
     ):
         print(f"  updated agent table in {CLAUDE_MD.relative_to(repo_home().parent)}")
-    elif CLAUDE_MD.is_file():
-        # Markers missing — still ok if already current via other means
-        if BEGIN_AGENTS not in CLAUDE_MD.read_text():
-            print(f"  warning: {CLAUDE_MD} missing {BEGIN_AGENTS}", flush=True)
+    elif CLAUDE_MD.is_file() and BEGIN_AGENTS not in CLAUDE_MD.read_text():
+        print(f"  warning: {CLAUDE_MD} missing {BEGIN_AGENTS}", flush=True)
 
     routing_body = render_agent_routing_body(agents).strip()
     if CLAUDE_MD.is_file() and replace_marked_section(

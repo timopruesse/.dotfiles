@@ -50,11 +50,11 @@ def install_md_links(src_dir: Path, live_dir: Path, keep: set[str] | None = None
 
 def install_hooks() -> None:
     if CURSOR_HOOKS_JSON.is_file():
-        link_into(CURSOR_HOOKS_JSON, LIVE_HOOKS_JSON)
-        print(f"  installed hooks.json → {LIVE_HOOKS_JSON}")
+        if link_into(CURSOR_HOOKS_JSON, LIVE_HOOKS_JSON):
+            print(f"  installed hooks.json → {LIVE_HOOKS_JSON}")
     if CURSOR_HOOKS_DIR.is_dir():
-        link_into(CURSOR_HOOKS_DIR, LIVE_HOOKS_DIR)
-        print(f"  installed hooks/ → {LIVE_HOOKS_DIR}")
+        if link_into(CURSOR_HOOKS_DIR, LIVE_HOOKS_DIR):
+            print(f"  installed hooks/ → {LIVE_HOOKS_DIR}")
 
 
 def install_rules() -> None:
@@ -63,28 +63,33 @@ def install_rules() -> None:
         return
     LIVE_RULES.mkdir(parents=True, exist_ok=True)
     keep: set[str] = set()
+    linked = 0
     for path in sorted(CURSOR_RULES_DIR.glob("*.mdc")):
         keep.add(path.name)
-        link_into(path, LIVE_RULES / path.name)
-        print(f"  installed rule → {LIVE_RULES / path.name}")
+        if link_into(path, LIVE_RULES / path.name):
+            linked += 1
+            print(f"  installed rule → {LIVE_RULES / path.name}")
     if LIVE_RULES.is_dir():
         for stale in LIVE_RULES.glob("*.mdc"):
             if stale.name not in keep and stale.is_symlink():
                 stale.unlink()
                 print(f"  removed stale live link {stale}")
+    if linked == 0 and keep:
+        print(f"  ({len(keep)} rules already linked → {LIVE_RULES})")
 
 
 def install_statusline() -> None:
     """Link the managed CLI statusline script into ~/.cursor/statusline.sh."""
     if not CURSOR_STATUSLINE.is_file():
         return
-    link_into(CURSOR_STATUSLINE, LIVE_STATUSLINE)
+    changed = link_into(CURSOR_STATUSLINE, LIVE_STATUSLINE)
     # Ensure executable even if the link target lost +x somehow.
     try:
         CURSOR_STATUSLINE.chmod(CURSOR_STATUSLINE.stat().st_mode | 0o111)
     except OSError:
         pass
-    print(f"  installed statusline → {LIVE_STATUSLINE}")
+    if changed:
+        print(f"  installed statusline → {LIVE_STATUSLINE}")
 
 
 def install_cli_config() -> None:
@@ -116,8 +121,15 @@ def install_cli_config() -> None:
         return
 
     merged = deep_merge(live, managed)
+    text = json.dumps(merged, indent=2) + "\n"
+    if LIVE_CLI_CONFIG.is_file():
+        try:
+            if LIVE_CLI_CONFIG.read_text() == text:
+                return
+        except OSError:
+            pass
     LIVE_CLI_CONFIG.parent.mkdir(parents=True, exist_ok=True)
-    LIVE_CLI_CONFIG.write_text(json.dumps(merged, indent=2) + "\n")
+    LIVE_CLI_CONFIG.write_text(text)
     print(f"  merged cli-config prefs → {LIVE_CLI_CONFIG}")
 
 
@@ -159,10 +171,15 @@ def install_skills() -> None:
         return
     keep = {p.name for p in skills}
     for live_root in (LIVE_CURSOR_SKILLS, LIVE_CLAUDE_SKILLS):
+        linked = 0
         for skill_dir in skills:
-            link_into(skill_dir, live_root / skill_dir.name)
+            if link_into(skill_dir, live_root / skill_dir.name):
+                linked += 1
         _prune_stale_managed_skills(live_root, keep)
-        print(f"  linked {len(keep)} skills → {live_root}")
+        if linked:
+            print(f"  linked {linked}/{len(keep)} skills → {live_root}")
+        else:
+            print(f"  ({len(keep)} skills already linked → {live_root})")
 
 
 def install_all(

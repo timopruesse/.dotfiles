@@ -19,10 +19,14 @@ return {
 		build = ":TSUpdate",
 		config = function()
 			-- setup() must be called with install_dir to register it in runtimepath
-			require("nvim-treesitter").setup({
+			local ts = require("nvim-treesitter")
+			ts.setup({
 				install_dir = vim.fn.stdpath("data") .. "/site",
 			})
-			require("nvim-treesitter").install({
+
+			-- Only install missing parsers — skip the async install sweep when
+			-- everything is already present (common after the first :TSUpdate).
+			local wanted = {
 				"lua",
 				"rust",
 				"html",
@@ -42,7 +46,17 @@ return {
 				"toml",
 				"regex",
 				"vimdoc",
-			})
+			}
+			local installed = {}
+			for _, lang in ipairs(ts.get_installed()) do
+				installed[lang] = true
+			end
+			local missing = vim.tbl_filter(function(lang)
+				return not installed[lang]
+			end, wanted)
+			if #missing > 0 then
+				ts.install(missing)
+			end
 
 			-- The main branch of nvim-treesitter does not auto-enable highlighting;
 			-- it must be started per buffer. Also enable folds and treesitter-based indent.
