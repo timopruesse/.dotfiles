@@ -41,6 +41,9 @@ zcomet load romkatv/powerlevel10k
 # before the widget-wrapping plugins; zsh-syntax-highlighting must come last.
 zcomet load zsh-users/zsh-completions
 
+# Docker Desktop (macOS) ships CLI completions here; no-op on WSL.
+[[ -d "$HOME/.docker/completions" ]] && fpath=("$HOME/.docker/completions" $fpath)
+
 zcomet compinit
 
 zcomet load Aloxaf/fzf-tab
