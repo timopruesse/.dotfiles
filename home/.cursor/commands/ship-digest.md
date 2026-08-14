@@ -2,7 +2,7 @@
 
 ## Orchestrator model (Cursor)
 
-Preferred session model for this command: `kimi-k2.7-code` (tier `cheap` via `home/agents/model-map.yaml`). Cursor slash commands inherit the chat model — switch the model picker to that pin before invoking if the session is on a stronger tier. Subagents keep their own frontmatter pins.
+Preferred session model for this command: `composer-2.5` (tier `cheap` via `home/agents/model-map.yaml`). Cursor slash commands inherit the chat model — switch the model picker to that pin before invoking if the session is on a stronger tier. Subagents keep their own frontmatter pins.
 
 ## Arguments (Cursor)
 

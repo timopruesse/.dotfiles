@@ -7,10 +7,10 @@
 tiers:
   cheap:
     claude: haiku
-    cursor: kimi-k2.7-code
+    cursor: composer-2.5
   mid:
     claude: sonnet
     cursor: composer-2.5-fast
   strong:
     claude: opus
-    cursor: cursor-grok-4.5-high-fast
+    cursor: cursor-grok-4.6-high-fast

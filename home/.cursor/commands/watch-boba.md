@@ -21,7 +21,7 @@ routine ticks stay on its **cheap** pin. The one carve-out among lifecycle
 commands: you may **escalate to the strong tier** when judgment is load-bearing
 — (a) re-classify after `boba-watcher` returns `ESCALATE`, or (b) draft a
 scope/approach unblock. Pass the strong-tier model on that spawn
-(`cursor-grok-4.5-high-fast` or `auto`). Do not upgrade the whole loop to strong; keep the orchestrator
+(`cursor-grok-4.6-high-fast` or `auto`). Do not upgrade the whole loop to strong; keep the orchestrator
 and routine watcher ticks on their default pins.
 
 The `STATUS:` vocabulary and `ScheduleWakeup` cadence are defined once in
