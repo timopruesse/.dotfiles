@@ -20,6 +20,7 @@ All ZSH aliases and functions, grouped by source file.
 | `branch_prune` | `git branch --merged \| egrep -v ... \| xargs -r git branch -d` | Delete merged branches (except main/master/dev) |
 | `patch` | `git add --patch` | Interactive partial staging |
 | `gl` | `git log --graph --abbrev-commit ...` | Pretty git log graph |
+| `gr` | `cd` to primary checkout | Jump to the repo's main working tree (leaves linked worktrees) |
 
 ## System (`system_aliases.zsh`)
 
