@@ -1,6 +1,12 @@
 {
   "permissions": {
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "deny": [
+      "Bash(git config user.name:*)",
+      "Bash(git config user.email:*)",
+      "Bash(git config --local user.name:*)",
+      "Bash(git config --local user.email:*)"
+    ]
   },
   "model": "opus[1m]",
   "hooks": {

@@ -1,3 +1,7 @@
+# Identity for chewielabs repos, selected by the gitdir/hasconfig rules in
+# .gitconfig. Keep this the single source of truth: a repo-local [user] block
+# would outrank it silently, which is exactly how a scratch worktree's
+# throwaway identity once ended up authoring real commits.
 [user]
 	name = Timo Prüße
-	email = timo@mill.com
+	email = timo.pruesse@mill.com
