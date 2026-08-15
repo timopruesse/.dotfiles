@@ -1,4 +1,4 @@
-# Cursor Agent tool shells: skip interactive config (keychain, p10k, plugins).
+# Cursor Agent tool shells: skip interactive config (keychain, prompt, plugins).
 # Heavy rc loading breaks command-completion detection and can leave the CLI
 # unable to exit cleanly.
 # https://forum.cursor.com/t/guide-fix-cursor-agent-terminal-hangs-caused-by-zshrc/107260
@@ -9,13 +9,6 @@ fi
 # load identity — --quick skips when the agent already holds a key;
 # --eval points this shell at keychain's agent (not e.g. macOS launchd's empty sock)
 eval "$(keychain --quiet add --eval --quick ~/.ssh/id_rsa)"
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
 
 # history (replaces oh-my-zsh defaults)
 HISTFILE=~/.zsh_history
@@ -32,9 +25,6 @@ if [[ ! -f ~/.zcomet/bin/zcomet.zsh ]]; then
   command git clone https://github.com/agkozak/zcomet.git ~/.zcomet/bin
 fi
 source ~/.zcomet/bin/zcomet.zsh
-
-# theme
-zcomet load romkatv/powerlevel10k
 
 # plugins
 # order matters: completions feed compinit; fzf-tab must load after compinit but
@@ -81,9 +71,6 @@ export EDITOR=$VISUAL
 
 # added by pipx (https://github.com/cs01/pipx)
 export PATH="$HOME/.local/bin:$PATH"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # atuin binary (official installer → ~/.atuin/bin; shell init is below)
 export PATH="$HOME/.atuin/bin:$PATH"
@@ -197,6 +184,14 @@ if (( $+commands[atuin] )); then
     "${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/atuin_init.zsh" \
     "${commands[atuin]}" \
     atuin init zsh
+fi
+
+# Oh My Posh (replaces Powerlevel10k)
+if (( $+commands[oh-my-posh] )); then
+  _dotfiles_cache_source \
+    "${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/oh-my-posh_init.zsh" \
+    "${commands[oh-my-posh]}" \
+    oh-my-posh init zsh --config "${HOME}/.config/ohmyposh/catppuccin.omp.json"
 fi
 
 unfunction _dotfiles_cache_source

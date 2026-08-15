@@ -72,7 +72,8 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "bash $HOME/.claude/statusline-command.sh"
+    "command": "oh-my-posh claude --config ~/.config/ohmyposh/catppuccin.omp.json",
+    "padding": 0
   },
   "enabledPlugins": {
     "chrome-devtools-mcp@claude-plugins-official": true,

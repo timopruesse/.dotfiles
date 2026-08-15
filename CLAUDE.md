@@ -32,12 +32,12 @@ home/             # Symlinked to ~ — contains all user config files
   .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch/policy scripts
+  .config/ohmyposh/ # Oh My Posh theme (Catppuccin); Meslo via `oh-my-posh font install meslo`
   .zshrc          # Zsh shell config (claude/agent wrappers → coding_agent_policy.zsh)
   .gitconfig*     # Git config with conditional includes per directory / remote
   *.sh            # Utility scripts (lazygit installer, etc.)
 terminal/         # Windows Terminal settings (copied, not symlinked)
 etc/              # System config (wsl.conf — requires copy with sudo)
-fonts/            # MesloLGS NF fonts for Powerlevel10k
 CONTEXT.md                   # Domain glossary (agents, tiers, spine, sync)
 machine_setup.yaml           # Main setup orchestration
 personal_repositories.yaml   # Clones personal repos after setup

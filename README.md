@@ -5,10 +5,12 @@ Declarative, YAML-driven dotfiles for a cross-platform development environment (
 ## Overview
 
 - **Editor**: Neovim (Lua, [Lazy.nvim](https://github.com/folke/lazy.nvim)) with [Catppuccin Mocha](https://github.com/catppuccin/nvim) theme
-- **Shell**: Zsh + [zcomet](https://github.com/agkozak/zcomet) + [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
+- **Shell**: Zsh + [zcomet](https://github.com/agkozak/zcomet) + [Oh My Posh](https://ohmyposh.dev) (Catppuccin)
 - **Terminal**: [Ghostty](https://ghostty.org) (macOS) / [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) (WSL) + [Herdr](https://herdr.dev) (Catppuccin)
 - **OS**: WSL2 (Ubuntu) on Windows; macOS (Apple Silicon)
 - **AI**: Claude Code (work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, herdr, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md). Spine + glossary: [Workflows & agent harness](#workflows--agent-harness).
+
+Prompt fonts: install via `oh-my-posh font install meslo` (machine_setup). On WSL, also install that font on **Windows** so Windows Terminal can render icons.
 
 ## Setup
 

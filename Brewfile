@@ -32,7 +32,7 @@ brew "docker"
 brew "docker-compose"
 brew "docker-buildx"
 brew "awscli"
+brew "oh-my-posh"
 
 cask "google-chrome"
 cask "ghostty"
-cask "font-meslo-lg-nerd-font"

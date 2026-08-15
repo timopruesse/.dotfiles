@@ -35,6 +35,6 @@ never `send-text` into the agent prompt).
 
 ## Consequences
 
-- Soft seam for now: gated p10k AWS; agent TUI statuslines unchanged.
+- Soft seam: Oh My Posh `aws` segment displays `AWS_PROFILE`; pane-context/`awsp` still set it. Claude statusline uses `oh-my-posh claude --config` (same theme).
 - Clearing profile (`awsu`) clears the pane file, chrome tokens, and stops
   pre-inject.

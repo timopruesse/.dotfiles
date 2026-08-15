@@ -78,8 +78,8 @@ tasks:
           url: "https://github.com/agkozak/zcomet.git"
           target: "~/.zcomet/bin"
 
-  # zcomet plugins (p10k, completions, fzf-tab, …). Install is zsh_* clone +
-  # first interactive .zshrc. Re-exec zsh after update when you need a reload.
+  # zcomet plugins (completions, fzf-tab, …). Prompt is Oh My Posh (not a zcomet theme).
+  # Install is zsh_* clone + first interactive .zshrc. Re-exec zsh after update when you need a reload.
   zsh_tools:
     commands:
       - run:
@@ -167,6 +167,18 @@ tasks:
             - 'brew bundle --file="${DOTFILES:-.}/Brewfile"'
             - "brew upgrade"
             - "brew upgrade --fetch-HEAD neovim"
+
+  ohmyposh_macos:
+    os: ["macos"]
+    depends_on: ["tools_macos"]
+    commands:
+      - run:
+          install:
+            - "oh-my-posh enable upgrade"
+            - "oh-my-posh font install meslo"
+          update:
+            - "oh-my-posh enable upgrade"
+            - "oh-my-posh font install meslo"
 
   atuin_linux:
     os: ["linux"]
@@ -501,22 +513,19 @@ tasks:
           install: "curl https://cursor.com/install -fsS | bash"
           update: "curl https://cursor.com/install -fsS | bash"
 
-  font_linux:
+  ohmyposh_linux:
     os: ["linux"]
     depends_on: ["tools_linux"]
     commands:
       - run:
-          env:
-            FONT_DIR: "$HOME/.local/share/fonts/MesloLGS"
-            TMP_ZIP: "/tmp/meslo-nf.zip"
           install:
-            - 'if find "$FONT_DIR" -type f \( -name "*.ttf" -o -name "*.otf" \) 2>/dev/null | grep -q .; then echo "Meslo fonts already installed"; else mkdir -p "$FONT_DIR" && curl -fL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip -o "$TMP_ZIP" && unzip -o "$TMP_ZIP" -d "$FONT_DIR" && rm -f "$TMP_ZIP" && fc-cache -fv; fi'
+            - 'if command -v oh-my-posh >/dev/null 2>&1; then echo "oh-my-posh already installed: $(oh-my-posh --version)"; else curl -s https://ohmyposh.dev/install.sh | bash -s; fi'
+            - "oh-my-posh enable upgrade"
+            - "oh-my-posh font install meslo"
           update:
-            - "mkdir -p $FONT_DIR"
-            - "curl -fL https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip -o $TMP_ZIP"
-            - "unzip -o $TMP_ZIP -d $FONT_DIR"
-            - "rm $TMP_ZIP"
-            - "fc-cache -fv"
+            - "oh-my-posh enable upgrade || true"
+            - "oh-my-posh upgrade || curl -s https://ohmyposh.dev/install.sh | bash -s"
+            - "oh-my-posh font install meslo"
 
   personal_repos:
     depends_on: ["ssh", "tools_linux", "tools_macos"]
