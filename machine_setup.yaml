@@ -172,7 +172,6 @@ tasks:
           update:
             - 'brew bundle --file="${DOTFILES:-.}/Brewfile"'
             - "brew upgrade"
-            - "brew upgrade --fetch-HEAD neovim"
 
   ohmyposh_macos:
     os: ["macos"]
@@ -302,11 +301,17 @@ tasks:
   neovim_macos:
     os: ["macos"]
     depends_on: ["tools_macos"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
+          # HEAD formula: brew upgrade alone often skips rebuilds.
+          # Brewfile still declares neovim HEAD; this task refreshes it.
           install:
+            - "brew upgrade --fetch-HEAD neovim"
             - "luarocks install jsregexp"
           update:
+            - "brew upgrade --fetch-HEAD neovim"
             - "luarocks install jsregexp"
 
   rust:
