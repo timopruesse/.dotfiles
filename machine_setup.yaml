@@ -78,6 +78,14 @@ tasks:
           url: "https://github.com/agkozak/zcomet.git"
           target: "~/.zcomet/bin"
 
+  # zcomet plugins (p10k, completions, fzf-tab, …). Install is zsh_* clone +
+  # first interactive .zshrc. Re-exec zsh after update when you need a reload.
+  zsh_tools:
+    commands:
+      - run:
+          update:
+            - 'source "${HOME}/.zcomet/bin/zcomet.zsh" && zcomet update'
+
   wsl_config:
     os: ["linux"]
     commands:
