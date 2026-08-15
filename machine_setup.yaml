@@ -81,6 +81,8 @@ tasks:
   # zcomet plugins (completions, fzf-tab, …). Prompt is Oh My Posh (not a zcomet theme).
   # Install is zsh_* clone + first interactive .zshrc. Re-exec zsh after update when you need a reload.
   zsh_tools:
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           update:
@@ -144,6 +146,8 @@ tasks:
   tools_linux:
     os: ["linux"]
     depends_on: ["apt_repos_linux"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install:
@@ -159,6 +163,8 @@ tasks:
   tools_macos:
     os: ["macos"]
     depends_on: ["homebrew_macos"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install:
@@ -278,6 +284,8 @@ tasks:
   neovim_linux:
     os: ["linux"]
     depends_on: ["dotfiles"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           # Nightly kept; install_nvim_nightly.sh skips when /opt/nvim matches
@@ -303,6 +311,8 @@ tasks:
 
   rust:
     depends_on: ["tools_linux", "tools_macos"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install:
@@ -326,6 +336,8 @@ tasks:
   herdr_macos:
     os: ["macos"]
     depends_on: ["tools_macos", "dotfiles"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install:
@@ -342,6 +354,8 @@ tasks:
   herdr_linux:
     os: ["linux"]
     depends_on: ["tools_linux", "dotfiles"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install:
@@ -375,6 +389,8 @@ tasks:
             - "herdr plugin install willfish/herdr-navigator --yes || true"
 
   bun:
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install: "curl -fsSL https://bun.sh/install | bash"
@@ -383,6 +399,8 @@ tasks:
   node_linux:
     os: ["linux"]
     depends_on: ["tools_linux"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           # Official binary installer into ~/.local/bin (already on PATH).
@@ -400,6 +418,8 @@ tasks:
   node_macos:
     os: ["macos"]
     depends_on: ["tools_macos"]
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install:
@@ -496,6 +516,8 @@ tasks:
   # rationale as cursor_cli. Previously unmanaged — .zshrc/aliases assumed it on
   # PATH.
   claude_cli:
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install: "curl -fsSL https://claude.ai/install.sh | bash"
@@ -508,6 +530,8 @@ tasks:
   # on PATH). Re-run the installer to update: machine_setup's run-shell may not
   # have the .zshrc PATH, and it's idempotent — same pattern as neovim.
   cursor_cli:
+    auto_update:
+      at: "08:00"
     commands:
       - run:
           install: "curl https://cursor.com/install -fsS | bash"

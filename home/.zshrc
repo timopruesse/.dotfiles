@@ -195,3 +195,6 @@ if (( $+commands[oh-my-posh] )); then
 fi
 
 unfunction _dotfiles_cache_source
+# >>> machine_setup schedule hook >>>
+[ -f "$HOME/.machine_setup/schedule_hook.sh" ] && . "$HOME/.machine_setup/schedule_hook.sh"
+# <<< machine_setup schedule hook <<<
