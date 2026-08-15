@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
-# Cursor Agent CLI status line (stdin: StatusLinePayload JSON).
-# Shows the selected model; when picker is Auto, prefers any resolved/routed
-# model fields Cursor may send. Today those are often absent — then we show
-# "Auto" (and model.id only if it differs from Auto).
+# Cursor Agent CLI status line → Oh My Posh (reuse `claude` renderer).
+#
+# Cursor's StatusLinePayload is Claude-aligned, but OMP's claude segment expects
+# integer context percentages (Cursor often sends floats) and has no Auto→resolved
+# model rewrite. This adapter normalizes stdin, then renders the shared theme.
 set -euo pipefail
 
-input=$(cat)
+CONFIG="${HOME}/.config/ohmyposh/catppuccin.omp.json"
 
-model=$(printf '%s' "$input" | jq -r '
-  .model as $m
+if ! command -v oh-my-posh >/dev/null 2>&1; then
+  echo "oh-my-posh missing" >&2
+  exit 1
+fi
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq missing" >&2
+  exit 1
+fi
+
+# Floor float percentages; null output tokens → 0; enrich Auto model label.
+jq '
+  .context_window.used_percentage |= (if . == null then . else floor end)
+  | .context_window.remaining_percentage |= (if . == null then . else floor end)
+  | .context_window.total_output_tokens |= (if . == null then 0 else . end)
+  | .model as $m
   | ($m.display_name // $m.id // "?") as $shown
   | ($m.id // "") as $id
   | (
@@ -20,7 +34,7 @@ model=$(printf '%s' "$input" | jq -r '
       // $m.underlying_model
       // ""
     ) as $resolved
-  | (
+  | .model.display_name = (
       if ($resolved != "") and (($resolved | ascii_downcase) != ($shown | ascii_downcase)) then
         "\($shown)→\($resolved)"
       elif (($shown | ascii_downcase) == "auto")
@@ -30,26 +44,7 @@ model=$(printf '%s' "$input" | jq -r '
       else
         $shown
       end
+      | if ($m.param_summary // "") != "" then . + " \($m.param_summary)" else . end
+      | if $m.max_mode == true then . + " · max" else . end
     )
-  | if ($m.param_summary // "") != "" then . + " \($m.param_summary)" else . end
-  | if $m.max_mode == true then . + " · max" else . end
-')
-
-pct=$(printf '%s' "$input" | jq -r '
-  .context_window.used_percentage // ""
-  | if . == "" then "" else (tonumber | floor | tostring) end
-')
-
-dir=$(printf '%s' "$input" | jq -r '.workspace.current_dir // .cwd // empty')
-base="${dir##*/}"
-[ -z "$base" ] && base="?"
-
-wt=$(printf '%s' "$input" | jq -r '.worktree.name // empty')
-
-parts=("$model")
-[ -n "$pct" ] && parts+=("ctx ${pct}%")
-parts+=("$base")
-[ -n "$wt" ] && parts+=("wt:$wt")
-
-out=$(IFS=' · '; echo "${parts[*]}")
-printf '\033[90m%s\033[0m\n' "$out"
+' | oh-my-posh claude --config "$CONFIG"

@@ -119,7 +119,7 @@
           "powerline_symbol": "\ue0b4",
           "background": "p:blue",
           "foreground": "p:wight",
-          "template": " \ueb99 {{ .Model.DisplayName }} {{ .TokenGauge }} {{ .FormattedCost }}"
+          "template": " \ueb99 {{ .Model.DisplayName }} {{ .TokenGauge }} {{ .FormattedCost }}{{ if .Worktree }}  {{ .Worktree.Name }}{{ end }}"
         }
       ]
     },
