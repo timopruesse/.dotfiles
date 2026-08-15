@@ -8,6 +8,9 @@ set -euo pipefail
 
 CONFIG="${HOME}/.config/ohmyposh/catppuccin.omp.json"
 
+# Statusline is agent UI (not a zsh readline) — theme hides vimode when set.
+export CURSOR_AGENT="${CURSOR_AGENT:-1}"
+
 if ! command -v oh-my-posh >/dev/null 2>&1; then
   echo "oh-my-posh missing" >&2
   exit 1
