@@ -116,3 +116,6 @@ delivery = "herdr"
 
 [ui.sound]
 enabled = false
+
+[update]
+channel = "preview"

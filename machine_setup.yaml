@@ -369,7 +369,8 @@ tasks:
           install:
             - "curl -fsSL https://herdr.dev/install.sh | sh"
           update:
-            - "herdr update"
+            # Self-update refuses HERDR_ENV=1; skip so `ms` / auto_update from a pane does not fail.
+            - 'if [ "${HERDR_ENV:-}" = "1" ]; then echo "warning: skipping herdr update (inside herdr — detach and rerun from a non-herdr shell)" >&2; else herdr update; fi'
           uninstall:
             - "herdr server stop || true"
             - "rm -f ~/.local/bin/herdr"
