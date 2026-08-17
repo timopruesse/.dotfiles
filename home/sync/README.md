@@ -9,6 +9,7 @@ sources. Domain terms: see [`CONTEXT.md`](../../CONTEXT.md).
 | `catalog.py` | Emit tier catalog (`subagent-model-fallback.mdc` + `agent-routing.mdc` + doc tables) |
 | `agents.py` / `commands.py` | Platform writers (thin adapters over common) |
 | `live_cursor.py` / `live-install` | Cursor live-install adapter (`~/.cursor`) + Claude skills |
+| `normalize_herdr_hooks.py` / `normalize-herdr-hooks` | Dedupe herdr integration SessionStart hooks (portable `$HOME` paths) |
 | `project_agents.py` / `ensure-project-agents` | **project-agents** — link pinned agents into `<git-root>/.cursor/agents/` so Cursor Task/CLI can spawn them |
 
 Entry points (also invoked from `machine_setup.yaml`):
@@ -17,6 +18,7 @@ Entry points (also invoked from `machine_setup.yaml`):
 ./home/agents/sync-agents          # generate agents + catalog (+ live agents/rule/hooks/skills)
 ./home/commands/sync-commands      # generate commands + protocols (+ live commands/skills)
 ./home/sync/live-install           # full ~/.cursor install (hooks, cli merge, skills, …)
+./home/sync/normalize-herdr-hooks  # dedupe herdr SessionStart hooks (after integration install)
 ./home/sync/ensure-project-agents  # link agents into this repo’s .cursor/agents/ (Task enum)
 
 # machine_setup uses --no-live on the generators, then live-install once:

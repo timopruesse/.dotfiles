@@ -348,11 +348,13 @@ tasks:
           install:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
+            - "./home/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
+            - "./home/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
 
@@ -375,11 +377,13 @@ tasks:
           install:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
+            - "./home/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
+            - "./home/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
 

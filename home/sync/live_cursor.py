@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from sync.common import deep_merge, link_into, repo_home
+from sync.normalize_herdr_hooks import normalize_all
 
 REPO_HOME = repo_home()
 SKILLS_SRC = REPO_HOME / "skills"
@@ -55,6 +56,7 @@ def install_hooks() -> None:
     if CURSOR_HOOKS_DIR.is_dir():
         if link_into(CURSOR_HOOKS_DIR, LIVE_HOOKS_DIR):
             print(f"  installed hooks/ → {LIVE_HOOKS_DIR}")
+    normalize_all()
 
 
 def install_rules() -> None:

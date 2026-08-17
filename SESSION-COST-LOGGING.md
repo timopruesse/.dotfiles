@@ -88,6 +88,14 @@ Re-run `./home/sync/live-install` after changing hooks or CLI prefs (also runs
 from `machine_setup`). Shared append/error helpers live in
 [`home/session_log/`](home/session_log/).
 
+**Herdr integration hooks:** `herdr integration install claude|cursor` appends
+SessionStart entries with absolute paths on every run. Dotfiles keeps portable
+`$HOME` paths in [`settings.json`](home/.claude/settings.json) and
+[`hooks.json`](home/.cursor/hooks.json). Because those files symlink into this
+repo, duplicates show up as uncommitted edits. Run
+[`home/sync/normalize-herdr-hooks`](home/sync/normalize-herdr-hooks) after
+integration install (`machine_setup` does this automatically).
+
 ## Record schema
 
 Shared keys (missing fields are `null`):
