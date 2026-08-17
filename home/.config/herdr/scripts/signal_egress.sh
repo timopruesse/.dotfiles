@@ -7,8 +7,9 @@
 #   signal_egress.sh changes <message>
 #   signal_egress.sh triage <message>
 #
-# v1 adapters: macOS (osascript) + Linux/WSL (notify-send, else PowerShell toast).
-# Delivery is fire-and-forget so a hung notification backend never blocks the spine.
+# v1 adapters: herdr toast (when server is running), else macOS (osascript),
+# Linux/WSL (notify-send, else PowerShell toast). Fire-and-forget so a hung
+# backend never blocks the spine.
 # Chat adapters (e.g. WhatsApp) are demand-only later ports — do not stub here.
 #
 # Call sites (orchestrator prose): HANDOFF on HALT/STOP; /my-work watch on
@@ -30,9 +31,9 @@ message="${message//$'\n'/ }"
 [[ -n "$message" ]] || usage
 
 case "$verb" in
-  halt) title="Spine HALT" ;;
-  changes) title="Hub changes" ;;
-  triage) title="Security triage" ;;
+  halt) title="Spine HALT"; sound="request" ;;
+  changes) title="Hub changes"; sound="done" ;;
+  triage) title="Security triage"; sound="request" ;;
   *)
     echo "signal_egress: unknown verb '$verb' (want halt|changes|triage)" >&2
     exit 2
@@ -46,14 +47,26 @@ if [[ ${#body} -gt 180 ]]; then
 fi
 
 signal_egress_bg() {
-  # Detach so osascript/notify-send/powershell cannot hang this process.
+  # Detach so herdr/osascript/notify-send/powershell cannot hang this process.
   (
     "$@" >/dev/null 2>&1 || true
   ) &
   disown 2>/dev/null || true
 }
 
-signal_egress_deliver() {
+signal_egress_herdr_available() {
+  command -v herdr >/dev/null 2>&1 \
+    && herdr status server 2>/dev/null | grep -qx 'status: running'
+}
+
+signal_egress_deliver_herdr() {
+  local t="$1" b="$2" snd="$3"
+  signal_egress_herdr_available || return 1
+  signal_egress_bg herdr notification show "$t" --body "$b" --sound "$snd"
+  return 0
+}
+
+signal_egress_deliver_os() {
   local t="$1" b="$2"
   case "$(uname -s)" in
     Darwin)
@@ -93,7 +106,8 @@ signal_egress_deliver() {
   return 1
 }
 
-if signal_egress_deliver "$title" "$body"; then
+if signal_egress_deliver_herdr "$title" "$body" "$sound" \
+  || signal_egress_deliver_os "$title" "$body"; then
   printf 'signal_egress: %s — %s\n' "$verb" "$message"
   exit 0
 fi
