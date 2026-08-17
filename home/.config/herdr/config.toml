@@ -27,6 +27,10 @@ next_workspace = "prefix+)"
 previous_tab = "prefix+p"
 next_tab = "prefix+n"
 
+# Direct indexed jumps (sidebar order, 1–9)
+switch_workspace = "ctrl+1..9"
+focus_agent = "alt+1..9"
+
 # Free prefix+shift+h/v from default swap so coding-agent binds can use them
 # (tmux used capital H/V/S/R). Swap remains available via mouse / other keys.
 # Coding-agent launchers (Claude vs Cursor by cwd):
