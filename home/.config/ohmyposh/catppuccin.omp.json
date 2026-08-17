@@ -39,11 +39,7 @@
           "foreground": "p:blue",
           "background": "transparent",
           "template": " {{ .Name }}{{ if .Version }}@{{ .Version }}{{ end }}",
-          "powerline_symbol": "\ue0b4",
-          "cache": {
-            "duration": "24h",
-            "strategy": "folder"
-          }
+          "powerline_symbol": "\ue0b4"
         },
         {
           "type": "git",
