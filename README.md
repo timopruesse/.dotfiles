@@ -1,74 +1,63 @@
 # .dotfiles
 
-Declarative, YAML-driven dotfiles for a cross-platform development environment (WSL2 Ubuntu and macOS). Managed by [machine_setup](https://github.com/timopruesse/machine_setup).
+Declarative, YAML-driven dotfiles for WSL2 Ubuntu and macOS. Applied by [machine_setup](https://github.com/timopruesse/machine_setup).
 
-## Overview
+## What's in here
 
-- **Editor**: Neovim (Lua, [Lazy.nvim](https://github.com/folke/lazy.nvim)) with [Catppuccin Mocha](https://github.com/catppuccin/nvim) theme
-- **Shell**: Zsh + [zcomet](https://github.com/agkozak/zcomet) + [Oh My Posh](https://ohmyposh.dev) (Catppuccin)
-- **Terminal**: [Ghostty](https://ghostty.org) (macOS) / [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) (WSL) + [Herdr](https://herdr.dev) (Catppuccin)
-- **OS**: WSL2 (Ubuntu) on Windows; macOS (Apple Silicon)
-- **AI**: Claude Code (work) + Cursor Agent (personal / everywhere else), shared shortcuts in zsh, herdr, and Neovim — see [`ALIASES.md`](ALIASES.md) / [`KEYBINDS.md`](KEYBINDS.md). Spine + glossary: [Workflows & agent harness](#workflows--agent-harness).
+Neovim with [Lazy.nvim](https://github.com/folke/lazy.nvim) and [Catppuccin Mocha](https://github.com/catppuccin/nvim). Zsh, [zcomet](https://github.com/agkozak/zcomet), and [Oh My Posh](https://ohmyposh.dev). [Ghostty](https://ghostty.org) on macOS, [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) on WSL, [Herdr](https://herdr.dev) for multiplexing. Targets WSL2 on Windows and macOS on Apple Silicon.
 
-Prompt fonts: install via `oh-my-posh font install meslo` (machine_setup). On WSL, also install that font on **Windows** so Windows Terminal can render icons.
+Coding agents: Claude Code on work repos, Cursor Agent on personal ones (and anywhere else). Same entry points in zsh, Herdr, and Neovim — see [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md), and [workflows](#workflows--agent-harness) below for the spine and routing details.
+
+For prompt icons, run `oh-my-posh font install meslo` (machine_setup handles this). On WSL you also need that font installed on Windows, or Windows Terminal shows broken glyphs.
 
 ## Setup
 
 ### macOS
 
-1. Install the `machine_setup` tool:
+1. Install machine_setup:
    ```sh
    curl -fsSL https://raw.githubusercontent.com/timopruesse/machine_setup/main/install/install.sh | sh
    ```
-2. Drop your SSH key into `~/.ssh/`:
+2. Put your SSH key in `~/.ssh/`:
    ```sh
    chmod 700 ~/.ssh && chmod 600 ~/.ssh/id_rsa && chmod 644 ~/.ssh/id_rsa.pub
    ```
-3. Clone this repo and run `ms`. The first task installs Homebrew, which auto-prompts for Xcode Command Line Tools on a fresh Mac.
+3. Clone this repo and run `ms`. The first run installs Homebrew, which on a fresh Mac pulls in Xcode Command Line Tools automatically.
 
 ### WSL2 (Ubuntu)
 
-The SSH key is sourced from a Windows OneDrive path; see the `ssh:` task in `machine_setup.yaml`. Run `ms` after `machine_setup` is installed.
+The SSH key comes from a Windows OneDrive path — check the `ssh:` task in `machine_setup.yaml`. Install machine_setup, then run `ms`.
 
 ## Workflows & agent harness
 
-- Flow graph: [`WORKFLOWS.md`](WORKFLOWS.md)
-- Glossary: [`CONTEXT.md`](CONTEXT.md)
-- Session cost / routing telemetry: [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md)
+- [`WORKFLOWS.md`](WORKFLOWS.md) — flow graph
+- [`CONTEXT.md`](CONTEXT.md) — glossary (agents, tiers, spine, sync)
+- [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md) — session cost and routing telemetry
 
 ## Keybinds
 
-See [KEYBINDS.md](KEYBINDS.md) for a full reference of Tmux and Neovim keybindings.
+[KEYBINDS.md](KEYBINDS.md) covers Herdr and Neovim.
 
 ## Aliases
 
-See [ALIASES.md](ALIASES.md) for all ZSH aliases grouped by category.
+[ALIASES.md](ALIASES.md) lists zsh aliases and functions, grouped by source file.
 
 ## Neovim
 
-The config is written in Lua and lives in [`home/.config/nvim/`](https://github.com/timopruesse/.dotfiles/tree/main/home/.config/nvim). Key features:
+Lua config under [`home/.config/nvim/`](https://github.com/timopruesse/.dotfiles/tree/main/home/.config/nvim). mason.nvim + nvim-lspconfig for LSP. conform.nvim formats on save (Prettier, rustfmt, stylua, black, shfmt, goimports). Telescope for fuzzy find. LuaSnip snippets for JS, Rust, Lua, and Svelte.
 
-- LSP via mason.nvim + nvim-lspconfig
-- Format on save via conform.nvim (Prettier, rustfmt, stylua, black, shfmt, goimports)
-- Telescope for fuzzy finding
-- LuaSnip snippets for JS, Rust, Lua, Svelte
+## How it works
 
-## How It Works
+Everything under `home/` symlinks to `~`, so edits here show up in your home directory right away. A few paths are copied instead of symlinked — `etc/wsl.conf` and `terminal/settings.json` — because they need to land outside `$HOME`. Full task list in `machine_setup.yaml`.
 
-The `home/` directory is symlinked to `~`, so edits take effect immediately. System-level files (`etc/wsl.conf`, `terminal/settings.json`) are copied by the setup tool. See `machine_setup.yaml` for the full task list.
+Tasks suffixed `_linux` or `_macos` use the YAML `os:` filter so each platform skips the rest. Cross-platform tasks (`rust`, `bun`, `nvim-npm`, `dotfiles`, `personal_repos`) have no filter.
 
-Tasks suffixed with `_linux` or `_macos` use the YAML `os:` filter so each platform only runs the relevant ones. Cross-platform tasks (`rust`, `bun`, `nvim-npm`, `dotfiles`, `personal_repos`) have no filter.
+Platform-specific shell bits live in `home/.config/zsh/{wsl,linux,macos}.zsh`. Each file guards itself; the loader at the bottom of `.zshrc` picks up whichever matches.
 
-Platform-specific shell config is split into `home/.config/zsh/{wsl,linux,macos}.zsh`, each self-guarded so the loader at the bottom of `.zshrc` picks up only the right one.
+## Languages and tools
 
-## Languages & Tools
+Installed via [`machine_setup.yaml`](machine_setup.yaml) — Homebrew on macOS ([`Brewfile`](Brewfile)), apt and curl on WSL:
 
-Managed via [`machine_setup.yaml`](machine_setup.yaml) — macOS via [`Brewfile`](Brewfile), WSL/Ubuntu via apt and curl installers:
+Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go. Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh. ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI. Docker CE on WSL; Colima + Docker on macOS. AWS CLI. Claude Code and Cursor Agent CLI.
 
-- **Languages:** Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go
-- **Dev environment:** Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh
-- **CLI utilities:** ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI
-- **Containers & cloud:** Docker (Docker CE on WSL; Colima + Docker on macOS), AWS CLI
-- **AI agents:** Claude Code, Cursor Agent CLI
-
-Google Chrome is installed on both platforms for the Chrome DevTools MCP server. WSL adds win32yank for clipboard integration.
+Google Chrome on both platforms for the Chrome DevTools MCP server. WSL also installs win32yank for clipboard integration.
