@@ -243,23 +243,23 @@ tasks:
       # Regenerate Claude/Cursor agent pins + tier catalog from home/agents/.
       - run:
           install:
-            - "./home/agents/sync-agents --no-live"
+            - "$HOME/agents/sync-agents --no-live"
           update:
-            - "./home/agents/sync-agents --no-live"
+            - "$HOME/agents/sync-agents --no-live"
       # Regenerate Claude/Cursor slash commands + protocol links.
       - run:
           install:
-            - "./home/commands/sync-commands --no-live"
+            - "$HOME/commands/sync-commands --no-live"
           update:
-            - "./home/commands/sync-commands --no-live"
+            - "$HOME/commands/sync-commands --no-live"
       # Install managed paths into ~/.cursor (agents, commands, skills, hooks,
       # rules, cli-config merge) and Claude skills. Cursor owns ~/.cursor —
       # never replace the whole tree.
       - run:
           install:
-            - "./home/sync/live-install"
+            - "$HOME/sync/live-install"
           update:
-            - "./home/sync/live-install"
+            - "$HOME/sync/live-install"
 
   # Theme files come from the dotfiles symlink; bat itself is already installed
   # by the time dotfiles finishes (dotfiles waits on tools_*).
@@ -327,13 +327,14 @@ tasks:
             - "rustup component add rustfmt --toolchain nightly"
             - "rustup component add rust-analyzer --toolchain nightly"
           update:
-            - "rustup update"
+            - "source $HOME/.cargo/env && rustup update"
       - run:
           # Binary crates via cargo-binstall (no source compile).
           install:
             - 'if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi'
             - "source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli"
           update:
+            - 'if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi'
             - "source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli"
 
   # herdr binary/integrations need brew (macOS) or curl (linux) + dotfiles for
@@ -348,13 +349,13 @@ tasks:
           install:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
-            - "./home/sync/normalize-herdr-hooks"
+            - "$HOME/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
-            - "./home/sync/normalize-herdr-hooks"
+            - "$HOME/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
 
@@ -377,13 +378,13 @@ tasks:
           install:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
-            - "./home/sync/normalize-herdr-hooks"
+            - "$HOME/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
           update:
             - "herdr integration install claude || true"
             - "herdr integration install cursor || true"
-            - "./home/sync/normalize-herdr-hooks"
+            - "$HOME/sync/normalize-herdr-hooks"
             - "mkdir -p \"$HOME/.claude/hooks\""
             - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
 
