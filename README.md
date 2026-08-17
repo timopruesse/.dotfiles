@@ -63,4 +63,12 @@ Platform-specific shell config is split into `home/.config/zsh/{wsl,linux,macos}
 
 ## Languages & Tools
 
-Managed via `machine_setup.yaml`: Rust (nightly), Node (nvm), Bun, Deno, Python, Go, Dart/Flutter, plus lazygit, ripgrep, eza, zoxide, and fzf.
+Managed via [`machine_setup.yaml`](machine_setup.yaml) — macOS via [`Brewfile`](Brewfile), WSL/Ubuntu via apt and curl installers:
+
+- **Languages:** Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go
+- **Dev environment:** Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh
+- **CLI utilities:** ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI
+- **Containers & cloud:** Docker (Docker CE on WSL; Colima + Docker on macOS), AWS CLI
+- **AI agents:** Claude Code, Cursor Agent CLI
+
+Google Chrome is installed on both platforms for the Chrome DevTools MCP server. WSL adds win32yank for clipboard integration.
