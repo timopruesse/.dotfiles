@@ -186,12 +186,13 @@ if (( $+commands[atuin] )); then
     atuin init zsh
 fi
 
-# Oh My Posh (replaces Powerlevel10k)
+# Oh My Posh (replaces Powerlevel10k). Do not cache `init` stdout: with
+# async:true it is a precmd wrapper that sources
+# ~/.cache/oh-my-posh/init.<hash>.zsh written as a side effect. Caching the
+# wrapper leaves a stale path after that file is pruned (precmd:source: no
+# such file). Oh-my-posh already caches the heavy script itself.
 if (( $+commands[oh-my-posh] )); then
-  _dotfiles_cache_source \
-    "${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/oh-my-posh_init.zsh" \
-    "${commands[oh-my-posh]}" \
-    oh-my-posh init zsh --config "${HOME}/.config/ohmyposh/catppuccin.omp.json"
+  eval "$(oh-my-posh init zsh --config "${HOME}/.config/ohmyposh/catppuccin.omp.json")"
 fi
 
 unfunction _dotfiles_cache_source

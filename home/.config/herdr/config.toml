@@ -103,6 +103,7 @@ description = "navigate right (nvim/herdr)"
 show_agent_labels_on_pane_borders = true
 agent_panel_sort = "spaces"
 
+status_indicators = "symbols"
 [ui.sidebar.agents]
 row_gap = 0
 rows = [["state_icon", "tab", "agent"], ["$aws", "$wt"]]
