@@ -1,0 +1,36 @@
+---
+description: >-
+  Cursor-only — when committer is quota-blocked after auto retry, parent may
+  commit (does not apply to Claude Code)
+alwaysApply: true
+---
+
+# Parent commit on quota (Cursor only)
+
+**Host:** Cursor IDE / Cursor CLI only. Do **not** apply this under Claude Code —
+Claude keeps the hard rule that the parent never runs `git commit`.
+
+Default remains: spawn **`committer`** or run **`/land`** (see `agent-routing`).
+`worker` still must not commit.
+
+## Exception
+
+When the user asked to **commit** (or `/land` needs the commit step) and spawning
+**`committer`** fails because of rate-limit / quota / plan-usage (including after
+the one `auto` retry from `subagent-model-fallback`):
+
+1. Briefly note that `committer` is unavailable due to quota.
+2. **Parent may** stage + `git commit` itself, following the usual git safety
+   protocol (status/diff/log, HEREDOC message, no force-push, no amend unless
+   the normal amend rules allow it, no secrets).
+3. If the user also asked to **push**, parent may push after that commit (still
+   no force-push to main/master unless they explicitly requested force).
+
+## Still forbidden
+
+- Parent commit when `committer` *can* spawn successfully — always prefer the pin.
+- Parent commit for ordinary task failures (bad prompt, tool errors) — only for
+  model/quota unavailability after the documented retry.
+- Impersonating `committer`’s judgment when the user did **not** ask to commit;
+  do not opportunistically commit.
+- Changing Claude Code / shared `AGENT-ROUTING` protocol behavior via this rule.
