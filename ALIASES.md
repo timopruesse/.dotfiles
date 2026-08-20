@@ -37,8 +37,8 @@ All ZSH aliases and functions, grouped by source file.
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
 | `lg` | `lazygit` | Open lazygit |
-| `claude` | wrapper in `~/.zshrc` | Claude Code CLI; keep-awake + defaults to `--worktree` inside a repo — pass `--here` to stay on the current branch. Skips this dotfiles repo and subcommands like `auth` / `mcp` / `update`. |
-| `agent` | wrapper in `~/.zshrc` | Cursor Agent CLI; keep-awake + defaults to `-w` (isolated git worktree) inside a repo — pass `--here` to stay on the current branch. Skips this dotfiles repo and subcommands like `login` / `mcp` / `update`. |
+| `claude` | wrapper in `~/.zshrc` | Claude Code CLI; keep-awake in the current checkout — pass `--worktree` for an isolated git worktree. |
+| `agent` | wrapper in `~/.zshrc` | Cursor Agent CLI; keep-awake in the current checkout — pass `-w` for an isolated git worktree. |
 | `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
 | `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
 | `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
@@ -99,8 +99,8 @@ Per-invocation override: pass `--claude` or `--agent` / `--cursor` to any of the
 launchers (e.g. `c --claude`, `ch --agent "fix the flaky test"`).
 
 Launchers run inside herdr (`HERDR_ENV=1`): they call
-`coding_agent_herdr.sh` (split/tab + `coding_agent_launch.sh`), so keep-awake and
-default worktree apply the same as typing `claude` / `agent`. Herdr
+`coding_agent_herdr.sh` (split/tab + `coding_agent_launch.sh`), so keep-awake
+applies the same as typing `claude` / `agent`. Herdr
 `prefix+shift+H`/`V`/`R`/`S` use the same path.
 
 | Function | Command | Description |

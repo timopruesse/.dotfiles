@@ -1,6 +1,7 @@
-# Shared coding-agent launch policy: keep-awake + default worktree.
+# Shared coding-agent launch policy: keep-awake.
 # Sourced by ~/.zshrc wrappers and coding_agent_launch.sh.
 # Do not exec — defines coding_agent_keep_awake_run / coding_agent_with_policy.
+# Worktree isolation is opt-in via the CLI's own -w / --worktree flags.
 
 coding_agent_keep_awake_run() {
   local name_or_path="$1"
@@ -33,71 +34,10 @@ coding_agent_keep_awake_run() {
   fi
 }
 
-# Apply --here / worktree defaults, then keep-awake + real binary.
+# Keep-awake + real binary. Worktrees: pass -w / --worktree to the CLI yourself.
 # Usage: coding_agent_with_policy claude|agent [args...]
 coding_agent_with_policy() {
   local cli="$1"
   shift
-  local args=()
-  local force_here=false
-  local already_worktree=false
-
-  for arg in "$@"; do
-    if [[ "$arg" == "--here" ]]; then
-      force_here=true
-      continue
-    fi
-    if [[ "$arg" == "-w" || "$arg" == --worktree || "$arg" == -w=* || "$arg" == --worktree=* ]]; then
-      already_worktree=true
-    fi
-    args+=("$arg")
-  done
-
-  if $force_here; then
-    coding_agent_keep_awake_run "$cli" "${args[@]}"
-    return $?
-  fi
-
-  local use_worktree=false
-  # One git invocation (inside + toplevel + HEAD). Empty → not a usable repo.
-  local rp=()
-  rp=(${(f)"$(git rev-parse --is-inside-work-tree --show-toplevel HEAD 2>/dev/null)"})
-  if ! $already_worktree && (( ${#rp} >= 3 )) && [[ "${rp[1]}" == true ]]; then
-    local repo_root=${rp[2]}
-    # Pane launches may not have sourced environment.zsh.
-    local dotfiles="${DOTFILES:-${HOME}/github/timopruesse/.dotfiles}"
-
-    if [[ "$repo_root" != "$dotfiles" ]]; then
-      use_worktree=true
-      local subcommands
-      case "$cli" in
-      claude)
-        subcommands="agents|auth|auto-mode|doctor|install|mcp|plugin|plugins|setup-token|update|upgrade"
-        ;;
-      agent)
-        subcommands="about|create-chat|generate-rule|rule|install-shell-integration|uninstall-shell-integration|login|logout|mcp|models|plugin|status|whoami|update|upgrade|worker"
-        ;;
-      *)
-        subcommands=""
-        ;;
-      esac
-      if [[ -n "$subcommands" ]]; then
-        for arg in "${args[@]}"; do
-          [[ "$arg" == -* ]] && continue
-          [[ "$arg" =~ ^($subcommands)$ ]] && use_worktree=false
-          break
-        done
-      fi
-    fi
-  fi
-
-  if $use_worktree; then
-    case "$cli" in
-    claude) coding_agent_keep_awake_run claude "${args[@]}" --worktree ;;
-    agent) coding_agent_keep_awake_run agent "${args[@]}" -w ;;
-    *) coding_agent_keep_awake_run "$cli" "${args[@]}" ;;
-    esac
-  else
-    coding_agent_keep_awake_run "$cli" "${args[@]}"
-  fi
+  coding_agent_keep_awake_run "$cli" "$@"
 }

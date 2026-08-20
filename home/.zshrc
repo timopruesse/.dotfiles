@@ -151,12 +151,11 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Coding-agent launch policy (keep-awake + default worktree) — shared with
-# herdr keybinds via ~/.config/herdr/scripts/coding_agent_launch.sh
+# Coding-agent launch policy (keep-awake) — shared with herdr keybinds via
+# ~/.config/herdr/scripts/coding_agent_launch.sh. Worktrees: pass -w / --worktree.
 source "${HOME}/.config/herdr/scripts/coding_agent_policy.zsh"
 
 # Thin wrappers: real binary via whence -p inside coding_agent_keep_awake_run.
-# Pass --here to stay on the current branch (skip default worktree).
 claude() {
   coding_agent_with_policy claude "$@"
 }

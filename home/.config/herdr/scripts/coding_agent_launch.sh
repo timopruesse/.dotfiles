@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# Launch the path-appropriate coding agent with shared policy (worktree + keep-awake).
+# Launch the path-appropriate coding agent with shared policy (keep-awake).
 # Used by coding_agent_herdr.sh / herdr keybinds (cwd already set on the pane).
 #
 # Usage: coding_agent_launch.sh [resume|continue] [--claude|--agent|--cursor]

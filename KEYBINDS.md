@@ -51,8 +51,8 @@ Agent status lives in herdr’s native sidebar (install integrations with
 
 Launch binds resolve Claude Code vs Cursor Agent via
 `~/.config/herdr/scripts/coding_agent_resolve.sh` and launch through
-`coding_agent_herdr.sh` → `coding_agent_launch.sh` (same worktree + keep-awake
-policy as the `claude` / `agent` shell wrappers). Override with
+`coding_agent_herdr.sh` → `coding_agent_launch.sh` (same keep-awake policy as
+the `claude` / `agent` shell wrappers). Override with
 `CODING_AGENT=claude|agent` or `--claude` / `--agent` on the launch script.
 
 ### Pane navigation
@@ -318,7 +318,7 @@ temporarily with `<leader>9p`.
 
 Same cwd routing and launch policy as the shell aliases / herdr binds (env →
 remote org → path; chewielabs → Claude Code, otherwise Cursor Agent). Opens go
-through `coding_agent_herdr.sh` (ensure project-agents + worktree/keep-awake).
+through `coding_agent_herdr.sh` (ensure project-agents + keep-awake).
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |

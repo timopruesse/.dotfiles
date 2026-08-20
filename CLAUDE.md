@@ -70,16 +70,15 @@ Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 (Neovim also exposes it as `timopruesse.coding_agent`.) Herdr launches go through
 [`coding_agent_herdr.sh`](home/.config/herdr/scripts/coding_agent_herdr.sh) →
 [`coding_agent_launch.sh`](home/.config/herdr/scripts/coding_agent_launch.sh)
-(shared worktree + keep-awake policy).
+(shared keep-awake policy).
 
 Precedence: `CODING_AGENT=claude|agent` → git remote org → path
 (`~/github/chewielabs` → Claude Code; everything else → Cursor `agent`).
 Per-call overrides: `--claude` / `--agent` on the launchers.
 
-Both `claude` and `agent` wrappers in `.zshrc` (and herdr/nvim launches) default to an isolated git
-worktree inside a repo (`--worktree` / `-w`); pass `--here` to stay on the
-current branch. Dotfiles itself is excluded so symlink edits take effect
-immediately. Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
+Both `claude` and `agent` wrappers in `.zshrc` (and herdr/nvim launches) run in
+the current checkout; pass `--worktree` / `-w` for an isolated git worktree.
+Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 (`prefix+g` / `prefix+C`) or sidebar (`prefix+a`); `clist` wraps
 `herdr agent list`. Last pane: `prefix+Tab`.
 
