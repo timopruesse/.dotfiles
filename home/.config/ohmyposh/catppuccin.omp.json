@@ -9,17 +9,6 @@
       "alignment": "left",
       "segments": [
         {
-          "type": "aws",
-          "style": "plain",
-          "foreground": "p:peach",
-          "background": "transparent",
-          "template": " \ue7ad {{ .Profile }}{{ if .Region }}@{{ .Region }}{{ end }}",
-          "powerline_symbol": "\ue0b4",
-          "options": {
-            "display_default": false
-          }
-        },
-        {
           "type": "path",
           "style": "plain",
           "foreground": "p:pink",
@@ -54,9 +43,23 @@
           }
         },
         {
+          "type": "aws",
+          "style": "plain",
+          "foreground": "p:orange",
+          "background": "transparent",
+          "template": " \ue7ad {{ .Profile }}{{ if .Region }}@{{ .Region }}{{ end }}",
+          "powerline_symbol": "\ue0b4",
+          "options": {
+            "display_default": false
+          }
+        },
+        {
           "type": "claude",
           "style": "plain",
           "foreground": "p:peach",
+          "foreground_templates": [
+            "{{ if .Env.CURSOR_AGENT }}p:wight{{ end }}"
+          ],
           "background": "transparent",
           "template": " \ueb99 {{ .Model.DisplayName }} {{ .TokenGauge }} {{ .FormattedCost }}",
           "powerline_symbol": "\ue0b4"
@@ -179,6 +182,7 @@
     "wight": "#FFFFFF",
     "text": "#494D64",
     "peach": "#F5A97F",
+    "orange": "#FFB020",
     "green": "#A6DA95",
     "red": "#ED8796",
     "yellow": "#EED49F",
