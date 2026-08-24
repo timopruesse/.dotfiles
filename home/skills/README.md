@@ -3,7 +3,7 @@
 Edit skill packs here (`*/SKILL.md`), then run:
 
 ```bash
-./home/sync/live-install
+./home/sync/sync
 ```
 
 That links each skill into:
@@ -25,5 +25,5 @@ put always-on procedure in the agent prompt (or sync-time includes) instead.
 Hard rules: generated **agent-routing** (see [`CONTEXT.md`](../../CONTEXT.md)).
 Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md).
 
-`machine_setup` runs live-install after sync. Sources under `home/skills/` also
+`machine_setup` runs **sync**. Sources under `home/skills/` also
 land at `~/skills/` via the home symlink (same pattern as `agents/`).

@@ -64,6 +64,15 @@ class SessionLogCoreTests(unittest.TestCase):
             cmds = core.extract_commands_from_transcript(path)
             self.assertEqual(cmds, ["wrap-up"])
 
+    def test_claude_estimate_cost_known_model(self) -> None:
+        from session_log.claude_cost import empty_usage, estimate_cost
+
+        usage = empty_usage()
+        usage["input_tokens"] = 1_000_000
+        cost, incomplete = estimate_cost("claude-sonnet-4", usage)
+        self.assertFalse(incomplete)
+        self.assertEqual(cost, 3.0)
+
     def test_rollup_and_routing_audit(self) -> None:
         records = [
             {

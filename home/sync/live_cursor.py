@@ -165,6 +165,7 @@ def _prune_stale_managed_skills(live_root: Path, keep: set[str]) -> None:
 def install_skills() -> None:
     """Link home/skills/<name> into ~/.cursor/skills and ~/.claude/skills.
 
+    Always reclaim managed names (overwrite foreign symlinks e.g. ~/.agents).
     Only prunes symlinks that resolve under the managed skills source — leaves
     unrelated personal/plugin skills alone.
     """
@@ -174,10 +175,20 @@ def install_skills() -> None:
     keep = {p.name for p in skills}
     for live_root in (LIVE_CURSOR_SKILLS, LIVE_CLAUDE_SKILLS):
         linked = 0
+        reclaimed = 0
         for skill_dir in skills:
-            if link_into(skill_dir, live_root / skill_dir.name):
+            dest = live_root / skill_dir.name
+            if dest.is_symlink():
+                try:
+                    if dest.resolve() != skill_dir.resolve():
+                        reclaimed += 1
+                except OSError:
+                    reclaimed += 1
+            if link_into(skill_dir, dest):
                 linked += 1
         _prune_stale_managed_skills(live_root, keep)
+        if reclaimed:
+            print(f"  reclaimed {reclaimed} skill link(s) → {live_root}")
         if linked:
             print(f"  linked {linked}/{len(keep)} skills → {live_root}")
         else:

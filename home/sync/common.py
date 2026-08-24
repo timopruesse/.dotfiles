@@ -20,6 +20,59 @@ def repo_home() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
+def parse_frontmatter(
+    path: Path, *, require: frozenset[str] | set[str] | None = None
+) -> tuple[dict[str, str], str]:
+    """Parse YAML-ish frontmatter; supports multiline values (agent style).
+
+    Returns (fields, body). Raises SystemExit on missing frontmatter or required keys.
+    """
+    text = path.read_text()
+    m = FRONTMATTER_RE.match(text)
+    if not m:
+        raise SystemExit(f"{path}: missing YAML frontmatter")
+    fm_raw, body = m.group(1), m.group(2)
+    fields: dict[str, str] = {}
+    key: str | None = None
+    buf: list[str] = []
+
+    def flush() -> None:
+        nonlocal key, buf
+        if key is None:
+            return
+        fields[key] = "\n".join(buf).rstrip("\n")
+        key = None
+        buf = []
+
+    for line in fm_raw.splitlines():
+        if line.startswith("  ") and key is not None:
+            buf.append(line)
+            continue
+        kv = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
+        if kv:
+            flush()
+            key = kv.group(1)
+            rest = kv.group(2)
+            if rest in (">-", "|"):
+                buf = []
+            else:
+                buf = [rest]
+            continue
+        if key is not None and (line.startswith(" ") or line == ""):
+            buf.append(line)
+            continue
+        # Flat command frontmatter: skip blank; reject other junk
+        if not line.strip():
+            continue
+        raise SystemExit(f"{path}: cannot parse frontmatter line: {line!r}")
+    flush()
+    if require:
+        missing = sorted(set(require) - set(fields))
+        if missing:
+            raise SystemExit(f"{path}: missing required field(s): {', '.join(missing)}")
+    return fields, body
+
+
 def parse_model_map(path: Path) -> dict[str, dict[str, str]]:
     """Parse the small fixed-shape model-map.yaml without PyYAML."""
     tiers: dict[str, dict[str, str]] = {}

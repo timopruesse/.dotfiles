@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import re
 from collections import defaultdict
 from pathlib import Path
 
 from sync.common import (
-    FRONTMATTER_RE,
+    parse_frontmatter,
     parse_model_map,
     replace_marked_section,
     repo_home,
@@ -18,13 +17,17 @@ AGENTS_DIR = repo_home() / "agents"
 COMMANDS_DIR = repo_home() / "commands"
 PROTOCOLS_DIR = repo_home() / "protocols"
 AGENT_ROUTING_SRC = PROTOCOLS_DIR / "AGENT-ROUTING.md"
+MODEL_FALLBACK_SRC = PROTOCOLS_DIR / "MODEL-FALLBACK.md"
 MAP_PATH = AGENTS_DIR / "model-map.yaml"
 CURSOR_RULE = repo_home() / ".cursor" / "rules" / "subagent-model-fallback.mdc"
 CURSOR_ROUTING_RULE = repo_home() / ".cursor" / "rules" / "agent-routing.mdc"
 CLAUDE_MD = repo_home() / ".claude" / "CLAUDE.md"
 COMMANDS_README = COMMANDS_DIR / "README.md"
+WORKFLOWS_MD = repo_home().parent / "WORKFLOWS.md"
 
 PINNED_AGENTS_TOKEN = "{{PINNED_AGENTS}}"
+TIER_TABLE_TOKEN = "{{TIER_TABLE}}"
+STRONG_CURSOR_TOKEN = "{{STRONG_CURSOR}}"
 
 BEGIN_AGENTS = "<!-- BEGIN GENERATED AGENT TIER TABLE -->"
 END_AGENTS = "<!-- END GENERATED AGENT TIER TABLE -->"
@@ -34,21 +37,8 @@ BEGIN_MAP = "<!-- BEGIN GENERATED MODEL MAP TABLE -->"
 END_MAP = "<!-- END GENERATED MODEL MAP TABLE -->"
 BEGIN_ROUTING = "<!-- BEGIN GENERATED AGENT ROUTING -->"
 END_ROUTING = "<!-- END GENERATED AGENT ROUTING -->"
-
-
-def _simple_frontmatter_fields(path: Path) -> dict[str, str]:
-    text = path.read_text()
-    m = FRONTMATTER_RE.match(text)
-    if not m:
-        raise SystemExit(f"{path}: missing YAML frontmatter")
-    fields: dict[str, str] = {}
-    for line in m.group(1).splitlines():
-        if not line.strip() or line.startswith(" "):
-            continue
-        kv = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
-        if kv:
-            fields[kv.group(1)] = kv.group(2).strip()
-    return fields
+BEGIN_WORKFLOWS_AGENTS = "<!-- BEGIN GENERATED WORKFLOWS AGENT ROSTER -->"
+END_WORKFLOWS_AGENTS = "<!-- END GENERATED WORKFLOWS AGENT ROSTER -->"
 
 
 def load_agent_tiers() -> dict[str, list[str]]:
@@ -56,12 +46,10 @@ def load_agent_tiers() -> dict[str, list[str]]:
     for src in sorted(AGENTS_DIR.glob("*.md")):
         if src.name == "README.md":
             continue
-        fields = _simple_frontmatter_fields(src)
-        name = fields.get("name") or src.stem
-        tier = fields.get("tier")
-        if not tier:
-            raise SystemExit(f"{src}: missing tier")
-        by_tier[tier.strip()].append(name.strip())
+        fields, _ = parse_frontmatter(src, require={"tier"})
+        name = (fields.get("name") or src.stem).strip()
+        tier = fields["tier"].strip()
+        by_tier[tier].append(name)
     return {k: sorted(v) for k, v in by_tier.items()}
 
 
@@ -70,11 +58,8 @@ def load_command_tiers() -> dict[str, list[str]]:
     for src in sorted(COMMANDS_DIR.glob("*.md")):
         if src.name == "README.md":
             continue
-        fields = _simple_frontmatter_fields(src)
-        tier = fields.get("tier")
-        if not tier:
-            raise SystemExit(f"{src}: missing tier")
-        by_tier[tier.strip()].append(f"/{src.stem}")
+        fields, _ = parse_frontmatter(src, require={"tier"})
+        by_tier[fields["tier"].strip()].append(f"/{src.stem}")
     return {k: sorted(v) for k, v in by_tier.items()}
 
 
@@ -89,6 +74,23 @@ def render_agent_tier_table(tiers: dict[str, dict[str, str]], agents: dict[str, 
         lines.append(
             f"| {tier} | {names} | `{pins['claude']}` | `{pins['cursor']}` |"
         )
+    return "\n".join(lines)
+
+
+def render_workflows_agent_roster(
+    tiers: dict[str, dict[str, str]], agents: dict[str, list[str]]
+) -> str:
+    """Agent | Tier | Claude | Cursor — roles live in agent sources / prose above."""
+    lines = [
+        "| Agent | Tier | Claude | Cursor |",
+        "| --- | --- | --- | --- |",
+    ]
+    for tier in ("cheap", "mid", "strong"):
+        for name in agents.get(tier, []):
+            pins = tiers[tier]
+            lines.append(
+                f"| `{name}` | {tier} | `{pins['claude']}` | `{pins['cursor']}` |"
+            )
     return "\n".join(lines)
 
 
@@ -116,61 +118,27 @@ def render_model_map_table(tiers: dict[str, dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
-def render_cursor_mdc(
+def render_cursor_tier_table(
     tiers: dict[str, dict[str, str]], agents: dict[str, list[str]]
 ) -> str:
-    all_names = []
-    for tier in ("cheap", "mid", "strong"):
-        all_names.extend(agents.get(tier, []))
-    names_csv = ", ".join(f"`{n}`" for n in all_names)
-    strong = tiers["strong"]["cursor"]
     table_rows = []
     for tier in ("cheap", "mid", "strong"):
         names = ", ".join(f"`{n}`" for n in agents.get(tier, []))
         table_rows.append(f"| {tier} | {names} | `{tiers[tier]['cursor']}` |")
-    table = "\n".join(
+    return "\n".join(
         [
             "| Tier | Agents | Model |",
             "| --- | --- | --- |",
             *table_rows,
         ]
     )
-    return f"""---
-description: Subagent model pins and rate-limit fallback to auto
-alwaysApply: true
----
 
-<!-- Generated by home/sync/catalog.py — edit sources in home/agents/, not this file. -->
 
-# Subagent model routing (Cursor)
-
-Custom subagents live in `~/.cursor/agents/` (generated from `~/agents/`). Prefer
-them by name when the task matches: {names_csv}.
-
-When choosing whom to spawn (or whether to stay in the parent), read the
-`route-agents` skill (`~/.cursor/skills/route-agents/SKILL.md`).
-
-Pinned models (from the agent frontmatter):
-
-{table}
-
-`boba-watcher` stays cheap for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
-`/watch-boba` may re-spawn it **once** with the strong pin (`{strong}`
-or `auto`). Scope/approach unblock drafts from `/watch-boba` also use the strong
-model. Do not upgrade the whole watch loop.
-
-## Rate-limit / quota fallback
-
-If spawning a custom subagent fails because the pinned model is rate-limited,
-out of quota, unavailable, or returns a plan/usage error:
-
-1. Retry **once** with the same subagent but model `auto` (or omit `model` so it
-   inherits / uses Auto).
-2. If the retry also fails, surface the error — do not keep retrying or silently
-   swap to an unrelated model.
-3. Do **not** fall back to `auto` for ordinary task failures (bad prompt, tool
-   errors, wrong agent choice). Only for model availability / usage limits.
-"""
+def pinned_agents_csv(agents: dict[str, list[str]]) -> str:
+    all_names: list[str] = []
+    for tier in ("cheap", "mid", "strong"):
+        all_names.extend(agents.get(tier, []))
+    return ", ".join(f"`{n}`" for n in all_names)
 
 
 def render_agent_routing_body(agents: dict[str, list[str]]) -> str:
@@ -182,11 +150,7 @@ def render_agent_routing_body(agents: dict[str, list[str]]) -> str:
         raise SystemExit(
             f"{AGENT_ROUTING_SRC}: missing {PINNED_AGENTS_TOKEN} placeholder"
         )
-    all_names: list[str] = []
-    for tier in ("cheap", "mid", "strong"):
-        all_names.extend(agents.get(tier, []))
-    names_csv = ", ".join(f"`{n}`" for n in all_names)
-    return text.replace(PINNED_AGENTS_TOKEN, names_csv)
+    return text.replace(PINNED_AGENTS_TOKEN, pinned_agents_csv(agents))
 
 
 def render_cursor_routing_mdc(agents: dict[str, list[str]]) -> str:
@@ -199,6 +163,31 @@ alwaysApply: true
 <!-- Generated by home/sync/catalog.py — edit home/protocols/AGENT-ROUTING.md, not this file. -->
 
 {body}
+"""
+
+
+def render_cursor_mdc(
+    tiers: dict[str, dict[str, str]], agents: dict[str, list[str]]
+) -> str:
+    if not MODEL_FALLBACK_SRC.is_file():
+        raise SystemExit(f"missing {MODEL_FALLBACK_SRC}")
+    text = MODEL_FALLBACK_SRC.read_text()
+    for token in (PINNED_AGENTS_TOKEN, TIER_TABLE_TOKEN, STRONG_CURSOR_TOKEN):
+        if token not in text:
+            raise SystemExit(f"{MODEL_FALLBACK_SRC}: missing {token} placeholder")
+    body = (
+        text.replace(PINNED_AGENTS_TOKEN, pinned_agents_csv(agents))
+        .replace(TIER_TABLE_TOKEN, render_cursor_tier_table(tiers, agents))
+        .replace(STRONG_CURSOR_TOKEN, tiers["strong"]["cursor"])
+    )
+    return f"""---
+description: Subagent model pins and rate-limit fallback to auto
+alwaysApply: true
+---
+
+<!-- Generated by home/sync/catalog.py — edit home/protocols/MODEL-FALLBACK.md, not this file. -->
+
+{body.rstrip()}
 """
 
 
@@ -249,3 +238,11 @@ def generate_catalog() -> None:
         print(
             f"  updated command tiers in {COMMANDS_README.relative_to(repo_home().parent)}"
         )
+
+    workflows_roster = render_workflows_agent_roster(tiers, agents)
+    if WORKFLOWS_MD.is_file() and replace_marked_section(
+        WORKFLOWS_MD, BEGIN_WORKFLOWS_AGENTS, END_WORKFLOWS_AGENTS, workflows_roster
+    ):
+        print(f"  updated agent roster in {WORKFLOWS_MD.name}")
+    elif WORKFLOWS_MD.is_file() and BEGIN_WORKFLOWS_AGENTS not in WORKFLOWS_MD.read_text():
+        print(f"  warning: {WORKFLOWS_MD} missing {BEGIN_WORKFLOWS_AGENTS}", flush=True)

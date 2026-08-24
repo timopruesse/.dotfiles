@@ -240,26 +240,12 @@ tasks:
           # Cursor owns ~/.cursor (chats, extensions, state). Agent/command pins
           # + CLI prefs are installed into ~/.cursor by sync scripts.
           ignore: [".cursor"]
-      # Regenerate Claude/Cursor agent pins + tier catalog from home/agents/.
+      # Regenerate Claude/Cursor pins, catalog, live-install, project-agents.
       - run:
           install:
-            - "$HOME/agents/sync-agents --no-live"
+            - "$HOME/sync/sync"
           update:
-            - "$HOME/agents/sync-agents --no-live"
-      # Regenerate Claude/Cursor slash commands + protocol links.
-      - run:
-          install:
-            - "$HOME/commands/sync-commands --no-live"
-          update:
-            - "$HOME/commands/sync-commands --no-live"
-      # Install managed paths into ~/.cursor (agents, commands, skills, hooks,
-      # rules, cli-config merge) and Claude skills. Cursor owns ~/.cursor —
-      # never replace the whole tree.
-      - run:
-          install:
-            - "$HOME/sync/live-install"
-          update:
-            - "$HOME/sync/live-install"
+            - "$HOME/sync/sync"
 
   # Theme files come from the dotfiles symlink; bat itself is already installed
   # by the time dotfiles finishes (dotfiles waits on tools_*).

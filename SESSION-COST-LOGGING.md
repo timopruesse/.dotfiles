@@ -74,9 +74,8 @@ USD billing, so `usage` and `cost_usd_estimate` are `null`. Subagents are
 accumulated in scratch during the session and flushed on end.
 
 `~/.cursor` is **not** fully symlinked (Cursor owns chats, extensions, auth).
-Managed paths are installed into the live tree by
-[`home/sync/live-install`](home/sync/live-install) (after
-[`sync-agents`](home/agents/sync-agents) / [`sync-commands`](home/commands/sync-commands)):
+Managed paths are installed into the live tree by **sync**
+([`home/sync/sync`](home/sync/sync)):
 
 | Repo | Live |
 |------|------|
@@ -84,9 +83,9 @@ Managed paths are installed into the live tree by
 | `home/.cursor/hooks/` | `~/.cursor/hooks/` (symlink) |
 | `home/.cursor/cli-config.json` | `~/.cursor/cli-config.json` (prefs merged; auth/caches preserved) |
 
-Re-run `./home/sync/live-install` after changing hooks or CLI prefs (also runs
-from `machine_setup`). Shared append/error helpers live in
-[`home/session_log/`](home/session_log/).
+Re-run `./home/sync/sync` after changing hooks or CLI prefs (also runs
+from `machine_setup`). Shared append/error helpers and Claude pricing/record
+assembly live in [`home/session_log/`](home/session_log/) (hooks are thin adapters).
 
 **Herdr integration hooks:** `herdr integration install claude|cursor` appends
 SessionStart entries with absolute paths on every run. Dotfiles keeps portable
@@ -181,7 +180,7 @@ tail -20 ~/.cursor/logs/sessions.jsonl | jq '{session_id, success, ended_reason,
 - Cursor cannot log USD/tokens until the product exposes them on hooks.
 - Cursor hooks must actually fire (`sessionStart` / `subagentStop` /
   `sessionEnd`). If `~/.cursor/logs/sessions.jsonl` stays empty, check
-  `sessions.errors.log` next to it and that `live-install` symlinked
+  `sessions.errors.log` next to it and that **sync** live-installed
   `hooks.json` + `hooks/`. SessionEnd also parses the transcript for Task
   spawns when hook subagent events were missed.
 - Claude `SessionEnd` must finish within the configured timeout (15s here);

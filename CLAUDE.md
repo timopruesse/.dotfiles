@@ -22,14 +22,14 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 
 ```
 home/             # Symlinked to ~ — contains all user config files
-  agents/         # Shared subagent sources (tier + prompts); run sync-agents
-  commands/       # Shared slash-command sources; run sync-commands
-  skills/         # Orchestrator skills (route-agents, improve-codebase-architecture, …); live-install
-  protocols/      # Shared HANDOFF + LOOP protocols (→ ~/protocols)
-  sync/           # Deep sync module + live-install (Claude/Cursor pins + agent-routing rules)
+  agents/         # Shared subagent sources (tier + prompts); run home/sync/sync
+  commands/       # Shared slash-command sources; run home/sync/sync
+  skills/         # Orchestrator skills (route-agents, improve-codebase-architecture, …)
+  protocols/      # Shared HANDOFF + LOOP + AGENT-ROUTING + MODEL-FALLBACK (→ ~/protocols)
+  sync/           # Deep sync conveyor (Claude/Cursor pins + agent-routing rules)
   session_log/    # Shared session JSONL core (hooks are adapters)
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
-  .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; live-install into ~/.cursor
+  .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; sync live-installs into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch/policy scripts
   .config/ohmyposh/ # Oh My Posh theme (Catppuccin); Meslo via `oh-my-posh font install meslo`

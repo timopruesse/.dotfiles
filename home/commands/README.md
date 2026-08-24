@@ -3,8 +3,7 @@
 Edit command prompts here (`*.md`), plus protocols in `home/protocols/`, then run:
 
 ```bash
-./home/commands/sync-commands
-./home/sync/live-install   # if you used --no-live on sync
+./home/sync/sync
 ```
 
 That regenerates:
@@ -12,7 +11,7 @@ That regenerates:
 - `home/.claude/commands/` — Claude Code (frontmatter + `$ARGUMENTS` + `model:` pin)
 - `home/.cursor/commands/` — Cursor (plain markdown + `$1`/`$2`/… + preferred-model note)
 
-`live-install` links generated commands into `~/.cursor/commands/`. Protocols are
+**sync** links generated commands into `~/.cursor/commands/`. Protocols are
 linked from `home/protocols/` into `home/.claude/` and `home/.cursor/protocols/`.
 
 Shared sources stay platform-neutral for model pins: write `{{pin:strong}}` (or
@@ -21,7 +20,7 @@ Shared sources stay platform-neutral for model pins: write `{{pin:strong}}` (or
 ## Orchestrator model tiers
 
 Sources declare an abstract `tier: cheap|mid|strong` (same vocabulary as
-`home/agents/`). `sync-commands` maps it through
+`home/agents/`). **sync** maps it through
 [`home/agents/model-map.yaml`](../agents/model-map.yaml):
 
 <!-- BEGIN GENERATED MODEL MAP TABLE -->
@@ -52,7 +51,7 @@ routine ticks stay cheap. Escalate individual spawns to strong when
 scope/approach unblock. Do not pin the whole command to strong.
 
 Do **not** hand-edit the generated trees; they are overwritten on sync.
-`machine_setup` runs sync-agents → sync-commands → live-install.
+`machine_setup` runs `home/sync/sync`.
 
 Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md). Whom-table:
 [`home/skills/route-agents/`](../skills/route-agents/). Glossary:

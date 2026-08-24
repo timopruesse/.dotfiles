@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI: install managed agents/commands/skills/hooks/rules/cli prefs into ~/.cursor (+ Claude skills)."""
+"""CLI: regenerate agents/commands/catalog and live-install (single sync conveyor)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from sync.live_cursor import main  # noqa: E402
+from sync.conveyor import main  # noqa: E402
 
 if __name__ == "__main__":
     raise SystemExit(main())

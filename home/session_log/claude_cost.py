@@ -1,0 +1,362 @@
+"""Claude session cost: pricing + record assembly for SessionEnd hooks."""
+
+from __future__ import annotations
+
+import json
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from session_log.core import (
+    extract_commands_from_transcript,
+    extract_spawns_from_transcript,
+    merge_subagent_lists,
+    now_iso,
+)
+
+# USD per million tokens. Approximate API list prices (Jul 2026); estimates only.
+# Matched by substring against message.model (first hit wins).
+# cache_write_5m / cache_write_1h / cache_read are prompt-caching rates.
+PRICING: list[tuple[str, dict[str, float]]] = [
+    (
+        "opus",
+        {
+            "input": 5.0,
+            "output": 25.0,
+            "cache_write_5m": 6.25,
+            "cache_write_1h": 10.0,
+            "cache_read": 0.50,
+        },
+    ),
+    (
+        "sonnet",
+        {
+            "input": 3.0,
+            "output": 15.0,
+            "cache_write_5m": 3.75,
+            "cache_write_1h": 6.0,
+            "cache_read": 0.30,
+        },
+    ),
+    (
+        "haiku",
+        {
+            "input": 1.0,
+            "output": 5.0,
+            "cache_write_5m": 1.25,
+            "cache_write_1h": 2.0,
+            "cache_read": 0.10,
+        },
+    ),
+]
+
+NORMAL_REASONS = frozenset(
+    {"other", "prompt_input_exit", "clear", "resume", "logout"}
+)
+
+
+def empty_usage() -> dict[str, int]:
+    return {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "cache_creation_5m_tokens": 0,
+        "cache_creation_1h_tokens": 0,
+        "cache_read_input_tokens": 0,
+    }
+
+
+def add_usage(dst: dict[str, int], src: dict[str, Any]) -> None:
+    dst["input_tokens"] += int(src.get("input_tokens") or 0)
+    dst["output_tokens"] += int(src.get("output_tokens") or 0)
+    dst["cache_creation_input_tokens"] += int(
+        src.get("cache_creation_input_tokens") or 0
+    )
+    dst["cache_read_input_tokens"] += int(src.get("cache_read_input_tokens") or 0)
+    cc = src.get("cache_creation") or {}
+    if isinstance(cc, dict):
+        dst["cache_creation_5m_tokens"] += int(cc.get("ephemeral_5m_input_tokens") or 0)
+        dst["cache_creation_1h_tokens"] += int(cc.get("ephemeral_1h_input_tokens") or 0)
+
+
+def price_for(model: str | None) -> dict[str, float] | None:
+    if not model:
+        return None
+    low = model.lower().strip()
+    if not low or low.startswith("<") or low == "synthetic":
+        return None
+    for needle, rates in PRICING:
+        if needle in low:
+            return rates
+    return None
+
+
+def estimate_cost(model: str | None, usage: dict[str, int]) -> tuple[float | None, bool]:
+    """Return (cost, incomplete). incomplete=True only for real unknown models with usage."""
+    rates = price_for(model)
+    tokens = (
+        usage["input_tokens"]
+        + usage["output_tokens"]
+        + usage["cache_creation_input_tokens"]
+        + usage["cache_read_input_tokens"]
+    )
+    if rates is None:
+        if not model or model.startswith("<") or tokens == 0:
+            return None, False
+        return None, True
+    m = 1_000_000.0
+    cost = 0.0
+    cost += usage["input_tokens"] * rates["input"] / m
+    cost += usage["output_tokens"] * rates["output"] / m
+    cost += usage["cache_read_input_tokens"] * rates["cache_read"] / m
+
+    w5 = usage["cache_creation_5m_tokens"]
+    w1 = usage["cache_creation_1h_tokens"]
+    if w5 or w1:
+        cost += w5 * rates["cache_write_5m"] / m
+        cost += w1 * rates["cache_write_1h"] / m
+    else:
+        cost += usage["cache_creation_input_tokens"] * rates["cache_write_5m"] / m
+    return round(cost, 6), False
+
+
+def is_real_model(model: str | None) -> bool:
+    if not model:
+        return False
+    low = model.lower().strip()
+    return bool(low) and not low.startswith("<") and low != "synthetic"
+
+
+def parse_ts(raw: str | None) -> datetime | None:
+    if not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def collect_api_calls(
+    path: Path, *, skip_sidechain: bool = True
+) -> tuple[list[dict[str, Any]], datetime | None, datetime | None]:
+    """Dedupe assistant usage by requestId; keep max output_tokens per call."""
+    by_req: dict[str, dict[str, Any]] = {}
+    orphan_list: list[dict[str, Any]] = []
+    first_ts: datetime | None = None
+    last_ts: datetime | None = None
+
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return [], None, None
+
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+        ts = parse_ts(entry.get("timestamp"))
+        if ts is not None:
+            if first_ts is None or ts < first_ts:
+                first_ts = ts
+            if last_ts is None or ts > last_ts:
+                last_ts = ts
+
+        if entry.get("type") != "assistant":
+            continue
+        if skip_sidechain and entry.get("isSidechain"):
+            continue
+        msg = entry.get("message") or {}
+        usage = msg.get("usage")
+        if not isinstance(usage, dict):
+            continue
+        model = msg.get("model")
+        req = entry.get("requestId") or msg.get("id")
+        rec = {
+            "model": model,
+            "usage": usage,
+            "output_tokens": int(usage.get("output_tokens") or 0),
+        }
+        if not req:
+            orphan_list.append(rec)
+            continue
+        prev = by_req.get(req)
+        if prev is None or rec["output_tokens"] >= prev["output_tokens"]:
+            by_req[req] = rec
+
+    return list(by_req.values()) + orphan_list, first_ts, last_ts
+
+
+def summarize_calls(
+    calls: list[dict[str, Any]],
+) -> tuple[dict[str, int], list[str], float | None, bool]:
+    usage = empty_usage()
+    by_model: dict[str, dict[str, int]] = {}
+    incomplete = False
+    total_cost = 0.0
+    any_cost = False
+
+    for call in calls:
+        model = call.get("model") or "unknown"
+        u = empty_usage()
+        add_usage(u, call.get("usage") or {})
+        add_usage(usage, call.get("usage") or {})
+        if is_real_model(model):
+            bucket = by_model.setdefault(model, empty_usage())
+            add_usage(bucket, call.get("usage") or {})
+        cost, miss = estimate_cost(model if model != "unknown" else None, u)
+        if miss:
+            incomplete = True
+        elif cost is not None:
+            total_cost += cost
+            any_cost = True
+
+    models = sorted(by_model.keys())
+    return usage, models, (round(total_cost, 6) if any_cost else None), incomplete
+
+
+def load_subagents(transcript_path: Path, session_id: str) -> list[dict[str, Any]]:
+    """Scan sibling subagents/ dir for agent types + per-agent usage."""
+    parent = transcript_path.parent
+    candidates = [
+        parent / session_id / "subagents",
+        parent / transcript_path.stem / "subagents",
+    ]
+    sub_dir = next((p for p in candidates if p.is_dir()), None)
+    if sub_dir is None:
+        return []
+
+    out: list[dict[str, Any]] = []
+    for jsonl in sorted(sub_dir.glob("*.jsonl")):
+        meta_path = jsonl.with_suffix(".meta.json")
+        agent_type = None
+        description = None
+        if meta_path.is_file():
+            try:
+                meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                agent_type = meta.get("agentType")
+                description = meta.get("description")
+            except (OSError, json.JSONDecodeError):
+                pass
+        if not agent_type:
+            name = jsonl.stem
+            agent_type = name.removeprefix("agent-")
+
+        calls, first_ts, last_ts = collect_api_calls(jsonl, skip_sidechain=False)
+        usage, models, cost, incomplete = summarize_calls(calls)
+        duration_ms = None
+        if first_ts and last_ts:
+            duration_ms = int((last_ts - first_ts).total_seconds() * 1000)
+
+        out.append(
+            {
+                "type": agent_type,
+                "description": description,
+                "status": "completed",
+                "duration_ms": duration_ms,
+                "models": models,
+                # kind is derived in session_log.merge_subagent_lists — never here
+                "source": "subagents_dir",
+                "usage": {
+                    k: usage[k]
+                    for k in (
+                        "input_tokens",
+                        "output_tokens",
+                        "cache_creation_input_tokens",
+                        "cache_read_input_tokens",
+                    )
+                },
+                "cost_usd_estimate": cost,
+                "cost_estimate_incomplete": incomplete or None,
+            }
+        )
+    return out
+
+
+def build_record(payload: dict[str, Any]) -> dict[str, Any]:
+    session_id = payload.get("session_id") or ""
+    transcript_path_raw = payload.get("transcript_path") or ""
+    cwd = payload.get("cwd") or ""
+    reason = payload.get("reason") or "other"
+
+    transcript = Path(transcript_path_raw).expanduser() if transcript_path_raw else None
+    main_calls: list[dict[str, Any]] = []
+    first_ts: datetime | None = None
+    last_ts: datetime | None = None
+    if transcript and transcript.is_file():
+        main_calls, first_ts, last_ts = collect_api_calls(transcript)
+
+    usage, models, main_cost, incomplete = summarize_calls(main_calls)
+    folder_subs = load_subagents(transcript, session_id) if transcript else []
+    transcript_subs: list[dict[str, Any]] = []
+    commands: list[str] = []
+    if transcript and transcript.is_file():
+        transcript_subs = extract_spawns_from_transcript(
+            transcript, tool_names=frozenset({"Agent"})
+        )
+        commands = extract_commands_from_transcript(transcript)
+    subagents = merge_subagent_lists(folder_subs, transcript_subs)
+
+    for sub in subagents:
+        for k in (
+            "input_tokens",
+            "output_tokens",
+            "cache_creation_input_tokens",
+            "cache_read_input_tokens",
+        ):
+            usage[k] += int((sub.get("usage") or {}).get(k) or 0)
+        for m in sub.get("models") or []:
+            if m not in models:
+                models.append(m)
+        if sub.get("cost_estimate_incomplete"):
+            incomplete = True
+        sc = sub.get("cost_usd_estimate")
+        if sc is not None:
+            main_cost = (main_cost or 0.0) + float(sc)
+
+    if main_cost is not None:
+        main_cost = round(main_cost, 6)
+
+    duration_ms = None
+    if first_ts and last_ts:
+        duration_ms = int((last_ts - first_ts).total_seconds() * 1000)
+
+    public_usage = {
+        "input_tokens": usage["input_tokens"],
+        "output_tokens": usage["output_tokens"],
+        "cache_creation_input_tokens": usage["cache_creation_input_tokens"],
+        "cache_read_input_tokens": usage["cache_read_input_tokens"],
+    }
+
+    return {
+        "ts": now_iso(),
+        "tool": "claude",
+        "session_id": session_id,
+        "cwd": cwd,
+        "success": reason in NORMAL_REASONS,
+        "ended_reason": reason,
+        "duration_ms": duration_ms,
+        "models": models,
+        "subagents": [
+            {
+                "type": s.get("type"),
+                "description": s.get("description"),
+                "status": s.get("status"),
+                "duration_ms": s.get("duration_ms"),
+                "models": s.get("models") or [],
+                "kind": s.get("kind"),
+                "source": s.get("source"),
+            }
+            for s in subagents
+        ],
+        "commands": commands,
+        "usage": public_usage,
+        "cost_usd_estimate": main_cost,
+        "cost_estimate_incomplete": incomplete or None,
+        "transcript_path": transcript_path_raw or None,
+    }
+
+
