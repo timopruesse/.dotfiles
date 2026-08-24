@@ -1,14 +1,13 @@
 {
   "permissions": {
-    "defaultMode": "auto",
     "deny": [
       "Bash(git config user.name:*)",
       "Bash(git config user.email:*)",
       "Bash(git config --local user.name:*)",
       "Bash(git config --local user.email:*)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
-  "model": "opus[1m]",
   "hooks": {
     "SessionEnd": [
       {
@@ -102,5 +101,6 @@
   "askUserQuestionTimeout": "never",
   "tui": "fullscreen",
   "editorMode": "vim",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "model": "opus[1m]"
 }
