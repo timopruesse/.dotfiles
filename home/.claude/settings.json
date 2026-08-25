@@ -8,6 +8,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "opus[1m]",
   "hooks": {
     "SessionEnd": [
       {
@@ -102,5 +103,5 @@
   "tui": "fullscreen",
   "editorMode": "vim",
   "skipAutoPermissionPrompt": true,
-  "model": "opus[1m]"
+  "crossSessionInbound": "accept"
 }
