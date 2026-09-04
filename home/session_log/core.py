@@ -222,7 +222,10 @@ def extract_commands_from_transcript(path: Path) -> list[str]:
                         texts.append(str(block.get("text") or ""))
                     elif isinstance(block, str):
                         texts.append(block)
-        elif entry.get("role") == "user" and isinstance(entry.get("content"), str):
+        elif (
+            entry.get("role") == "user"
+            or entry.get("type") in ("USER_INPUT", "user")
+        ) and isinstance(entry.get("content"), str):
             role = "user"
             texts.append(entry["content"])
         # Prefer user/system; also scan tool results that echo command bodies
@@ -230,6 +233,7 @@ def extract_commands_from_transcript(path: Path) -> list[str]:
             "user",
             "system",
             "prompt",
+            "USER_INPUT",
         ):
             continue
         for text in texts:
@@ -239,6 +243,92 @@ def extract_commands_from_transcript(path: Path) -> list[str]:
                     seen.add(stem)
                     found.append(stem)
     return found
+
+
+def extract_agy_transcript_data(path: Path) -> dict[str, Any]:
+    """Extract duration, models, subagents, and commands from an Antigravity transcript."""
+    stems = command_stems()
+    token_re = _command_token_re(stems)
+
+    first_ts: datetime | None = None
+    last_ts: datetime | None = None
+    models: list[str] = []
+    commands: list[str] = []
+    seen_cmds: set[str] = set()
+    subagents: list[dict[str, Any]] = []
+    seen_subagents: set[tuple[str | None, str | None]] = set()
+
+    for entry in _iter_jsonl_objects(path) or []:
+        if not isinstance(entry, dict):
+            continue
+
+        raw_ts = entry.get("created_at") or entry.get("timestamp")
+        ts = _parse_ts(raw_ts)
+        if ts:
+            if first_ts is None or ts < first_ts:
+                first_ts = ts
+            if last_ts is None or ts > last_ts:
+                last_ts = ts
+
+        content = entry.get("content")
+        if isinstance(content, str):
+            # Check for model selection updates in system/user lines
+            m_match = re.search(
+                r"Model Selection`?\s+from\s+.*?\s+to\s+(.*?)\.(?:\s|$|<)", content
+            )
+            if m_match:
+                m_name = m_match.group(1).strip()
+                if m_name and m_name not in models:
+                    models.append(m_name)
+
+            # Check for slash commands in user requests
+            if token_re and entry.get("type") in ("USER_INPUT", "user"):
+                for m in token_re.finditer(content):
+                    stem = m.group(1)
+                    if stem in stems and stem not in seen_cmds:
+                        seen_cmds.add(stem)
+                        commands.append(stem)
+
+        # Subagents dispatched via invoke_subagent tool calls
+        for tc in entry.get("tool_calls") or []:
+            if not isinstance(tc, dict):
+                continue
+            name = tc.get("name")
+            if name == "invoke_subagent":
+                args = tc.get("args") or {}
+                subs = args.get("Subagents") or []
+                for sub in subs:
+                    if not isinstance(sub, dict):
+                        continue
+                    t = sub.get("TypeName") or sub.get("Role") or "untyped"
+                    d = sub.get("Prompt") or sub.get("Role")
+                    key = (t, d)
+                    if key in seen_subagents:
+                        continue
+                    seen_subagents.add(key)
+                    m = sub.get("Model")
+                    subagents.append(
+                        {
+                            "type": t,
+                            "description": d,
+                            "status": "completed",
+                            "duration_ms": None,
+                            "models": [m] if m else [],
+                            "kind": classify_subagent_kind(t),
+                            "source": "transcript",
+                        }
+                    )
+
+    duration_ms = None
+    if first_ts and last_ts:
+        duration_ms = max(0, int((last_ts - first_ts).total_seconds() * 1000))
+
+    return {
+        "duration_ms": duration_ms,
+        "models": models,
+        "subagents": subagents,
+        "commands": commands,
+    }
 
 
 def merge_subagent_lists(

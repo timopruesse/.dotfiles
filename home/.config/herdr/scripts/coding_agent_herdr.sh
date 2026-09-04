@@ -3,7 +3,7 @@
 # Adapters (bind.sh, zsh c*, nvim) stay thin.
 #
 # Usage:
-#   coding_agent_herdr.sh <layout> [resume|continue] [--claude|--agent|--cursor]
+#   coding_agent_herdr.sh <layout> [resume|continue] [--claude|--agent|--cursor|--agy]
 #                         [--prompt-file PATH] [extra launch args...]
 #
 # layout: right|down|tab  (aliases: hsplit→right, vsplit→down, window→tab)
@@ -41,6 +41,7 @@ for arg in "$@"; do
   case "$arg" in
   --claude) force=claude ;;
   --agent | --cursor) force=agent ;;
+  --agy) force=agy ;;
   esac
 done
 

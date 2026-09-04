@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "afterShellExecution": [
+      {
+        "command": "bash \"$HOME/.cursor/hooks/pane-context-aws.sh\""
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "bash \"$HOME/.cursor/hooks/pane-context-aws.sh\"",
+        "matcher": "Shell"
+      }
+    ],
     "sessionEnd": [
       {
         "command": "./hooks/log-session.sh"
@@ -16,17 +27,6 @@
     "subagentStop": [
       {
         "command": "./hooks/log-session.sh"
-      }
-    ],
-    "preToolUse": [
-      {
-        "matcher": "Shell",
-        "command": "bash \"$HOME/.cursor/hooks/pane-context-aws.sh\""
-      }
-    ],
-    "afterShellExecution": [
-      {
-        "command": "bash \"$HOME/.cursor/hooks/pane-context-aws.sh\""
       }
     ]
   },

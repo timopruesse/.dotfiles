@@ -1,11 +1,11 @@
 #!/bin/sh
 # Resolve which coding-agent CLI to launch for a directory.
-# Prints one word: claude | agent
+# Prints one word: claude | agent | agy
 #
 # Precedence:
-#   1. CODING_AGENT=claude|agent (env override)
-#   2. Git remote org: chewielabs → claude; timopruesse → agent
-#   3. Path: ~/github/chewielabs → claude; everything else → agent
+#   1. CODING_AGENT=claude|agent|cursor|agy (env override; cursor -> agent)
+#   2. Git remote org: chewielabs → claude; timopruesse → agy
+#   3. Path: ~/github/chewielabs → claude; everything else → agy
 #
 # Usage: coding_agent_resolve.sh [dir]
 #        . coding_agent_resolve.sh  # defines coding_agent_resolve()
@@ -14,8 +14,12 @@ coding_agent_resolve() {
   dir=${1:-.}
 
   case "${CODING_AGENT:-}" in
-  claude | agent)
+  claude | agent | agy)
     printf '%s\n' "$CODING_AGENT"
+    return 0
+    ;;
+  cursor)
+    printf '%s\n' agent
     return 0
     ;;
   esac
@@ -28,7 +32,7 @@ coding_agent_resolve() {
     abs=$dir
   fi
 
-  # Remote-URL wins over path (worktrees live under ~/.cursor or ~/.claude).
+  # Remote-URL wins over path (worktrees live under ~/.cursor, ~/.claude, or ~/.agents).
   if remotes=$(git -C "$dir" remote -v 2>/dev/null); then
     case "$remotes" in
     *github.com[:/]chewielabs/* | *github.com[:/]chewielabs.git*)
@@ -36,7 +40,7 @@ coding_agent_resolve() {
       return 0
       ;;
     *github.com[:/]timopruesse/* | *github.com[:/]timopruesse.git*)
-      printf '%s\n' agent
+      printf '%s\n' agy
       return 0
       ;;
     esac
@@ -47,7 +51,7 @@ coding_agent_resolve() {
     printf '%s\n' claude
     ;;
   *)
-    printf '%s\n' agent
+    printf '%s\n' agy
     ;;
   esac
 }

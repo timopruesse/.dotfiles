@@ -65,14 +65,14 @@ def load_command_tiers() -> dict[str, list[str]]:
 
 def render_agent_tier_table(tiers: dict[str, dict[str, str]], agents: dict[str, list[str]]) -> str:
     lines = [
-        "| Tier | Agents | Claude Code | Cursor |",
-        "| --- | --- | --- | --- |",
+        "| Tier | Agents | Claude Code | Cursor | Agy |",
+        "| --- | --- | --- | --- | --- |",
     ]
     for tier in ("cheap", "mid", "strong"):
         names = ", ".join(f"`{n}`" for n in agents.get(tier, []))
         pins = tiers[tier]
         lines.append(
-            f"| {tier} | {names} | `{pins['claude']}` | `{pins['cursor']}` |"
+            f"| {tier} | {names} | `{pins['claude']}` | `{pins['cursor']}` | `{pins['agy']}` |"
         )
     return "\n".join(lines)
 
@@ -80,16 +80,16 @@ def render_agent_tier_table(tiers: dict[str, dict[str, str]], agents: dict[str, 
 def render_workflows_agent_roster(
     tiers: dict[str, dict[str, str]], agents: dict[str, list[str]]
 ) -> str:
-    """Agent | Tier | Claude | Cursor — roles live in agent sources / prose above."""
+    """Agent | Tier | Claude | Cursor | Agy — roles live in agent sources / prose above."""
     lines = [
-        "| Agent | Tier | Claude | Cursor |",
-        "| --- | --- | --- | --- |",
+        "| Agent | Tier | Claude | Cursor | Agy |",
+        "| --- | --- | --- | --- | --- |",
     ]
     for tier in ("cheap", "mid", "strong"):
         for name in agents.get(tier, []):
             pins = tiers[tier]
             lines.append(
-                f"| `{name}` | {tier} | `{pins['claude']}` | `{pins['cursor']}` |"
+                f"| `{name}` | {tier} | `{pins['claude']}` | `{pins['cursor']}` | `{pins['agy']}` |"
             )
     return "\n".join(lines)
 
@@ -109,12 +109,12 @@ def render_command_tier_table(commands: dict[str, list[str]]) -> str:
 
 def render_model_map_table(tiers: dict[str, dict[str, str]]) -> str:
     lines = [
-        "| Tier | Claude Code (`model:`) | Cursor (preferred session model) |",
-        "| --- | --- | --- |",
+        "| Tier | Claude Code (`model:`) | Cursor (preferred session model) | Agy (`--model`) |",
+        "| --- | --- | --- | --- |",
     ]
     for tier in ("cheap", "mid", "strong"):
         pins = tiers[tier]
-        lines.append(f"| {tier} | `{pins['claude']}` | `{pins['cursor']}` |")
+        lines.append(f"| {tier} | `{pins['claude']}` | `{pins['cursor']}` | `{pins['agy']}` |")
     return "\n".join(lines)
 
 

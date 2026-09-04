@@ -117,6 +117,42 @@ class SessionLogCoreTests(unittest.TestCase):
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0]["session_id"], "new")
 
+    def test_extract_agy_transcript_data(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "transcript.jsonl"
+            lines = [
+                '{"step_index":0,"type":"USER_INPUT","created_at":"2026-08-11T12:00:00Z","content":"Please /land this and run /open-pr\\n<USER_SETTINGS_CHANGE>The user changed setting `Model Selection` from None to Gemini 3.8 Flash (High).</USER_SETTINGS_CHANGE>"}',
+                '{"step_index":1,"type":"PLANNER_RESPONSE","created_at":"2026-08-11T12:01:00Z","tool_calls":[{"name":"invoke_subagent","args":{"Subagents":[{"TypeName":"scout","Role":"Codebase Researcher","Prompt":"locate auth","Model":"flash_lite"}]}}]}',
+                '{"step_index":2,"type":"GENERIC","created_at":"2026-08-11T12:02:00Z","content":"Done"}',
+            ]
+            path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            data = core.extract_agy_transcript_data(path)
+            self.assertEqual(data["duration_ms"], 120000)
+            self.assertIn("Gemini 3.8 Flash (High)", data["models"])
+            self.assertEqual(data["commands"], ["land", "open-pr"])
+            self.assertEqual(len(data["subagents"]), 1)
+            self.assertEqual(data["subagents"][0]["type"], "scout")
+            self.assertEqual(data["subagents"][0]["kind"], "pinned")
+            self.assertEqual(data["subagents"][0]["models"], ["flash_lite"])
+
+    def test_rollup_includes_agy(self) -> None:
+        records = [
+            {
+                "ts": "2026-08-11T12:00:00Z",
+                "tool": "agy",
+                "session_id": "a1",
+                "cost_usd_estimate": None,
+                "duration_ms": 120000,
+                "commands": ["land"],
+                "subagents": [{"type": "scout", "kind": "pinned"}],
+            }
+        ]
+        rollup = core.rollup_sessions(records)
+        self.assertEqual(rollup["by_tool"]["agy"]["sessions"], 1)
+        self.assertEqual(rollup["by_tool"]["agy"]["duration_ms"], 120000)
+        self.assertIsNone(rollup["by_tool"]["agy"]["cost_usd"])
+        self.assertEqual(rollup["by_command"]["land"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

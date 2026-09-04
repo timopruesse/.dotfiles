@@ -1,0 +1,11 @@
+{
+  "session-logger": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash ~/.gemini/hooks/log-session.sh",
+        "timeout": 15
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # Sync module
 
-Deep module for generating Claude/Cursor agent + command pins from shared
+Deep module for generating Claude/Cursor/Antigravity agent + command pins from shared
 sources. Domain terms: see [`CONTEXT.md`](../../CONTEXT.md).
 
 | Path | Role |
@@ -10,7 +10,7 @@ sources. Domain terms: see [`CONTEXT.md`](../../CONTEXT.md).
 | `common.py` | `parse_model_map`, `parse_frontmatter`, `link_into`, pin-token expand, marked-section rewrite |
 | `catalog.py` | Emit tier catalog (`subagent-model-fallback.mdc` + `agent-routing.mdc` + doc tables + WORKFLOWS roster) |
 | `agents.py` / `commands.py` | Platform writers (thin adapters over common) |
-| `live_cursor.py` | Internal live-install adapter (`~/.cursor` + Claude skills) |
+| `live_cursor.py` | Internal live-install adapter (`~/.cursor` + Claude + Antigravity) |
 | `normalize_herdr_hooks.py` / `normalize-herdr-hooks` | Dedupe herdr integration SessionStart hooks (portable `$HOME` paths) |
 | `project_agents.py` / `ensure-project-agents` | **project-agents** — also callable from coding-agent launchers for foreign repos |
 
@@ -21,7 +21,7 @@ Entry point (also invoked from `machine_setup.yaml`):
 ```
 
 Skills are authored under [`home/skills/`](../skills/) (no generate step) and
-linked by the conveyor into `~/.cursor/skills/` and `~/.claude/skills/`.
+linked by the conveyor into `~/.cursor/skills/`, `~/.claude/skills/`, and `~/.agents/skills/`.
 
 **project-agents:** Cursor’s Task tool often only discovers agents under the
 project’s `.cursor/agents/`, not `~/.cursor/agents/`. This repo commits those

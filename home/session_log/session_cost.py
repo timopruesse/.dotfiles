@@ -64,6 +64,7 @@ def main(argv: list[str] | None = None) -> int:
     paths = [
         Path.home() / ".claude" / "logs" / "sessions.jsonl",
         Path.home() / ".cursor" / "logs" / "sessions.jsonl",
+        Path.home() / ".gemini" / "logs" / "sessions.jsonl",
     ]
 
     missing = [str(x) for x in paths if not x.is_file()]

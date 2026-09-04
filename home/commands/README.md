@@ -24,11 +24,11 @@ Sources declare an abstract `tier: cheap|mid|strong` (same vocabulary as
 [`home/agents/model-map.yaml`](../agents/model-map.yaml):
 
 <!-- BEGIN GENERATED MODEL MAP TABLE -->
-| Tier | Claude Code (`model:`) | Cursor (preferred session model) |
-| --- | --- | --- |
-| cheap | `haiku` | `composer-2.5` |
-| mid | `sonnet` | `composer-2.5-fast` |
-| strong | `opus` | `cursor-grok-4.6-high-fast` |
+| Tier | Claude Code (`model:`) | Cursor (preferred session model) | Agy (`--model`) |
+| --- | --- | --- | --- |
+| cheap | `haiku` | `composer-2.5` | `flash_lite` |
+| mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` |
 <!-- END GENERATED MODEL MAP TABLE -->
 
 Claude Code honors the frontmatter `model:` pin for the command turn. Cursor

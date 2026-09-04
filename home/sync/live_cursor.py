@@ -14,9 +14,13 @@ REPO_HOME = repo_home()
 SKILLS_SRC = REPO_HOME / "skills"
 CURSOR_OUT_AGENTS = REPO_HOME / ".cursor" / "agents"
 CURSOR_OUT_COMMANDS = REPO_HOME / ".cursor" / "commands"
+AGY_OUT_AGENTS = REPO_HOME / ".agents" / "agents"
+AGY_OUT_WORKFLOWS = REPO_HOME / ".agents" / "workflows"
 CURSOR_RULES_DIR = REPO_HOME / ".cursor" / "rules"
 CURSOR_HOOKS_JSON = REPO_HOME / ".cursor" / "hooks.json"
 CURSOR_HOOKS_DIR = REPO_HOME / ".cursor" / "hooks"
+AGY_HOOKS_JSON = REPO_HOME / ".gemini" / "hooks.json"
+AGY_HOOKS_DIR = REPO_HOME / ".gemini" / "hooks"
 CURSOR_CLI_CONFIG = REPO_HOME / ".cursor" / "cli-config.json"
 CURSOR_STATUSLINE = REPO_HOME / ".cursor" / "statusline.sh"
 
@@ -30,6 +34,17 @@ LIVE_CLI_CONFIG = LIVE_CURSOR / "cli-config.json"
 LIVE_STATUSLINE = LIVE_CURSOR / "statusline.sh"
 LIVE_CURSOR_SKILLS = LIVE_CURSOR / "skills"
 LIVE_CLAUDE_SKILLS = Path.home() / ".claude" / "skills"
+LIVE_AGY_CONFIG = Path.home() / ".gemini" / "config"
+LIVE_AGY_AGENTS = LIVE_AGY_CONFIG / "agents"
+LIVE_AGY_WORKFLOWS = LIVE_AGY_CONFIG / "workflows"
+LIVE_AGY_SKILLS = LIVE_AGY_CONFIG / "skills"
+LIVE_AGY_HOOKS_JSON = LIVE_AGY_CONFIG / "hooks.json"
+LIVE_AGY_HOOKS_DIR = Path.home() / ".gemini" / "hooks"
+LIVE_AGENTS_ROOT = Path.home() / ".agents"
+LIVE_AGENTS_AGENTS = LIVE_AGENTS_ROOT / "agents"
+LIVE_AGENTS_WORKFLOWS = LIVE_AGENTS_ROOT / "workflows"
+LIVE_AGENTS_SKILLS = LIVE_AGENTS_ROOT / "skills"
+LIVE_AGENTS_HOOKS_JSON = LIVE_AGENTS_ROOT / "hooks.json"
 
 
 def install_md_links(src_dir: Path, live_dir: Path, keep: set[str] | None = None) -> None:
@@ -56,6 +71,14 @@ def install_hooks() -> None:
     if CURSOR_HOOKS_DIR.is_dir():
         if link_into(CURSOR_HOOKS_DIR, LIVE_HOOKS_DIR):
             print(f"  installed hooks/ → {LIVE_HOOKS_DIR}")
+    if AGY_HOOKS_JSON.is_file():
+        if link_into(AGY_HOOKS_JSON, LIVE_AGY_HOOKS_JSON):
+            print(f"  installed hooks.json → {LIVE_AGY_HOOKS_JSON}")
+        if link_into(AGY_HOOKS_JSON, LIVE_AGENTS_HOOKS_JSON):
+            print(f"  installed hooks.json → {LIVE_AGENTS_HOOKS_JSON}")
+    if AGY_HOOKS_DIR.is_dir():
+        if link_into(AGY_HOOKS_DIR, LIVE_AGY_HOOKS_DIR):
+            print(f"  installed hooks/ → {LIVE_AGY_HOOKS_DIR}")
     normalize_all()
 
 
@@ -163,9 +186,9 @@ def _prune_stale_managed_skills(live_root: Path, keep: set[str]) -> None:
 
 
 def install_skills() -> None:
-    """Link home/skills/<name> into ~/.cursor/skills and ~/.claude/skills.
+    """Link home/skills/<name> into ~/.cursor/skills, ~/.claude/skills, and ~/.agents/skills.
 
-    Always reclaim managed names (overwrite foreign symlinks e.g. ~/.agents).
+    Always reclaim managed names (overwrite foreign symlinks).
     Only prunes symlinks that resolve under the managed skills source — leaves
     unrelated personal/plugin skills alone.
     """
@@ -173,7 +196,18 @@ def install_skills() -> None:
     if not skills:
         return
     keep = {p.name for p in skills}
-    for live_root in (LIVE_CURSOR_SKILLS, LIVE_CLAUDE_SKILLS):
+    roots = [LIVE_CURSOR_SKILLS, LIVE_CLAUDE_SKILLS]
+    seen = {p.resolve() for p in roots if p.exists()}
+    for candidate in (LIVE_AGENTS_SKILLS, LIVE_AGY_SKILLS):
+        try:
+            cand_res = candidate.resolve()
+        except OSError:
+            cand_res = candidate
+        if cand_res not in seen:
+            roots.append(candidate)
+            seen.add(cand_res)
+
+    for live_root in roots:
         linked = 0
         reclaimed = 0
         for skill_dir in skills:
@@ -182,8 +216,14 @@ def install_skills() -> None:
                 try:
                     if dest.resolve() != skill_dir.resolve():
                         reclaimed += 1
+                        dest.unlink()
                 except OSError:
                     reclaimed += 1
+                    dest.unlink()
+            elif dest.is_dir():
+                import shutil
+                shutil.rmtree(dest)
+                reclaimed += 1
             if link_into(skill_dir, dest):
                 linked += 1
         _prune_stale_managed_skills(live_root, keep)
@@ -209,10 +249,20 @@ def install_all(
         keep = {p.stem for p in CURSOR_OUT_AGENTS.glob("*.md")}
         install_md_links(CURSOR_OUT_AGENTS, LIVE_AGENTS, keep)
         print(f"  linked {len(keep)} agents → {LIVE_AGENTS}")
+    if agents and AGY_OUT_AGENTS.is_dir():
+        keep = {p.stem for p in AGY_OUT_AGENTS.glob("*.md")}
+        for target in (LIVE_AGY_AGENTS, LIVE_AGENTS_AGENTS):
+            install_md_links(AGY_OUT_AGENTS, target, keep)
+            print(f"  linked {len(keep)} agy agents → {target}")
     if commands and CURSOR_OUT_COMMANDS.is_dir():
         keep = {p.stem for p in CURSOR_OUT_COMMANDS.glob("*.md")}
         install_md_links(CURSOR_OUT_COMMANDS, LIVE_COMMANDS, keep)
         print(f"  linked {len(keep)} commands → {LIVE_COMMANDS}")
+    if commands and AGY_OUT_WORKFLOWS.is_dir():
+        keep = {p.stem for p in AGY_OUT_WORKFLOWS.glob("*.md")}
+        for target in (LIVE_AGY_WORKFLOWS, LIVE_AGENTS_WORKFLOWS):
+            install_md_links(AGY_OUT_WORKFLOWS, target, keep)
+            print(f"  linked {len(keep)} agy workflows → {target}")
     if skills:
         install_skills()
     if rule:

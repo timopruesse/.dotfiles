@@ -65,17 +65,18 @@ class CatalogHelperTests(unittest.TestCase):
         self.assertEqual(set(tiers), {"cheap", "mid", "strong"})
         self.assertIn("claude", tiers["cheap"])
         self.assertIn("cursor", tiers["cheap"])
+        self.assertIn("agy", tiers["cheap"])
 
     def test_workflows_roster_rows(self) -> None:
         tiers = {
-            "cheap": {"claude": "haiku", "cursor": "c1"},
-            "mid": {"claude": "sonnet", "cursor": "c2"},
-            "strong": {"claude": "opus", "cursor": "c3"},
+            "cheap": {"claude": "haiku", "cursor": "c1", "agy": "a1"},
+            "mid": {"claude": "sonnet", "cursor": "c2", "agy": "a2"},
+            "strong": {"claude": "opus", "cursor": "c3", "agy": "a3"},
         }
         agents = {"cheap": ["scout"], "mid": ["worker"], "strong": ["verifier"]}
         table = render_workflows_agent_roster(tiers, agents)
-        self.assertIn("| `scout` | cheap | `haiku` | `c1` |", table)
-        self.assertIn("| `verifier` | strong | `opus` | `c3` |", table)
+        self.assertIn("| `scout` | cheap | `haiku` | `c1` | `a1` |", table)
+        self.assertIn("| `verifier` | strong | `opus` | `c3` | `a3` |", table)
 
     def test_model_fallback_tokens_expand(self) -> None:
         tiers = parse_model_map(ROOT / "home" / "agents" / "model-map.yaml")

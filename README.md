@@ -6,7 +6,7 @@ Declarative, YAML-driven dotfiles for WSL2 Ubuntu and macOS. Applied by [machine
 
 Neovim with [Lazy.nvim](https://github.com/folke/lazy.nvim) and [Catppuccin Mocha](https://github.com/catppuccin/nvim). Zsh, [zcomet](https://github.com/agkozak/zcomet), and [Oh My Posh](https://ohmyposh.dev). [Ghostty](https://ghostty.org) on macOS, [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) on WSL, [Herdr](https://herdr.dev) for multiplexing. Targets WSL2 on Windows and macOS on Apple Silicon.
 
-Coding agents: Claude Code on work repos, Cursor Agent on personal ones (and anywhere else). Same entry points in zsh, Herdr, and Neovim — see [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md), and [workflows](#workflows--agent-harness) below for the spine and routing details.
+Coding agents: Claude Code on work repos, Antigravity (agy) on personal ones, with Cursor Agent CLI preserved across the environment. Same entry points in zsh, Herdr, and Neovim — see [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md), and [workflows](#workflows--agent-harness) below for the spine and routing details.
 
 For prompt icons, run `oh-my-posh font install meslo` (machine_setup handles this). On WSL you also need that font installed on Windows, or Windows Terminal shows broken glyphs.
 
@@ -58,6 +58,6 @@ Platform-specific shell bits live in `home/.config/zsh/{wsl,linux,macos}.zsh`. E
 
 Installed via [`machine_setup.yaml`](machine_setup.yaml) — Homebrew on macOS ([`Brewfile`](Brewfile)), apt and curl on WSL:
 
-Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go. Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh. ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI. Docker CE on WSL; Colima + Docker on macOS. AWS CLI. Claude Code and Cursor Agent CLI.
+Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go. Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh. ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI. Docker CE on WSL; Colima + Docker on macOS. AWS CLI. Claude Code, Antigravity (agy), and Cursor Agent CLI.
 
 Google Chrome on both platforms for the Chrome DevTools MCP server. WSL also installs win32yank for clipboard integration.

@@ -9,6 +9,7 @@ and Cursor (CLI + IDE).
 |------|------|
 | Claude Code | `~/.claude/logs/sessions.jsonl` |
 | Cursor (CLI + IDE) | `~/.cursor/logs/sessions.jsonl` |
+| Antigravity (`agy`) | `~/.gemini/logs/sessions.jsonl` |
 
 Scratch state for in-flight Cursor sessions lives in
 `~/.cursor/logs/scratch/<session_id>.json` and is removed on `sessionEnd`.
@@ -92,8 +93,29 @@ SessionStart entries with absolute paths on every run. Dotfiles keeps portable
 `$HOME` paths in [`settings.json`](home/.claude/settings.json) and
 [`hooks.json`](home/.cursor/hooks.json). Because those files symlink into this
 repo, duplicates show up as uncommitted edits. Run
-[`home/sync/normalize-herdr-hooks`](home/sync/normalize-herdr-hooks) after
-integration install (`machine_setup` does this automatically).
+### Antigravity (`agy`)
+
+[`home/.gemini/hooks.json`](home/.gemini/hooks.json) registers a `Stop` hook
+that runs [`home/.gemini/hooks/log-session.sh`](home/.gemini/hooks/log-session.sh) →
+[`log_session.py`](home/.gemini/hooks/log_session.py).
+
+Antigravity does **not** expose token or USD billing in hook payloads;
+`usage` and `cost_usd_estimate` are `null`. The logger:
+
+1. Responds `{}` on stdout immediately to satisfy the `Stop` lifecycle contract.
+2. Resolves the session transcript (from hook payload or `~/.gemini/antigravity-cli/brain/<id>/...`).
+3. Computes `duration_ms` from the first and last timestamps in `transcript.jsonl`.
+4. Extracts `models` used (including model selection changes).
+5. Scans `invoke_subagent` tool calls for dispatched subagents (`kind: pinned|builtin`).
+6. Detects slash-command stems (`/land`, `/open-pr`, …) into `commands[]`.
+7. Appends a record with `tool: "agy"` to `~/.gemini/logs/sessions.jsonl`.
+
+Sync conveyor installs the hooks:
+
+| Repo | Live |
+|------|------|
+| `home/.gemini/hooks.json` | `~/.gemini/config/hooks.json` + `~/.agents/hooks.json` (symlink) |
+| `home/.gemini/hooks/` | `~/.gemini/hooks/` (symlink) |
 
 ## Record schema
 

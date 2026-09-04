@@ -92,14 +92,14 @@ def parse_model_map(path: Path) -> dict[str, dict[str, str]]:
             current = tier_m.group(1)
             tiers[current] = {}
             continue
-        pin_m = re.match(r"^    (claude|cursor):\s+(\S+)\s*$", line)
+        pin_m = re.match(r"^    (claude|cursor|agy):\s+(\S+)\s*$", line)
         if pin_m and current:
             tiers[current][pin_m.group(1)] = pin_m.group(2)
             continue
         raise SystemExit(f"unrecognized line in {path}: {raw!r}")
     for name, pins in tiers.items():
-        if set(pins) != {"claude", "cursor"}:
-            raise SystemExit(f"tier {name!r} missing claude/cursor pins: {pins}")
+        if set(pins) != {"claude", "cursor", "agy"}:
+            raise SystemExit(f"tier {name!r} missing claude/cursor/agy pins: {pins}")
     return tiers
 
 
@@ -180,6 +180,8 @@ def expand_pin_tokens(body: str, tiers: dict[str, dict[str, str]], platform: str
         slug = tiers[tier][platform]
         if platform == "claude":
             return f'`model: "{slug}"`'
+        elif platform == "agy":
+            return f"`{slug}`"
         return f"`{slug}` or `auto`"
 
     return PIN_TOKEN_RE.sub(repl, body)

@@ -88,19 +88,19 @@ Pane-scoped via `pane_context.sh` (see `docs/adr/0001-pane-context-per-pane.md`)
 
 ## Coding agent (`claude_aliases.zsh`)
 
-`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Cursor Agent** from the cwd
-(same rules as git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`):
+`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Antigravity (agy)** from the cwd
+(with Cursor Agent CLI preserved via override; same rules as git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`):
 
-1. `CODING_AGENT=claude|agent` env override
-2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `agent`
-3. Path: `~/github/chewielabs/*` → `claude`, everything else → `agent`
+1. `CODING_AGENT=claude|agy|agent|cursor` env override (cursor normalizes to agent)
+2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `agy`
+3. Path: `~/github/chewielabs/*` → `claude`, everything else → `agy`
 
-Per-invocation override: pass `--claude` or `--agent` / `--cursor` to any of the
-launchers (e.g. `c --claude`, `ch --agent "fix the flaky test"`).
+Per-invocation override: pass `--claude`, `--agy`, or `--agent` / `--cursor` to any of the
+launchers (e.g. `c --claude`, `c --agy`, `ch --agent "fix the flaky test"`).
 
 Launchers run inside herdr (`HERDR_ENV=1`): they call
 `coding_agent_herdr.sh` (split/tab + `coding_agent_launch.sh`), so keep-awake
-applies the same as typing `claude` / `agent`. Herdr
+applies the same as typing `claude` / `agy` / `agent`. Herdr
 `prefix+shift+H`/`V`/`R`/`S` use the same path.
 
 | Function | Command | Description |

@@ -164,6 +164,10 @@ agent() {
   coding_agent_with_policy agent "$@"
 }
 
+agy() {
+  coding_agent_with_policy agy "$@"
+}
+
 # open buffer line in editor
 autoload -Uz edit-command-line
 zle -N edit-command-line

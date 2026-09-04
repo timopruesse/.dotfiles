@@ -21,6 +21,7 @@ PROTOCOLS_DIR = repo_home() / "protocols"
 MAP_PATH = repo_home() / "agents" / "model-map.yaml"
 CLAUDE_OUT = repo_home() / ".claude" / "commands"
 CURSOR_OUT = repo_home() / ".cursor" / "commands"
+AGY_OUT = repo_home() / ".agents" / "workflows"
 CLAUDE_ROOT = repo_home() / ".claude"
 CURSOR_PROTOCOLS = repo_home() / ".cursor" / "protocols"
 
@@ -118,6 +119,30 @@ def write_claude(
     return write_text_if_changed(path, content)
 
 
+def agy_preamble(agy_model: str, tier: str) -> str:
+    return (
+        f"## Orchestrator model (Antigravity)\n"
+        f"\n"
+        f"Preferred session model for this workflow: `{agy_model}` "
+        f"(tier `{tier}` via `home/agents/model-map.yaml`). "
+        f"Subagents keep their own frontmatter pins.\n"
+        f"\n"
+    )
+
+
+def to_agy_body(
+    body: str, agy_model: str, tier: str, tiers: dict[str, dict[str, str]]
+) -> str:
+    body = rewrite_protocol_links(body)
+    body = expand_pin_tokens(body, tiers, "agy")
+    body = re.sub(
+        r"\]\(\.\./protocols/(HANDOFF-PROTOCOL|LOOP-PROTOCOL)\.md\)",
+        r"](~/protocols/\1.md)",
+        body,
+    )
+    return agy_preamble(agy_model, tier) + body
+
+
 def write_cursor(
     name: str,
     body: str,
@@ -130,6 +155,21 @@ def write_cursor(
         body += "\n"
     content = GENERATED_BANNER + "\n" + body
     path = CURSOR_OUT / f"{name}.md"
+    return write_text_if_changed(path, content)
+
+
+def write_agy(
+    name: str,
+    body: str,
+    agy_model: str,
+    tier: str,
+    tiers: dict[str, dict[str, str]],
+) -> bool:
+    body = to_agy_body(body, agy_model, tier, tiers)
+    if not body.endswith("\n"):
+        body += "\n"
+    content = GENERATED_BANNER + "\n" + body
+    path = AGY_OUT / f"{name}.md"
     return write_text_if_changed(path, content)
 
 
@@ -151,7 +191,7 @@ def install_protocols() -> None:
 
 
 def sync_commands() -> int:
-    """Generate Claude/Cursor commands + protocol links. Catalog/live: conveyor."""
+    """Generate Claude/Cursor/Agy commands + protocol links. Catalog/live: conveyor."""
     if not PROTOCOLS_DIR.is_dir():
         print(f"missing {PROTOCOLS_DIR}", file=sys.stderr)
         return 1
@@ -177,24 +217,27 @@ def sync_commands() -> int:
         name = src.stem
         claude_model = tiers[tier]["claude"]
         cursor_model = tiers[tier]["cursor"]
+        agy_model = tiers[tier]["agy"]
         changed = write_claude(name, fields, body, claude_model, tiers)
         changed = write_cursor(name, body, cursor_model, tier, tiers) or changed
+        changed = write_agy(name, body, agy_model, tier, tiers) or changed
         if changed:
             written += 1
-            print(f"  {name}: tier={tier} → claude={claude_model} cursor={cursor_model}")
+            print(f"  {name}: tier={tier} → claude={claude_model} cursor={cursor_model} agy={agy_model}")
 
     unchanged = len(sources) - written
     if unchanged:
         print(f"  ({unchanged} commands unchanged)")
 
     keep = {p.stem for p in sources}
-    for out_dir in (CLAUDE_OUT, CURSOR_OUT):
+    for out_dir in (CLAUDE_OUT, CURSOR_OUT, AGY_OUT):
         prune_stale_md(out_dir, keep, relative_to=repo_home())
 
     print(
         f"synced {len(sources)} commands → "
         f"{CLAUDE_OUT.relative_to(repo_home().parent)} + "
-        f"{CURSOR_OUT.relative_to(repo_home().parent)}"
+        f"{CURSOR_OUT.relative_to(repo_home().parent)} + "
+        f"{AGY_OUT.relative_to(repo_home().parent)}"
     )
     return 0
 

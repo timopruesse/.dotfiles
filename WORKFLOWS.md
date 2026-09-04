@@ -259,19 +259,19 @@ who drives each agent live in the agent sources and the flow graph above — do 
 hand-edit the roster table.
 
 <!-- BEGIN GENERATED WORKFLOWS AGENT ROSTER -->
-| Agent | Tier | Claude | Cursor |
-| --- | --- | --- | --- |
-| `boba-watcher` | cheap | `haiku` | `composer-2.5` |
-| `committer` | cheap | `haiku` | `composer-2.5` |
-| `researcher` | cheap | `haiku` | `composer-2.5` |
-| `scout` | cheap | `haiku` | `composer-2.5` |
-| `security-triage` | cheap | `haiku` | `composer-2.5` |
-| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` |
-| `pr-reviewer` | mid | `sonnet` | `composer-2.5-fast` |
-| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` |
-| `sweep` | mid | `sonnet` | `composer-2.5-fast` |
-| `worker` | mid | `sonnet` | `composer-2.5-fast` |
-| `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` |
+| Agent | Tier | Claude | Cursor | Agy |
+| --- | --- | --- | --- | --- |
+| `boba-watcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
+| `committer` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
+| `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
+| `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
+| `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
+| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| `pr-reviewer` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` |
 <!-- END GENERATED WORKFLOWS AGENT ROSTER -->
 
 > Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,

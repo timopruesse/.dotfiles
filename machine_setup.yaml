@@ -237,10 +237,10 @@ tasks:
           force: true
           src: "./home"
           target: "~"
-          # Cursor owns ~/.cursor (chats, extensions, state). Agent/command pins
-          # + CLI prefs are installed into ~/.cursor by sync scripts.
-          ignore: [".cursor"]
-      # Regenerate Claude/Cursor pins, catalog, live-install, project-agents.
+          # Cursor owns ~/.cursor; Antigravity owns ~/.gemini and ~/.agents.
+          # Managed agent/command pins + skills are installed by sync conveyor.
+          ignore: [".cursor", ".gemini", ".agents"]
+      # Regenerate Claude/Cursor/Agy pins, catalog, live-install, project-agents.
       - run:
           install:
             - "$HOME/sync/sync"
@@ -533,6 +533,19 @@ tasks:
       - run:
           install: "curl https://cursor.com/install -fsS | bash"
           update: "curl https://cursor.com/install -fsS | bash"
+
+  # Antigravity CLI (agy). Native installer (cross-platform) → ~/.local/bin
+  # (already on PATH). Re-run update / installer to update, same pattern as
+  # cursor_cli and claude_cli.
+  agy_cli:
+    auto_update:
+      at: "08:00"
+    commands:
+      - run:
+          install: "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+          update: "agy update || curl -fsSL https://antigravity.google/cli/install.sh | bash"
+          uninstall:
+            - "rm -f ~/.local/bin/agy"
 
   ohmyposh_linux:
     os: ["linux"]

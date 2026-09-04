@@ -1,8 +1,8 @@
-# coding-agent aliases: path/remote-aware launcher for Claude Code vs Cursor Agent.
+# coding-agent aliases: path/remote-aware launcher for Claude Code vs Antigravity (agy) vs Cursor Agent.
 # Resolve + herdr split/tab live in ~/.config/herdr/scripts/coding_agent_herdr.sh
 #   chewielabs (remote or ~/github/chewielabs) → claude
-#   everything else → agent
-# Override: CODING_AGENT=claude|agent, or pass --claude / --agent to c/ch/cv/cr/cpi.
+#   personal / everything else → agy (or agent via override)
+# Override: CODING_AGENT=claude|agent|cursor|agy, or pass --claude / --agent / --cursor / --agy to c/ch/cv/cr/cpi.
 
 _CODING_AGENT_SCRIPTS="${HOME}/.config/herdr/scripts"
 
@@ -56,7 +56,7 @@ function cpi() {
   local prompt_parts=()
   for arg in "$@"; do
     case "$arg" in
-      --claude|--agent|--cursor) force_flags+=("$arg") ;;
+      --claude|--agent|--cursor|--agy) force_flags+=("$arg") ;;
       *) prompt_parts+=("$arg") ;;
     esac
   done

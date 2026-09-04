@@ -1,16 +1,20 @@
 # Platform model pins for abstract agent + command-orchestrator tiers.
 # Edit here, then run: home/sync/sync
-# Agent sources: home/agents/*.md → home/.claude/agents/ + home/.cursor/agents/
-# Command sources: home/commands/*.md → home/.claude/commands/ + home/.cursor/commands/
+# Agent sources: home/agents/*.md → home/.claude/agents/ + home/.cursor/agents/ + home/.agents/agents/
+# Command sources: home/commands/*.md → home/.claude/commands/ + home/.cursor/commands/ + home/.agents/workflows/
 # Do not edit the generated trees by hand.
 
 tiers:
   cheap:
     claude: haiku
     cursor: composer-2.5
+    agy: flash_lite
   mid:
     claude: sonnet
     cursor: composer-2.5-fast
+    agy: flash
   strong:
     claude: opus
     cursor: cursor-grok-4.6-high-fast
+    agy: pro
+

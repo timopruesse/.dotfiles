@@ -2,8 +2,8 @@
 # Launch the path-appropriate coding agent with shared policy (keep-awake).
 # Used by coding_agent_herdr.sh / herdr keybinds (cwd already set on the pane).
 #
-# Usage: coding_agent_launch.sh [resume|continue] [--claude|--agent|--cursor]
-#                               [--resolved claude|agent] [--ensured]
+# Usage: coding_agent_launch.sh [resume|continue] [--claude|--agent|--cursor|--agy]
+#                               [--resolved claude|agent|agy] [--ensured]
 #                               [--prompt-file PATH] [extra args...]
 #
 # --resolved: skip git-remote resolve (herdr already computed the CLI).
@@ -35,16 +35,20 @@ while (( $# )); do
     force=agent
     shift
     ;;
+  --agy)
+    force=agy
+    shift
+    ;;
   --resolved)
     if (( $# < 2 )) || [[ -z "$2" ]]; then
-      print -u2 "coding_agent_launch: --resolved requires claude|agent"
+      print -u2 "coding_agent_launch: --resolved requires claude|agent|agy"
       sleep 2
       exit 1
     fi
     case "$2" in
-    claude | agent) resolved=$2 ;;
+    claude | agent | agy) resolved=$2 ;;
     *)
-      print -u2 "coding_agent_launch: --resolved must be claude|agent (got: $2)"
+      print -u2 "coding_agent_launch: --resolved must be claude|agent|agy (got: $2)"
       sleep 2
       exit 1
       ;;
@@ -105,7 +109,13 @@ command -v "$cli" >/dev/null 2>&1 || {
 }
 
 case "$mode" in
-resume) coding_agent_with_policy "$cli" --resume "${args[@]}" ;;
+resume)
+  if [[ "$cli" == "agy" ]]; then
+    coding_agent_with_policy "$cli" --continue "${args[@]}"
+  else
+    coding_agent_with_policy "$cli" --resume "${args[@]}"
+  fi
+  ;;
 continue) coding_agent_with_policy "$cli" --continue "${args[@]}" ;;
 *) coding_agent_with_policy "$cli" "${args[@]}" ;;
 esac

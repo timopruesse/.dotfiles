@@ -62,7 +62,7 @@ common clone layouts; remote-URL rules win for worktrees / odd checkout paths:
 
 When adding new work contexts, add matching `includeIf` blocks and an identity file.
 
-## Coding agent routing (Claude vs Cursor)
+## Coding agent routing (Claude vs Antigravity vs Cursor)
 
 Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), herdr binds (`prefix+shift+H`/`V`/`R`/`S`),
 Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
@@ -72,11 +72,11 @@ Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 [`coding_agent_launch.sh`](home/.config/herdr/scripts/coding_agent_launch.sh)
 (shared keep-awake policy).
 
-Precedence: `CODING_AGENT=claude|agent` → git remote org → path
-(`~/github/chewielabs` → Claude Code; everything else → Cursor `agent`).
-Per-call overrides: `--claude` / `--agent` on the launchers.
+Precedence: `CODING_AGENT=claude|agy|agent|cursor` → git remote org → path
+(`~/github/chewielabs` → Claude Code; everything else → Antigravity `agy`, with Cursor `agent` available via override).
+Per-call overrides: `--claude` / `--agy` / `--agent` / `--cursor` on the launchers.
 
-Both `claude` and `agent` wrappers in `.zshrc` (and herdr/nvim launches) run in
+The `claude`, `agy`, and `agent` wrappers in `.zshrc` (and herdr/nvim launches) run in
 the current checkout; pass `--worktree` / `-w` for an isolated git worktree.
 Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 (`prefix+g` / `prefix+C`) or sidebar (`prefix+a`); `clist` wraps
