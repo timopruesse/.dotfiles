@@ -10,8 +10,9 @@ That regenerates:
 
 - `home/.claude/commands/` — Claude Code (frontmatter + `$ARGUMENTS` + `model:` pin)
 - `home/.cursor/commands/` — Cursor (plain markdown + `$1`/`$2`/… + preferred-model note)
+- `home/.agents/workflows/` — Antigravity (frontmatter + preamble + expanded pin tokens)
 
-**sync** links generated commands into `~/.cursor/commands/`. Protocols are
+**sync** links generated commands into `~/.cursor/commands/` and `~/.gemini/config/workflows/` + `~/.agents/workflows/`. Protocols are
 linked from `home/protocols/` into `home/.claude/` and `home/.cursor/protocols/`.
 
 Shared sources stay platform-neutral for model pins: write `{{pin:strong}}` (or

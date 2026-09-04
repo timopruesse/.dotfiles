@@ -17,7 +17,7 @@ re-derive it.
 All loopers share the underlying **mechanism** — schedule a wakeup that re-fires
 the *same slash command* (with its exact arguments) after `delaySeconds`, then
 stop the turn; the wakeup resumes the loop. Use the host tool's
-`ScheduleWakeup` (Claude Code and Cursor both expose it). But they come in two
+`ScheduleWakeup` (Claude Code and Cursor both expose it; Antigravity uses `schedule`). But they come in two
 shapes, and only one uses the `STATUS:` contract:
 
 | Shape | Commands | Converges? | Terminal signal | Cadence |

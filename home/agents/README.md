@@ -33,5 +33,5 @@ Shared sync logic lives in [`home/sync/`](../sync/). Do **not** hand-edit the
 generated trees; they are overwritten on sync. `machine_setup` runs **sync**
 after the home symlink.
 
-Session cost logging (Claude + Cursor hooks) is documented in
+Session cost and duration logging (Claude + Cursor + Antigravity hooks) is documented in
 [`SESSION-COST-LOGGING.md`](../../SESSION-COST-LOGGING.md).

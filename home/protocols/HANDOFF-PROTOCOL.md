@@ -3,7 +3,7 @@
 The canonical contract for **auto-chaining the PR-lifecycle spine** — the
 synchronous sibling of [`LOOP-PROTOCOL.md`](LOOP-PROTOCOL.md) (which governs the
 async self-looping commands). Lives at `~/protocols/` and is shared by Claude
-Code and Cursor. One definition of the spine, the `ADVANCE`/`HALT` terminal
+Code, Cursor, and Antigravity (agy). One definition of the spine, the `ADVANCE`/`HALT` terminal
 contract, the auto-approve taxonomy, and the Jira lifecycle mapping — so the
 spine commands and agents don't each re-derive them and drift.
 
