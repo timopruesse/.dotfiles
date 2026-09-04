@@ -40,6 +40,11 @@ LIVE_AGY_WORKFLOWS = LIVE_AGY_CONFIG / "workflows"
 LIVE_AGY_SKILLS = LIVE_AGY_CONFIG / "skills"
 LIVE_AGY_HOOKS_JSON = LIVE_AGY_CONFIG / "hooks.json"
 LIVE_AGY_HOOKS_DIR = Path.home() / ".gemini" / "hooks"
+AGY_STATUSLINE = REPO_HOME / ".gemini" / "statusline.sh"
+LIVE_AGY_STATUSLINE = Path.home() / ".gemini" / "statusline.sh"
+LIVE_AGY_STATUSLINE_CLI = Path.home() / ".gemini" / "antigravity-cli" / "statusline.sh"
+AGY_SETTINGS = REPO_HOME / ".gemini" / "settings.json"
+LIVE_AGY_SETTINGS = Path.home() / ".gemini" / "antigravity-cli" / "settings.json"
 LIVE_AGENTS_ROOT = Path.home() / ".agents"
 LIVE_AGENTS_AGENTS = LIVE_AGENTS_ROOT / "agents"
 LIVE_AGENTS_WORKFLOWS = LIVE_AGENTS_ROOT / "workflows"
@@ -104,17 +109,25 @@ def install_rules() -> None:
 
 
 def install_statusline() -> None:
-    """Link the managed CLI statusline script into ~/.cursor/statusline.sh."""
-    if not CURSOR_STATUSLINE.is_file():
-        return
-    changed = link_into(CURSOR_STATUSLINE, LIVE_STATUSLINE)
-    # Ensure executable even if the link target lost +x somehow.
-    try:
-        CURSOR_STATUSLINE.chmod(CURSOR_STATUSLINE.stat().st_mode | 0o111)
-    except OSError:
-        pass
-    if changed:
-        print(f"  installed statusline → {LIVE_STATUSLINE}")
+    """Link the managed CLI statusline script into ~/.cursor/statusline.sh and ~/.gemini/."""
+    if CURSOR_STATUSLINE.is_file():
+        changed = link_into(CURSOR_STATUSLINE, LIVE_STATUSLINE)
+        try:
+            CURSOR_STATUSLINE.chmod(CURSOR_STATUSLINE.stat().st_mode | 0o111)
+        except OSError:
+            pass
+        if changed:
+            print(f"  installed statusline → {LIVE_STATUSLINE}")
+
+    if AGY_STATUSLINE.is_file():
+        c1 = link_into(AGY_STATUSLINE, LIVE_AGY_STATUSLINE)
+        c2 = link_into(AGY_STATUSLINE, LIVE_AGY_STATUSLINE_CLI)
+        try:
+            AGY_STATUSLINE.chmod(AGY_STATUSLINE.stat().st_mode | 0o111)
+        except OSError:
+            pass
+        if c1 or c2:
+            print(f"  installed agy statusline → {LIVE_AGY_STATUSLINE}")
 
 
 def install_cli_config() -> None:
@@ -156,6 +169,43 @@ def install_cli_config() -> None:
     LIVE_CLI_CONFIG.parent.mkdir(parents=True, exist_ok=True)
     LIVE_CLI_CONFIG.write_text(text)
     print(f"  merged cli-config prefs → {LIVE_CLI_CONFIG}")
+
+
+def install_agy_settings() -> None:
+    """Merge managed settings from home/.gemini/settings.json into live ~/.gemini/antigravity-cli/settings.json."""
+    if not AGY_SETTINGS.is_file():
+        return
+    managed = json.loads(AGY_SETTINGS.read_text())
+    live: dict[str, Any] = {}
+    if LIVE_AGY_SETTINGS.is_file() and not LIVE_AGY_SETTINGS.is_symlink():
+        try:
+            loaded = json.loads(LIVE_AGY_SETTINGS.read_text())
+            if isinstance(loaded, dict):
+                live = loaded
+        except json.JSONDecodeError:
+            print(
+                f"  warning: {LIVE_AGY_SETTINGS} is not valid JSON; "
+                "rewriting from managed settings only",
+                file=sys.stderr,
+            )
+    elif LIVE_AGY_SETTINGS.is_symlink():
+        print(
+            f"  warning: refusing to write through symlink {LIVE_AGY_SETTINGS}",
+            file=sys.stderr,
+        )
+        return
+
+    merged = deep_merge(live, managed)
+    text = json.dumps(merged, indent=2) + "\n"
+    if LIVE_AGY_SETTINGS.is_file():
+        try:
+            if LIVE_AGY_SETTINGS.read_text() == text:
+                return
+        except OSError:
+            pass
+    LIVE_AGY_SETTINGS.parent.mkdir(parents=True, exist_ok=True)
+    LIVE_AGY_SETTINGS.write_text(text)
+    print(f"  merged agy settings → {LIVE_AGY_SETTINGS}")
 
 
 def _managed_skill_dirs() -> list[Path]:
@@ -273,6 +323,7 @@ def install_all(
         install_statusline()
     if cli_config:
         install_cli_config()
+        install_agy_settings()
 
 
 def main() -> int:

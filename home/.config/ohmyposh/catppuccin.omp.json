@@ -58,6 +58,7 @@
           "style": "plain",
           "foreground": "p:peach",
           "foreground_templates": [
+            "{{ if .Env.AGY_AGENT }}p:blue{{ end }}",
             "{{ if .Env.CURSOR_AGENT }}p:wight{{ end }}"
           ],
           "background": "transparent",
@@ -151,7 +152,7 @@
           "type": "vimode",
           "style": "diamond",
           "powerline_symbol": "\ue0b0",
-          "template": "{{ if and (not .Env.CLAUDECODE) (not .Env.CURSOR_AGENT) }}{{ .Mode }}{{ end }}",
+          "template": "{{ if and (not .Env.CLAUDECODE) (not .Env.CURSOR_AGENT) (not .Env.AGY_AGENT) }}{{ .Mode }}{{ end }}",
           "foreground": "p:text",
           "background": "p:green",
           "background_templates": [
