@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "svelte": {
+      "url": "https://mcp.svelte.dev/mcp"
+    },
+    "Figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "headers": {}
+    }
+  }
+}

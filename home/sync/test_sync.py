@@ -97,5 +97,34 @@ class CatalogHelperTests(unittest.TestCase):
         self.assertEqual(conveyor_main(["--no-live"]), 2)
 
 
+class LiveCursorTests(unittest.TestCase):
+    def test_merge_json_file(self) -> None:
+        import json
+        from sync.live_cursor import _merge_json_file
+
+        with tempfile.TemporaryDirectory() as tmp:
+            managed = Path(tmp) / "managed.json"
+            live = Path(tmp) / "live.json"
+
+            managed.write_text(
+                json.dumps({"mcpServers": {"svelte": {"url": "https://mcp.svelte.dev/mcp"}}})
+            )
+            # Case 1: live does not exist
+            _merge_json_file(managed, live, "test")
+            self.assertTrue(live.is_file())
+            data = json.loads(live.read_text())
+            self.assertIn("svelte", data["mcpServers"])
+
+            # Case 2: live has local server, managed has svelte
+            live.write_text(
+                json.dumps({"mcpServers": {"custom": {"url": "http://localhost:8080"}}})
+            )
+            _merge_json_file(managed, live, "test")
+            data = json.loads(live.read_text())
+            self.assertIn("custom", data["mcpServers"])
+            self.assertIn("svelte", data["mcpServers"])
+
+
 if __name__ == "__main__":
     unittest.main()
+

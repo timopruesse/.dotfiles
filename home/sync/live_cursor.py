@@ -23,6 +23,8 @@ AGY_HOOKS_JSON = REPO_HOME / ".gemini" / "hooks.json"
 AGY_HOOKS_DIR = REPO_HOME / ".gemini" / "hooks"
 CURSOR_CLI_CONFIG = REPO_HOME / ".cursor" / "cli-config.json"
 CURSOR_STATUSLINE = REPO_HOME / ".cursor" / "statusline.sh"
+CURSOR_MCP_JSON = REPO_HOME / ".cursor" / "mcp.json"
+AGY_MCP_CONFIG = REPO_HOME / ".gemini" / "mcp_config.json"
 
 LIVE_CURSOR = Path.home() / ".cursor"
 LIVE_AGENTS = LIVE_CURSOR / "agents"
@@ -32,6 +34,7 @@ LIVE_HOOKS_JSON = LIVE_CURSOR / "hooks.json"
 LIVE_HOOKS_DIR = LIVE_CURSOR / "hooks"
 LIVE_CLI_CONFIG = LIVE_CURSOR / "cli-config.json"
 LIVE_STATUSLINE = LIVE_CURSOR / "statusline.sh"
+LIVE_CURSOR_MCP_JSON = LIVE_CURSOR / "mcp.json"
 LIVE_CURSOR_SKILLS = LIVE_CURSOR / "skills"
 LIVE_CLAUDE_SKILLS = Path.home() / ".claude" / "skills"
 LIVE_AGY_CONFIG = Path.home() / ".gemini" / "config"
@@ -45,6 +48,7 @@ LIVE_AGY_STATUSLINE = Path.home() / ".gemini" / "statusline.sh"
 LIVE_AGY_STATUSLINE_CLI = Path.home() / ".gemini" / "antigravity-cli" / "statusline.sh"
 AGY_SETTINGS = REPO_HOME / ".gemini" / "settings.json"
 LIVE_AGY_SETTINGS = Path.home() / ".gemini" / "antigravity-cli" / "settings.json"
+LIVE_AGY_MCP_CONFIG = LIVE_AGY_CONFIG / "mcp_config.json"
 LIVE_AGENTS_ROOT = Path.home() / ".agents"
 LIVE_AGENTS_AGENTS = LIVE_AGENTS_ROOT / "agents"
 LIVE_AGENTS_WORKFLOWS = LIVE_AGENTS_ROOT / "workflows"
@@ -130,82 +134,61 @@ def install_statusline() -> None:
             print(f"  installed agy statusline → {LIVE_AGY_STATUSLINE}")
 
 
+def _merge_json_file(managed_path: Path, live_path: Path, label: str) -> None:
+    """Merge JSON from managed_path into live_path via deep_merge."""
+    if not managed_path.is_file():
+        return
+    managed = json.loads(managed_path.read_text())
+    live: dict[str, Any] = {}
+    if live_path.is_file() and not live_path.is_symlink():
+        try:
+            loaded = json.loads(live_path.read_text())
+            if isinstance(loaded, dict):
+                live = loaded
+        except json.JSONDecodeError:
+            print(
+                f"  warning: {live_path} is not valid JSON; "
+                f"rewriting from managed {label} only",
+                file=sys.stderr,
+            )
+    elif live_path.is_symlink():
+        print(
+            f"  warning: refusing to write through symlink {live_path}",
+            file=sys.stderr,
+        )
+        return
+
+    merged = deep_merge(live, managed)
+    text = json.dumps(merged, indent=2) + "\n"
+    if live_path.is_file():
+        try:
+            if live_path.read_text() == text:
+                return
+        except OSError:
+            pass
+    live_path.parent.mkdir(parents=True, exist_ok=True)
+    live_path.write_text(text)
+    print(f"  merged {label} → {live_path}")
+
+
 def install_cli_config() -> None:
     """Merge managed CLI prefs into ~/.cursor/cli-config.json.
 
     Cursor writes auth + caches into the live file, so we never symlink it —
     only overlay durable prefs from the repo (approvalMode, sandbox, editor, …).
     """
-    if not CURSOR_CLI_CONFIG.is_file():
-        return
-    managed = json.loads(CURSOR_CLI_CONFIG.read_text())
-    live: dict[str, Any] = {}
-    if LIVE_CLI_CONFIG.is_file() and not LIVE_CLI_CONFIG.is_symlink():
-        try:
-            loaded = json.loads(LIVE_CLI_CONFIG.read_text())
-            if isinstance(loaded, dict):
-                live = loaded
-        except json.JSONDecodeError:
-            print(
-                f"  warning: {LIVE_CLI_CONFIG} is not valid JSON; "
-                "rewriting from managed prefs only",
-                file=sys.stderr,
-            )
-    elif LIVE_CLI_CONFIG.is_symlink():
-        print(
-            f"  warning: refusing to write through symlink {LIVE_CLI_CONFIG}",
-            file=sys.stderr,
-        )
-        return
-
-    merged = deep_merge(live, managed)
-    text = json.dumps(merged, indent=2) + "\n"
-    if LIVE_CLI_CONFIG.is_file():
-        try:
-            if LIVE_CLI_CONFIG.read_text() == text:
-                return
-        except OSError:
-            pass
-    LIVE_CLI_CONFIG.parent.mkdir(parents=True, exist_ok=True)
-    LIVE_CLI_CONFIG.write_text(text)
-    print(f"  merged cli-config prefs → {LIVE_CLI_CONFIG}")
+    _merge_json_file(CURSOR_CLI_CONFIG, LIVE_CLI_CONFIG, "cli-config prefs")
 
 
 def install_agy_settings() -> None:
     """Merge managed settings from home/.gemini/settings.json into live ~/.gemini/antigravity-cli/settings.json."""
-    if not AGY_SETTINGS.is_file():
-        return
-    managed = json.loads(AGY_SETTINGS.read_text())
-    live: dict[str, Any] = {}
-    if LIVE_AGY_SETTINGS.is_file() and not LIVE_AGY_SETTINGS.is_symlink():
-        try:
-            loaded = json.loads(LIVE_AGY_SETTINGS.read_text())
-            if isinstance(loaded, dict):
-                live = loaded
-        except json.JSONDecodeError:
-            print(
-                f"  warning: {LIVE_AGY_SETTINGS} is not valid JSON; "
-                "rewriting from managed settings only",
-                file=sys.stderr,
-            )
-    elif LIVE_AGY_SETTINGS.is_symlink():
-        print(
-            f"  warning: refusing to write through symlink {LIVE_AGY_SETTINGS}",
-            file=sys.stderr,
-        )
-        return
+    _merge_json_file(AGY_SETTINGS, LIVE_AGY_SETTINGS, "agy settings")
 
-    merged = deep_merge(live, managed)
-    text = json.dumps(merged, indent=2) + "\n"
-    if LIVE_AGY_SETTINGS.is_file():
-        try:
-            if LIVE_AGY_SETTINGS.read_text() == text:
-                return
-        except OSError:
-            pass
-    LIVE_AGY_SETTINGS.parent.mkdir(parents=True, exist_ok=True)
-    LIVE_AGY_SETTINGS.write_text(text)
-    print(f"  merged agy settings → {LIVE_AGY_SETTINGS}")
+
+def install_mcp_config() -> None:
+    """Merge managed MCP server configurations into live ~/.gemini/config/mcp_config.json and ~/.cursor/mcp.json."""
+    _merge_json_file(AGY_MCP_CONFIG, LIVE_AGY_MCP_CONFIG, "agy mcp_config")
+    _merge_json_file(CURSOR_MCP_JSON, LIVE_CURSOR_MCP_JSON, "cursor mcp")
 
 
 def _managed_skill_dirs() -> list[Path]:
@@ -294,6 +277,7 @@ def install_all(
     cli_config: bool = True,
     statusline: bool = True,
     skills: bool = True,
+    mcp: bool = True,
 ) -> None:
     if agents and CURSOR_OUT_AGENTS.is_dir():
         keep = {p.stem for p in CURSOR_OUT_AGENTS.glob("*.md")}
@@ -324,6 +308,8 @@ def install_all(
     if cli_config:
         install_cli_config()
         install_agy_settings()
+    if mcp:
+        install_mcp_config()
 
 
 def main() -> int:

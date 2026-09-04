@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "svelte": {
+      "disabled": false,
+      "serverUrl": "https://mcp.svelte.dev/mcp"
+    }
+  }
+}
