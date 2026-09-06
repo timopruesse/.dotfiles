@@ -2,22 +2,19 @@
 default_shell: "zsh"
 # Independent tasks run concurrently. depends_on builds layers so apt/brew
 # prerequisites and git@ clones still serialize correctly. Cross-platform
-# tasks list both OS-specific prereqs; the wrong-OS task is skipped.
+# tasks use command-level os: filters to unify macOS and Linux steps.
 parallel: true
 
 tasks:
-  homebrew_macos:
-    os: ["macos"]
+  homebrew:
     commands:
       - run:
+          os: "macos"
           commands:
             - '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
             - 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-
-  homebrew_linux:
-    os: ["linux"]
-    commands:
       - run:
+          os: "linux"
           env:
             TMP_INSTALL_PATH: "/tmp/install-brew.sh"
           commands:
@@ -31,14 +28,18 @@ tasks:
 
   # Apt base (linux): zsh → apt_repos (all third-party sources + one update) →
   # tools / gh / chrome / go / python / docker fan out in parallel.
-  zsh_linux:
-    os: ["linux"]
+  zsh:
     commands:
       - run:
+          os: "linux"
           shell: "bash"
           commands:
             - "sudo apt-get update"
             - "sudo apt-get install -y zsh"
+            - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
+      - run:
+          os: "macos"
+          commands:
             - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
       - clone:
           url: "https://github.com/agkozak/zcomet.git"
@@ -47,7 +48,7 @@ tasks:
   # Single place for third-party apt sources so we only `apt-get update` once.
   apt_repos_linux:
     os: ["linux"]
-    depends_on: ["zsh_linux"]
+    depends_on: ["zsh"]
     commands:
       - run:
           install:
@@ -67,19 +68,8 @@ tasks:
           update:
             - "sudo apt-get update"
 
-  zsh_macos:
-    os: ["macos"]
-    depends_on: ["tools_macos"]
-    commands:
-      - run:
-          commands:
-            - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
-      - clone:
-          url: "https://github.com/agkozak/zcomet.git"
-          target: "~/.zcomet/bin"
-
   # zcomet plugins (completions, fzf-tab, …). Prompt is Oh My Posh (not a zcomet theme).
-  # Install is zsh_* clone + first interactive .zshrc. Re-exec zsh after update when you need a reload.
+  # Install is zsh clone + first interactive .zshrc. Re-exec zsh after update when you need a reload.
   zsh_tools:
     auto_update:
       at: "08:00"
@@ -106,7 +96,7 @@ tasks:
 
   win32yank_wsl:
     os: ["linux"]
-    depends_on: ["tools_linux"]
+    depends_on: ["tools"]
     commands:
       - run:
           env:
@@ -143,13 +133,13 @@ tasks:
             - "chmod 600 ~/.ssh/id_rsa"
             - "chmod 644 ~/.ssh/id_rsa.pub"
 
-  tools_linux:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
+  tools:
+    depends_on: ["homebrew", "apt_repos_linux"]
     auto_update:
       at: "08:00"
     commands:
       - run:
+          os: "linux"
           install:
             - "sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
             - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
@@ -158,26 +148,30 @@ tasks:
             - "sudo apt-get update"
             - "sudo apt-get upgrade -y"
             - "sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
-
-  # Single brew lock: all macOS formulas/casks live in ./Brewfile.
-  tools_macos:
-    os: ["macos"]
-    depends_on: ["homebrew_macos"]
-    auto_update:
-      at: "08:00"
-    commands:
+      # Single brew lock: all macOS formulas/casks live in ./Brewfile.
       - run:
+          os: "macos"
           install:
             - 'brew bundle --file="${DOTFILES:-.}/Brewfile"'
           update:
             - 'brew bundle --file="${DOTFILES:-.}/Brewfile"'
             - "brew upgrade"
 
-  ohmyposh_macos:
-    os: ["macos"]
-    depends_on: ["tools_macos"]
+  ohmyposh:
+    depends_on: ["tools"]
     commands:
       - run:
+          os: "linux"
+          install:
+            - 'if command -v oh-my-posh >/dev/null 2>&1; then echo "oh-my-posh already installed: $(oh-my-posh --version)"; else curl -s https://ohmyposh.dev/install.sh | bash -s; fi'
+            - "oh-my-posh enable upgrade"
+            - "oh-my-posh font install meslo"
+          update:
+            - "oh-my-posh enable upgrade || true"
+            - "oh-my-posh upgrade || curl -s https://ohmyposh.dev/install.sh | bash -s"
+            - "oh-my-posh font install meslo"
+      - run:
+          os: "macos"
           install:
             - "oh-my-posh enable upgrade"
             - "oh-my-posh font install meslo"
@@ -228,13 +222,14 @@ tasks:
             - "sudo rm -f /etc/apt/keyrings/google-chrome.gpg"
 
   dotfiles:
-    depends_on: ["ssh", "tools_linux", "tools_macos"]
+    depends_on: ["ssh", "tools"]
     commands:
       - clone:
           url: "git@github.com:timopruesse/.dotfiles.git"
           target: "."
       - symlink:
           force: true
+          backup: true
           src: "./home"
           target: "~"
           # Cursor owns ~/.cursor; Antigravity owns ~/.gemini and ~/.agents.
@@ -248,7 +243,7 @@ tasks:
             - "$HOME/sync/sync"
 
   # Theme files come from the dotfiles symlink; bat itself is already installed
-  # by the time dotfiles finishes (dotfiles waits on tools_*).
+  # by the time dotfiles finishes (dotfiles waits on tools).
   bat_theme:
     depends_on: ["dotfiles"]
     commands:
@@ -266,13 +261,13 @@ tasks:
           install:
             - "$HOME/install_lazygit.sh"
 
-  neovim_linux:
-    os: ["linux"]
+  neovim:
     depends_on: ["dotfiles"]
     auto_update:
       at: "08:00"
     commands:
       - run:
+          os: "linux"
           # Nightly kept; install_nvim_nightly.sh skips when /opt/nvim matches
           # the GitHub nightly target_commitish stamp.
           install:
@@ -283,14 +278,8 @@ tasks:
           uninstall:
             - "sudo -n rm -f /usr/local/bin/nvim"
             - "sudo -n rm -rf /opt/nvim"
-
-  neovim_macos:
-    os: ["macos"]
-    depends_on: ["tools_macos"]
-    auto_update:
-      at: "08:00"
-    commands:
       - run:
+          os: "macos"
           # HEAD formula: brew upgrade alone often skips rebuilds.
           # Brewfile still declares neovim HEAD; this task refreshes it.
           install:
@@ -301,7 +290,7 @@ tasks:
             - "luarocks install jsregexp"
 
   rust:
-    depends_on: ["tools_linux", "tools_macos"]
+    depends_on: ["tools"]
     auto_update:
       at: "08:00"
     commands:
@@ -325,33 +314,13 @@ tasks:
 
   # herdr binary/integrations need brew (macOS) or curl (linux) + dotfiles for
   # the pane-context hook. Navigator plugin builds with cargo → herdr_navigator.
-  herdr_macos:
-    os: ["macos"]
-    depends_on: ["tools_macos", "dotfiles"]
+  herdr:
+    depends_on: ["tools", "dotfiles"]
     auto_update:
       at: "08:00"
     commands:
       - run:
-          install:
-            - "herdr integration install claude || true"
-            - "herdr integration install cursor || true"
-            - "$HOME/sync/normalize-herdr-hooks"
-            - "mkdir -p \"$HOME/.claude/hooks\""
-            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
-          update:
-            - "herdr integration install claude || true"
-            - "herdr integration install cursor || true"
-            - "$HOME/sync/normalize-herdr-hooks"
-            - "mkdir -p \"$HOME/.claude/hooks\""
-            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
-
-  herdr_linux:
-    os: ["linux"]
-    depends_on: ["tools_linux", "dotfiles"]
-    auto_update:
-      at: "08:00"
-    commands:
-      - run:
+          os: "linux"
           install:
             - "curl -fsSL https://herdr.dev/install.sh | sh"
           update:
@@ -377,7 +346,7 @@ tasks:
 
   # Cargo-built navigator plugin — only this step waits on rust.
   herdr_navigator:
-    depends_on: ["herdr_linux", "herdr_macos", "rust"]
+    depends_on: ["herdr", "rust"]
     commands:
       - run:
           install:
@@ -393,13 +362,13 @@ tasks:
           install: "curl -fsSL https://bun.sh/install | bash"
           update: "bun upgrade --canary"
 
-  node_linux:
-    os: ["linux"]
-    depends_on: ["tools_linux"]
+  node:
+    depends_on: ["tools"]
     auto_update:
       at: "08:00"
     commands:
       - run:
+          os: "linux"
           # Official binary installer into ~/.local/bin (already on PATH).
           # --skip-shell: .zshrc already runs `fnm env`.
           install:
@@ -411,21 +380,15 @@ tasks:
           uninstall:
             - "rm -f ~/.local/bin/fnm"
             - "rm -rf ~/.local/share/fnm"
-
-  node_macos:
-    os: ["macos"]
-    depends_on: ["tools_macos"]
-    auto_update:
-      at: "08:00"
-    commands:
       - run:
+          os: "macos"
           install:
             - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)'
           update:
             - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g'
 
   nvim-npm:
-    depends_on: ["node_linux", "node_macos"]
+    depends_on: ["node"]
     commands:
       - run:
           env:
@@ -434,11 +397,11 @@ tasks:
           update: "npm upgrade -g $(echo $PACKAGES_STR)"
           uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
 
-  python_linux:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
+  python:
+    depends_on: ["tools"]
     commands:
       - run:
+          os: "linux"
           install:
             - "sudo apt-get install -y pipx python3-venv python3-pip"
             - "python3 -m pipx ensurepath"
@@ -448,12 +411,8 @@ tasks:
           update:
             - "pip-review --auto"
             - "$HOME/.local/share/nvim/venv/bin/pip install --upgrade pynvim"
-
-  python_macos:
-    os: ["macos"]
-    depends_on: ["tools_macos"]
-    commands:
       - run:
+          os: "macos"
           install:
             - "python3 -m pipx ensurepath"
             - "pipx install pip-review"
@@ -490,7 +449,7 @@ tasks:
 
   aws_cli_linux:
     os: ["linux"]
-    depends_on: ["tools_linux"]
+    depends_on: ["tools"]
     commands:
       - run:
           env:
@@ -547,22 +506,8 @@ tasks:
           uninstall:
             - "rm -f ~/.local/bin/agy"
 
-  ohmyposh_linux:
-    os: ["linux"]
-    depends_on: ["tools_linux"]
-    commands:
-      - run:
-          install:
-            - 'if command -v oh-my-posh >/dev/null 2>&1; then echo "oh-my-posh already installed: $(oh-my-posh --version)"; else curl -s https://ohmyposh.dev/install.sh | bash -s; fi'
-            - "oh-my-posh enable upgrade"
-            - "oh-my-posh font install meslo"
-          update:
-            - "oh-my-posh enable upgrade || true"
-            - "oh-my-posh upgrade || curl -s https://ohmyposh.dev/install.sh | bash -s"
-            - "oh-my-posh font install meslo"
-
   personal_repos:
-    depends_on: ["ssh", "tools_linux", "tools_macos"]
+    depends_on: ["ssh", "tools"]
     commands:
       - machine_setup:
           config: "$DOTFILES/personal_repositories.yaml"

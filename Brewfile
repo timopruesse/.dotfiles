@@ -1,6 +1,6 @@
-# macOS packages — installed by tools_macos via `brew bundle`.
+# macOS packages — installed by tools via `brew bundle`.
 # Keep non-brew post-steps (chsh, fnm install, pipx, herdr hooks, luarocks)
-# in machine_setup.yaml tasks that depend on tools_macos.
+# in machine_setup.yaml tasks that depend on tools.
 
 brew "zsh"
 brew "git"
