@@ -10,3 +10,5 @@ shell-integration = zsh
 
 mouse-hide-while-typing = true
 copy-on-select = clipboard
+
+auto-update-channel = tip

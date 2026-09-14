@@ -23,6 +23,7 @@ AGY_HOOKS_JSON = REPO_HOME / ".gemini" / "hooks.json"
 AGY_HOOKS_DIR = REPO_HOME / ".gemini" / "hooks"
 CURSOR_CLI_CONFIG = REPO_HOME / ".cursor" / "cli-config.json"
 CURSOR_STATUSLINE = REPO_HOME / ".cursor" / "statusline.sh"
+CURSOR_GITHUB_MCP = REPO_HOME / ".cursor" / "github-mcp.sh"
 CURSOR_MCP_JSON = REPO_HOME / ".cursor" / "mcp.json"
 AGY_MCP_CONFIG = REPO_HOME / ".gemini" / "mcp_config.json"
 
@@ -34,6 +35,7 @@ LIVE_HOOKS_JSON = LIVE_CURSOR / "hooks.json"
 LIVE_HOOKS_DIR = LIVE_CURSOR / "hooks"
 LIVE_CLI_CONFIG = LIVE_CURSOR / "cli-config.json"
 LIVE_STATUSLINE = LIVE_CURSOR / "statusline.sh"
+LIVE_GITHUB_MCP = LIVE_CURSOR / "github-mcp.sh"
 LIVE_CURSOR_MCP_JSON = LIVE_CURSOR / "mcp.json"
 LIVE_CURSOR_SKILLS = LIVE_CURSOR / "skills"
 LIVE_CLAUDE_SKILLS = Path.home() / ".claude" / "skills"
@@ -132,6 +134,19 @@ def install_statusline() -> None:
             pass
         if c1 or c2:
             print(f"  installed agy statusline → {LIVE_AGY_STATUSLINE}")
+
+
+def install_github_mcp() -> None:
+    """Link the GitHub MCP Docker wrapper into ~/.cursor/github-mcp.sh."""
+    if not CURSOR_GITHUB_MCP.is_file():
+        return
+    changed = link_into(CURSOR_GITHUB_MCP, LIVE_GITHUB_MCP)
+    try:
+        CURSOR_GITHUB_MCP.chmod(CURSOR_GITHUB_MCP.stat().st_mode | 0o111)
+    except OSError:
+        pass
+    if changed:
+        print(f"  installed github-mcp → {LIVE_GITHUB_MCP}")
 
 
 def _merge_json_file(managed_path: Path, live_path: Path, label: str) -> None:
@@ -305,6 +320,7 @@ def install_all(
         install_hooks()
     if statusline:
         install_statusline()
+        install_github_mcp()
     if cli_config:
         install_cli_config()
         install_agy_settings()

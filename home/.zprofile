@@ -7,8 +7,12 @@ elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
-# The following lines were added by Docker Desktop to add commands to your PATH.
-export PATH="$PATH:/Users/timopruesse/.docker/bin"
-# End of Docker Desktop section.
+# Docker Desktop CLI (macOS). No-op when the dir is absent (WSL/Linux).
+if [[ -d "$HOME/.docker/bin" ]]; then
+  case ":$PATH:" in
+    *":$HOME/.docker/bin:"*) ;;
+    *) export PATH="$PATH:$HOME/.docker/bin" ;;
+  esac
+fi
 
 export PATH="$HOME/.local/bin:$PATH"

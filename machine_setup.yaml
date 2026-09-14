@@ -1,513 +1,697 @@
----
-default_shell: "zsh"
-# Independent tasks run concurrently. depends_on builds layers so apt/brew
-# prerequisites and git@ clones still serialize correctly. Cross-platform
-# tasks use command-level os: filters to unify macOS and Linux steps.
+temp_dir: ~/.machine_setup
+default_shell: zsh
 parallel: true
-
+num_threads: null
+check_for_updates: true
+secrets:
+  default_provider: onepassword
+  ssh_agent: true
 tasks:
   homebrew:
     commands:
-      - run:
-          os: "macos"
-          commands:
-            - '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-            - 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-      - run:
-          os: "linux"
-          env:
-            TMP_INSTALL_PATH: "/tmp/install-brew.sh"
-          commands:
-            - "wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-            - "chmod u+x $TMP_INSTALL_PATH"
-            - "$TMP_INSTALL_PATH"
-            - "rm $TMP_INSTALL_PATH"
-            - 'rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"'
-            - "brew tap homebrew/core"
-            - 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
-
-  # Apt base (linux): zsh → apt_repos (all third-party sources + one update) →
-  # tools / gh / chrome / go / python / docker fan out in parallel.
+    - run:
+        commands:
+        - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        - eval "$(/opt/homebrew/bin/brew shellenv)"
+        install: []
+        update: []
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    - run:
+        commands:
+        - wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+        - chmod u+x $TMP_INSTALL_PATH
+        - $TMP_INSTALL_PATH
+        - rm $TMP_INSTALL_PATH
+        - rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"
+        - brew tap homebrew/core
+        - eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        install: []
+        update: []
+        uninstall: []
+        shell: null
+        env:
+          TMP_INSTALL_PATH: /tmp/install-brew.sh
+        quiet: false
+        os: linux
   zsh:
     commands:
-      - run:
-          os: "linux"
-          shell: "bash"
-          commands:
-            - "sudo apt-get update"
-            - "sudo apt-get install -y zsh"
-            - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
-      - run:
-          os: "macos"
-          commands:
-            - 'sudo chsh -s "$(command -v zsh)" "${USER}"'
-      - clone:
-          url: "https://github.com/agkozak/zcomet.git"
-          target: "~/.zcomet/bin"
-
-  # Single place for third-party apt sources so we only `apt-get update` once.
+    - run:
+        commands:
+        - sudo apt-get update
+        - sudo apt-get install -y zsh
+        - sudo chsh -s "$(command -v zsh)" "${USER}"
+        install: []
+        update: []
+        uninstall: []
+        shell: bash
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands:
+        - sudo chsh -s "$(command -v zsh)" "${USER}"
+        install: []
+        update: []
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    - clone:
+        url: https://github.com/agkozak/zcomet.git
+        target: ~/.zcomet/bin
   apt_repos_linux:
-    os: ["linux"]
-    depends_on: ["zsh"]
     commands:
-      - run:
-          install:
-            - "sudo apt-get install -y ca-certificates curl wget gnupg software-properties-common apt-transport-https"
-            - "sudo add-apt-repository -y ppa:git-core/ppa"
-            - "sudo mkdir -p -m 755 /etc/apt/keyrings"
-            - "wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null"
-            - "sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg"
-            - 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null'
-            - "wget -qO- https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg"
-            - "sudo chmod go+r /etc/apt/keyrings/google-chrome.gpg"
-            - 'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null'
-            - "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc"
-            - "sudo chmod a+r /etc/apt/keyrings/docker.asc"
-            - 'echo "Types: deb\nURIs: https://download.docker.com/linux/ubuntu\nSuites: $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})\nComponents: stable\nArchitectures: $(dpkg --print-architecture)\nSigned-By: /etc/apt/keyrings/docker.asc" | sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null'
-            - "sudo apt-get update"
-          update:
-            - "sudo apt-get update"
-
-  # zcomet plugins (completions, fzf-tab, …). Prompt is Oh My Posh (not a zcomet theme).
-  # Install is zsh clone + first interactive .zshrc. Re-exec zsh after update when you need a reload.
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y ca-certificates curl wget gnupg software-properties-common apt-transport-https
+        - sudo add-apt-repository -y ppa:git-core/ppa
+        - sudo mkdir -p -m 755 /etc/apt/keyrings
+        - wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+        - sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+        - wget -qO- https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+        - sudo chmod go+r /etc/apt/keyrings/google-chrome.gpg
+        - echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list > /dev/null
+        - sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+        - sudo chmod a+r /etc/apt/keyrings/docker.asc
+        - 'echo "Types: deb\nURIs: https://download.docker.com/linux/ubuntu\nSuites: $(. /etc/os-release && echo ${UBUNTU_CODENAME:-$VERSION_CODENAME})\nComponents: stable\nArchitectures: $(dpkg --print-architecture)\nSigned-By: /etc/apt/keyrings/docker.asc" | sudo tee /etc/apt/sources.list.d/docker.sources > /dev/null'
+        - sudo apt-get update
+        update:
+        - sudo apt-get update
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - zsh
   zsh_tools:
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          update:
-            - 'source "${HOME}/.zcomet/bin/zcomet.zsh" && zcomet update'
-
+    - run:
+        commands: []
+        install: []
+        update:
+        - source "${HOME}/.zcomet/bin/zcomet.zsh" && zcomet update
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    auto_update:
+      at: 08:00
+      cron: null
   wsl_config:
-    os: ["linux"]
     commands:
-      - copy:
-          src: "./etc/wsl.conf"
-          target: "/etc/wsl.conf"
-          sudo: true
-
-  # Windows-side WSL2 limits (%UserProfile%\.wslconfig). Takes effect after `wsl --shutdown`.
+    - copy:
+        src: ./etc/wsl.conf
+        target: /etc/wsl.conf
+        ignore: []
+        sudo: true
+    os:
+    - linux
   wsl_user_config:
-    os: ["linux"]
     commands:
-      - copy:
-          src: "./etc/wslconfig"
-          target: "/mnt/c/Users/Timo/.wslconfig"
-
+    - copy:
+        src: ./etc/wslconfig
+        target: /mnt/c/Users/Timo/.wslconfig
+        ignore: []
+        sudo: false
+    os:
+    - linux
   win32yank_wsl:
-    os: ["linux"]
-    depends_on: ["tools"]
     commands:
-      - run:
-          env:
-            TMP_ZIP: "/tmp/win32yank.zip"
-          install:
-            - 'if [ -x "$HOME/.local/bin/win32yank.exe" ]; then echo "win32yank already installed"; else mkdir -p "$HOME/.local/bin" && curl -fsSL -o "$TMP_ZIP" https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip && unzip -p "$TMP_ZIP" win32yank.exe > "$HOME/.local/bin/win32yank.exe" && chmod +x "$HOME/.local/bin/win32yank.exe" && rm -f "$TMP_ZIP"; fi'
-          uninstall:
-            - "rm -f $HOME/.local/bin/win32yank.exe"
-
+    - run:
+        commands: []
+        install:
+        - if [ -x "$HOME/.local/bin/win32yank.exe" ]; then echo "win32yank already installed"; else mkdir -p "$HOME/.local/bin" && curl -fsSL -o "$TMP_ZIP" https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip && unzip -p "$TMP_ZIP" win32yank.exe > "$HOME/.local/bin/win32yank.exe" && chmod +x "$HOME/.local/bin/win32yank.exe" && rm -f "$TMP_ZIP"; fi
+        update: []
+        uninstall:
+        - rm -f $HOME/.local/bin/win32yank.exe
+        shell: null
+        env:
+          TMP_ZIP: /tmp/win32yank.zip
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - tools
   windows_terminal:
-    os: ["linux"]
     commands:
-      - run:
-          shell: "bash"
-          env:
-            SETTINGS_PATH: "/mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json"
-          commands:
-            - "rm -f $SETTINGS_PATH"
-      # symlink doesn't work after the settings were changed via UI
-      # Apparently, the file gets regenerated instead of changed
-      - copy:
-          src: "./terminal"
-          target: "/mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState"
-
+    - run:
+        commands:
+        - rm -f $SETTINGS_PATH
+        install: []
+        update: []
+        uninstall: []
+        shell: bash
+        env:
+          SETTINGS_PATH: /mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json
+        quiet: false
+    - copy:
+        src: ./terminal
+        target: /mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState
+        ignore: []
+        sudo: false
+    os:
+    - linux
   ssh:
-    os: ["linux"]
     commands:
-      - copy:
-          src: "/mnt/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh"
-          target: "~/.ssh"
-      - run:
-          install:
-            - "chmod 700 ~/.ssh"
-            - "chmod 600 ~/.ssh/id_rsa"
-            - "chmod 644 ~/.ssh/id_rsa.pub"
-
+    - copy:
+        src: /mnt/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh
+        target: ~/.ssh
+        ignore: []
+        sudo: false
+    - run:
+        commands: []
+        install:
+        - chmod 700 ~/.ssh
+        - chmod 600 ~/.ssh/id_rsa
+        - chmod 644 ~/.ssh/id_rsa.pub
+        update: []
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
   tools:
-    depends_on: ["homebrew", "apt_repos_linux"]
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          os: "linux"
-          install:
-            - "sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
-            - "curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash"
-            - "sudo locale-gen en_US.UTF-8"
-          update:
-            - "sudo apt-get update"
-            - "sudo apt-get upgrade -y"
-            - "sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils"
-      # Single brew lock: all macOS formulas/casks live in ./Brewfile.
-      - run:
-          os: "macos"
-          install:
-            - 'brew bundle --file="${DOTFILES:-.}/Brewfile"'
-          update:
-            - 'brew bundle --file="${DOTFILES:-.}/Brewfile"'
-            - "brew upgrade"
-
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils
+        - curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+        - sudo locale-gen en_US.UTF-8
+        update:
+        - sudo apt-get update
+        - sudo apt-get upgrade -y
+        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands: []
+        install:
+        - brew bundle --file="${DOTFILES:-.}/Brewfile"
+        update:
+        - brew bundle --file="${DOTFILES:-.}/Brewfile"
+        - brew upgrade
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    depends_on:
+    - homebrew
+    - apt_repos_linux
+    auto_update:
+      at: 08:00
+      cron: null
   ohmyposh:
-    depends_on: ["tools"]
     commands:
-      - run:
-          os: "linux"
-          install:
-            - 'if command -v oh-my-posh >/dev/null 2>&1; then echo "oh-my-posh already installed: $(oh-my-posh --version)"; else curl -s https://ohmyposh.dev/install.sh | bash -s; fi'
-            - "oh-my-posh enable upgrade"
-            - "oh-my-posh font install meslo"
-          update:
-            - "oh-my-posh enable upgrade || true"
-            - "oh-my-posh upgrade || curl -s https://ohmyposh.dev/install.sh | bash -s"
-            - "oh-my-posh font install meslo"
-      - run:
-          os: "macos"
-          install:
-            - "oh-my-posh enable upgrade"
-            - "oh-my-posh font install meslo"
-          update:
-            - "oh-my-posh enable upgrade"
-            - "oh-my-posh font install meslo"
-
+    - run:
+        commands: []
+        install:
+        - 'if command -v oh-my-posh >/dev/null 2>&1; then echo "oh-my-posh already installed: $(oh-my-posh --version)"; else curl -s https://ohmyposh.dev/install.sh | bash -s; fi'
+        - oh-my-posh enable upgrade
+        - oh-my-posh font install meslo
+        update:
+        - oh-my-posh enable upgrade || true
+        - oh-my-posh upgrade || curl -s https://ohmyposh.dev/install.sh | bash -s
+        - oh-my-posh font install meslo
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands: []
+        install:
+        - oh-my-posh enable upgrade
+        - oh-my-posh font install meslo
+        update:
+        - oh-my-posh enable upgrade
+        - oh-my-posh font install meslo
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    depends_on:
+    - tools
   atuin_linux:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
     commands:
-      - run:
-          # Official binary installer → ~/.atuin/bin. NO_MODIFY_PATH: .zshrc is
-          # managed by dotfiles (already has atuin init + PATH).
-          install:
-            - "ATUIN_NO_MODIFY_PATH=1 curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | ATUIN_NO_MODIFY_PATH=1 sh -s -- --non-interactive"
-          update:
-            - "atuin update || ATUIN_NO_MODIFY_PATH=1 curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | ATUIN_NO_MODIFY_PATH=1 sh -s -- --non-interactive"
-          uninstall:
-            - "rm -rf ~/.atuin"
-
+    - run:
+        commands: []
+        install:
+        - ATUIN_NO_MODIFY_PATH=1 curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | ATUIN_NO_MODIFY_PATH=1 sh -s -- --non-interactive
+        update:
+        - atuin update || ATUIN_NO_MODIFY_PATH=1 curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | ATUIN_NO_MODIFY_PATH=1 sh -s -- --non-interactive
+        uninstall:
+        - rm -rf ~/.atuin
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - apt_repos_linux
   gh_linux:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
     commands:
-      - run:
-          install:
-            - "sudo apt-get install -y gh"
-          update:
-            - "sudo apt-get upgrade -y gh"
-          uninstall:
-            - "sudo apt-get remove -y gh"
-
-  # Google Chrome — required by the chrome-devtools MCP server. Uses Google's
-  # apt repo (registered in apt_repos_linux) so `apt upgrade` keeps it current.
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y gh
+        update:
+        - sudo apt-get upgrade -y gh
+        uninstall:
+        - sudo apt-get remove -y gh
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - apt_repos_linux
   chrome_linux:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
     commands:
-      - run:
-          install:
-            - "sudo apt-get install -y google-chrome-stable"
-          update:
-            - "sudo apt-get upgrade -y google-chrome-stable"
-          uninstall:
-            - "sudo apt-get remove -y google-chrome-stable"
-            - "sudo rm -f /etc/apt/sources.list.d/google-chrome.list"
-            - "sudo rm -f /etc/apt/keyrings/google-chrome.gpg"
-
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y google-chrome-stable
+        update:
+        - sudo apt-get upgrade -y google-chrome-stable
+        uninstall:
+        - sudo apt-get remove -y google-chrome-stable
+        - sudo rm -f /etc/apt/sources.list.d/google-chrome.list
+        - sudo rm -f /etc/apt/keyrings/google-chrome.gpg
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - apt_repos_linux
   dotfiles:
-    depends_on: ["ssh", "tools"]
     commands:
-      - clone:
-          url: "git@github.com:timopruesse/.dotfiles.git"
-          target: "."
-      - symlink:
-          force: true
-          backup: true
-          src: "./home"
-          target: "~"
-          # Cursor owns ~/.cursor; Antigravity owns ~/.gemini and ~/.agents.
-          # Managed agent/command pins + skills are installed by sync conveyor.
-          ignore: [".cursor", ".gemini", ".agents"]
-      # Regenerate Claude/Cursor/Agy pins, catalog, live-install, project-agents.
-      - run:
-          install:
-            - "$HOME/sync/sync"
-          update:
-            - "$HOME/sync/sync"
-
-  # Theme files come from the dotfiles symlink; bat itself is already installed
-  # by the time dotfiles finishes (dotfiles waits on tools).
+    - clone:
+        url: git@github.com:timopruesse/.dotfiles.git
+        target: .
+    - symlink:
+        src: ./home
+        target: '~'
+        ignore:
+        - .cursor
+        - .gemini
+        - .agents
+        force: true
+        sudo: false
+        backup: true
+    - run:
+        commands: []
+        install:
+        - $HOME/sync/sync
+        update:
+        - $HOME/sync/sync
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    depends_on:
+    - ssh
+    - tools
   bat_theme:
-    depends_on: ["dotfiles"]
     commands:
-      - run:
-          install:
-            - "$(command -v batcat || command -v bat) cache --build"
-          update:
-            - "$(command -v batcat || command -v bat) cache --build"
-
+    - run:
+        commands: []
+        install:
+        - $(command -v batcat || command -v bat) cache --build
+        update:
+        - $(command -v batcat || command -v bat) cache --build
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    depends_on:
+    - dotfiles
   lazygit_linux:
-    os: ["linux"]
-    depends_on: ["dotfiles"]
     commands:
-      - run:
-          install:
-            - "$HOME/install_lazygit.sh"
-
+    - run:
+        commands: []
+        install:
+        - $HOME/install_lazygit.sh
+        update: []
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - dotfiles
   neovim:
-    depends_on: ["dotfiles"]
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          os: "linux"
-          # Nightly kept; install_nvim_nightly.sh skips when /opt/nvim matches
-          # the GitHub nightly target_commitish stamp.
-          install:
-            - "$HOME/install_nvim_nightly.sh"
-            - "sudo -n luarocks install jsregexp"
-          update:
-            - "$HOME/install_nvim_nightly.sh"
-          uninstall:
-            - "sudo -n rm -f /usr/local/bin/nvim"
-            - "sudo -n rm -rf /opt/nvim"
-      - run:
-          os: "macos"
-          # HEAD formula: brew upgrade alone often skips rebuilds.
-          # Brewfile still declares neovim HEAD; this task refreshes it.
-          install:
-            - "brew upgrade --fetch-HEAD neovim"
-            - "luarocks install jsregexp"
-          update:
-            - "brew upgrade --fetch-HEAD neovim"
-            - "luarocks install jsregexp"
-
+    - run:
+        commands: []
+        install:
+        - $HOME/install_nvim_nightly.sh
+        - sudo -n luarocks install jsregexp
+        update:
+        - $HOME/install_nvim_nightly.sh
+        uninstall:
+        - sudo -n rm -f /usr/local/bin/nvim
+        - sudo -n rm -rf /opt/nvim
+        shell: null
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands: []
+        install:
+        - brew upgrade --fetch-HEAD neovim
+        - luarocks install jsregexp
+        update:
+        - brew upgrade --fetch-HEAD neovim
+        - luarocks install jsregexp
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    depends_on:
+    - dotfiles
+    auto_update:
+      at: 08:00
+      cron: null
   rust:
-    depends_on: ["tools"]
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          install:
-            - 'if command -v rustup >/dev/null 2>&1; then echo "rustup already installed"; else curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y; fi'
-            - "source $HOME/.cargo/env"
-            - "rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy"
-            - "rustup component add rustfmt --toolchain nightly"
-            - "rustup component add rust-analyzer --toolchain nightly"
-          update:
-            - "source $HOME/.cargo/env && rustup update"
-      - run:
-          # Binary crates via cargo-binstall (no source compile).
-          install:
-            - 'if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi'
-            - "source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli"
-          update:
-            - 'if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi'
-            - "source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli"
-
-  # herdr binary/integrations need brew (macOS) or curl (linux) + dotfiles for
-  # the pane-context hook. Navigator plugin builds with cargo → herdr_navigator.
+    - run:
+        commands: []
+        install:
+        - if command -v rustup >/dev/null 2>&1; then echo "rustup already installed"; else curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y; fi
+        - source $HOME/.cargo/env
+        - rustup toolchain install nightly --allow-downgrade --profile minimal --component clippy
+        - rustup component add rustfmt --toolchain nightly
+        - rustup component add rust-analyzer --toolchain nightly
+        update:
+        - source $HOME/.cargo/env && rustup update
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    - run:
+        commands: []
+        install:
+        - if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi
+        - source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli
+        update:
+        - if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi
+        - source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    depends_on:
+    - tools
+    auto_update:
+      at: 08:00
+      cron: null
   herdr:
-    depends_on: ["tools", "dotfiles"]
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          os: "linux"
-          install:
-            - "curl -fsSL https://herdr.dev/install.sh | sh"
-          update:
-            # Self-update refuses HERDR_ENV=1; skip so `ms` / auto_update from a pane does not fail.
-            - 'if [ "${HERDR_ENV:-}" = "1" ]; then echo "warning: skipping herdr update (inside herdr — detach and rerun from a non-herdr shell)" >&2; else herdr update; fi'
-          uninstall:
-            - "herdr server stop || true"
-            - "rm -f ~/.local/bin/herdr"
-            - "rm -rf ~/.local/share/herdr ~/.config/herdr/current"
-      - run:
-          install:
-            - "herdr integration install claude || true"
-            - "herdr integration install cursor || true"
-            - "$HOME/sync/normalize-herdr-hooks"
-            - "mkdir -p \"$HOME/.claude/hooks\""
-            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
-          update:
-            - "herdr integration install claude || true"
-            - "herdr integration install cursor || true"
-            - "$HOME/sync/normalize-herdr-hooks"
-            - "mkdir -p \"$HOME/.claude/hooks\""
-            - "ln -sfn \"$DOTFILES/home/.claude/hooks/pane-context-aws.sh\" \"$HOME/.claude/hooks/pane-context-aws.sh\""
-
-  # Cargo-built navigator plugin — only this step waits on rust.
+    - run:
+        commands: []
+        install:
+        - curl -fsSL https://herdr.dev/install.sh | sh
+        update:
+        - 'if [ "${HERDR_ENV:-}" = "1" ]; then echo "warning: skipping herdr update (inside herdr — detach and rerun from a non-herdr shell)" >&2; else herdr update; fi'
+        uninstall:
+        - herdr server stop || true
+        - rm -f ~/.local/bin/herdr
+        - rm -rf ~/.local/share/herdr ~/.config/herdr/current
+        shell: null
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands: []
+        install:
+        - herdr integration install claude || true
+        - herdr integration install cursor || true
+        - $HOME/sync/normalize-herdr-hooks
+        - mkdir -p "$HOME/.claude/hooks"
+        - ln -sfn "$DOTFILES/home/.claude/hooks/pane-context-aws.sh" "$HOME/.claude/hooks/pane-context-aws.sh"
+        update:
+        - herdr integration install claude || true
+        - herdr integration install cursor || true
+        - $HOME/sync/normalize-herdr-hooks
+        - mkdir -p "$HOME/.claude/hooks"
+        - ln -sfn "$DOTFILES/home/.claude/hooks/pane-context-aws.sh" "$HOME/.claude/hooks/pane-context-aws.sh"
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    depends_on:
+    - tools
+    - dotfiles
+    auto_update:
+      at: 08:00
+      cron: null
   herdr_navigator:
-    depends_on: ["herdr", "rust"]
     commands:
-      - run:
-          install:
-            - "herdr plugin install willfish/herdr-navigator --yes || true"
-          update:
-            - "herdr plugin install willfish/herdr-navigator --yes || true"
-
+    - run:
+        commands: []
+        install:
+        - herdr plugin install willfish/herdr-navigator --yes || true
+        update:
+        - herdr plugin install willfish/herdr-navigator --yes || true
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    depends_on:
+    - herdr
+    - rust
   bun:
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          install: "curl -fsSL https://bun.sh/install | bash"
-          update: "bun upgrade --canary"
-
+    - run:
+        commands: []
+        install:
+        - curl -fsSL https://bun.sh/install | bash
+        update:
+        - bun upgrade --canary
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    auto_update:
+      at: 08:00
+      cron: null
   node:
-    depends_on: ["tools"]
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          os: "linux"
-          # Official binary installer into ~/.local/bin (already on PATH).
-          # --skip-shell: .zshrc already runs `fnm env`.
-          install:
-            - 'curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell'
-            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)'
-          update:
-            - 'curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell'
-            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g'
-          uninstall:
-            - "rm -f ~/.local/bin/fnm"
-            - "rm -rf ~/.local/share/fnm"
-      - run:
-          os: "macos"
-          install:
-            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)'
-          update:
-            - 'eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g'
-
+    - run:
+        commands: []
+        install:
+        - curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell
+        - eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)
+        update:
+        - curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "$HOME/.local/bin" --skip-shell
+        - eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g
+        uninstall:
+        - rm -f ~/.local/bin/fnm
+        - rm -rf ~/.local/share/fnm
+        shell: null
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands: []
+        install:
+        - eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current)
+        update:
+        - eval "$(fnm env)" && fnm install --latest && fnm default $(fnm current) && npm upgrade -g
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    depends_on:
+    - tools
+    auto_update:
+      at: 08:00
+      cron: null
   nvim-npm:
-    depends_on: ["node"]
     commands:
-      - run:
-          env:
-            PACKAGES_STR: "neovim"
-          install: "npm install -g $(echo $PACKAGES_STR)"
-          update: "npm upgrade -g $(echo $PACKAGES_STR)"
-          uninstall: "npm uninstall -g $(echo $PACKAGES_STR)"
-
+    - run:
+        commands: []
+        install:
+        - npm install -g $(echo $PACKAGES_STR)
+        update:
+        - npm upgrade -g $(echo $PACKAGES_STR)
+        uninstall:
+        - npm uninstall -g $(echo $PACKAGES_STR)
+        shell: null
+        env:
+          PACKAGES_STR: neovim
+        quiet: false
+    depends_on:
+    - node
   python:
-    depends_on: ["tools"]
     commands:
-      - run:
-          os: "linux"
-          install:
-            - "sudo apt-get install -y pipx python3-venv python3-pip"
-            - "python3 -m pipx ensurepath"
-            - "pipx install pip-review"
-            - "python3 -m venv $HOME/.local/share/nvim/venv"
-            - "$HOME/.local/share/nvim/venv/bin/pip install --upgrade pip pynvim"
-          update:
-            - "pip-review --auto"
-            - "$HOME/.local/share/nvim/venv/bin/pip install --upgrade pynvim"
-      - run:
-          os: "macos"
-          install:
-            - "python3 -m pipx ensurepath"
-            - "pipx install pip-review"
-            - "pipx install pynvim"
-          update:
-            - "pip-review --auto"
-
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y pipx python3-venv python3-pip
+        - python3 -m pipx ensurepath
+        - pipx install pip-review
+        - python3 -m venv $HOME/.local/share/nvim/venv
+        - $HOME/.local/share/nvim/venv/bin/pip install --upgrade pip pynvim
+        update:
+        - pip-review --auto
+        - $HOME/.local/share/nvim/venv/bin/pip install --upgrade pynvim
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: linux
+    - run:
+        commands: []
+        install:
+        - python3 -m pipx ensurepath
+        - pipx install pip-review
+        - pipx install pynvim
+        update:
+        - pip-review --auto
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    depends_on:
+    - tools
   go_linux:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
     commands:
-      - run:
-          install:
-            - "sudo apt-get install -y golang"
-          update:
-            - "sudo apt-get upgrade -y golang"
-          uninstall:
-            - "sudo apt-get remove -y golang"
-
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y golang
+        update:
+        - sudo apt-get upgrade -y golang
+        uninstall:
+        - sudo apt-get remove -y golang
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - apt_repos_linux
   docker:
-    os: ["linux"]
-    depends_on: ["apt_repos_linux"]
     commands:
-      - run:
-          install:
-            - "sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-            - "sudo usermod -aG docker $USER"
-          update:
-            - "sudo apt-get upgrade -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-          uninstall:
-            - "sudo apt-get remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
-            - "sudo rm -f /etc/apt/sources.list.d/docker.sources"
-            - "sudo rm -f /etc/apt/keyrings/docker.asc"
-
+    - run:
+        commands: []
+        install:
+        - sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        - sudo usermod -aG docker $USER
+        update:
+        - sudo apt-get upgrade -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        uninstall:
+        - sudo apt-get remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+        - sudo rm -f /etc/apt/sources.list.d/docker.sources
+        - sudo rm -f /etc/apt/keyrings/docker.asc
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - apt_repos_linux
   aws_cli_linux:
-    os: ["linux"]
-    depends_on: ["tools"]
     commands:
-      - run:
-          env:
-            TMP_DIR: "/tmp/awscli-install"
-          install:
-            - 'if command -v aws >/dev/null 2>&1; then echo "aws already installed: $(aws --version 2>&1)"; else mkdir -p "$TMP_DIR" && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TMP_DIR/awscliv2.zip" && unzip -o "$TMP_DIR/awscliv2.zip" -d "$TMP_DIR" && sudo "$TMP_DIR/aws/install" && rm -rf "$TMP_DIR"; fi'
-          update:
-            - "mkdir -p $TMP_DIR"
-            - 'curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TMP_DIR/awscliv2.zip"'
-            - "unzip -o $TMP_DIR/awscliv2.zip -d $TMP_DIR"
-            - "sudo $TMP_DIR/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update"
-            - "rm -rf $TMP_DIR"
-          uninstall:
-            - "sudo rm -f /usr/local/bin/aws"
-            - "sudo rm -f /usr/local/bin/aws_completer"
-            - "sudo rm -rf /usr/local/aws-cli"
-
-  # Claude Code CLI. Native installer (cross-platform) → ~/.local/bin (already on
-  # PATH); auto-updates in the background. Re-run the installer to update, same
-  # rationale as cursor_cli. Previously unmanaged — .zshrc/aliases assumed it on
-  # PATH.
+    - run:
+        commands: []
+        install:
+        - 'if command -v aws >/dev/null 2>&1; then echo "aws already installed: $(aws --version 2>&1)"; else mkdir -p "$TMP_DIR" && curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TMP_DIR/awscliv2.zip" && unzip -o "$TMP_DIR/awscliv2.zip" -d "$TMP_DIR" && sudo "$TMP_DIR/aws/install" && rm -rf "$TMP_DIR"; fi'
+        update:
+        - mkdir -p $TMP_DIR
+        - curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TMP_DIR/awscliv2.zip"
+        - unzip -o $TMP_DIR/awscliv2.zip -d $TMP_DIR
+        - sudo $TMP_DIR/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+        - rm -rf $TMP_DIR
+        uninstall:
+        - sudo rm -f /usr/local/bin/aws
+        - sudo rm -f /usr/local/bin/aws_completer
+        - sudo rm -rf /usr/local/aws-cli
+        shell: null
+        env:
+          TMP_DIR: /tmp/awscli-install
+        quiet: false
+    os:
+    - linux
+    depends_on:
+    - tools
   claude_cli:
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          install: "curl -fsSL https://claude.ai/install.sh | bash"
-          update: "curl -fsSL https://claude.ai/install.sh | bash"
-          uninstall:
-            - "rm -f ~/.local/bin/claude"
-            - "rm -rf ~/.local/share/claude"
-
-  # Cursor CLI (cursor-agent). Cross-platform installer → ~/.local/bin (already
-  # on PATH). Re-run the installer to update: machine_setup's run-shell may not
-  # have the .zshrc PATH, and it's idempotent — same pattern as neovim.
+    - run:
+        commands: []
+        install:
+        - curl -fsSL https://claude.ai/install.sh | bash
+        update:
+        - curl -fsSL https://claude.ai/install.sh | bash
+        uninstall:
+        - rm -f ~/.local/bin/claude
+        - rm -rf ~/.local/share/claude
+        shell: null
+        env: {}
+        quiet: false
+    auto_update:
+      at: 08:00
+      cron: null
   cursor_cli:
-    auto_update:
-      at: "08:00"
     commands:
-      - run:
-          install: "curl https://cursor.com/install -fsS | bash"
-          update: "curl https://cursor.com/install -fsS | bash"
-
-  # Antigravity CLI (agy). Native installer (cross-platform) → ~/.local/bin
-  # (already on PATH). Re-run update / installer to update, same pattern as
-  # cursor_cli and claude_cli.
+    - run:
+        commands: []
+        install:
+        - curl https://cursor.com/install -fsS | bash
+        update:
+        - curl https://cursor.com/install -fsS | bash
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+    auto_update:
+      at: 08:00
+      cron: null
   agy_cli:
+    commands:
+    - run:
+        commands: []
+        install:
+        - curl -fsSL https://antigravity.google/cli/install.sh | bash
+        update:
+        - agy update || curl -fsSL https://antigravity.google/cli/install.sh | bash
+        uninstall:
+        - rm -f ~/.local/bin/agy
+        shell: null
+        env: {}
+        quiet: false
     auto_update:
-      at: "08:00"
-    commands:
-      - run:
-          install: "curl -fsSL https://antigravity.google/cli/install.sh | bash"
-          update: "agy update || curl -fsSL https://antigravity.google/cli/install.sh | bash"
-          uninstall:
-            - "rm -f ~/.local/bin/agy"
-
+      at: 08:00
+      cron: null
   personal_repos:
-    depends_on: ["ssh", "tools"]
     commands:
-      - machine_setup:
-          config: "$DOTFILES/personal_repositories.yaml"
+    - machine_setup:
+        config: $DOTFILES/personal_repositories.yaml
+        task: null
+        force: false
+        with_deps: false
+    depends_on:
+    - ssh
+    - tools

@@ -2,6 +2,9 @@
   "mcpServers": {
     "svelte": {
       "url": "https://mcp.svelte.dev/mcp"
+    },
+    "github": {
+      "command": "~/.cursor/github-mcp.sh"
     }
   }
 }
