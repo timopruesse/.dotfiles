@@ -1,3 +1,15 @@
+# Homebrew PATH — must run for every interactive shell (including Cursor Agent,
+# which returns early below). .zprofile alone is not enough: non-login terminals
+# skip it, and macOS path_helper puts /etc/paths (/usr/bin) ahead of
+# /etc/paths.d/homebrew.
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
 # Cursor Agent tool shells: skip interactive config (keychain, prompt, plugins).
 # Heavy rc loading breaks command-completion detection and can leave the CLI
 # unable to exit cleanly.
