@@ -33,7 +33,7 @@ out of quota, unavailable, or returns a plan/usage error:
 
 1. Retry **once** with the same subagent but model `auto` (or omit `model` so it
    inherits / uses Auto).
-2. If the retry also fails, surface the error — do not keep retrying or silently
-   swap to an unrelated model.
+2. If the retry also fails, report the error and follow the parent fallback in
+   AGENT-ROUTING.md. Do not keep retrying or silently swap models.
 3. Do **not** fall back to `auto` for ordinary task failures (bad prompt, tool
    errors, wrong agent choice). Only for model availability / usage limits.

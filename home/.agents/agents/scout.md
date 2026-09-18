@@ -39,3 +39,8 @@ walkthrough here.
   where you looked.
 - State findings as facts only when you verified them in the code; otherwise
   label them as inferences.
+
+## Terminal contract
+
+- `ADVANCE → parent` — assigned work completed; report findings or git results.
+- `HALT: <reason>` — work could not be completed; report the specific blocker.

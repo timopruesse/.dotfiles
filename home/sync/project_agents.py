@@ -6,12 +6,12 @@ Cursor's Task tool / CLI often only loads project-scoped agents, not
 
 from __future__ import annotations
 
-import os
 import subprocess
 import sys
 from pathlib import Path
 
-from sync.common import link_into, repo_home
+from sync.common import repo_home
+from sync.managed_links import install_links
 
 REPO_HOME = repo_home()
 DOTFILES_ROOT = REPO_HOME.parent
@@ -57,63 +57,27 @@ def is_dotfiles_root(root: Path) -> bool:
 
 
 def ensure_git_exclude(root: Path) -> None:
-    """Keep foreign repos clean: ignore project-agents links locally."""
+    """Resolve Git's exclusion file, including linked worktrees."""
     if is_dotfiles_root(root):
         return
-    exclude = root / ".git" / "info" / "exclude"
-    if not exclude.parent.is_dir():
+    raw = subprocess.check_output(
+        ["git", "rev-parse", "--git-path", "info/exclude"], cwd=root, text=True,
+    ).strip()
+    exclude = Path(raw)
+    if not exclude.is_absolute():
+        exclude = root / exclude
+    existing = exclude.read_text(encoding="utf-8") if exclude.is_file() else ""
+    if EXCLUDE_LINE in (line.strip() for line in existing.splitlines()):
         return
-    existing = ""
-    if exclude.is_file():
-        existing = exclude.read_text(encoding="utf-8")
-        for line in existing.splitlines():
-            if line.strip() == EXCLUDE_LINE:
-                return
+    exclude.parent.mkdir(parents=True, exist_ok=True)
     prefix = "" if not existing or existing.endswith("\n") else "\n"
     with exclude.open("a", encoding="utf-8") as f:
         f.write(f"{prefix}# pinned Cursor project-agents (managed by ensure-project-agents)\n")
         f.write(f"{EXCLUDE_LINE}\n")
 
 
-def _git_exclude_ok(root: Path) -> bool:
-    if is_dotfiles_root(root):
-        return True
-    exclude = root / ".git" / "info" / "exclude"
-    if not exclude.is_file():
-        return False
-    try:
-        return any(line.strip() == EXCLUDE_LINE for line in exclude.read_text(encoding="utf-8").splitlines())
-    except OSError:
-        return False
-
-
-def _project_agents_fresh(dest: Path, paths: list[Path]) -> bool:
-    """True when dest already has the right symlinks and no stale agent links."""
-    if not dest.is_dir():
-        return False
-    keep_names = {p.name for p in paths}
-    try:
-        dest_resolved = dest.resolve()
-    except OSError:
-        return False
-    for path in paths:
-        link = dest / path.name
-        if not link.is_symlink():
-            return False
-        try:
-            rel = Path(os.path.relpath(path.resolve(), start=dest_resolved))
-            if link.readlink() != rel:
-                return False
-        except OSError:
-            return False
-    for entry in dest.glob("*.md"):
-        if entry.name not in keep_names and entry.is_symlink():
-            return False
-    return True
-
-
 def ensure_project_agents(root: Path | None = None, *, quiet: bool = False) -> int:
-    """Link pinned agent .md files into <root>/.cursor/agents/. Returns count linked."""
+    """Link pinned agent .md files into <root>/.cursor/agents/. Returns count of changed links."""
     git_root_path = root or git_root()
     if git_root_path is None:
         if not quiet:
@@ -137,33 +101,10 @@ def ensure_project_agents(root: Path | None = None, *, quiet: bool = False) -> i
             print(f"ensure-project-agents: no *.md in {src}", file=sys.stderr)
         return 0
 
-    if _project_agents_fresh(dest, paths) and _git_exclude_ok(git_root_path):
-        if not quiet:
-            print(f"  project-agents already fresh → {dest}")
-        return len(paths)
-
-    keep = {p.stem for p in paths}
-    linked = 0
-    for path in paths:
-        target_link = dest / path.name
-        try:
-            link_into(path, target_link)
-            linked += 1
-        except SystemExit as exc:
-            if not quiet:
-                print(f"ensure-project-agents: {exc}", file=sys.stderr)
-            continue
-
-    if dest.is_dir():
-        for stale in dest.glob("*.md"):
-            if stale.stem not in keep and stale.is_symlink():
-                stale.unlink()
-                if not quiet:
-                    print(f"  removed stale project-agent link {stale}")
-
+    linked = install_links(src, dest, "*.md", owned_roots=(GENERATED_AGENTS,))
     ensure_git_exclude(git_root_path)
     if not quiet:
-        print(f"  linked {linked} project-agents → {dest}")
+        print(f"  project-agents: {linked} change(s) → {dest}")
     return linked
 
 

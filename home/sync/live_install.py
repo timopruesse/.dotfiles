@@ -1,4 +1,4 @@
-"""Install managed Cursor artifacts into ~/.cursor without replacing the tree."""
+"""Install managed host artifacts without replacing personal configuration."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from typing import Any
 
 from sync.common import deep_merge, link_into, repo_home
 from sync.live_codex import install_codex_agents
+from sync.managed_links import install_links
 from sync.normalize_herdr_hooks import normalize_all
 
 REPO_HOME = repo_home()
@@ -59,23 +60,6 @@ LIVE_AGENTS_SKILLS = LIVE_AGENTS_ROOT / "skills"
 LIVE_AGENTS_HOOKS_JSON = LIVE_AGENTS_ROOT / "hooks.json"
 
 
-def install_md_links(src_dir: Path, live_dir: Path, keep: set[str] | None = None) -> None:
-    if not src_dir.is_dir():
-        return
-    paths = sorted(src_dir.glob("*.md"))
-    if keep is None:
-        keep = {p.stem for p in paths}
-    for path in paths:
-        if path.stem not in keep:
-            continue
-        link_into(path, live_dir / path.name)
-    if live_dir.is_dir():
-        for stale in live_dir.glob("*.md"):
-            if stale.stem not in keep and stale.is_symlink():
-                stale.unlink()
-                print(f"  removed stale live link {stale}")
-
-
 def install_hooks() -> None:
     if CURSOR_HOOKS_JSON.is_file():
         if link_into(CURSOR_HOOKS_JSON, LIVE_HOOKS_JSON):
@@ -95,24 +79,7 @@ def install_hooks() -> None:
 
 
 def install_rules() -> None:
-    """Link every managed `.mdc` rule into ~/.cursor/rules/."""
-    if not CURSOR_RULES_DIR.is_dir():
-        return
-    LIVE_RULES.mkdir(parents=True, exist_ok=True)
-    keep: set[str] = set()
-    linked = 0
-    for path in sorted(CURSOR_RULES_DIR.glob("*.mdc")):
-        keep.add(path.name)
-        if link_into(path, LIVE_RULES / path.name):
-            linked += 1
-            print(f"  installed rule → {LIVE_RULES / path.name}")
-    if LIVE_RULES.is_dir():
-        for stale in LIVE_RULES.glob("*.mdc"):
-            if stale.name not in keep and stale.is_symlink():
-                stale.unlink()
-                print(f"  removed stale live link {stale}")
-    if linked == 0 and keep:
-        print(f"  ({len(keep)} rules already linked → {LIVE_RULES})")
+    install_links(CURSOR_RULES_DIR, LIVE_RULES, "*.mdc")
 
 
 def install_statusline() -> None:
@@ -217,23 +184,6 @@ def _managed_skill_dirs() -> list[Path]:
     )
 
 
-def _prune_stale_managed_skills(live_root: Path, keep: set[str]) -> None:
-    """Remove live skill symlinks that pointed at our managed src but are gone."""
-    if not live_root.is_dir():
-        return
-    src_root = SKILLS_SRC.resolve()
-    for entry in live_root.iterdir():
-        if entry.name in keep or not entry.is_symlink():
-            continue
-        try:
-            resolved = entry.resolve()
-        except OSError:
-            continue
-        if resolved == src_root or src_root in resolved.parents:
-            entry.unlink()
-            print(f"  removed stale live skill {entry}")
-
-
 def install_skills() -> None:
     """Link home/skills/<name> into ~/.cursor/skills, ~/.claude/skills, and ~/.agents/skills.
 
@@ -242,7 +192,7 @@ def install_skills() -> None:
     unrelated personal/plugin skills alone.
     """
     skills = _managed_skill_dirs()
-    if not skills:
+    if not SKILLS_SRC.is_dir():
         return
     keep = {p.name for p in skills}
     roots = [LIVE_CURSOR_SKILLS, LIVE_CLAUDE_SKILLS]
@@ -257,85 +207,24 @@ def install_skills() -> None:
             seen.add(cand_res)
 
     for live_root in roots:
-        linked = 0
-        reclaimed = 0
-        for skill_dir in skills:
-            dest = live_root / skill_dir.name
-            if dest.is_symlink():
-                try:
-                    if dest.resolve() != skill_dir.resolve():
-                        reclaimed += 1
-                        dest.unlink()
-                except OSError:
-                    reclaimed += 1
-                    dest.unlink()
-            elif dest.is_dir():
-                import shutil
-                shutil.rmtree(dest)
-                reclaimed += 1
-            if link_into(skill_dir, dest):
-                linked += 1
-        _prune_stale_managed_skills(live_root, keep)
-        if reclaimed:
-            print(f"  reclaimed {reclaimed} skill link(s) → {live_root}")
-        if linked:
-            print(f"  linked {linked}/{len(keep)} skills → {live_root}")
-        else:
-            print(f"  ({len(keep)} skills already linked → {live_root})")
+        install_links(SKILLS_SRC, live_root, "*", names=keep, reclaim_skills=True)
 
 
-def install_all(
-    *,
-    agents: bool = True,
-    commands: bool = True,
-    hooks: bool = True,
-    rule: bool = True,
-    cli_config: bool = True,
-    statusline: bool = True,
-    skills: bool = True,
-    mcp: bool = True,
-) -> None:
-    if agents:
-        install_codex_agents()
-    if agents and CURSOR_OUT_AGENTS.is_dir():
-        keep = {p.stem for p in CURSOR_OUT_AGENTS.glob("*.md")}
-        install_md_links(CURSOR_OUT_AGENTS, LIVE_AGENTS, keep)
-        print(f"  linked {len(keep)} agents → {LIVE_AGENTS}")
-    if agents and AGY_OUT_AGENTS.is_dir():
-        keep = {p.stem for p in AGY_OUT_AGENTS.glob("*.md")}
-        for target in (LIVE_AGY_AGENTS, LIVE_AGENTS_AGENTS):
-            install_md_links(AGY_OUT_AGENTS, target, keep)
-            print(f"  linked {len(keep)} agy agents → {target}")
-    if commands and CURSOR_OUT_COMMANDS.is_dir():
-        keep = {p.stem for p in CURSOR_OUT_COMMANDS.glob("*.md")}
-        install_md_links(CURSOR_OUT_COMMANDS, LIVE_COMMANDS, keep)
-        print(f"  linked {len(keep)} commands → {LIVE_COMMANDS}")
-    if commands and AGY_OUT_WORKFLOWS.is_dir():
-        keep = {p.stem for p in AGY_OUT_WORKFLOWS.glob("*.md")}
-        for target in (LIVE_AGY_WORKFLOWS, LIVE_AGENTS_WORKFLOWS):
-            install_md_links(AGY_OUT_WORKFLOWS, target, keep)
-            print(f"  linked {len(keep)} agy workflows → {target}")
-    if skills:
-        install_skills()
-    if rule:
-        install_rules()
-    if hooks:
-        install_hooks()
-    if statusline:
-        install_statusline()
-        install_github_mcp()
-    if cli_config:
-        install_cli_config()
-        install_agy_settings()
-    if mcp:
-        install_mcp_config()
-
-
-def main() -> int:
-    install_all()
-    print(f"live-install → {LIVE_CURSOR}")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+def install_all() -> None:
+    install_codex_agents()
+    for source, targets in (
+        (CURSOR_OUT_AGENTS, (LIVE_AGENTS,)),
+        (AGY_OUT_AGENTS, (LIVE_AGY_AGENTS, LIVE_AGENTS_AGENTS)),
+        (CURSOR_OUT_COMMANDS, (LIVE_COMMANDS,)),
+        (AGY_OUT_WORKFLOWS, (LIVE_AGY_WORKFLOWS, LIVE_AGENTS_WORKFLOWS)),
+    ):
+        for target in targets:
+            install_links(source, target, "*.md")
+    install_skills()
+    install_rules()
+    install_hooks()
+    install_statusline()
+    install_github_mcp()
+    install_cli_config()
+    install_agy_settings()
+    install_mcp_config()

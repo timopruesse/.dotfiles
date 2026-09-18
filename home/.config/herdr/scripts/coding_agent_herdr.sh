@@ -33,29 +33,7 @@ esac
 cwd=${HERDR_ACTIVE_PANE_CWD:-${PWD}}
 scripts=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 launch="$scripts/coding_agent_launch.sh"
-pane_context="$scripts/pane_context.sh"
-
-# Resolve once for pane labels + launch (avoid a second git remote in the pane).
-force=
-for arg in "$@"; do
-  case "$arg" in
-  --) break ;;
-  --claude) force=claude ;;
-  --codex) force=codex ;;
-  --agent | --cursor) force=agent ;;
-  --agy) force=agy ;;
-  esac
-done
-
-if [ -n "$force" ]; then
-  cli=$force
-else
-  cli=$("$scripts/coding_agent_resolve.sh" "$cwd")
-fi
-
-. "$scripts/coding_agent_ensure.sh"
 . "$scripts/coding_agent_space.sh"
-coding_agent_ensure_project_agents "$cwd"
 
 pane_id_from_json() {
   python3 -c '
@@ -78,21 +56,8 @@ if [ -z "$pane" ]; then
   exit 1
 fi
 
-# Run launch in the new pane (policy only — resolve + ensure already done).
+# Launch owns host selection, preparation and metadata inside the target pane.
 # Silence pane-run JSON so stdout stays a single pane_id for adapters.
-if [ "$#" -eq 0 ]; then
-  herdr pane run "$pane" "$launch" --resolved "$cli" --ensured >/dev/null
-else
-  herdr pane run "$pane" "$launch" --resolved "$cli" --ensured "$@" >/dev/null
-fi
-
-# Pane context: agent + worktree labels for herdr sidebar / borders.
-if [ -x "$pane_context" ]; then
-  HERDR_PANE_ID=$pane "$pane_context" set-agent "$cli" "$pane" || true
-  wt=$("$pane_context" worktree-name "$cwd" 2>/dev/null || true)
-  if [ -n "$wt" ]; then
-    HERDR_PANE_ID=$pane "$pane_context" set-wt "$wt" "$pane" || true
-  fi
-fi
+herdr pane run "$pane" "$launch" "$@" >/dev/null
 
 printf '%s\n' "$pane"

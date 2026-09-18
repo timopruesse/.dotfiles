@@ -97,10 +97,10 @@ class CatalogHelperTests(unittest.TestCase):
         self.assertEqual(conveyor_main(["--no-live"]), 2)
 
 
-class LiveCursorTests(unittest.TestCase):
+class LiveInstallTests(unittest.TestCase):
     def test_merge_json_file(self) -> None:
         import json
-        from sync.live_cursor import _merge_json_file
+        from sync.live_install import _merge_json_file
 
         with tempfile.TemporaryDirectory() as tmp:
             managed = Path(tmp) / "managed.json"
@@ -125,7 +125,7 @@ class LiveCursorTests(unittest.TestCase):
             self.assertIn("svelte", data["mcpServers"])
 
     def test_managed_skills_include_herdr(self) -> None:
-        from sync.live_cursor import _managed_skill_dirs
+        from sync.live_install import _managed_skill_dirs
 
         skills = {p.name for p in _managed_skill_dirs()}
         self.assertIn("herdr", skills)

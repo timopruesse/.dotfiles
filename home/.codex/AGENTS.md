@@ -3,20 +3,6 @@ home/protocols/AGENT-ROUTING.md, not this file. -->
 
 # Codex subagent routing
 
-Use Codex's native subagent tools. Shared specialist instructions are generated
-as TOML files in `~/.codex/agents/`; each file sets its model and reasoning effort.
-Select the named specialist when the host exposes custom agents. If the current
-surface only accepts a task prompt, include the specialist's instructions and
-pass its model and reasoning effort explicitly using the host's supported API.
-Use a fresh or bounded context when the API cannot combine a model override with
-full-history inheritance. Wait for the native completion result before checking
-the specialist's terminal contract.
-
-The tiers below govern delegated specialists, not the parent session's model.
-Do not use Claude's `haiku`/`sonnet`/`opus` aliases or Cursor's `auto` fallback in
-Codex. If a configured model is unavailable, report the specific error rather
-than silently substituting a different tier.
-
 | Tier | Agents | Claude Code | Cursor | Agy | Codex (effort) |
 | --- | --- | --- | --- | --- | --- |
 | cheap | `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage` | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
@@ -53,6 +39,23 @@ This protocol governs the **root orchestrator / parent session only**.
 > Spawning and routing — by any engine, native or Herdr — are strictly reserved
 > for the parent orchestrator.
 
+## Unavailable-specialist fallback
+
+Native specialists are preferred. If a required specialist cannot start, report
+its exact error and continue in the parent within the user's existing authorization.
+This exception applies to all specialist-only rules below, including implementation,
+review, verification, and commit work. Use the parent model and disclose the fallback;
+do not impersonate a specialist or substitute an unrelated agent/model.
+
+- An unavailable role is not evidence of a model quota failure. Cursor's model-only
+  retry policy lives in MODEL-FALLBACK.md; Codex never uses Cursor's `auto` alias.
+- If work already started, inspect the agent's state and working tree before taking
+  over. Stop/wait for the existing writer to avoid duplicated changes or commits.
+- Run the relevant checks yourself when verification is unavailable; do not claim
+  independent verification. Report any checks you cannot perform.
+- A rejected spawn has no terminal result. Do not classify it as a missing terminal
+  contract. Existing authorization limits still apply; fallback grants no new ones.
+
 ## Free-form prompt intake
 
 A free-form request that names a Jira ticket (URL, key, or phrasing like
@@ -86,12 +89,14 @@ pinned, tiered agents.
   reach for Herdr.
 - **Cursor enum gap:** a pinned name rejected as invalid → run
   `home/sync/ensure-project-agents`, confirm the symlinks, start a new session.
-  Fail closed — never fall back to a generic role.
+  If still unavailable, use the parent fallback above; never substitute a generic role.
 - **Codex:** sync generates native `~/.codex/agents/*.toml` definitions from
   `home/agents/`, with explicit model and reasoning effort from `model-map.yaml`.
   Select the named specialist through native subagents. If this host only offers
   prompt-based spawning, pass the role instructions and its explicit tier model
   and reasoning effort; never inherit an unrelated parent model silently.
+  Use fresh or bounded context when explicit model settings cannot be combined
+  with full-history inheritance. Wait for native completion before checking results.
   Generated specialists disable child agents (`agents.enabled = false`).
 - **Terminal contracts still apply** in the subagent's own reply (`ADVANCE`,
   `HALT`, `VERDICT:`, `STATUS:`) — missing it is `HALT: missing terminal contract`.
@@ -120,13 +125,12 @@ a specialist is async or long-running.
   **`researcher`** (cheap) natively.
 - **Never** spawn builtin `Explore`, `generalPurpose`, `general-purpose`, or an
   untyped Task/Agent for those jobs. If the pinned agent fails to start, surface
-  the error — do not silently fall back to a builtin explorer (model `auto`
-  retry once still uses the **same** pinned agent name). See the Cursor enum
-  and Codex notes under **Subagent execution engine** above.
+  the error and use the parent fallback above. Do not substitute a builtin explorer.
 
 ## Commit / land
 
-- Parent **must not** run `git commit` (or equivalent staging+commit plumbing).
+- Prefer `committer` for staging/committing; parent execution is allowed only under
+  the unavailable-specialist fallback above and existing user authorization.
 - Behavior-changing / runtime-surface work → **`/land`** (verifier → committer →
   handoff).
 - Docs / comments / types / renames / formatting only → spawn **`committer`**

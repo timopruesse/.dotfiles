@@ -310,6 +310,7 @@ tasks:
         target: '~'
         ignore:
         - .cursor
+        - .codex
         - .gemini
         - .agents
         force: true

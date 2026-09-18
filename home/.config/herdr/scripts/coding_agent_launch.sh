@@ -3,11 +3,7 @@
 # Used by coding_agent_herdr.sh / herdr keybinds (cwd already set on the pane).
 #
 # Usage: coding_agent_launch.sh [resume|continue] [--claude|--codex|--agent|--cursor|--agy]
-#                               [--resolved claude|codex|agent|agy] [--ensured]
 #                               [--print] [--prompt-file PATH] [extra args...]
-#
-# --resolved: skip git-remote resolve (herdr already computed the CLI).
-# --ensured:  skip ensure-project-agents (herdr already ran it).
 
 scripts=${0:A:h}
 source "$scripts/coding_agent_resolve.sh"
@@ -15,8 +11,6 @@ source "$scripts/coding_agent_ensure.sh"
 
 mode=
 force=
-resolved=
-ensured=0
 prompt_file=
 args=()
 
@@ -46,26 +40,6 @@ while (( $# )); do
     force=agy
     shift
     ;;
-  --resolved)
-    if (( $# < 2 )) || [[ -z "$2" ]]; then
-      print -u2 "coding_agent_launch: --resolved requires claude|codex|agent|agy"
-      sleep 2
-      exit 1
-    fi
-    case "$2" in
-    claude | codex | agent | agy) resolved=$2 ;;
-    *)
-      print -u2 "coding_agent_launch: --resolved must be claude|codex|agent|agy (got: $2)"
-      sleep 2
-      exit 1
-      ;;
-    esac
-    shift 2
-    ;;
-  --ensured)
-    ensured=1
-    shift
-    ;;
   --prompt-file)
     if (( $# < 2 )) || [[ -z "$2" ]]; then
       print -u2 "coding_agent_launch: --prompt-file requires a path"
@@ -87,15 +61,15 @@ while (( $# )); do
   esac
 done
 
-if (( !ensured )); then
-  coding_agent_ensure_project_agents
-fi
-
 if [[ -n "$prompt_file" ]]; then
   if [[ ! -f "$prompt_file" ]]; then
     print -u2 "coding_agent_launch: prompt file not found: $prompt_file"
     sleep 2
     exit 1
+  fi
+  # File contents are a prompt, even when they begin with a CLI flag.
+  if (( ! ${args[(Ie)--]} )); then
+    args+=(--)
   fi
   args+=("$(<$prompt_file)")
   rm -f "$prompt_file"
@@ -103,8 +77,6 @@ fi
 
 if [[ -n "$force" ]]; then
   cli=$force
-elif [[ -n "$resolved" ]]; then
-  cli=$resolved
 else
   cli=$(coding_agent_resolve "$PWD")
 fi
@@ -114,6 +86,20 @@ command -v "$cli" >/dev/null 2>&1 || {
   sleep 2
   exit 1
 }
+
+# Host preparation belongs here, in the actual target pane and checkout.
+if [[ "$cli" == "agent" ]]; then
+  coding_agent_ensure_project_agents "$PWD"
+fi
+
+pane_context="$scripts/pane_context.sh"
+if [[ "${HERDR_ENV:-}" == 1 && -n "${HERDR_PANE_ID:-}" && -x "$pane_context" ]]; then
+  "$pane_context" set-agent "$cli" "$HERDR_PANE_ID" >/dev/null || true
+  wt=$("$pane_context" worktree-name "$PWD" 2>/dev/null || true)
+  if [[ -n "$wt" ]]; then
+    "$pane_context" set-wt "$wt" "$HERDR_PANE_ID" >/dev/null || true
+  fi
+fi
 
 case "$mode" in
 resume)

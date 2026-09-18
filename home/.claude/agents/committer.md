@@ -47,3 +47,8 @@ cleanly, not to review the code or change it.
 - Report the final `git status` / push result honestly — if something failed
   (hook rejected, push rejected), stop and report it with the output instead of
   retrying blindly.
+
+## Terminal contract
+
+- `ADVANCE → parent` — assigned work completed; report findings or git results.
+- `HALT: <reason>` — work could not be completed; report the specific blocker.

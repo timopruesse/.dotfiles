@@ -29,6 +29,7 @@ class CodexAgentTests(unittest.TestCase):
             with self.subTest(role=path.stem):
                 fields, body = split_agent(path)
                 result = tomllib.loads(render_codex_agent(fields, body, tiers[fields["tier"]]))
+                self.assertRegex(body, r"(?:ADVANCE →|HALT:|VERDICT:|STATUS:)")
                 self.assertEqual(result["name"], fields["name"])
                 self.assertEqual(result["description"], " ".join(fields["description"].split()))
                 self.assertEqual(result["developer_instructions"], CODEX_LEAF + body)

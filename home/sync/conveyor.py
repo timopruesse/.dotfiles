@@ -9,7 +9,7 @@ from sync.catalog import generate_catalog
 from sync.codex_hooks import repair_codex_hooks
 from sync.codex_instructions import generate_codex_instructions, install_codex_instructions
 from sync.commands import sync_commands
-from sync.live_cursor import install_all
+from sync.live_install import install_all
 from sync.project_agents import DOTFILES_ROOT, ensure_project_agents
 
 

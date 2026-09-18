@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Subagent orchestration via Herdr: open splits/tabs and communicate with agents.
-# Replaces CLI default subagent mechanisms with visible Herdr panes/tabs.
+# Opt-in visible terminal management; native subagent tools remain the default.
 #
 # Usage:
 #   coding_agent_subagent.sh run --agent <name> [--layout right|down|tab]
@@ -96,7 +96,7 @@ resolve_herdr_kind() {
   claude) print "claude" ;;
   agent | cursor) print "cursor" ;;
   agy) print "agy" ;;
-  *) print "claude" ;;
+  *) print -u2 "unsupported Herdr subagent host: $cli"; return 1 ;;
   esac
 }
 
@@ -153,7 +153,11 @@ spawn)
     kind=$(resolve_herdr_kind "$resolved_cli")
   fi
 
-  coding_agent_ensure_project_agents "$cwd"
+  case "$kind" in
+  cursor) coding_agent_ensure_project_agents "$cwd" ;;
+  claude | agy) ;;
+  *) print -u2 "unsupported Herdr subagent host: $kind"; exit 1 ;;
+  esac
 
   case "$layout" in
   right | down)

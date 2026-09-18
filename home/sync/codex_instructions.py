@@ -22,20 +22,6 @@ home/protocols/AGENT-ROUTING.md, not this file. -->
 
 # Codex subagent routing
 
-Use Codex's native subagent tools. Shared specialist instructions are generated
-as TOML files in `~/.codex/agents/`; each file sets its model and reasoning effort.
-Select the named specialist when the host exposes custom agents. If the current
-surface only accepts a task prompt, include the specialist's instructions and
-pass its model and reasoning effort explicitly using the host's supported API.
-Use a fresh or bounded context when the API cannot combine a model override with
-full-history inheritance. Wait for the native completion result before checking
-the specialist's terminal contract.
-
-The tiers below govern delegated specialists, not the parent session's model.
-Do not use Claude's `haiku`/`sonnet`/`opus` aliases or Cursor's `auto` fallback in
-Codex. If a configured model is unavailable, report the specific error rather
-than silently substituting a different tier.
-
 """
     content += render_agent_tier_table(tiers, agents) + "\n\n"
     content += render_agent_routing_body(agents).strip() + "\n\n"

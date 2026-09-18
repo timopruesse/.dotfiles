@@ -10,7 +10,8 @@ sources. Domain terms: see [`CONTEXT.md`](../../CONTEXT.md).
 | `common.py` | `parse_model_map`, `parse_frontmatter`, `link_into`, pin-token expand, marked-section rewrite |
 | `catalog.py` | Emit tier catalog (`subagent-model-fallback.mdc` + `agent-routing.mdc` + doc tables + WORKFLOWS roster) |
 | `agents.py` / `commands.py` | Platform writers (thin adapters over common) |
-| `live_cursor.py` | Internal live-install adapter (`~/.cursor` + Claude + Antigravity) |
+| `live_install.py` | Internal full live-install across hosts |
+| `managed_links.py` | Shared ownership checks, link-set preflight and owned stale-link pruning |
 | `live_codex.py` | Install managed native Codex agent TOML files without replacing personal agents or session config |
 | `codex_instructions.py` | Generate Codex host instructions from shared routing and tier sources; preserve unrelated live instructions |
 | `codex_hooks.py` | Repair the known security-guidance async-handshake incompatibility in Codex's plugin cache |
@@ -40,8 +41,27 @@ linked by the conveyor into `~/.cursor/skills/`, `~/.claude/skills/`, and `~/.ag
 **project-agents:** Cursor’s Task tool often only discovers agents under the
 project’s `.cursor/agents/`, not `~/.cursor/agents/`. This repo commits those
 links to `home/.cursor/agents/`. Other repos get them best-effort when a
-coding-agent launcher runs (or via `ensure-project-agents` manually); foreign
-repos also get `.cursor/agents/` added to `.git/info/exclude`. After linking,
+Cursor launcher runs (or via `ensure-project-agents` manually); foreign
+repos also get `.cursor/agents/` added to Git's resolved exclude file, including worktrees. After linking,
 start a **new** Agent session so the Task enum reloads.
 
 Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md).
+
+Managed agent/command/rule links preserve unrelated names and reject personal
+collisions before changing that set. Managed skill names explicitly replace
+conflicting files, directories, or symlinks without backups. Source directories
+must exist before stale owned links can be pruned. Bulk setup excludes `.codex`;
+sync alone installs its managed agents and instructions.
+
+Generated files passing tests do not establish runtime agent availability. For a
+runtime check, request a bounded read-only native specialist task in the affected
+client, wait for completion, and record the exact error or result. If unavailable,
+the parent continues within existing authorization under AGENT-ROUTING.
+
+Observed 2026-09-18 in the active Codex chat: native launches of `scout-explain`,
+`worker`, `verifier`, and `review` were advertised but rejected with
+`agent type is currently not available`. All 12 installed agent TOMLs parsed and
+linked to their generated sources. The local CLI reported 0.155.0; the chat
+runtime version was not established. This is an unresolved runtime finding,
+not proof that the generated format is incompatible. A fresh target-client/CLI
+comparison remains the next diagnostic; sync does not launch agents to test it.
