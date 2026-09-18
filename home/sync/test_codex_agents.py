@@ -1,5 +1,6 @@
 """Native Codex role schema, preservation, and safe installation regression tests."""
 
+import os
 import sys
 import tempfile
 import tomllib
@@ -9,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "home"))
 
-from sync.agents import CODEX_LEAF, render_codex_agent, split_agent
+from sync.agents import CODEX_BANNER, CODEX_LEAF, render_codex_agent, split_agent
 from sync.common import parse_model_map
 from sync.live_codex import install_codex_agents
 
@@ -52,7 +53,7 @@ class CodexAgentTests(unittest.TestCase):
             source, live = root / "source", root / "codex/agents"
             source.mkdir()
             live.mkdir(parents=True)
-            (source / "worker.toml").write_text("managed")
+            (source / "worker.toml").write_text(CODEX_BANNER + "managed")
             (live.parent / "config.toml").write_text('model = "personal-model"')
             (live / "personal.toml").write_text("personal")
             (root / "external.toml").write_text("external")
@@ -60,11 +61,62 @@ class CodexAgentTests(unittest.TestCase):
             (live / "stale.toml").symlink_to(source / "stale.toml")
             install_codex_agents(source, live)
             install_codex_agents(source, live)
-            self.assertEqual((live / "worker.toml").resolve(), (source / "worker.toml").resolve())
+            self.assertFalse((live / "worker.toml").is_symlink())
+            self.assertEqual((live / "worker.toml").read_bytes(), (source / "worker.toml").read_bytes())
             self.assertEqual((live / "personal.toml").read_text(), "personal")
             self.assertTrue((live / "external.toml").is_symlink())
             self.assertFalse((live / "stale.toml").is_symlink())
             self.assertEqual((live.parent / "config.toml").read_text(), 'model = "personal-model"')
+
+    def test_migrates_links_and_refreshes_copies_without_following_symlinks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, live = root / "source", root / "live"
+            source.mkdir()
+            live.mkdir()
+            agent = source / "worker.toml"
+            agent.write_text(CODEX_BANNER + 'name = "worker"\n')
+            target = live / agent.name
+            target.symlink_to(agent)
+            install_codex_agents(source, live)
+            self.assertFalse(target.is_symlink())
+            # Match the no-follow open that rejects the old installation.
+            fd = os.open(target, os.O_RDONLY | os.O_NOFOLLOW)
+            with os.fdopen(fd, "rb") as stream:
+                self.assertEqual(stream.read(), agent.read_bytes())
+            original_stat = target.stat()
+            install_codex_agents(source, live)
+            self.assertEqual(target.stat().st_mtime_ns, original_stat.st_mtime_ns)
+            self.assertEqual(target.stat().st_ino, original_stat.st_ino)
+            agent.write_text(CODEX_BANNER + 'name = "updated"\n')
+            install_codex_agents(source, live)
+            self.assertEqual(target.read_bytes(), agent.read_bytes())
+            agent.unlink()
+            install_codex_agents(source, live)
+            self.assertFalse(target.exists())
+
+    def test_missing_source_preserves_installed_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            live = root / "live"
+            live.mkdir()
+            target = live / "worker.toml"
+            target.write_text(CODEX_BANNER + "managed")
+            install_codex_agents(root / "missing", live)
+            self.assertTrue(target.exists())
+
+    def test_unmarked_source_and_same_directory_are_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            source.mkdir()
+            (source / "worker.toml").write_text("personal")
+            with self.assertRaises(SystemExit):
+                install_codex_agents(source, root / "live")
+            self.assertFalse((root / "live").exists())
+            with self.assertRaises(SystemExit):
+                install_codex_agents(source, source)
+            self.assertEqual((source / "worker.toml").read_text(), "personal")
 
     def test_install_refuses_unmanaged_collisions_before_any_changes(self):
         for kind in ("file", "link"):
@@ -73,8 +125,8 @@ class CodexAgentTests(unittest.TestCase):
                 source, live = root / "source", root / "live"
                 source.mkdir()
                 live.mkdir()
-                (source / "a.toml").write_text("managed")
-                (source / "z.toml").write_text("managed")
+                (source / "a.toml").write_text(CODEX_BANNER + "managed")
+                (source / "z.toml").write_text(CODEX_BANNER + "managed")
                 external = root / "external.toml"
                 external.write_text("personal")
                 if kind == "link":

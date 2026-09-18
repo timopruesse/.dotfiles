@@ -22,7 +22,8 @@ Tier pins: generated table in [`home/.claude/CLAUDE.md`](../.claude/CLAUDE.md).
 Whom / hard must-nots: [`route-agents`](../skills/route-agents/), generated
 **agent-routing**.
 
-Live-install (via **sync**) installs managed agent links into `~/.codex/agents/` and `~/.cursor/agents/`,
+Live-install (via **sync**) installs managed regular-file copies into `~/.codex/agents/`
+(the Codex role loader rejects symlinks), and managed links into `~/.cursor/agents/`,
 `~/.cursor/rules/`, `~/.cursor/hooks{,.json}`, `~/.cursor/skills/`,
 `~/.claude/skills/`, `~/.gemini/config/{agents,workflows,skills}/`,
 `~/.agents/{agents,workflows,skills}/`, and merges

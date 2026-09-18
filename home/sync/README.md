@@ -12,7 +12,7 @@ sources. Domain terms: see [`CONTEXT.md`](../../CONTEXT.md).
 | `agents.py` / `commands.py` | Platform writers (thin adapters over common) |
 | `live_install.py` | Internal full live-install across hosts |
 | `managed_links.py` | Shared ownership checks, link-set preflight and owned stale-link pruning |
-| `live_codex.py` | Install managed native Codex agent TOML files without replacing personal agents or session config |
+| `live_codex.py` | Install managed native Codex agent TOML copies without replacing personal agents or session config |
 | `codex_instructions.py` | Generate Codex host instructions from shared routing and tier sources; preserve unrelated live instructions |
 | `codex_hooks.py` | Repair the known security-guidance async-handshake incompatibility in Codex's plugin cache |
 | `normalize_herdr_hooks.py` / `normalize-herdr-hooks` | Dedupe herdr integration SessionStart hooks (portable `$HOME` paths) |
@@ -24,8 +24,11 @@ Entry point (also invoked from `machine_setup.yaml`):
 ./home/sync/sync
 ```
 
-Codex agents are generated in `home/.codex/agents/` and linked into
-`~/.codex/agents/`. Their model and reasoning effort come from
+Codex agents are generated in `home/.codex/agents/` and copied into
+`~/.codex/agents/` as regular files: the runtime rejects symlinked role config
+files with `ELOOP`. Sync migrates owned symlinks, atomically refreshes copies,
+and recognizes managed files by their generated banner. Run sync after changing
+agent sources. Their model and reasoning effort come from
 `home/agents/model-map.yaml`. The generated `home/.codex/AGENTS.md` is also linked
 when no independent user instructions exist; sync preserves existing regular
 files and unrelated symlinks. Codex's session `config.toml` remains user-owned.
@@ -58,13 +61,14 @@ runtime check, request a bounded read-only native specialist task in the affecte
 client, wait for completion, and record the exact error or result. If unavailable,
 the parent continues within existing authorization under AGENT-ROUTING.
 
-Observed 2026-09-18 in the active Codex chat: native launches of `scout-explain`,
-`worker`, `verifier`, and `review` were advertised but rejected with
-`agent type is currently not available`. All 12 installed agent TOMLs parsed and
-linked to their generated sources. The local CLI reported 0.155.0; the chat
-runtime version was not established. This is an unresolved runtime finding,
-not proof that the generated format is incompatible. A fresh target-client/CLI
-comparison remains the next diagnostic; sync does not launch agents to test it.
+Diagnosed 2026-09-19: native launches advertised the roles but returned
+`agent type is currently not available`. The runtime log in
+`~/.codex/logs_2.sqlite` (`codex_core::agent::role`) exposed the underlying
+`failed to apply role to config: Too many levels of symbolic links (os error 62)`.
+Replacing the installed `scout.toml` symlink with identical regular-file contents
+allowed a native scout task to finish in the same chat. The installer now uses
+regular files for every managed Codex role; TOML schema, model pins, and leaf
+settings are unchanged.
 
 ## Skill description budget
 
