@@ -6,7 +6,8 @@ Whom-table detail: `route-agents` skill. These rules are **must-nots** — treat
 violations as errors, not style nits.
 
 > **Source of truth.** Edit this file under `home/protocols/`. Sync emits
-> Cursor `agent-routing.mdc` and the generated block in `home/.claude/CLAUDE.md`.
+> Cursor `agent-routing.mdc` and generated blocks in `home/.claude/CLAUDE.md`
+> and `home/.codex/AGENTS.md`.
 > Do not hand-edit those outputs. Soft whom-table stays in `route-agents`; this
 > protocol is the must-not layer.
 
@@ -17,12 +18,15 @@ This protocol governs the **root orchestrator / parent session only**.
 > **LEAF AGENT PROHIBITION (CRITICAL):**
 > If you are running as a pinned specialist (`worker`, `scout`, `scout-explain`,
 > `verifier`, `committer`, `sweep`, `review`, `researcher`, `security-triage`,
-> `pr-babysitter`, `boba-watcher`), **YOU ARE A LEAF AGENT**.
+> `pr-babysitter`, `boba-watcher`, `planner`), **YOU ARE A LEAF AGENT**.
 > - **NEVER spawn subagents.**
-> - **NEVER use `/herdr`, CLI tools, or shell commands to split panes, open tabs, or launch child agents.**
+> - **NEVER use the host CLI's native subagent tool (`Task`/`Agent`/`invoke_subagent`),
+>   `/herdr`, other CLI tools, or shell commands to split panes, open tabs, or
+>   launch child agents.**
 > - **DO NOT re-route tasks or delegate.**
 > - **Execute your assigned task directly** within your stated role and spec.
-> Spawning, routing, and Herdr delegation are strictly reserved for the parent orchestrator.
+> Spawning and routing — by any engine, native or Herdr — are strictly reserved
+> for the parent orchestrator.
 
 ## Free-form prompt intake
 
@@ -42,62 +46,66 @@ all the work. It is a prompt to enter the spine.
 This keeps the parent interface thin and puts the deep work behind the spine's
 pinned, tiered agents.
 
-## Subagent execution engine: Herdr splits & tabs (`/herdr` skill)
+## Subagent execution engine: native CLI subagents (default)
 
-- **Parent orchestrator only:** Only the root orchestrator uses Herdr to spawn
-  and coordinate subagents. Leaf agents must NEVER spawn subagents or delegate.
-- **Do NOT use the CLI's default/internal subagent tools** (`Task` tool in Cursor,
-  `Agent` tool in Claude Code, `invoke_subagent` in Antigravity).
-- **Orchestrate all subagents via Herdr splits and tabs** (`/herdr` skill) so the
-  user can visually follow along in real-time in the terminal multiplexer:
-  - Focused, synchronous work (`scout`, `scout-explain`, `worker`, `verifier`,
-    `review`, `committer`, `sweep`) → split pane (`herdr pane split --current --direction right|down`
-    or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh`).
-  - Worktrees (`/start`) and async loops (`boba-watcher`, `pr-babysitter`) →
-    tab (`herdr tab create`).
-- **Communication & Results:**
-  - Submit the prompt with `herdr agent prompt <name> "<prompt>" --wait` (or helper).
-  - Explicitly require the subagent to report its summary/results and conclude with its
-    mandated terminal line (`ADVANCE`, `HALT`, `VERDICT:`, `STATUS:`).
-  - Retrieve the subagent's response with `herdr agent read <name> --source recent-unwrapped --lines 120`.
-  - Validate the terminal line; if absent, treat as `HALT: missing terminal contract`.
-- **Subagents must run in Auto Mode:** Always launch subagents with the host CLI's
-  auto-approval flags (`--permission-mode auto` on Claude, `--dangerously-skip-permissions` on Agy,
-  `-f --approve-mcps --trust` on Cursor; or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh` which applies them by default).
-  Subagents must never hang waiting for interactive user approval in split/tab panes while the
-  orchestrator is in auto mode.
-- **Auto-close `committer` panes:** The `committer` agent's pane or tab MUST be closed
-  immediately upon completion (`herdr pane close "$pane_id"`, or automatically via `coding_agent_subagent.sh`).
-  It performs mechanical git plumbing and holds no diagnostic information to revisit.
-  Panes for `worker`, `verifier`, `review`, and `sweep` remain open for user review.
-- **Never fall back** to builtin explorers (`Explore`, `generalPurpose`, `general-purpose`)
-  or internal subagent calls. If not running in Herdr (`HERDR_ENV != 1`), warn and stop.
+- **Parent orchestrator only:** spawns/coordinates subagents; leaf agents
+  never do, by any engine.
+- **Default to the host's own native subagent tool** (`Task`/`Agent` in Claude
+  Code, native named agents in Codex, `Task`/`subagent_type` in Cursor, `invoke_subagent` in Antigravity),
+  passing the exact **pinned agent name** so tier/model/prompt/terminal-contract
+  stick. Don't impersonate a specialist inline, and don't fall back to a
+  generic role (`Explore`, `generalPurpose`) when a pin exists.
+- **Async/background work** (`boba-watcher`, `pr-babysitter`, long loops): use
+  the host's own background/async subagent lifecycle when it has one, rather
+  than assuming a terminal tool. Being async is not by itself a reason to
+  reach for Herdr.
+- **Cursor enum gap:** a pinned name rejected as invalid → run
+  `home/sync/ensure-project-agents`, confirm the symlinks, start a new session.
+  Fail closed — never fall back to a generic role.
+- **Codex:** sync generates native `~/.codex/agents/*.toml` definitions from
+  `home/agents/`, with explicit model and reasoning effort from `model-map.yaml`.
+  Select the named specialist through native subagents. If this host only offers
+  prompt-based spawning, pass the role instructions and its explicit tier model
+  and reasoning effort; never inherit an unrelated parent model silently.
+  Generated specialists disable child agents (`agents.enabled = false`).
+- **Terminal contracts still apply** in the subagent's own reply (`ADVANCE`,
+  `HALT`, `VERDICT:`, `STATUS:`) — missing it is `HALT: missing terminal contract`.
+- **Fan-out:** independent per-item work (e.g. one `review` per PR) → parallel
+  native calls in one turn.
+
+### Herdr: only on explicit terminal-management intent
+
+`/herdr` is opt-in, not the default. Reach for it only when the user
+explicitly asks to watch a specialist in a visible pane, or explicitly wants
+its own worktree/tab (e.g. `/start`'s branch scaffold) — never merely because
+a specialist is async or long-running.
+
+## Planning
+
+- Explicit implementation planning → spawn **`planner`** (strong, read-only).
+- The parent retains architecture decisions and orchestration; planner returns a
+  bounded plan, risks, and validation without implementation or delegation.
+- `planner` concludes with `STATUS: complete` or `HALT: <reason>`.
 
 ## Locate / explain / research
 
-- Repo locate or compact gather → spawn **`scout`** (cheap) via Herdr split.
-- Subsystem walkthrough / architecture map → spawn **`scout-explain`** (mid) via Herdr split.
+- Repo locate or compact gather → spawn **`scout`** (cheap) natively.
+- Subsystem walkthrough / architecture map → spawn **`scout-explain`** (mid) natively.
 - Spike / research-ticket prep (web, ticket comments, hypotheses) → spawn
-  **`researcher`** (cheap) via Herdr split/tab.
+  **`researcher`** (cheap) natively.
 - **Never** spawn builtin `Explore`, `generalPurpose`, `general-purpose`, or an
   untyped Task/Agent for those jobs. If the pinned agent fails to start, surface
   the error — do not silently fall back to a builtin explorer (model `auto`
-  retry once still uses the **same** pinned agent name).
-- Cursor Task/`subagent_type` often only lists **project-agents** under
-  `<git-root>/.cursor/agents/` (not `~/.cursor/agents/`). If a pinned name is
-  rejected as an invalid enum value: run `home/sync/ensure-project-agents` (or
-  open a coding-agent launcher, which ensures best-effort), confirm the
-  symlinks exist, then start a **new** Agent session so the Task enum reloads.
-  **Fail closed:** missing pin in the Task enum is an error — still never fall
-  back to Explore/`generalPurpose`.
+  retry once still uses the **same** pinned agent name). See the Cursor enum
+  and Codex notes under **Subagent execution engine** above.
 
 ## Commit / land
 
 - Parent **must not** run `git commit` (or equivalent staging+commit plumbing).
 - Behavior-changing / runtime-surface work → **`/land`** (verifier → committer →
-  handoff). Close the `committer` pane immediately upon commit completion.
+  handoff).
 - Docs / comments / types / renames / formatting only → spawn **`committer`**
-  directly via Herdr split, closing its pane once it completes.
+  directly.
 - **`worker` must not commit.** Keep worker spawn prompts thin (spec + paths);
   never instruct the worker to commit.
 - On `/land` (or any parent-run verifier gate): apply the **land path** risk-gate
@@ -109,7 +117,7 @@ pinned, tiered agents.
 ## Mechanical cleanup + review
 
 - Clear tsc/lint/formatter loops → spawn **`sweep`** (not parent/strong).
-- Local working-tree diff, branch review, or pre-commit critique → spawn **`review`** (strong) via Herdr split.
+- Local working-tree diff, branch review, or pre-commit critique → spawn **`review`** (strong).
 - PRs awaiting *your* review on GitHub → **`/review-requests`** → spawn **`review`** (strong) per PR.
   Ad-hoc diff critique in a coding session may also use the `code-review` skill.
 

@@ -50,11 +50,12 @@ resolves and names it):
 - `/land` — a PR already exists (→ `/babysit-pr`) vs none yet (→ `/open-pr`).
 
 **Subagent execution in the spine:** All spine subagents (`worker`, `verifier`, `committer`,
-`sweep`) are spawned in visible Herdr splits or tabs via the `/herdr` skill
-(or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh`), replacing the host CLI's default
-background subagent tool. This gives the user real-time visual progress in the terminal.
-The orchestrator prompts the agent with `--wait`, receives its output and terminal line,
-and proceeds.
+`sweep`) are spawned via the host CLI's own native subagent tool by pinned name
+(see `~/protocols/AGENT-ROUTING.md`'s subagent execution engine section) — the
+orchestrator uses that host's own native completion/wait/result lifecycle to
+get the agent's output and terminal line, then proceeds. Reach for `/herdr`
+instead only when the user explicitly wants to
+watch a specialist in a visible pane or wants its own worktree/tab.
 
 ## Terminal contract — `ADVANCE` / `HALT`
 

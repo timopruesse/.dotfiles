@@ -1,1 +1,1 @@
-"""Shared sync module: generate Claude/Cursor pins and install live Cursor paths."""
+"""Shared sync module: generate platform agent pins and safely install managed paths."""

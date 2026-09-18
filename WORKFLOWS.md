@@ -9,8 +9,8 @@
 
 A visual map of the **commands** (authored in `home/commands/`, generated to
 `home/.claude/commands/` and `home/.cursor/commands/`) and the **subagents**
-(authored in `home/agents/`, generated to `home/.claude/agents/` and
-`home/.cursor/agents/`) they orchestrate — roughly the PR lifecycle, front to
+(authored in `home/agents/`, generated to `home/.codex/agents/`,
+`home/.claude/agents/`, `home/.cursor/agents/`, and `home/.agents/agents/`) they orchestrate — roughly the PR lifecycle, front to
 back. Shared contracts live in [`home/protocols/`](home/protocols/).
 
 ## The flow graph
@@ -259,19 +259,20 @@ who drives each agent live in the agent sources and the flow graph above — do 
 hand-edit the roster table.
 
 <!-- BEGIN GENERATED WORKFLOWS AGENT ROSTER -->
-| Agent | Tier | Claude | Cursor | Agy |
-| --- | --- | --- | --- | --- |
-| `boba-watcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
-| `committer` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
-| `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
-| `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
-| `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
-| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
-| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
-| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
-| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
-| `review` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` |
-| `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` |
+| Agent | Tier | Claude | Cursor | Agy | Codex (effort) |
+| --- | --- | --- | --- | --- | --- |
+| `boba-watcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
+| `committer` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
+| `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
+| `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
+| `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
+| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
+| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
+| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
+| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
+| `planner` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
+| `review` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
+| `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 <!-- END GENERATED WORKFLOWS AGENT ROSTER -->
 
 > Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,

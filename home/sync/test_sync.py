@@ -69,9 +69,9 @@ class CatalogHelperTests(unittest.TestCase):
 
     def test_workflows_roster_rows(self) -> None:
         tiers = {
-            "cheap": {"claude": "haiku", "cursor": "c1", "agy": "a1"},
-            "mid": {"claude": "sonnet", "cursor": "c2", "agy": "a2"},
-            "strong": {"claude": "opus", "cursor": "c3", "agy": "a3"},
+            "cheap": {"claude": "haiku", "cursor": "c1", "agy": "a1", "codex": "luna", "codex_reasoning_effort": "medium"},
+            "mid": {"claude": "sonnet", "cursor": "c2", "agy": "a2", "codex": "terra", "codex_reasoning_effort": "medium"},
+            "strong": {"claude": "opus", "cursor": "c3", "agy": "a3", "codex": "astra", "codex_reasoning_effort": "high"},
         }
         agents = {"cheap": ["scout"], "mid": ["worker"], "strong": ["verifier"]}
         table = render_workflows_agent_roster(tiers, agents)
@@ -132,11 +132,12 @@ class LiveCursorTests(unittest.TestCase):
         self.assertIn("route-agents", skills)
         self.assertIn("improve-codebase-architecture", skills)
 
-    def test_agent_routing_contains_herdr_subagent_rules(self) -> None:
+    def test_agent_routing_contains_native_subagent_rules(self) -> None:
         routing_file = ROOT / "home" / "protocols" / "AGENT-ROUTING.md"
         text = routing_file.read_text(encoding="utf-8")
-        self.assertIn("Subagent execution engine: Herdr splits & tabs", text)
-        self.assertIn("Do NOT use the CLI's default/internal subagent tools", text)
+        self.assertIn("Subagent execution engine: native CLI subagents (default)", text)
+        self.assertIn("Default to the host's own native subagent tool", text)
+        self.assertIn("Herdr: only on explicit terminal-management intent", text)
 
 
 if __name__ == "__main__":

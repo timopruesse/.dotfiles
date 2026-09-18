@@ -6,6 +6,8 @@ import sys
 
 from sync.agents import sync_agents
 from sync.catalog import generate_catalog
+from sync.codex_hooks import repair_codex_hooks
+from sync.codex_instructions import generate_codex_instructions, install_codex_instructions
 from sync.commands import sync_commands
 from sync.live_cursor import install_all
 from sync.project_agents import DOTFILES_ROOT, ensure_project_agents
@@ -20,7 +22,10 @@ def run_sync() -> int:
     if rc != 0:
         return rc
     generate_catalog()
+    generate_codex_instructions()
     install_all()
+    repair_codex_hooks()
+    install_codex_instructions()
     ensure_project_agents(DOTFILES_ROOT, quiet=False)
     print("sync conveyor complete", flush=True)
     return 0

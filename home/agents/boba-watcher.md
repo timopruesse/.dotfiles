@@ -14,6 +14,7 @@ description: >-
   confidently), stop and flag ESCALATE rather than guessing — /watch-boba may
   re-spawn you on the strong tier for one re-classify.
 tier: cheap
+readonly: true
 ---
 
 You are a Boba watcher. Each invocation is ONE idempotent, READ-ONLY sweep of a

@@ -10,6 +10,7 @@ description: >-
   edit; describes what exists, doesn't critique the architecture (that's the
   strong / orchestrator model).
 tier: mid
+readonly: true
 disallowedTools: Edit, Write, NotebookEdit, Agent
 ---
 

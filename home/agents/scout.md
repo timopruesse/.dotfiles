@@ -10,6 +10,7 @@ description: >-
   subsystem (reading it in full for an architecture/data-flow walkthrough), use
   `scout-explain` instead — that's the mid-tier sibling.
 tier: cheap
+readonly: true
 disallowedTools: Edit, Write, NotebookEdit, Agent
 ---
 

@@ -8,6 +8,7 @@ description: >-
   must-fix issues, nits, and terminal verdicts (or draft review recommendations
   for GitHub PRs). Read-only; does not edit or commit.
 tier: strong
+readonly: true
 disallowedTools: Edit, Write, NotebookEdit, Agent, Task
 ---
 

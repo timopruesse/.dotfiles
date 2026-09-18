@@ -3,7 +3,7 @@ name: route-agents
 description: >-
   Picks which pinned subagent (or slash command) to use in this environment.
   Use when choosing among scout, scout-explain, researcher, security-triage, worker, sweep,
-  review, verifier, committer, pr-babysitter, boba-watcher, or when unsure
+  review, verifier, planner, committer, pr-babysitter, boba-watcher, or when unsure
   whether to spawn a pinned agent vs do the work in the parent.
 ---
 
@@ -33,6 +33,7 @@ explain, or research — spawn the pinned agent by name.
 
 | Need | Agent |
 | --- | --- |
+| Explicit implementation planning, risks, validation | `planner` (strong, read-only) |
 | Concrete spec, known files/behavior, low ambiguity | `worker` (mid) |
 | tsc / lint / formatter loop with a clear signal | `sweep` (mid) |
 | Open design mid-change, or spec turns out wrong | stay in parent — do not spawn `worker` |
@@ -73,9 +74,12 @@ design fork) are auto-repaired and re-verified per HANDOFF land path; do not
 | Session spend / duration rollup | `/session-cost` |
 | Boba ticket watch loop | `/watch-boba` |
 
-## Default: spawn via Herdr, don't impersonate
+## Default: spawn natively by name, don't impersonate
 
-If a pinned agent matches, spawn it by name. Impersonating `committer` /
+If a pinned agent matches, spawn it by name via the host's own native
+subagent tool (`Task`/`Agent` in Claude Code, `Task`/`subagent_type` in
+Cursor, native named agents in Codex, `invoke_subagent` in Antigravity) — full mechanics and the Cursor/Codex
+notes live in `~/protocols/AGENT-ROUTING.md`. Impersonating `committer` /
 `scout` / `verifier` / `researcher` / `sweep` / `review` in the parent burns the wrong
 tier and skips their contracts (`STATUS:`, `ADVANCE`/`HALT`, `VERDICT:`).
 
@@ -83,25 +87,16 @@ tier and skips their contracts (`STATUS:`, `ADVANCE`/`HALT`, `VERDICT:`).
 root parent orchestrator. **Leaf agents (`worker`, `verifier`, `scout`, etc.) are
 forbidden from spawning subagents or delegating work** — they must execute directly.
 
-**Never invoke the CLI's default/internal subagent tools** (`Task`, `Agent`, `invoke_subagent`).
-Instead, use the `/herdr` skill to spawn the subagent in a visible Herdr pane or tab:
-1. **Topology**: Split pane (`herdr pane split --current --direction right|down --cwd "$PWD" --focus`)
-   for focused work (`scout`, `worker`, `verifier`, `review`, `committer`, `sweep`); new tab
-   (`herdr tab create --cwd "$PWD" --label "<name>" --focus`) for separate worktrees or loops.
-2. **Start in Auto Mode**: Always pass the host CLI's auto-approval flags:
-   - Claude Code: `herdr agent start <name> --kind claude --pane <id> -- --agent <agent-name> --permission-mode auto`
-   - Agy: `herdr agent start <name> --kind agy --pane <id> -- --agent <agent-name> --dangerously-skip-permissions`
-   - Cursor: `herdr agent start <name> --kind cursor --pane <id> -- -f --approve-mcps --trust --model <model>`
-   (or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh run --agent <name> ...` which applies auto mode by default).
-3. **Prompt & Wait**: `herdr agent prompt <name> "<spec>" --wait --timeout 300000`.
-   Explicitly instruct the subagent to report its findings and end with its required terminal contract line.
-4. **Read Results & Cleanup**: `herdr agent read <name> --source recent-unwrapped --lines 120`.
-   Extract the subagent's report and terminal line.
-   **Close `committer` immediately**: close its pane/tab (`herdr pane close "$pane_id"`);
-   leave `worker`, `verifier`, `review`, and `sweep` open for user review.
+Explicitly instruct the subagent to report its findings and end with its
+required terminal contract line, then use the host's own native
+completion/wait/result lifecycle for that call to get the reply — no Herdr
+`agent read` step is needed. Validate the terminal line once the reply is in
+hand; if it's missing, treat it as `HALT: missing terminal contract` — do not
+continue the spine.
 
-If an agent reply is missing its required terminal line, treat it as
-`HALT: missing terminal contract` — do not continue the spine.
+Reach for `/herdr` instead only on **explicit terminal-management intent** —
+the user wants to watch a specialist in a visible pane, or wants an explicit
+worktree/tab — not merely because the specialist is async or long-running.
 
 ## Model fallback
 

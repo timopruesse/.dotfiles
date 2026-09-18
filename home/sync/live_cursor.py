@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from sync.common import deep_merge, link_into, repo_home
+from sync.live_codex import install_codex_agents
 from sync.normalize_herdr_hooks import normalize_all
 
 REPO_HOME = repo_home()
@@ -294,6 +295,8 @@ def install_all(
     skills: bool = True,
     mcp: bool = True,
 ) -> None:
+    if agents:
+        install_codex_agents()
     if agents and CURSOR_OUT_AGENTS.is_dir():
         keep = {p.stem for p in CURSOR_OUT_AGENTS.glob("*.md")}
         install_md_links(CURSOR_OUT_AGENTS, LIVE_AGENTS, keep)

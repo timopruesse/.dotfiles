@@ -24,9 +24,9 @@ drafts for me to act on.
    `gh repo view <repo> --json isArchived` and drop the archived ones (e.g.
    `chewielabs/ChewieWebApi` is archived). If nothing remains after filtering,
    say so and stop.
-2. Fan out: spawn one `review` agent PER PR, in parallel via Herdr splits/tabs
-   (or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh`), each given that
-   PR's number/URL. Isolated context per PR so a huge diff on one doesn't pollute another.
+2. Fan out: spawn one `review` agent PER PR natively, in parallel, each given
+   that PR's number/URL. Isolated context per PR so a huge diff on one doesn't
+   pollute another.
 3. Collect the drafts and present them to me grouped by PR: for each, the
    `review`'s summary, its must-fix vs nits, and its suggested verdict —
    clearly marked as drafts I still need to post.

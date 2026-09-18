@@ -7,6 +7,7 @@ description: >-
   babysit / ignore / needs you. Does not edit code or reopen the PR-opening gate.
   Spawned by /triage-security; not a substitute for local /review-bugbot skills.
 tier: cheap
+readonly: true
 disallowedTools: Edit, Write, NotebookEdit, Agent
 ---
 

@@ -8,6 +8,7 @@ description: >-
   (scout-explain). Does not edit, implement, or deep-walk the repo. Ends with
   ADVANCE → parent or HALT.
 tier: cheap
+readonly: true
 disallowedTools: Edit, Write, NotebookEdit, Agent
 ---
 

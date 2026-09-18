@@ -2,9 +2,10 @@
 name: herdr
 description: >-
   Control Herdr, a terminal multiplexer for coding agents. Use to inspect or control
-  panes, tabs, workspaces, commands, and to orchestrate subagents in splits or tabs
-  (replacing default CLI subagent systems so the user can follow along).
-  Requires HERDR_ENV=1.
+  panes, tabs, workspaces, commands, and — only on explicit user
+  terminal-management intent (watch a subagent in a visible pane, or scaffold
+  a worktree/tab) — to run a subagent there instead of the host's native
+  subagent tool. Requires HERDR_ENV=1.
 ---
 
 # Herdr
@@ -116,16 +117,22 @@ Both installations must support machine API forwarding, and the remote server mu
 
 `herdr machine list` lists saved connection profiles, not a cross-machine pane inventory; add `--json` for scripts. Only add, remove, enable, or disable profiles when the user asks. Removing a profile disconnects the client but does not stop remote sessions. Adding a machine uses the remote default session unless `--remote-session` is explicitly supplied. Setup asks before stopping an incompatible server and defaults to No; do not approve replacement without the user's consent. Experimental handoff is not part of `machine add`.
 
-## Subagent orchestration via Herdr (replacing default subagent systems)
+## Subagent orchestration via Herdr (explicit terminal-management intent only)
 
 > [!IMPORTANT]
 > **Parent Orchestrator ONLY:**
 > This subagent orchestration workflow is exclusively for the root parent orchestrator.
 > **Leaf agents (`worker`, `scout`, `verifier`, `committer`, `sweep`, etc.) must NEVER spawn subagents, use Herdr to delegate, or split panes.** Leaf agents must execute their assigned task directly.
 
-In this environment, **never invoke the CLI's default/internal subagent system** (`Task` tool in Cursor, `Agent` tool in Claude Code, `invoke_subagent` in Antigravity). Instead, the orchestrator spawns and coordinates subagents in Herdr splits and tabs.
+The host CLI's own native subagent tool (`Task`/`Agent` in Claude Code,
+`Task`/`subagent_type` in Cursor, `invoke_subagent` in Antigravity) is the
+default subagent engine — see `~/protocols/AGENT-ROUTING.md`. Reach for this
+Herdr workflow instead only on **explicit terminal-management intent**: the
+user asks to watch a specialist work in a visible pane, or wants an explicit
+worktree/tab. Being async or long-running is not by itself a reason to use it —
+prefer the host's own background/async subagent lifecycle for that.
 
-### Why Herdr for subagents
+### Why Herdr for subagents (when asked for)
 
 1. **Visual visibility:** The subagent runs in its own pane or tab. The user can watch its commands, file edits, and tool executions live in the Herdr interface.
 2. **True isolation:** Each subagent runs as an independent process with its own terminal session, environment, and working directory.
@@ -133,17 +140,16 @@ In this environment, **never invoke the CLI's default/internal subagent system**
 
 ### Topology: when to split vs when to open a tab
 
-- **Split pane (`herdr pane split`)** — default for focused, synchronous subagent tasks where side-by-side visibility is best:
-  - `scout` / `scout-explain` (locating code, explaining flow)
-  - `worker` (implementing a concrete spec)
-  - `verifier` (testing / breaking a change)
-  - `committer` (staging and committing)
-  - `sweep` (mechanical lint/type cleanup)
+- **Split pane (`herdr pane split`)** — for focused, synchronous subagent tasks
+  the user explicitly wants to watch side-by-side (`scout`, `scout-explain`,
+  `worker`, `verifier`, `committer`, `sweep`).
   Split direction: inspect the layout (`herdr pane layout --pane "$HERDR_PANE_ID"`). Split **right** if wide; split **down** if narrow or tall.
 
 - **New tab (`herdr tab create`)** — use when:
-  - The task operates in a separate git worktree (e.g. `/start <KEY>` scaffold at `~/worktrees/<repo>/<KEY>`).
-  - Running long-lived or asynchronous loop agents (`boba-watcher`, `pr-babysitter`, `babysit-fleet`).
+  - The task needs its own git worktree (e.g. `/start <KEY>` scaffold at `~/worktrees/<repo>/<KEY>`).
+  - The user explicitly wants a long-lived or async loop agent (`boba-watcher`,
+    `pr-babysitter`, `babysit-fleet`) visible in its own tab — otherwise prefer
+    the host's native background/async subagent lifecycle for that work.
   - The current tab already has multiple splits and another split would be cramped.
 
 ### Protocol: orchestrator ↔ subagent lifecycle
