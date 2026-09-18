@@ -65,3 +65,30 @@ linked to their generated sources. The local CLI reported 0.155.0; the chat
 runtime version was not established. This is an unresolved runtime finding,
 not proof that the generated format is incompatible. A fresh target-client/CLI
 comparison remains the next diagnostic; sync does not launch agents to test it.
+
+## Skill description budget
+
+`skill_descriptions.json` stores concise discovery summaries for the installed
+skills. Detailed triggers stay in each skill's Markdown body, which loads on use.
+The two managed skills are edited at `home/skills/`; installed personal, system,
+and plugin skills are edited in place. Plugin or Codex updates can restore their
+upstream descriptions.
+
+To reapply after an update, export a fresh Codex app-server `skills/list` response
+(with `forceReload: true` and the current repository in `cwds`) to a JSON file:
+
+```bash
+python3 home/sync/compact_skill_descriptions.py --inventory /tmp/skills.json
+python3 home/sync/compact_skill_descriptions.py --inventory /tmp/skills.json --apply
+```
+
+The helper only touches enabled skills in that explicit inventory with a curated
+summary. Preview is the default; `--apply` preserves other frontmatter and moves
+the previous description into the body. Reapplying the same summary is a no-op.
+Use the target client's inventory: the CLI and desktop can advertise different
+plugins. Reload `skills/list` afterward to check for parsing errors and compare
+skill counts. Restart the target client if its existing session retains old metadata.
+
+This is an opt-in maintenance command, not part of the general sync conveyor.
+Descriptions should stay concise and distinguish neighboring skills; do not
+remove important invocation boundaries merely to hit a character target.

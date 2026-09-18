@@ -1,11 +1,11 @@
 ---
 name: route-agents
-description: >-
-  Picks which pinned subagent (or slash command) to use in this environment.
-  Use when choosing among scout, scout-explain, researcher, security-triage, worker, sweep,
-  review, verifier, planner, committer, pr-babysitter, boba-watcher, or when unsure
-  whether to spawn a pinned agent vs do the work in the parent.
+description: "Choose pinned specialists or workflow commands for research, implementation, review, verification, and commits."
 ---
+
+## Detailed scope
+
+Picks which pinned subagent (or slash command) to use in this environment. Use when choosing among scout, scout-explain, researcher, security-triage, worker, sweep, review, verifier, planner, committer, pr-babysitter, boba-watcher, or when unsure whether to spawn a pinned agent vs do the work in the parent.
 
 # Route agents
 

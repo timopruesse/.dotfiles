@@ -1,12 +1,11 @@
 ---
 name: herdr
-description: >-
-  Control Herdr, a terminal multiplexer for coding agents. Use to inspect or control
-  panes, tabs, workspaces, commands, and — only on explicit user
-  terminal-management intent (watch a subagent in a visible pane, or scaffold
-  a worktree/tab) — to run a subagent there instead of the host's native
-  subagent tool. Requires HERDR_ENV=1.
+description: "Control Herdr panes, tabs, and workspaces. Run agents there only on explicit terminal-management intent; needs HERDR_ENV=1."
 ---
+
+## Detailed scope
+
+Control Herdr, a terminal multiplexer for coding agents. Use to inspect or control panes, tabs, workspaces, commands, and — only on explicit user terminal-management intent (watch a subagent in a visible pane, or scaffold a worktree/tab) — to run a subagent there instead of the host's native subagent tool. Requires HERDR_ENV=1.
 
 # Herdr
 
