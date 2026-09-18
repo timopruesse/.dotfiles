@@ -37,8 +37,9 @@ All ZSH aliases and functions, grouped by source file.
 | `l` | `eza -la` | Long listing with hidden files |
 | `pn` | `pnpm` | Shorthand for pnpm |
 | `lg` | `lazygit` | Open lazygit |
-| `claude` | wrapper in `~/.zshrc` | Claude Code CLI; keep-awake in the current checkout — pass `--worktree` for an isolated git worktree. |
-| `agent` | wrapper in `~/.zshrc` | Cursor Agent CLI; keep-awake in the current checkout — pass `-w` for an isolated git worktree. |
+| `claude` | CLI binary on `PATH` | Claude Code CLI in the current checkout — pass `--worktree` for an isolated git worktree. |
+| `codex` | CLI binary on `PATH` | Codex CLI in the current checkout. Use `--worktree` for isolation. |
+| `agent` | CLI binary on `PATH` | Cursor Agent CLI in the current checkout — pass `-w` for an isolated git worktree. |
 | `zmv` | `autoload zmv` | Batch rename using zsh glob patterns (use `-n` to preview) |
 | `zcp` | `zmv -C` | Same as `zmv` but copies instead of renames |
 | `zln` | `zmv -L` | Same as `zmv` but creates symlinks instead of renames |
@@ -88,19 +89,19 @@ Pane-scoped via `pane_context.sh` (see `docs/adr/0001-pane-context-per-pane.md`)
 
 ## Coding agent (`claude_aliases.zsh`)
 
-`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Antigravity (agy)** from the cwd
+`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Codex** from the cwd
 (with Cursor Agent CLI preserved via override; same rules as git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`):
 
-1. `CODING_AGENT=claude|agy|agent|cursor` env override (cursor normalizes to agent)
-2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `agy`
-3. Path: `~/github/chewielabs/*` → `claude`, everything else → `agy`
+1. `CODING_AGENT=claude|codex|agy|agent|cursor` env override (cursor normalizes to agent)
+2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `codex`
+3. Path: `~/github/chewielabs/*` → `claude`, everything else → `codex`
 
-Per-invocation override: pass `--claude`, `--agy`, or `--agent` / `--cursor` to any of the
+Per-invocation override: pass `--claude`, `--codex`, `--agy`, or `--agent` / `--cursor` to any of the
 launchers (e.g. `c --claude`, `c --agy`, `ch --agent "fix the flaky test"`).
 
 Launchers run inside herdr (`HERDR_ENV=1`): they call
-`coding_agent_herdr.sh` (split/tab + `coding_agent_launch.sh`), so keep-awake
-applies the same as typing `claude` / `agy` / `agent`. Herdr
+`coding_agent_herdr.sh` (split/tab + `coding_agent_launch.sh`), which runs
+the CLI directly. Sleep prevention is configured in the respective CLIs. Herdr
 `prefix+shift+H`/`V`/`R`/`S` use the same path.
 
 | Function | Command | Description |
@@ -108,11 +109,11 @@ applies the same as typing `claude` / `agy` / `agent`. Herdr
 | `c` | new herdr tab with resolved CLI | Open coding agent in a new tab |
 | `c <prompt>` | … with positional prompt | Open with an initial prompt |
 | `ch` / `cv` | vertical / horizontal split | Same, in a split |
-| `cr` | `… --continue` | Continue the last session for that CLI |
-| `cpi` | `… -p "…"` | Pipe stdin / instruction in print mode |
+| `cr` | Codex: `resume --last`; others: `--continue` | Continue the last session for that CLI |
+| `cpi` | Codex: `exec`; others: `-p` | Pipe stdin / instruction in print mode |
 | `clist` | `herdr agent list` | List detected coding agents |
 | `cj` | — | Reminder: jump agents via goto (`prefix+g`/`prefix+C`) or sidebar; spaces via `prefix+w` (lists agents) |
-| `agents-link [dir]` | `ln -s CLAUDE.md AGENTS.md` | Symlink `AGENTS.md` → `CLAUDE.md` so Cursor reads the same instructions as Claude (one source of bytes) |
+| `agents-link [dir]` | `ln -s CLAUDE.md AGENTS.md` | Symlink `AGENTS.md` → `CLAUDE.md` so Codex and Cursor read the same instructions as Claude (one source of bytes) |
 | `agents-link --all` | — | Do it for every `CLAUDE.md` in the repo (skips `.git`/`node_modules`) |
 | `agents-link -f …` | — | Replace an existing `AGENTS.md` **symlink** (never clobbers a real file) |
 

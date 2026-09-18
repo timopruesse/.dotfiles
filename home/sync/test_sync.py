@@ -124,6 +124,20 @@ class LiveCursorTests(unittest.TestCase):
             self.assertIn("custom", data["mcpServers"])
             self.assertIn("svelte", data["mcpServers"])
 
+    def test_managed_skills_include_herdr(self) -> None:
+        from sync.live_cursor import _managed_skill_dirs
+
+        skills = {p.name for p in _managed_skill_dirs()}
+        self.assertIn("herdr", skills)
+        self.assertIn("route-agents", skills)
+        self.assertIn("improve-codebase-architecture", skills)
+
+    def test_agent_routing_contains_herdr_subagent_rules(self) -> None:
+        routing_file = ROOT / "home" / "protocols" / "AGENT-ROUTING.md"
+        text = routing_file.read_text(encoding="utf-8")
+        self.assertIn("Subagent execution engine: Herdr splits & tabs", text)
+        self.assertIn("Do NOT use the CLI's default/internal subagent tools", text)
+
 
 if __name__ == "__main__":
     unittest.main()

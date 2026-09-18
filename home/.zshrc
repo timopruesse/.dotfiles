@@ -163,23 +163,6 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Coding-agent launch policy (keep-awake) — shared with herdr keybinds via
-# ~/.config/herdr/scripts/coding_agent_launch.sh. Worktrees: pass -w / --worktree.
-source "${HOME}/.config/herdr/scripts/coding_agent_policy.zsh"
-
-# Thin wrappers: real binary via whence -p inside coding_agent_keep_awake_run.
-claude() {
-  coding_agent_with_policy claude "$@"
-}
-
-agent() {
-  coding_agent_with_policy agent "$@"
-}
-
-agy() {
-  coding_agent_with_policy agy "$@"
-}
-
 # open buffer line in editor
 autoload -Uz edit-command-line
 zle -N edit-command-line

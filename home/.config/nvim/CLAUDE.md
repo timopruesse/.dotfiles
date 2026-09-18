@@ -13,9 +13,9 @@ The Neovim config uses **Lazy.nvim** and is organized under `lua/timopruesse/`:
 - `lsp.lua` — LSP server configuration (via mason.nvim + nvim-lspconfig)
 - `telescope.lua` — fuzzy finder setup
 - `keymaps/` — keybindings split by context (lsp, rust, node, navigation, coding-agent, etc.)
-- `coding_agent_herdr.lua` — herdr panes for Claude Code / Cursor Agent (`<leader>z*`); calls `coding_agent_herdr.sh`
+- `coding_agent_herdr.lua` — herdr panes for Claude Code / Codex (`<leader>z*`); calls `coding_agent_herdr.sh`
 - `coding_agent.lua` — shared `resolve_cli()` used by 99 (and anything that only needs resolve)
-- `plugins/ai.lua` — ThePrimeagen/99; provider auto-picks Claude vs Cursor from cwd
+- `plugins/ai.lua` — ThePrimeagen/99; provider auto-picks Claude vs Codex from cwd
 - `snippets/` — LuaSnip snippets per language (js, rust, lua, svelte)
 - `autocommands/` — filetype-specific auto-commands
 - `helpers/` — shared utilities (keymap helper, run_on_save)

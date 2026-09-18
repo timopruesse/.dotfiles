@@ -654,6 +654,24 @@ tasks:
     auto_update:
       at: 08:00
       cron: null
+  codex_cli:
+    commands:
+    - run:
+        commands: []
+        install:
+        - bun add --global @openai/codex
+        update:
+        - bun add --global @openai/codex@latest
+        uninstall:
+        - bun remove --global @openai/codex
+        shell: null
+        env: {}
+        quiet: false
+    depends_on:
+    - bun
+    auto_update:
+      at: 08:00
+      cron: null
   cursor_cli:
     commands:
     - run:

@@ -44,16 +44,16 @@ Agent status lives in herdr’s native sidebar (install integrations with
 
 | Key | Action |
 | --- | --- |
-| `prefix+shift+S` | Coding agent resume (new tab; Claude vs Antigravity by cwd) |
+| `prefix+shift+S` | Coding agent resume (new tab; Claude vs Codex by cwd) |
 | `prefix+shift+R` | Coding agent continue (new tab) |
 | `prefix+shift+H` | Coding agent in vertical split |
 | `prefix+shift+V` | Coding agent in horizontal split |
 
-Launch binds resolve Claude Code vs Antigravity (agy) vs Cursor Agent via
+Launch binds resolve Claude Code vs Codex via
 `~/.config/herdr/scripts/coding_agent_resolve.sh` and launch through
-`coding_agent_herdr.sh` → `coding_agent_launch.sh` (same keep-awake policy as
-the `claude` / `agy` / `agent` shell wrappers). Override with
-`CODING_AGENT=claude|agy|agent|cursor` or `--claude` / `--agy` / `--agent` on the launch script.
+`coding_agent_herdr.sh` → `coding_agent_launch.sh`, which runs the CLI directly.
+Sleep prevention is configured in the respective CLIs. Override with
+`CODING_AGENT=claude|codex|agy|agent|cursor` or `--claude` / `--codex` / `--agy` / `--agent` on the launch script.
 
 ### Pane navigation
 
@@ -300,7 +300,7 @@ panes** at the edges (`herdr-navigator.nvim`).
 
 Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99). Provider follows
 the same cwd routing as coding-agent launchers (`ClaudeCodeProvider` for
-chewielabs, `CursorAgentProvider` otherwise); re-syncs on `DirChanged`. Override
+chewielabs, `CodexProvider` otherwise); re-syncs on `DirChanged`. Override
 temporarily with `<leader>9p`.
 
 | Key          | Mode   | Action                                          |
@@ -317,8 +317,8 @@ temporarily with `<leader>9p`.
 ### Coding agent (Herdr Integration)
 
 Same cwd routing and launch policy as the shell aliases / herdr binds (env →
-remote org → path; chewielabs → Claude Code, otherwise Antigravity agy, with Cursor Agent via override). Opens go
-through `coding_agent_herdr.sh` (ensure project-agents + keep-awake).
+remote org → path; chewielabs → Claude Code, otherwise Codex, with Cursor Agent via override). Opens go
+through `coding_agent_herdr.sh` (ensure project-agents + direct CLI launch).
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |

@@ -1,10 +1,10 @@
 #!/usr/bin/env zsh
-# Launch the path-appropriate coding agent with shared policy (keep-awake).
+# Launch the path-appropriate coding agent directly.
 # Used by coding_agent_herdr.sh / herdr keybinds (cwd already set on the pane).
 #
-# Usage: coding_agent_launch.sh [resume|continue] [--claude|--agent|--cursor|--agy]
-#                               [--resolved claude|agent|agy] [--ensured]
-#                               [--prompt-file PATH] [extra args...]
+# Usage: coding_agent_launch.sh [resume|continue] [--claude|--codex|--agent|--cursor|--agy]
+#                               [--resolved claude|codex|agent|agy] [--ensured]
+#                               [--print] [--prompt-file PATH] [extra args...]
 #
 # --resolved: skip git-remote resolve (herdr already computed the CLI).
 # --ensured:  skip ensure-project-agents (herdr already ran it).
@@ -12,7 +12,6 @@
 scripts=${0:A:h}
 source "$scripts/coding_agent_resolve.sh"
 source "$scripts/coding_agent_ensure.sh"
-source "$scripts/coding_agent_policy.zsh"
 
 mode=
 force=
@@ -35,20 +34,28 @@ while (( $# )); do
     force=agent
     shift
     ;;
+  --codex)
+    force=codex
+    shift
+    ;;
+  --print)
+    mode=print
+    shift
+    ;;
   --agy)
     force=agy
     shift
     ;;
   --resolved)
     if (( $# < 2 )) || [[ -z "$2" ]]; then
-      print -u2 "coding_agent_launch: --resolved requires claude|agent|agy"
+      print -u2 "coding_agent_launch: --resolved requires claude|codex|agent|agy"
       sleep 2
       exit 1
     fi
     case "$2" in
-    claude | agent | agy) resolved=$2 ;;
+    claude | codex | agent | agy) resolved=$2 ;;
     *)
-      print -u2 "coding_agent_launch: --resolved must be claude|agent|agy (got: $2)"
+      print -u2 "coding_agent_launch: --resolved must be claude|codex|agent|agy (got: $2)"
       sleep 2
       exit 1
       ;;
@@ -70,7 +77,7 @@ while (( $# )); do
     ;;
   --)
     shift
-    args+=("$@")
+    args+=(-- "$@")
     break
     ;;
   *)
@@ -110,12 +117,27 @@ command -v "$cli" >/dev/null 2>&1 || {
 
 case "$mode" in
 resume)
-  if [[ "$cli" == "agy" ]]; then
-    coding_agent_with_policy "$cli" --continue "${args[@]}"
+  if [[ "$cli" == "codex" ]]; then
+    command "$cli" resume "${args[@]}"
+  elif [[ "$cli" == "agy" ]]; then
+    command "$cli" --continue "${args[@]}"
   else
-    coding_agent_with_policy "$cli" --resume "${args[@]}"
+    command "$cli" --resume "${args[@]}"
   fi
   ;;
-continue) coding_agent_with_policy "$cli" --continue "${args[@]}" ;;
-*) coding_agent_with_policy "$cli" "${args[@]}" ;;
+continue)
+  if [[ "$cli" == "codex" ]]; then
+    command "$cli" resume --last "${args[@]}"
+  else
+    command "$cli" --continue "${args[@]}"
+  fi
+  ;;
+print)
+  if [[ "$cli" == "codex" ]]; then
+    command "$cli" exec "${args[@]}"
+  else
+    command "$cli" -p "${args[@]}"
+  fi
+  ;;
+*) command "$cli" "${args[@]}" ;;
 esac

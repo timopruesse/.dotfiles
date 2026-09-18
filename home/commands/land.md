@@ -58,7 +58,8 @@ does not default to read-only `INCONCLUSIVE`:
 - If there are uncommitted changes, hand them to `committer` to stage only the
   intended changes (report, don't sweep up, unrelated working-tree cruft) and
   write ONE why-focused commit message in the repo's established style. A `worker`
-  change is one scoped unit — don't split it.
+  change is one scoped unit — don't split it. Close `committer`'s Herdr pane/tab
+  immediately once committing finishes.
 - **Preview:** the verifier verdict (or why it was skipped), the proposed commit
   message, and the file list. Under mode A, show it and **STOP for `go`** — a hard
   gate; never commit without it. Under mode B, this gate is **AUTO** (per

@@ -8,7 +8,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "claude-fable-5-1[1m]",
   "hooks": {
     "SessionEnd": [
       {
@@ -102,6 +102,6 @@
   "askUserQuestionTimeout": "never",
   "tui": "fullscreen",
   "editorMode": "vim",
-  "skipAutoPermissionPrompt": true,
-  "crossSessionInbound": "accept"
+  "crossSessionInbound": "accept",
+  "skipAutoPermissionPrompt": true
 }

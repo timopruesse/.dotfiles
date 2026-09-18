@@ -49,6 +49,13 @@ resolves and names it):
 - `/dispatch` — boba-enabled vs local.
 - `/land` — a PR already exists (→ `/babysit-pr`) vs none yet (→ `/open-pr`).
 
+**Subagent execution in the spine:** All spine subagents (`worker`, `verifier`, `committer`,
+`sweep`) are spawned in visible Herdr splits or tabs via the `/herdr` skill
+(or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh`), replacing the host CLI's default
+background subagent tool. This gives the user real-time visual progress in the terminal.
+The orchestrator prompts the agent with `--wait`, receives its output and terminal line,
+and proceeds.
+
 ## Terminal contract — `ADVANCE` / `HALT`
 
 Every spine step (commands **and** the spine agents — `worker`, and `/land`'s use

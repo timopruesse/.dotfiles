@@ -8,7 +8,7 @@ alwaysApply: true
 # Subagent model routing (Cursor)
 
 Custom subagents live in `~/.cursor/agents/` (generated from `~/agents/`). Prefer
-them by name when they match: `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage`, `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker`, `verifier`.
+them by name when they match: `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage`, `pr-babysitter`, `scout-explain`, `sweep`, `worker`, `review`, `verifier`.
 
 When choosing whom to spawn (or whether to stay in the parent), read the
 `route-agents` skill (`~/.cursor/skills/route-agents/SKILL.md`).
@@ -18,8 +18,8 @@ Pinned models (from the agent frontmatter):
 | Tier | Agents | Model |
 | --- | --- | --- |
 | cheap | `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage` | `composer-2.5` |
-| mid | `pr-babysitter`, `pr-reviewer`, `scout-explain`, `sweep`, `worker` | `composer-2.5-fast` |
-| strong | `verifier` | `cursor-grok-4.6-high-fast` |
+| mid | `pr-babysitter`, `scout-explain`, `sweep`, `worker` | `composer-2.5-fast` |
+| strong | `review`, `verifier` | `cursor-grok-4.6-high-fast` |
 
 `boba-watcher` stays cheap for routine ticks. If it returns `STATUS: WAITING — ESCALATE`,
 `/watch-boba` may re-spawn it **once** with the strong pin (`cursor-grok-4.6-high-fast`

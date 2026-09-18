@@ -1,4 +1,4 @@
--- Herdr coding-agent panes (Claude Code / Cursor Agent).
+-- Herdr coding-agent panes (Claude Code / Codex).
 -- Split/tab + launch policy live in ~/.config/herdr/scripts/coding_agent_herdr.sh
 
 local M = {}

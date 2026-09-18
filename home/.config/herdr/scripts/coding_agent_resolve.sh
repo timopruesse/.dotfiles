@@ -1,11 +1,11 @@
 #!/bin/sh
 # Resolve which coding-agent CLI to launch for a directory.
-# Prints one word: claude | agent | agy
+# Prints one word: claude | codex | agent | agy
 #
 # Precedence:
-#   1. CODING_AGENT=claude|agent|cursor|agy (env override; cursor -> agent)
-#   2. Git remote org: chewielabs → claude; timopruesse → agy
-#   3. Path: ~/github/chewielabs → claude; everything else → agy
+#   1. CODING_AGENT=claude|codex|agent|cursor|agy (env override; cursor -> agent)
+#   2. Git remote org: chewielabs → claude; timopruesse → codex
+#   3. Path: ~/github/chewielabs → claude; everything else → codex
 #
 # Usage: coding_agent_resolve.sh [dir]
 #        . coding_agent_resolve.sh  # defines coding_agent_resolve()
@@ -14,7 +14,7 @@ coding_agent_resolve() {
   dir=${1:-.}
 
   case "${CODING_AGENT:-}" in
-  claude | agent | agy)
+  claude | codex | agent | agy)
     printf '%s\n' "$CODING_AGENT"
     return 0
     ;;
@@ -40,7 +40,7 @@ coding_agent_resolve() {
       return 0
       ;;
     *github.com[:/]timopruesse/* | *github.com[:/]timopruesse.git*)
-      printf '%s\n' agy
+      printf '%s\n' codex
       return 0
       ;;
     esac
@@ -51,7 +51,7 @@ coding_agent_resolve() {
     printf '%s\n' claude
     ;;
   *)
-    printf '%s\n' agy
+    printf '%s\n' codex
     ;;
   esac
 }

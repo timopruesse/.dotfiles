@@ -10,6 +10,20 @@ violations as errors, not style nits.
 > Do not hand-edit those outputs. Soft whom-table stays in `route-agents`; this
 > protocol is the must-not layer.
 
+## Target audience: Parent / Orchestrator ONLY
+
+This protocol governs the **root orchestrator / parent session only**.
+
+> **LEAF AGENT PROHIBITION (CRITICAL):**
+> If you are running as a pinned specialist (`worker`, `scout`, `scout-explain`,
+> `verifier`, `committer`, `sweep`, `review`, `researcher`, `security-triage`,
+> `pr-babysitter`, `boba-watcher`), **YOU ARE A LEAF AGENT**.
+> - **NEVER spawn subagents.**
+> - **NEVER use `/herdr`, CLI tools, or shell commands to split panes, open tabs, or launch child agents.**
+> - **DO NOT re-route tasks or delegate.**
+> - **Execute your assigned task directly** within your stated role and spec.
+> Spawning, routing, and Herdr delegation are strictly reserved for the parent orchestrator.
+
 ## Free-form prompt intake
 
 A free-form request that names a Jira ticket (URL, key, or phrasing like
@@ -28,12 +42,43 @@ all the work. It is a prompt to enter the spine.
 This keeps the parent interface thin and puts the deep work behind the spine's
 pinned, tiered agents.
 
+## Subagent execution engine: Herdr splits & tabs (`/herdr` skill)
+
+- **Parent orchestrator only:** Only the root orchestrator uses Herdr to spawn
+  and coordinate subagents. Leaf agents must NEVER spawn subagents or delegate.
+- **Do NOT use the CLI's default/internal subagent tools** (`Task` tool in Cursor,
+  `Agent` tool in Claude Code, `invoke_subagent` in Antigravity).
+- **Orchestrate all subagents via Herdr splits and tabs** (`/herdr` skill) so the
+  user can visually follow along in real-time in the terminal multiplexer:
+  - Focused, synchronous work (`scout`, `scout-explain`, `worker`, `verifier`,
+    `review`, `committer`, `sweep`) → split pane (`herdr pane split --current --direction right|down`
+    or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh`).
+  - Worktrees (`/start`) and async loops (`boba-watcher`, `pr-babysitter`) →
+    tab (`herdr tab create`).
+- **Communication & Results:**
+  - Submit the prompt with `herdr agent prompt <name> "<prompt>" --wait` (or helper).
+  - Explicitly require the subagent to report its summary/results and conclude with its
+    mandated terminal line (`ADVANCE`, `HALT`, `VERDICT:`, `STATUS:`).
+  - Retrieve the subagent's response with `herdr agent read <name> --source recent-unwrapped --lines 120`.
+  - Validate the terminal line; if absent, treat as `HALT: missing terminal contract`.
+- **Subagents must run in Auto Mode:** Always launch subagents with the host CLI's
+  auto-approval flags (`--permission-mode auto` on Claude, `--dangerously-skip-permissions` on Agy,
+  `-f --approve-mcps --trust` on Cursor; or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh` which applies them by default).
+  Subagents must never hang waiting for interactive user approval in split/tab panes while the
+  orchestrator is in auto mode.
+- **Auto-close `committer` panes:** The `committer` agent's pane or tab MUST be closed
+  immediately upon completion (`herdr pane close "$pane_id"`, or automatically via `coding_agent_subagent.sh`).
+  It performs mechanical git plumbing and holds no diagnostic information to revisit.
+  Panes for `worker`, `verifier`, `review`, and `sweep` remain open for user review.
+- **Never fall back** to builtin explorers (`Explore`, `generalPurpose`, `general-purpose`)
+  or internal subagent calls. If not running in Herdr (`HERDR_ENV != 1`), warn and stop.
+
 ## Locate / explain / research
 
-- Repo locate or compact gather → spawn **`scout`** (cheap).
-- Subsystem walkthrough / architecture map → spawn **`scout-explain`** (mid).
+- Repo locate or compact gather → spawn **`scout`** (cheap) via Herdr split.
+- Subsystem walkthrough / architecture map → spawn **`scout-explain`** (mid) via Herdr split.
 - Spike / research-ticket prep (web, ticket comments, hypotheses) → spawn
-  **`researcher`** (cheap).
+  **`researcher`** (cheap) via Herdr split/tab.
 - **Never** spawn builtin `Explore`, `generalPurpose`, `general-purpose`, or an
   untyped Task/Agent for those jobs. If the pinned agent fails to start, surface
   the error — do not silently fall back to a builtin explorer (model `auto`
@@ -50,9 +95,9 @@ pinned, tiered agents.
 
 - Parent **must not** run `git commit` (or equivalent staging+commit plumbing).
 - Behavior-changing / runtime-surface work → **`/land`** (verifier → committer →
-  handoff).
+  handoff). Close the `committer` pane immediately upon commit completion.
 - Docs / comments / types / renames / formatting only → spawn **`committer`**
-  directly.
+  directly via Herdr split, closing its pane once it completes.
 - **`worker` must not commit.** Keep worker spawn prompts thin (spec + paths);
   never instruct the worker to commit.
 - On `/land` (or any parent-run verifier gate): apply the **land path** risk-gate
@@ -64,8 +109,9 @@ pinned, tiered agents.
 ## Mechanical cleanup + review
 
 - Clear tsc/lint/formatter loops → spawn **`sweep`** (not parent/strong).
-- PRs awaiting *your* review → **`/review-requests`** → **`pr-reviewer`**.
-  Ad-hoc diff critique in a coding session may use the `code-review` skill.
+- Local working-tree diff, branch review, or pre-commit critique → spawn **`review`** (strong) via Herdr split.
+- PRs awaiting *your* review on GitHub → **`/review-requests`** → spawn **`review`** (strong) per PR.
+  Ad-hoc diff critique in a coding session may also use the `code-review` skill.
 
 ## Terminal contracts
 
@@ -75,6 +121,7 @@ pinned, tiered agents.
   `HALT: missing terminal contract` and do **not** continue the spine.
 - `sweep`: `ADVANCE → /land` when on the pre-land conveyor; `ADVANCE → done`
   when the parent only asked to clean the tree; else `HALT:`.
+- `review`: `VERDICT: LGTM`, `VERDICT: CHANGES_REQUESTED`, or `HALT: <reason>`.
 
 ## Security-review triage
 

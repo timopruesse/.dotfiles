@@ -3,7 +3,7 @@
 # Adapters (bind.sh, zsh c*, nvim) stay thin.
 #
 # Usage:
-#   coding_agent_herdr.sh <layout> [resume|continue] [--claude|--agent|--cursor|--agy]
+#   coding_agent_herdr.sh <layout> [resume|continue] [--claude|--codex|--agent|--cursor|--agy]
 #                         [--prompt-file PATH] [extra launch args...]
 #
 # layout: right|down|tab  (aliases: hsplit→right, vsplit→down, window→tab)
@@ -39,7 +39,9 @@ pane_context="$scripts/pane_context.sh"
 force=
 for arg in "$@"; do
   case "$arg" in
+  --) break ;;
   --claude) force=claude ;;
+  --codex) force=codex ;;
   --agent | --cursor) force=agent ;;
   --agy) force=agy ;;
   esac
@@ -52,6 +54,7 @@ else
 fi
 
 . "$scripts/coding_agent_ensure.sh"
+. "$scripts/coding_agent_space.sh"
 coding_agent_ensure_project_agents "$cwd"
 
 pane_id_from_json() {
@@ -67,14 +70,7 @@ elif isinstance(p, str):
 '
 }
 
-case "$layout" in
-right | down)
-  resp=$(herdr pane split --current --direction "$layout" --cwd "$cwd" --focus)
-  ;;
-tab)
-  resp=$(herdr tab create --cwd "$cwd" --focus)
-  ;;
-esac
+resp=$(coding_agent_create_pane "$layout" "$cwd" --focus)
 
 pane=$(printf '%s\n' "$resp" | pane_id_from_json)
 if [ -z "$pane" ]; then

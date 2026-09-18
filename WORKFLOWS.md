@@ -66,7 +66,7 @@ flowchart TD
 
     subgraph rev["🔍 Review · draft-first"]
         RR(["/review-requests"])
-        PRR["pr-reviewer"]
+        PRR["review"]
         DR(["draft review<br/>you post"])
         AR(["/address-reviews"])
         DRP(["applied → reply + resolve<br/>questions → draft"])
@@ -199,7 +199,7 @@ flowchart LR
 - **`scout-explain`** and **`sweep`** are real agents (see table) but mostly
   ad-hoc — not drawn on the spine.
 - The single **`verifier`** node is one agent invoked from several flows (the
-  `/land` gate on local work, `pr-babysitter`, `pr-reviewer`) — the converging
+  `/land` gate on local work, `pr-babysitter`) — the converging
   arrows show its reuse, not multiple agents.
 - **`/land`** closes the seam between `worker` and `/open-pr` (verifier → commit
   preview → `committer`). Obvious `verifier` BREAKS auto-repair and re-verify
@@ -267,10 +267,10 @@ hand-edit the roster table.
 | `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
 | `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` |
 | `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
-| `pr-reviewer` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
 | `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
 | `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
 | `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` |
+| `review` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` |
 | `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` |
 <!-- END GENERATED WORKFLOWS AGENT ROSTER -->
 

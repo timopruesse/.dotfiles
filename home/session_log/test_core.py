@@ -31,7 +31,9 @@ class SessionLogCoreTests(unittest.TestCase):
         names = core.pinned_agent_names()
         self.assertIn("scout", names)
         self.assertIn("worker", names)
+        self.assertIn("review", names)
         self.assertIn("security-triage", names)
+        self.assertNotIn("pr-reviewer", names)
         self.assertNotIn("README", names)
 
     def test_classify_kind_three_way(self) -> None:

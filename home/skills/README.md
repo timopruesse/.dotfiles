@@ -21,6 +21,7 @@ put always-on procedure in the agent prompt (or sync-time includes) instead.
 | --- | --- |
 | [`route-agents`](route-agents/) | Whom-table — which pinned agent / command to spawn |
 | [`improve-codebase-architecture`](improve-codebase-architecture/) | Architecture review HTML report + grill loop; fans out via `scout` / `scout-explain` (never Explore) |
+| [`herdr`](herdr/) | Herdr multiplexer control & subagent orchestration in visible splits/tabs (replaces default subagents) |
 
 Hard rules: generated **agent-routing** (see [`CONTEXT.md`](../../CONTEXT.md)).
 Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md).

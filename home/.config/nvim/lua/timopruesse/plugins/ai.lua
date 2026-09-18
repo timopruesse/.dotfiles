@@ -15,11 +15,14 @@ return {
 				if cli == "claude" then
 					return _99.Providers.ClaudeCodeProvider
 				end
+				if cli == "codex" then
+					return require("timopruesse.codex_provider")
+				end
 				return _99.Providers.CursorAgentProvider
 			end
 
 			-- Match shell/herdr/Neovim <leader>z* routing: chewielabs → Claude,
-			-- otherwise Cursor Agent. Re-apply on DirChanged so project switches
+			-- otherwise Codex. Re-apply on DirChanged so project switches
 			-- pick up the right CLI (manual <leader>9p still works until then).
 			local function apply_resolved_provider()
 				local provider = provider_for_cli(coding_agent.resolve_cli(vim.fn.getcwd()))
@@ -37,7 +40,7 @@ return {
 					print_on_error = true,
 				},
 				tmp_dir = "./tmp",
-				md_files = { "AGENT.md", "CLAUDE.md" },
+				md_files = { "AGENTS.md", "AGENT.md", "CLAUDE.md" },
 			})
 
 			vim.api.nvim_create_autocmd("DirChanged", {

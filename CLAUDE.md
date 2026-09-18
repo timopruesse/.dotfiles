@@ -31,9 +31,9 @@ home/             # Symlinked to ~ — contains all user config files
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
   .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; sync live-installs into ~/.cursor
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
-  .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch/policy scripts
+  .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch scripts
   .config/ohmyposh/ # Oh My Posh theme (Catppuccin); Meslo via `oh-my-posh font install meslo`
-  .zshrc          # Zsh shell config (claude/agent wrappers → coding_agent_policy.zsh)
+  .zshrc          # Zsh shell config
   .gitconfig*     # Git config with conditional includes per directory / remote
   *.sh            # Utility scripts (lazygit installer, etc.)
 terminal/         # Windows Terminal settings (copied, not symlinked)
@@ -62,7 +62,7 @@ common clone layouts; remote-URL rules win for worktrees / odd checkout paths:
 
 When adding new work contexts, add matching `includeIf` blocks and an identity file.
 
-## Coding agent routing (Claude vs Antigravity vs Cursor)
+## Coding agent routing (Claude vs Codex vs Cursor)
 
 Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), herdr binds (`prefix+shift+H`/`V`/`R`/`S`),
 Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
@@ -70,14 +70,14 @@ Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 (Neovim also exposes it as `timopruesse.coding_agent`.) Herdr launches go through
 [`coding_agent_herdr.sh`](home/.config/herdr/scripts/coding_agent_herdr.sh) →
 [`coding_agent_launch.sh`](home/.config/herdr/scripts/coding_agent_launch.sh)
-(shared keep-awake policy).
+(direct CLI launch).
 
-Precedence: `CODING_AGENT=claude|agy|agent|cursor` → git remote org → path
-(`~/github/chewielabs` → Claude Code; everything else → Antigravity `agy`, with Cursor `agent` available via override).
-Per-call overrides: `--claude` / `--agy` / `--agent` / `--cursor` on the launchers.
+Precedence: `CODING_AGENT=claude|codex|agy|agent|cursor` → git remote org → path
+(`~/github/chewielabs` → Claude Code; everything else → Codex `codex`, with Cursor `agent` available via override).
+Per-call overrides: `--claude` / `--codex` / `--agy` / `--agent` / `--cursor` on the launchers.
 
-The `claude`, `agy`, and `agent` wrappers in `.zshrc` (and herdr/nvim launches) run in
-the current checkout; pass `--worktree` / `-w` for an isolated git worktree.
+The `claude`, `codex`, `agy`, and `agent` binaries (and herdr/nvim launches) run in
+the current checkout; pass `--worktree` for an isolated git worktree (`-w` is CLI-specific).
 Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 (`prefix+g` / `prefix+C`) or sidebar (`prefix+a`); `clist` wraps
 `herdr agent list`. Last pane: `prefix+Tab`.
@@ -110,5 +110,5 @@ subagents) are documented in [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md
 - **WSL-specific**: `.zshrc` sets `DISPLAY`, `BROWSER=wslview`, and D3D12 GPU acceleration for WSL2.
 - **Session persistence**: Herdr keeps pane processes on detach; layout + native agent resume after server restart (with integrations installed).
 - **SSH via keychain**: `.zshrc` loads SSH keys through `keychain` on shell start.
-- **Keep-awake CLI sessions**: `claude` / `agent` wrappers hold idle sleep (macOS `caffeinate` / WSL `ES_SYSTEM_REQUIRED`).
+- **Sleep prevention**: Configured in the respective CLIs; shell and editor launchers invoke the binaries directly.
 - **Neovim plugins auto-install**: Lazy.nvim installs missing plugins on first launch; Treesitter parsers via `:TSUpdate`.

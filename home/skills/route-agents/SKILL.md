@@ -3,7 +3,7 @@ name: route-agents
 description: >-
   Picks which pinned subagent (or slash command) to use in this environment.
   Use when choosing among scout, scout-explain, researcher, security-triage, worker, sweep,
-  verifier, committer, pr-babysitter, pr-reviewer, boba-watcher, or when unsure
+  review, verifier, committer, pr-babysitter, boba-watcher, or when unsure
   whether to spawn a pinned agent vs do the work in the parent.
 ---
 
@@ -44,6 +44,7 @@ explain, or research — spawn the pinned agent by name.
 
 | Need | Agent / command |
 | --- | --- |
+| Local diff / branch review / pre-land code review (standards + spec) | `review` (strong) |
 | Behavior change with a runtime surface | `/land` (verifier → committer; obvious BREAKS auto-fix ≤3) |
 | Docs / comments / types / renames / formatting only | `committer` (cheap) directly |
 | Green tests alone on behavior-changing code | still `/land` / `verifier` |
@@ -66,17 +67,38 @@ design fork) are auto-repaired and re-verified per HANDOFF land path; do not
 | Post-`worker` verify → commit → handoff | `/land` |
 | Open PR from current branch | `/open-pr` |
 | Shepherd one / many PRs | `/babysit-pr`, `/babysit-fleet` |
-| Draft reviews for your review queue | `/review-requests` → `pr-reviewer` |
+| Draft reviews for your review queue | `/review-requests` → `review` (strong) |
 | Apply review threads | `/address-reviews` |
 | Push-time Bugbot / security findings on open PRs | `/triage-security` → `security-triage` |
 | Session spend / duration rollup | `/session-cost` |
 | Boba ticket watch loop | `/watch-boba` |
 
-## Default: spawn, don't impersonate
+## Default: spawn via Herdr, don't impersonate
 
 If a pinned agent matches, spawn it by name. Impersonating `committer` /
-`scout` / `verifier` / `researcher` / `sweep` in the parent burns the wrong
+`scout` / `verifier` / `researcher` / `sweep` / `review` in the parent burns the wrong
 tier and skips their contracts (`STATUS:`, `ADVANCE`/`HALT`, `VERDICT:`).
+
+**Parent Orchestrator ONLY:** This routing and spawning procedure is strictly for the
+root parent orchestrator. **Leaf agents (`worker`, `verifier`, `scout`, etc.) are
+forbidden from spawning subagents or delegating work** — they must execute directly.
+
+**Never invoke the CLI's default/internal subagent tools** (`Task`, `Agent`, `invoke_subagent`).
+Instead, use the `/herdr` skill to spawn the subagent in a visible Herdr pane or tab:
+1. **Topology**: Split pane (`herdr pane split --current --direction right|down --cwd "$PWD" --focus`)
+   for focused work (`scout`, `worker`, `verifier`, `review`, `committer`, `sweep`); new tab
+   (`herdr tab create --cwd "$PWD" --label "<name>" --focus`) for separate worktrees or loops.
+2. **Start in Auto Mode**: Always pass the host CLI's auto-approval flags:
+   - Claude Code: `herdr agent start <name> --kind claude --pane <id> -- --agent <agent-name> --permission-mode auto`
+   - Agy: `herdr agent start <name> --kind agy --pane <id> -- --agent <agent-name> --dangerously-skip-permissions`
+   - Cursor: `herdr agent start <name> --kind cursor --pane <id> -- -f --approve-mcps --trust --model <model>`
+   (or `$HOME/.config/herdr/scripts/coding_agent_subagent.sh run --agent <name> ...` which applies auto mode by default).
+3. **Prompt & Wait**: `herdr agent prompt <name> "<spec>" --wait --timeout 300000`.
+   Explicitly instruct the subagent to report its findings and end with its required terminal contract line.
+4. **Read Results & Cleanup**: `herdr agent read <name> --source recent-unwrapped --lines 120`.
+   Extract the subagent's report and terminal line.
+   **Close `committer` immediately**: close its pane/tab (`herdr pane close "$pane_id"`);
+   leave `worker`, `verifier`, `review`, and `sweep` open for user review.
 
 If an agent reply is missing its required terminal line, treat it as
 `HALT: missing terminal contract` — do not continue the spine.
