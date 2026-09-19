@@ -704,6 +704,23 @@ tasks:
     auto_update:
       at: 08:00
       cron: null
+  git_fsmonitor_cleanup:
+    commands:
+    - run:
+        commands: []
+        install: []
+        update:
+        - $HOME/clean_git_fsmonitor.sh
+        uninstall: []
+        shell: null
+        env: {}
+        quiet: false
+        os: macos
+    os:
+    - macos
+    auto_update:
+      at: 08:00
+      cron: null
   personal_repos:
     commands:
     - machine_setup:
