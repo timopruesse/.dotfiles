@@ -38,7 +38,7 @@ after the home symlink.
 Session cost and duration logging (Claude + Cursor + Antigravity hooks) is documented in
 [`SESSION-COST-LOGGING.md`](../../SESSION-COST-LOGGING.md).
 
-Codex uses `cheap = gpt-5.6-luna / medium`, `mid = gpt-5.6-terra / medium`,
+Codex uses `cheap = gpt-6-luna / medium`, `mid = gpt-6-sol / medium`,
 and `strong = gpt-6-astra / high`. These are specialist settings; sync never
 changes the main session model in `~/.codex/config.toml`. Native role files
 preserve the source body and terminal contract, disable child agents, and map

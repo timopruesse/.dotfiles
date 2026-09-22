@@ -6,13 +6,13 @@
 
 tiers:
   cheap:
-    codex: gpt-5.6-luna
+    codex: gpt-6-luna
     codex_reasoning_effort: medium
     claude: haiku
     cursor: composer-2.5
     agy: flash_lite
   mid:
-    codex: gpt-5.6-terra
+    codex: gpt-6-sol
     codex_reasoning_effort: medium
     claude: sonnet
     cursor: composer-2.5-fast
@@ -23,4 +23,3 @@ tiers:
     claude: opus
     cursor: cursor-grok-4.6-high-fast
     agy: pro
-

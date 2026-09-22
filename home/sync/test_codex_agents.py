@@ -19,8 +19,8 @@ class CodexAgentTests(unittest.TestCase):
     def test_all_roles_roundtrip_with_pins_and_leaf_guard(self):
         tiers = parse_model_map(ROOT / "home/agents/model-map.yaml")
         expected = {
-            "cheap": ("gpt-5.6-luna", "medium"),
-            "mid": ("gpt-5.6-terra", "medium"),
+            "cheap": ("gpt-6-luna", "medium"),
+            "mid": ("gpt-6-sol", "medium"),
             "strong": ("gpt-6-astra", "high"),
         }
         sources = sorted((ROOT / "home/agents").glob("*.md"))

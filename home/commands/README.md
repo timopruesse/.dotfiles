@@ -27,8 +27,8 @@ Sources declare an abstract `tier: cheap|mid|strong` (same vocabulary as
 <!-- BEGIN GENERATED MODEL MAP TABLE -->
 | Tier | Claude Code (`model:`) | Cursor (preferred session model) | Agy (`--model`) | Codex subagent (effort) |
 | --- | --- | --- | --- | --- |
-| cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
-| mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
+| cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
 | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 <!-- END GENERATED MODEL MAP TABLE -->
 

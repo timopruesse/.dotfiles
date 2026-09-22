@@ -261,15 +261,15 @@ hand-edit the roster table.
 <!-- BEGIN GENERATED WORKFLOWS AGENT ROSTER -->
 | Agent | Tier | Claude | Cursor | Agy | Codex (effort) |
 | --- | --- | --- | --- | --- | --- |
-| `boba-watcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
-| `committer` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
-| `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
-| `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
-| `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-5.6-luna` (medium) |
-| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
-| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
-| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
-| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-5.6-terra` (medium) |
+| `boba-watcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `committer` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
+| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
+| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
+| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
 | `planner` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 | `review` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 | `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
