@@ -108,6 +108,7 @@ subagents) are documented in [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md
 ## Key Behaviors
 
 - **WSL-specific**: `.zshrc` sets `DISPLAY`, `BROWSER=wslview`, and D3D12 GPU acceleration for WSL2.
+- **WSLg X11 socket**: Ubuntu 26.04's `tmp.mount` hides WSL's `/tmp/.X11-unix` bind; `etc/wslg-x11-socket.service` (task `wslg_x11_socket`) re-binds `/wslg/.X11-unix` read-only so `DISPLAY=:0` clipboard works.
 - **Session persistence**: Herdr keeps pane processes on detach; layout + native agent resume after server restart (with integrations installed).
 - **SSH via keychain**: `.zshrc` loads SSH keys through `keychain` on shell start.
 - **Sleep prevention**: Configured in the respective CLIs; shell and editor launchers invoke the binaries directly.

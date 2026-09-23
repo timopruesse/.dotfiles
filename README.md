@@ -48,7 +48,7 @@ Lua config under [`home/.config/nvim/`](https://github.com/timopruesse/.dotfiles
 
 ## How it works
 
-Everything under `home/` symlinks to `~`, so edits here show up in your home directory right away. A few paths are copied instead of symlinked — `etc/wsl.conf` and `terminal/settings.json` — because they need to land outside `$HOME`. Full task list in `machine_setup.yaml`.
+Everything under `home/` symlinks to `~`, so edits here show up in your home directory right away. A few paths are copied instead of symlinked — `etc/wsl.conf`, `etc/wslg-x11-socket.service`, and `terminal/settings.json` — because they need to land outside `$HOME`. Full task list in `machine_setup.yaml`.
 
 Tasks suffixed `_linux` or `_macos` use the YAML `os:` filter so each platform skips the rest. Cross-platform tasks (`rust`, `bun`, `nvim-npm`, `dotfiles`, `personal_repos`) have no filter.
 
@@ -60,4 +60,4 @@ Installed via [`machine_setup.yaml`](machine_setup.yaml) — Homebrew on macOS (
 
 Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go. Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh. ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI. Docker CE on WSL; Colima + Docker on macOS. AWS CLI. Codex, Claude Code, Antigravity (agy), and Cursor Agent CLI.
 
-Google Chrome on both platforms for the Chrome DevTools MCP server. WSL also installs win32yank for clipboard integration.
+Google Chrome on both platforms for the Chrome DevTools MCP server. WSL also installs win32yank for clipboard integration, and a systemd unit (`etc/wslg-x11-socket.service`) that keeps the WSLg X11 socket reachable at `/tmp/.X11-unix/X0` after systemd's `tmp.mount` shadows it, so `DISPLAY=:0` clipboard access (xclip, image paste) works.

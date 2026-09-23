@@ -115,6 +115,30 @@ tasks:
         sudo: true
     os:
     - linux
+  wslg_x11_socket:
+    commands:
+    - copy:
+        src: ./etc/wslg-x11-socket.service
+        target: /etc/systemd/system/wslg-x11-socket.service
+        ignore: []
+        sudo: true
+    - run:
+        commands: []
+        install:
+        - sudo systemctl daemon-reload
+        - sudo systemctl enable --now wslg-x11-socket.service
+        update:
+        - sudo systemctl daemon-reload
+        - sudo systemctl enable --now wslg-x11-socket.service
+        uninstall:
+        - sudo systemctl disable --now wslg-x11-socket.service
+        - sudo rm -f /etc/systemd/system/wslg-x11-socket.service
+        - sudo systemctl daemon-reload
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
   wsl_user_config:
     commands:
     - copy:

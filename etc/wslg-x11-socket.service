@@ -1,0 +1,27 @@
+# Ubuntu 26.04 enables systemd's tmp.mount, which mounts a fresh tmpfs over /tmp
+# during boot. WSL had already bind-mounted the WSLg X11 socket directory to
+# /tmp/.X11-unix before systemd started, so that bind ends up hidden underneath
+# the new tmpfs and DISPLAY=:0 points at an empty directory. Clipboard access via
+# X11 (xclip, image paste in coding-agent CLIs) then fails with
+# "X11 server connection timed out because it was unreachable".
+#
+# This unit re-exposes the WSLg socket directory read-only, mirroring what WSL
+# does itself. It is skipped when X0 is already reachable.
+#
+# Installed by machine_setup.yaml (task: wslg_x11_socket).
+
+[Unit]
+Description=Expose the WSLg X11 socket under /tmp/.X11-unix
+ConditionPathIsDirectory=/wslg/.X11-unix
+ConditionPathExists=!/tmp/.X11-unix/X0
+After=tmp.mount systemd-tmpfiles-setup.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/install -d -m 1777 /tmp/.X11-unix
+ExecStart=/usr/bin/mount --bind -o ro /wslg/.X11-unix /tmp/.X11-unix
+ExecStop=-/usr/bin/umount /tmp/.X11-unix
+
+[Install]
+WantedBy=multi-user.target
