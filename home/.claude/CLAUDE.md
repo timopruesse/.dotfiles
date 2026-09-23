@@ -40,20 +40,14 @@ violations as errors, not style nits.
 
 ## Target audience: Parent / Orchestrator ONLY
 
-This protocol governs the **root orchestrator / parent session only**.
-
-> **LEAF AGENT PROHIBITION (CRITICAL):**
-> If you are running as a pinned specialist (`worker`, `scout`, `scout-explain`,
-> `verifier`, `committer`, `sweep`, `review`, `researcher`, `security-triage`,
-> `pr-babysitter`, `boba-watcher`, `planner`), **YOU ARE A LEAF AGENT**.
-> - **NEVER spawn subagents.**
-> - **NEVER use the host CLI's native subagent tool (`Task`/`Agent`/`invoke_subagent`),
->   `/herdr`, other CLI tools, or shell commands to split panes, open tabs, or
->   launch child agents.**
-> - **DO NOT re-route tasks or delegate.**
-> - **Execute your assigned task directly** within your stated role and spec.
-> Spawning and routing — by any engine, native or Herdr — are strictly reserved
-> for the parent orchestrator.
+This protocol governs the **root orchestrator / parent session only**. The pinned
+specialists (`worker`, `scout`, `scout-explain`, `verifier`, `committer`, `sweep`,
+`review`, `researcher`, `security-triage`, `pr-babysitter`, `boba-watcher`,
+`planner`) are leaf agents: each executes its assigned task directly and does not
+spawn subagents, delegate, or launch child agents through the host's subagent
+tool, Herdr, panes, or tabs. Spawning and routing belong to the parent. This is
+enforced per host (`disallowedTools: Agent, Task` on Claude Code and Antigravity,
+`agents.enabled = false` on Codex) and restated once in each leaf agent's prompt.
 
 ## Unavailable-specialist fallback
 
@@ -191,8 +185,8 @@ out-of-scope or pre-existing code belongs in the async tail.
   **signal egress** `halt`) and hand the fix back to `worker` through the normal
   spine.
 - Never let a post-push security notification re-open the PR opening gate.
-- Local `/review-bugbot` / `/review-security` skills are a different seam
-  (pre-PR local diff) — do not conflate them with `/triage-security`.
+- Local pre-PR diff review (the `code-review` skill, the `review` agent) is a
+  different seam — do not conflate it with `/triage-security`.
 <!-- END GENERATED AGENT ROUTING -->
 
 When choosing whom to spawn (or whether to stay in the parent), use the
@@ -203,7 +197,7 @@ command *how* lives in `home/agents/` and `home/commands/` — do not restate th
 encyclopedias here.
 
 Reserve the strong / orchestrator model for reasoning-heavy work: planning
-(built-in `Plan`), adversarial verification (`verifier`), hard debugging, and
+(`planner`), adversarial verification (`verifier`), hard debugging, and
 the `/watch-boba` cheap→strong carve-outs. When a task needs that tier but no
 pinned agent fits, pass the **strong**-tier model pin for this host.
 

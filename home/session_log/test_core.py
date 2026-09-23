@@ -75,6 +75,20 @@ class SessionLogCoreTests(unittest.TestCase):
         self.assertFalse(incomplete)
         self.assertEqual(cost, 3.0)
 
+    def test_claude_estimate_cost_parent_and_alias_models(self) -> None:
+        from session_log.claude_cost import empty_usage, estimate_cost
+
+        usage = empty_usage()
+        usage["input_tokens"] = 1_000_000
+        for model, expected in (
+            ("claude-fable-5-1[1m]", 10.0),
+            ("claude-opus-5-5", 4.0),
+            ("claude-sonnet-5", 2.0),
+        ):
+            cost, incomplete = estimate_cost(model, usage)
+            self.assertFalse(incomplete, model)
+            self.assertEqual(cost, expected, model)
+
     def test_rollup_and_routing_audit(self) -> None:
         records = [
             {

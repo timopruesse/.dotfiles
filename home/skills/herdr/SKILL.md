@@ -118,10 +118,9 @@ Both installations must support machine API forwarding, and the remote server mu
 
 ## Subagent orchestration via Herdr (explicit terminal-management intent only)
 
-> [!IMPORTANT]
-> **Parent Orchestrator ONLY:**
-> This subagent orchestration workflow is exclusively for the root parent orchestrator.
-> **Leaf agents (`worker`, `scout`, `verifier`, `committer`, `sweep`, etc.) must NEVER spawn subagents, use Herdr to delegate, or split panes.** Leaf agents must execute their assigned task directly.
+This workflow is for the root parent orchestrator only; pinned specialists are
+leaf agents and do not spawn, delegate, or split panes (see
+`~/protocols/AGENT-ROUTING.md`).
 
 The host CLI's own native subagent tool (`Task`/`Agent` in Claude Code,
 `Task`/`subagent_type` in Cursor, `invoke_subagent` in Antigravity) is the

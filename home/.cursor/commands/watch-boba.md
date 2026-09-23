@@ -62,9 +62,11 @@ Each iteration:
         - a concrete missing fact (e.g. "name the target file/directory") → `scout`
           to locate the answer in the repo, then compose the clarification (mid
           orchestrator is fine; keep `scout` on its cheap pin);
-        - anything needing judgment about scope/approach → **escalate**: spawn a
-          general-purpose agent on the **strong** model (not `worker` — this is
-          spec-drafting, not coding). This is the mid→strong carve-out.
+        - anything needing judgment about scope/approach → **escalate**: spawn
+          `planner` (strong, read-only) with Boba's Reason/Suggestions as the
+          objective and the ticket clarification as the plan to return (not
+          `worker` — this is spec-drafting, not coding). This is the mid→strong
+          carve-out.
         If the blocker is a genuine design decision rather than a fillable gap, the
         agent should say so and propose nothing — then surface it to me as needs-you
         instead of fabricating an answer.
@@ -73,8 +75,8 @@ Each iteration:
         full proposed text. This is a hard gate — never apply without my `go`.
      4. On my `go`, apply the update via the Atlassian MCP (`editJiraIssue` for the
         description, and/or `addCommentToJiraIssue` for a clarification). Boba
-        auto-re-analyzes on a ticket update (observed: it posts "is retrying this
-        ticket" without needing the label re-added), so after applying, resume the
+        re-analyzes on a ticket update and posts "is retrying this ticket"; the
+        label does not need re-adding. After applying, resume the
         loop per the loop protocol (`/watch-boba $ARGUMENTS`) to catch the retry →
         PR. If after a couple of sweeps Boba has NOT posted a retry, surface that —
         it may need a manual re-trigger (re-applying the `boba` label).

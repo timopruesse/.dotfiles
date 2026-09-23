@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Repo Is
 
-A declarative, YAML-driven dotfiles manager for a WSL2 (Ubuntu) development environment. It manages Neovim, Zsh, Herdr, Windows Terminal, Git identities, and language toolchain installations.
+A declarative, YAML-driven dotfiles manager for WSL2 (Ubuntu) and macOS (Apple Silicon) development environments. It manages Neovim, Zsh, Herdr, the terminal (Windows Terminal on WSL, Ghostty on macOS), Git identities, and language toolchain installations (apt/curl on WSL, Homebrew on macOS).
 
 ## How Dotfiles Are Applied
 

@@ -96,7 +96,7 @@ as plain `WAITING` for the human.
 
 ## Report — end every sweep with a terminal status line
 
-Give a 1–3 line summary of what Boba's latest signal was, then a final line the
+Give a brief summary of what Boba's latest signal was, then a final line the
 loop reads:
 
 - `STATUS: DONE` — Boba opened a PR. Put the PR URL on the same line or the line
@@ -104,7 +104,7 @@ loop reads:
 - `STATUS: WORKING — pending` — Boba holds the ticket, no terminal signal yet
   (queued or analyzing). Your sweep is read-only and did no work, so this is always
   `pending`; the loop backs off per `LOOP-PROTOCOL.md` instead of re-reading Jira
-  every ~270s. Exception: if this sweep is the FIRST to see "Boba Fetch is retrying
+  on the tight cadence. Exception: if this sweep is the FIRST to see "Boba Fetch is retrying
   this ticket" (a fresh state change after a bail), say so — the driver resets to a
   tight cadence to catch the resulting PR promptly.
 - `STATUS: BLOCKED` — Boba bailed for more info. Include the verbatim Reason and

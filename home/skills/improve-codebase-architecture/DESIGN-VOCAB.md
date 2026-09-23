@@ -1,8 +1,8 @@
 # Design vocabulary (architecture reviews)
 
-Use these terms exactly in architecture suggestions. Do not substitute
-"component," "service," "API," "boundary," "layer," or "wrapper" when you mean
-the terms below.
+Use these terms exactly in architecture suggestions. This is the single list of
+substitutes to avoid: "component," "service," or "unit" for module; "API" or
+"signature" for interface; "boundary" for seam; "layer" or "wrapper" for module.
 
 | Term | Meaning |
 | --- | --- |

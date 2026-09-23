@@ -213,8 +213,8 @@ flowchart LR
   (`/address-reviews`, and `/babysit-pr` on a picked nitpick) — scoped to work
   objectively completed. Anything needing your position stays a draft you post.
 - Self-looping loops come in two **shapes**. **Shepherd** loops (`/watch-boba` →
-  `boba-watcher`, `/babysit-pr` / `/babysit-fleet` → `pr-babysitter`) re-fire on a
-  cache-warm interval via `ScheduleWakeup`, drive one target to a terminal state,
+  `boba-watcher`, `/babysit-pr` / `/babysit-fleet` → `pr-babysitter`) re-fire via
+  `ScheduleWakeup` at a cadence paced by the target, drive one target to a terminal state,
   and self-terminate on `DONE` / `WAITING` / `MERGED` via the shared `STATUS:`
   vocabulary. The **hub** loop (`/my-work watch`, the dashed self-edge on `MW`)
   borrows only the re-fire mechanism: it never converges, emits a per-tick
@@ -275,7 +275,7 @@ hand-edit the roster table.
 | `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 <!-- END GENERATED WORKFLOWS AGENT ROSTER -->
 
-> Opus / strong is reserved for reasoning-heavy work: the built-in `Plan` agent,
+> Opus / strong is reserved for reasoning-heavy work: `planner`,
 > `verifier`, hard debugging, architecture critique, and `/watch-boba`'s
 > cheap→strong carve-outs (ambiguous re-classify; scope/approach unblock drafts).
 > Never use Explore / generalPurpose for locate — that burns strong-tier cost.

@@ -59,7 +59,7 @@ Each iteration:
    next fleet iteration (`prompt` = `/babysit-fleet $ARGUMENTS`), then stop the
    turn. **Pace the reschedule by the fleet's aggregate flavor** (per
    `LOOP-PROTOCOL.md`): keep the tight cadence if any surviving `WORKING` PR is
-   `progress` or near-terminal; back off (270 → 540 → 900) only when *every*
+   `progress` or near-terminal; back off (doubling, per the protocol's cap) only when *every*
    surviving `WORKING` PR is `pending`. If EVERY PR is `DONE`/`WAITING`/`MERGED`
    (none `WORKING`), do NOT schedule — give me the final roll-up, calling out every
    PR that needs my attention (and confirming which ones merged).

@@ -14,10 +14,42 @@ from session_log.core import (
     now_iso,
 )
 
-# USD per million tokens. Approximate API list prices (Jul 2026); estimates only.
-# Matched by substring against message.model (first hit wins).
-# cache_write_5m / cache_write_1h / cache_read are prompt-caching rates.
+# USD per million tokens. Approximate API list prices (Sep 2026); estimates only.
+# Matched by substring against message.model (first hit wins) — keep the
+# version-specific needles ahead of the generic family rows.
+# cache_write_5m / cache_write_1h follow the table's 1.25x / 2x-input convention;
+# cache_read is the published rate where known (Fable 5.1, Opus 5.5), else 0.1x.
 PRICING: list[tuple[str, dict[str, float]]] = [
+    (
+        "fable",  # claude-fable-5-1 / claude-fable-5 — the parent session model
+        {
+            "input": 10.0,
+            "output": 50.0,
+            "cache_write_5m": 12.5,
+            "cache_write_1h": 20.0,
+            "cache_read": 0.25,
+        },
+    ),
+    (
+        "opus-5-5",  # what the `opus` alias resolves to in Claude Code 2.1.280
+        {
+            "input": 4.0,
+            "output": 20.0,
+            "cache_write_5m": 5.0,
+            "cache_write_1h": 8.0,
+            "cache_read": 0.20,
+        },
+    ),
+    (
+        "sonnet-5",  # what the `sonnet` alias resolves to in Claude Code 2.1.280
+        {
+            "input": 2.0,
+            "output": 10.0,
+            "cache_write_5m": 2.5,
+            "cache_write_1h": 4.0,
+            "cache_read": 0.20,
+        },
+    ),
     (
         "opus",
         {

@@ -14,27 +14,23 @@ still apply: `$1` = first token (key), later tokens / flags as documented below.
 
 Start work on the Jira ticket `$ARGUMENTS` by scaffolding an isolated worktree and
 branch, then orient and auto-advance into `worker`. This is the local branch of
-`/dispatch`'s spine (see [`~/protocols/HANDOFF-PROTOCOL.md`](~/protocols/HANDOFF-PROTOCOL.md)) — it no
-longer waits on a separate "go" to hand off; `worker`'s own downstream gates
-(`/land`'s commit preview, etc.) are where mode A actually pauses.
+`/dispatch`'s spine (see [`~/protocols/HANDOFF-PROTOCOL.md`](~/protocols/HANDOFF-PROTOCOL.md)). The
+handoff to `worker` needs no separate `go`; under mode A the first pause is
+`/land`'s commit preview.
 
 ## 1. Self-prune stale worktrees first (safe)
 
-- Determine the repo name: `basename $(git rev-parse --show-toplevel)`, then
-  `git fetch --prune` so deleted remote branches are reflected locally.
-- Look under `~/worktrees/<repo>/`. For each existing worktree there, remove it
-  (`git worktree remove` + `git worktree prune`) ONLY if its branch's upstream is
-  **gone** — i.e. it was pushed and its remote branch has since been deleted (the
-  PR merged). Detect this precisely: the branch has a configured upstream AND that
-  upstream no longer exists (`git -C <wt> status -sb` shows `[gone]`).
-  - Do NOT use "merged into the default branch" as the signal — a freshly created
-    branch with no commits is trivially an ancestor of `main` and would be falsely
-    pruned, destroying a worktree you just scaffolded. Upstream-gone is the only
-    safe "this work actually landed" signal.
-  - KEEP anything with no upstream at all (never pushed → new/local work) or a
-    live upstream (in progress).
-  - **Never remove a worktree with uncommitted changes** — report it and skip,
-    even if its upstream is gone. Say what you cleaned and what you skipped.
+Run the prune script (do not re-implement it in prose):
+
+```bash
+"$HOME/.config/herdr/scripts/worktree_prune.sh"
+```
+
+It fetches with `--prune`, then removes a worktree under `~/worktrees/<repo>/`
+only when its branch has a configured upstream that is **gone** (pushed, and the
+remote branch has since been deleted — the PR merged) and the tree is clean.
+Worktrees that were never pushed, have a live upstream, or carry uncommitted
+changes are kept and listed. Relay what it cleaned and what it skipped.
 
 ## 2. Fetch the ticket
 
@@ -73,9 +69,8 @@ longer waits on a separate "go" to hand off; `worker`'s own downstream gates
   **AUTO** under mode B (fire it via the Atlassian MCP without asking); under mode
   A, a one-line **offer** — only do it if I say yes; never silently.
 - **Auto-advance** into `worker`, running in the new worktree with the ticket AC
-  as the spec — under mode A this still just runs `worker` (its own first gate is
-  `/land`'s commit preview, so nothing is skipped by advancing here); under mode B
-  the same.
+  as the spec, in both modes (the first gate downstream is `/land`'s commit
+  preview).
 
 If the worktree already exists for this key, don't recreate it — just report its
 path and orient. `ADVANCE → worker` on success; `HALT: <reason>` if the worktree

@@ -5,7 +5,7 @@ description: >-
   Allowlisted bots only (Bugbot, security-guidance, Dependabot security, GitHub
   code scanning) — not CodeRabbit-style nits. Classifies each finding to
   babysit / ignore / needs you. Does not edit code or reopen the PR-opening gate.
-  Spawned by /triage-security; not a substitute for local /review-bugbot skills.
+  Spawned by /triage-security; not a substitute for local pre-PR diff review.
 model: haiku
 disallowedTools: Edit, Write, NotebookEdit, Agent
 readonly: true
@@ -22,8 +22,8 @@ orchestrator can route without investigating in the parent session.
   review bots), Dependabot *security* alerts, GitHub code scanning / CodeQL
   annotations on PRs you were given.
 - **Out:** CodeRabbit, style bots, human review threads (those belong to
-  `/address-reviews` / babysit pick-lists), local `/review-bugbot` /
-  `/review-security` skills (pre-PR, different seam).
+  `/address-reviews` / babysit pick-lists), and local pre-PR diff review
+  (`code-review` skill / `review` agent — a different seam).
 
 ## Classify each finding
 
@@ -33,7 +33,7 @@ For every finding in the prompt, emit one row:
 | --- | --- |
 | id | PR number + short thread/check id |
 | verdict | `babysit` \| `ignore` \| `needs you` |
-| why | ≤15 words |
+| why | one short clause |
 
 Guidance:
 

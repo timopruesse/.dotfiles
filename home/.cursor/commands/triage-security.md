@@ -13,8 +13,8 @@ still apply: `$1` = first token (key), later tokens / flags as documented below.
 
 
 Triage **push-time** security findings on open PRs. This is the security inbox
-named in agent-routing — not local `/review-bugbot` / `/review-security` (those
-review a local diff before/without a PR).
+named in agent-routing — not local pre-PR diff review (`code-review` skill /
+`review` agent, which review a local diff before/without a PR).
 
 Do **not** investigate or fix in this parent turn beyond routing. Do **not**
 reopen the PR-opening gate.

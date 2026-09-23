@@ -149,10 +149,10 @@ Each tick:
 4. **Persist the snapshot** (including `dispatched`), then `ScheduleWakeup`
    re-firing `/my-work watch [--auto] [scope]` and **stop the turn**.
 
-**Cadence — idle-tick, not cache-warm.** A hub has no terminal-state race, so the
-~270s shepherd cadence does not apply; use the idle-tick regime (~15–30 min,
-`delaySeconds` ≈ 1200) per `LOOP-PROTOCOL.md`'s hub-shape rule. Checking sooner
-buys nothing because hub state moves on a minutes-to-hours scale.
+**Cadence — idle-tick.** A hub has no terminal-state race, so the tight shepherd
+cadence does not apply; use the idle-tick regime (~15–30 min, `delaySeconds` ≈
+1200) per `LOOP-PROTOCOL.md`'s hub-shape rule. Checking sooner buys nothing
+because hub state moves on a minutes-to-hours scale.
 
 **Termination.** Stop the loop (don't reschedule) when: you say stop, you dispatch
 a selection (hand off, then offer to resume watching), or the queue is empty.
