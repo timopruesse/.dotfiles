@@ -148,6 +148,27 @@ tasks:
         sudo: false
     os:
     - linux
+  inotify_limits:
+    commands:
+    - copy:
+        src: ./etc/60-inotify.conf
+        target: /etc/sysctl.d/60-inotify.conf
+        ignore: []
+        sudo: true
+    - run:
+        commands: []
+        install:
+        - sudo sysctl --system
+        update:
+        - sudo sysctl --system
+        uninstall:
+        - sudo rm -f /etc/sysctl.d/60-inotify.conf
+        - sudo sysctl --system
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
   win32yank_wsl:
     commands:
     - run:

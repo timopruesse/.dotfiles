@@ -47,3 +47,11 @@
     defaultBranch = main
 [rerere]
 	enabled = true
+
+# Scratch repos under /tmp (test fixtures, throwaway clones) must not start a
+# fsmonitor daemon: each one holds an inotify instance and never exits, and the
+# per-user cap (fs.inotify.max_user_instances) is small enough that a few test
+# runs starve Vite's file watcher with EMFILE. Placed after [core] on purpose —
+# a later value wins, so this must follow `fsmonitor = true`.
+[includeIf "gitdir:/tmp/"]
+    path = .gitconfig_tmp

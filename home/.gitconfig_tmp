@@ -1,0 +1,5 @@
+# Loaded by .gitconfig for repos whose gitdir lives under /tmp. Throwaway repos
+# would otherwise each spawn a long-lived fsmonitor daemon (one inotify instance
+# apiece) that outlives the test run and exhausts the per-user inotify cap.
+[core]
+	fsmonitor = false
