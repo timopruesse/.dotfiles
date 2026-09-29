@@ -20,7 +20,7 @@ class CodexAgentTests(unittest.TestCase):
         tiers = parse_model_map(ROOT / "home/agents/model-map.yaml")
         expected = {
             "cheap": ("gpt-6-luna", "medium"),
-            "mid": ("gpt-6-sol", "medium"),
+            "mid": ("gpt-6.1-sol", "medium"),
             "strong": ("gpt-6-astra", "high"),
         }
         sources = sorted((ROOT / "home/agents").glob("*.md"))

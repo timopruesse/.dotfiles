@@ -266,10 +266,10 @@ hand-edit the roster table.
 | `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
 | `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
 | `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
-| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
-| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
-| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6-sol` (medium) |
+| `pr-babysitter` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
+| `scout-explain` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
+| `sweep` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
+| `worker` | mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
 | `planner` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 | `review` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 | `verifier` | strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |

@@ -12,7 +12,7 @@ tiers:
     cursor: composer-2.5
     agy: flash_lite
   mid:
-    codex: gpt-6-sol
+    codex: gpt-6.1-sol
     codex_reasoning_effort: medium
     claude: sonnet
     cursor: composer-2.5-fast
