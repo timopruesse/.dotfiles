@@ -28,8 +28,8 @@ Sources declare an abstract `tier: cheap|mid|strong` (same vocabulary as
 | Tier | Claude Code (`model:`) | Cursor (preferred session model) | Agy (`--model`) | Codex subagent (effort) |
 | --- | --- | --- | --- | --- |
 | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| mid | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
-| strong | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
+| mid | `claude-sonnet-5-5` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
+| strong | `claude-opus-5-5` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 <!-- END GENERATED MODEL MAP TABLE -->
 
 Claude Code honors the frontmatter `model:` pin for the command turn. Cursor

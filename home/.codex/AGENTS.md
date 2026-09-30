@@ -6,8 +6,8 @@ home/protocols/AGENT-ROUTING.md, not this file. -->
 | Tier | Agents | Claude Code | Cursor | Agy | Codex (effort) |
 | --- | --- | --- | --- | --- | --- |
 | cheap | `boba-watcher`, `committer`, `researcher`, `scout`, `security-triage` | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| mid | `pr-babysitter`, `scout-explain`, `sweep`, `worker` | `sonnet` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
-| strong | `planner`, `review`, `verifier` | `opus` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
+| mid | `pr-babysitter`, `scout-explain`, `sweep`, `worker` | `claude-sonnet-5-5` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
+| strong | `planner`, `review`, `verifier` | `claude-opus-5-5` | `cursor-grok-4.6-high-fast` | `pro` | `gpt-6-astra` (high) |
 
 # Agent routing (hard)
 

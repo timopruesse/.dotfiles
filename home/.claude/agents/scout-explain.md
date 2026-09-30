@@ -9,7 +9,7 @@ description: >-
   mid-tier synthesis rather than cheap-tier retrieval. Does not review, audit, or
   edit; describes what exists, doesn't critique the architecture (that's the
   strong / orchestrator model).
-model: sonnet
+model: claude-sonnet-5-5
 disallowedTools: Edit, Write, NotebookEdit, Agent
 readonly: true
 ---

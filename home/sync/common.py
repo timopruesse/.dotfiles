@@ -179,7 +179,10 @@ def expand_pin_tokens(body: str, tiers: dict[str, dict[str, str]], platform: str
             raise SystemExit(f"unknown pin tier in token: {tier!r}")
         slug = tiers[tier][platform]
         if platform == "claude":
-            return f'`model: "{slug}"`'
+            # The Agent tool's model override only takes family aliases, so a
+            # full ID pin (claude-opus-5-5) is reduced to its family (opus).
+            alias = re.match(r"^claude-(haiku|sonnet|opus|fable)-", slug)
+            return f'`model: "{alias.group(1) if alias else slug}"`'
         elif platform == "agy":
             return f"`{slug}`"
         return f"`{slug}` or `auto`"

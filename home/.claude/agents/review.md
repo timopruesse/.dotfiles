@@ -7,7 +7,7 @@ description: >-
   (correctness, edge cases, scope creep). Produces structured reports with
   must-fix issues, nits, and terminal verdicts (or draft review recommendations
   for GitHub PRs). Read-only; does not edit or commit.
-model: opus
+model: claude-opus-5-5
 disallowedTools: Edit, Write, NotebookEdit, Agent, Task
 readonly: true
 ---

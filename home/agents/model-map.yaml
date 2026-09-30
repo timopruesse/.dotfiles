@@ -14,12 +14,12 @@ tiers:
   mid:
     codex: gpt-6.1-sol
     codex_reasoning_effort: medium
-    claude: sonnet
+    claude: claude-sonnet-5-5
     cursor: composer-2.5-fast
     agy: flash
   strong:
     codex: gpt-6-astra
     codex_reasoning_effort: high
-    claude: opus
+    claude: claude-opus-5-5
     cursor: cursor-grok-4.6-high-fast
     agy: pro

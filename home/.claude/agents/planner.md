@@ -4,7 +4,7 @@ description: >-
   Strong-tier, read-only planner for a bounded implementation request. Investigates
   constraints and produces an actionable plan with risks, dependencies, and validation.
   Does not implement, commit, or delegate.
-model: opus
+model: claude-opus-5-5
 disallowedTools: Edit, Write, NotebookEdit, Agent, Task
 readonly: true
 ---
