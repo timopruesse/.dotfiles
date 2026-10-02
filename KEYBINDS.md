@@ -44,7 +44,7 @@ Agent status lives in herdr’s native sidebar (install integrations with
 
 | Key | Action |
 | --- | --- |
-| `prefix+shift+S` | Coding agent resume (new tab; Claude vs Codex by cwd) |
+| `prefix+shift+S` | Coding agent resume (new tab; Claude work / Codex personal by cwd) |
 | `prefix+shift+R` | Coding agent continue (new tab) |
 | `prefix+shift+H` | Coding agent in vertical split |
 | `prefix+shift+V` | Coding agent in horizontal split |

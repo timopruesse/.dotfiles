@@ -12,6 +12,6 @@ Symlinked into `~/protocols/` (and linked under `.claude` / `.cursor/protocols/`
 separate copies under `.claude/` or `.cursor/`. For AGENT-ROUTING and
 MODEL-FALLBACK, edit these sources — never the generated mdc / CLAUDE blocks.
 
-Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md). Session cost logging:
-[`SESSION-COST-LOGGING.md`](../../SESSION-COST-LOGGING.md). Glossary:
+Flow graph + session telemetry: [`WORKFLOWS.md`](../../WORKFLOWS.md)
+([§ Telemetry](../../WORKFLOWS.md#telemetry--session-cost)). Glossary:
 [`CONTEXT.md`](../../CONTEXT.md).

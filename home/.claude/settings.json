@@ -89,13 +89,20 @@
     "code-simplifier@claude-plugins-official": false,
     "playwright@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": false
+    "claude-code-setup@claude-plugins-official": false,
+    "impeccable@impeccable": true
   },
   "extraKnownMarketplaces": {
     "chrome-devtools-plugins": {
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
       }
     }
   },

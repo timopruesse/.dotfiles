@@ -30,6 +30,7 @@ home/             # Symlinked to ~ — contains all user config files
   session_log/    # Shared session JSONL core (hooks are adapters)
   .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
   .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; sync live-installs into ~/.cursor
+  .codex/         # Codex config (generated agents/ + AGENTS.md via sync)
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch scripts
   .config/ohmyposh/ # Oh My Posh theme (Catppuccin); Meslo via `oh-my-posh font install meslo`
@@ -62,7 +63,7 @@ common clone layouts; remote-URL rules win for worktrees / odd checkout paths:
 
 When adding new work contexts, add matching `includeIf` blocks and an identity file.
 
-## Coding agent routing (Claude vs Codex vs Cursor)
+## Coding agent routing
 
 Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), herdr binds (`prefix+shift+H`/`V`/`R`/`S`),
 Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
@@ -73,8 +74,9 @@ Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 (direct CLI launch).
 
 Precedence: `CODING_AGENT=claude|codex|agy|agent|cursor` → git remote org → path
-(`~/github/chewielabs` → Claude Code; everything else → Codex `codex`, with Cursor `agent` available via override).
-Per-call overrides: `--claude` / `--codex` / `--agy` / `--agent` / `--cursor` on the launchers.
+(`~/github/chewielabs` → Claude Code; everything else → Codex). Cursor Agent CLI
+(`agent`) is available via override (`--agent` / `--cursor` / `CODING_AGENT=agent`).
+Per-call overrides: `--claude` / `--codex` / `--agy` / `--agent` / `--cursor`.
 
 The `claude`, `codex`, `agy`, and `agent` binaries (and herdr/nvim launches) run in
 the current checkout; pass `--worktree` for an isolated git worktree (`-w` is CLI-specific).
@@ -82,28 +84,15 @@ Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 (`prefix+g` / `prefix+C`) or sidebar (`prefix+a`); `clist` wraps
 `herdr agent list`. Last pane: `prefix+Tab`.
 
-Canonical docs: [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md).
+## Where to read
 
-## Keybinds Reference
-
-All Herdr and Neovim keybindings are documented in [`KEYBINDS.md`](KEYBINDS.md). This is the canonical reference for shortcuts across the environment.
-
-## Aliases Reference
-
-All ZSH aliases and functions are documented in [`ALIASES.md`](ALIASES.md), grouped by source file (git, system, coding agent, …).
-
-## Workflows Reference
-
-Domain glossary: [`CONTEXT.md`](CONTEXT.md). Flow graph:
-[`WORKFLOWS.md`](WORKFLOWS.md). Host routing + generated **agent-routing**:
-[`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md). Spine/loop contracts:
-[`home/protocols/`](home/protocols/). Whom-table:
-[`home/skills/route-agents/`](home/skills/route-agents/).
-
-## Session cost logging
-
-Per-session JSONL logs (Claude estimated USD + tokens; Cursor duration / status /
-subagents) are documented in [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md).
+- Aliases: [`ALIASES.md`](ALIASES.md)
+- Keybinds: [`KEYBINDS.md`](KEYBINDS.md)
+- Glossary: [`CONTEXT.md`](CONTEXT.md)
+- Flow graph + session telemetry: [`WORKFLOWS.md`](WORKFLOWS.md)
+- Host routing (generated): [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md)
+- Spine/loop contracts: [`home/protocols/`](home/protocols/)
+- Whom-table: [`home/skills/route-agents/`](home/skills/route-agents/)
 
 ## Key Behaviors
 

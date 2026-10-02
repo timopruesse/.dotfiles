@@ -6,7 +6,7 @@ Declarative, YAML-driven dotfiles for WSL2 Ubuntu and macOS. Applied by [machine
 
 Neovim with [Lazy.nvim](https://github.com/folke/lazy.nvim) and [Catppuccin Mocha](https://github.com/catppuccin/nvim). Zsh, [zcomet](https://github.com/agkozak/zcomet), and [Oh My Posh](https://ohmyposh.dev). [Ghostty](https://ghostty.org) on macOS, [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) on WSL, [Herdr](https://herdr.dev) for multiplexing. Targets WSL2 on Windows and macOS on Apple Silicon.
 
-Coding agents: Claude Code on work repos, Codex on personal ones, with Cursor Agent CLI preserved across the environment. Same entry points in zsh, Herdr, and Neovim — see [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md), and [workflows](#workflows--agent-harness) below for the spine and routing details.
+Coding agents: Claude Code on work repos, Codex on personal ones (default), with Cursor Agent CLI as a secondary override. Same entry points in zsh, Herdr, and Neovim — see [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md), and [workflows](#workflows--agent-harness) below for the spine and routing details.
 
 For prompt icons, run `oh-my-posh font install meslo` (machine_setup handles this). On WSL you also need that font installed on Windows, or Windows Terminal shows broken glyphs.
 
@@ -30,17 +30,10 @@ The SSH key comes from a Windows OneDrive path — check the `ssh:` task in `mac
 
 ## Workflows & agent harness
 
-- [`WORKFLOWS.md`](WORKFLOWS.md) — flow graph
+- [`WORKFLOWS.md`](WORKFLOWS.md) — flow graph + session cost / routing telemetry
 - [`CONTEXT.md`](CONTEXT.md) — glossary (agents, tiers, spine, sync)
-- [`SESSION-COST-LOGGING.md`](SESSION-COST-LOGGING.md) — session cost and routing telemetry
-
-## Keybinds
-
-[KEYBINDS.md](KEYBINDS.md) covers Herdr and Neovim.
-
-## Aliases
-
-[ALIASES.md](ALIASES.md) lists zsh aliases and functions, grouped by source file.
+- [`ALIASES.md`](ALIASES.md) — zsh aliases and functions
+- [`KEYBINDS.md`](KEYBINDS.md) — Herdr and Neovim keybinds
 
 ## Neovim
 

@@ -36,7 +36,7 @@ generated trees; they are overwritten on sync. `machine_setup` runs **sync**
 after the home symlink.
 
 Session cost and duration logging (Claude + Cursor + Antigravity hooks) is documented in
-[`SESSION-COST-LOGGING.md`](../../SESSION-COST-LOGGING.md).
+[`WORKFLOWS.md` § Telemetry](../../WORKFLOWS.md#telemetry--session-cost).
 
 Codex uses `cheap = gpt-6-luna / medium`, `mid = gpt-6.1-sol / medium`,
 and `strong = gpt-6-astra / high`. These are specialist settings; sync never

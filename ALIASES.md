@@ -89,8 +89,9 @@ Pane-scoped via `pane_context.sh` (see `docs/adr/0001-pane-context-per-pane.md`)
 
 ## Coding agent (`claude_aliases.zsh`)
 
-`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** vs **Codex** from the cwd
-(with Cursor Agent CLI preserved via override; same rules as git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`):
+`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** (work) vs **Codex** (personal
+default) from the cwd. Cursor Agent CLI is a secondary override. Same rules as
+git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`:
 
 1. `CODING_AGENT=claude|codex|agy|agent|cursor` env override (cursor normalizes to agent)
 2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `codex`
