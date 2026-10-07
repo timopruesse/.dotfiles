@@ -6,7 +6,7 @@ description: >-
   code scanning) — not CodeRabbit-style nits. Classifies each finding to
   babysit / ignore / needs you. Does not edit code or reopen the PR-opening gate.
   Spawned by /triage-security; not a substitute for local pre-PR diff review.
-model: haiku
+model: claude-haiku-5-5
 disallowedTools: Edit, Write, NotebookEdit, Agent
 readonly: true
 ---

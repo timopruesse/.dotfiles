@@ -9,7 +9,7 @@ description: >-
   hubs and lifecycle commands fan out to. For building an understanding of a
   subsystem (reading it in full for an architecture/data-flow walkthrough), use
   `scout-explain` instead — that's the mid-tier sibling.
-model: haiku
+model: claude-haiku-5-5
 disallowedTools: Edit, Write, NotebookEdit, Agent
 readonly: true
 ---

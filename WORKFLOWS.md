@@ -261,11 +261,11 @@ hand-edit the roster table.
 <!-- BEGIN GENERATED WORKFLOWS AGENT ROSTER -->
 | Agent | Tier | Claude | Cursor | Agy | Codex (effort) |
 | --- | --- | --- | --- | --- | --- |
-| `boba-watcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| `committer` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| `researcher` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| `scout` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
-| `security-triage` | cheap | `haiku` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `boba-watcher` | cheap | `claude-haiku-5-5` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `committer` | cheap | `claude-haiku-5-5` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `researcher` | cheap | `claude-haiku-5-5` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `scout` | cheap | `claude-haiku-5-5` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
+| `security-triage` | cheap | `claude-haiku-5-5` | `composer-2.5` | `flash_lite` | `gpt-6-luna` (medium) |
 | `pr-babysitter` | mid | `claude-sonnet-5-5` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
 | `scout-explain` | mid | `claude-sonnet-5-5` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |
 | `sweep` | mid | `claude-sonnet-5-5` | `composer-2.5-fast` | `flash` | `gpt-6.1-sol` (medium) |

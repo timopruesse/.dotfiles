@@ -7,7 +7,7 @@ description: >-
   "needs you", not when the need is locate (scout) or codebase explain
   (scout-explain). Does not edit, implement, or deep-walk the repo. Ends with
   ADVANCE → parent or HALT.
-model: haiku
+model: claude-haiku-5-5
 disallowedTools: Edit, Write, NotebookEdit, Agent
 readonly: true
 ---
