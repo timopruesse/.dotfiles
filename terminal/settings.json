@@ -5,7 +5,7 @@
     "alwaysShowTabs": true,
     "copyFormatting": "none",
     "copyOnSelect": false,
-    "defaultProfile": "{c915104b-c76e-5654-a996-17c299dcd69c}",
+    "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
     "disabledProfileSources":
     [
         "Windows.Terminal.Azure",
@@ -32,33 +32,52 @@
     "newTabMenu":
     [
         {
-            "type": "remainingProfiles"
+            "icon": null,
+            "profile": "{90414955-19a8-53ae-859b-a80667413f09}",
+            "type": "profile"
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "icon": null,
+            "profile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+            "type": "profile"
+        },
+        {
+            "icon": null,
+            "profile": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+            "type": "profile"
         }
     ],
     "profiles":
     {
         "defaults":
         {
-            "adjustIndistinguishableColors": "indexed",
+            "adjustIndistinguishableColors": "automatic",
             "backgroundImage": "desktopWallpaper",
             "backgroundImageAlignment": "center",
             "backgroundImageOpacity": 0.05,
             "backgroundImageStretchMode": "uniformToFill",
             "bellStyle": "all",
             "colorScheme": "Timo",
+            "compatibility.allowDECRQCRA": true,
+            "compatibility.allowOSC777": true,
             "cursorHeight": 8,
             "cursorShape": "vintage",
+            "experimental.rainbowSuggestions": true,
             "font":
             {
-                "face": "MesloLGM Nerd Font",
-                "size": 16,
+                "face": "MesloLGS NF",
                 "weight": "normal"
             },
             "opacity": 100,
             "padding": "8",
-            "scrollbarState": "visible",
+            "scrollbarState": "hidden",
+            "showMarksOnScrollbar": true,
             "startingDirectory": "%USERPROFILE%",
             "tabColor": "#2C293A",
+            "unfocusedAppearance": {},
             "useAcrylic": true
         },
         "list":
@@ -76,13 +95,7 @@
                 "name": "Command Prompt"
             },
             {
-                "guid": "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
-                "hidden": false,
-                "name": "Git Bash",
-                "source": "Git"
-            },
-            {
-                "guid": "{c915104b-c76e-5654-a996-17c299dcd69c}",
+                "guid": "{90414955-19a8-53ae-859b-a80667413f09}",
                 "hidden": false,
                 "name": "Ubuntu",
                 "source": "Microsoft.WSL"
@@ -118,6 +131,7 @@
     "showTabsInTitlebar": true,
     "tabSwitcherMode": "mru",
     "tabWidthMode": "titleLength",
+    "theme": "system",
     "themes": [],
     "trimBlockSelection": true,
     "useAcrylicInTabRow": true,
