@@ -1,5 +1,8 @@
 # Suffix aliases: bare `path/to/file.ext` opens in $EDITOR.
 # zsh expands `foo.ts` to `$EDITOR foo.ts` when no command precedes it.
+# Interactive only: tools that source .zshrc for non-interactive runs (e.g.
+# machine_setup's `$HOME/install_*.sh`) would otherwise open the script in nvim.
+[[ -o interactive ]] || return
 
 # code
 alias -s {ts,tsx,js,jsx,mjs,cjs}=$EDITOR
