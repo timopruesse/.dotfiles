@@ -1,0 +1,122 @@
+default_shell: powershell
+parallel: false
+
+# WinGet --no-upgrade returns 0x8A150061 (-1978335135) for an existing package.
+# Treat only that already-installed result as success; propagate other failures.
+tasks:
+  seven_zip:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id 7zip.7zip --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  adobe_creative_cloud:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Adobe.CreativeCloud --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  discord:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Discord.Discord --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  libreoffice:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id TheDocumentFoundation.LibreOffice --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  powertoys:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Microsoft.PowerToys --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  steam:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Valve.Steam --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  msi_afterburner:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Guru3D.Afterburner --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  chrome_dev:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Google.Chrome.Dev --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  riot_client:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id RiotGames.Valorant.EU --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  unigetui:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Devolutions.UniGetUI --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  davinci_resolve_download_page:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+              $release = Invoke-RestMethod -Uri 'https://www.blackmagicdesign.com/api/support/latest-stable-version/davinci-resolve/Windows'
+              $releaseId = $release.Windows.releaseId
+              if ($releaseId -notmatch '^[0-9a-fA-F]{32}$') {
+                throw 'Blackmagic returned an invalid release ID.'
+              }
+              $downloadPage = "https://www.blackmagicdesign.com/support/download/$releaseId/Windows"
+              Write-Host 'Complete the registration form and save the installer in Downloads, then extract and install DaVinci Resolve manually.'
+              Start-Process $downloadPage

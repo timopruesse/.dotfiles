@@ -28,6 +28,35 @@ For prompt icons, run `oh-my-posh font install meslo` (machine_setup handles thi
 
 The SSH key comes from a Windows OneDrive path — check the `ssh:` task in `machine_setup.yaml`. Install machine_setup, then run `ms`.
 
+### Native Windows
+
+Install or update **App Installer** from the Microsoft Store so `winget` is available. Install machine_setup in PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/timopruesse/machine_setup/main/install/install.ps1 | iex
+```
+
+Download or clone this repo, then run from its root in PowerShell. The execution policy step permits generated setup scripts for the current session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+machine_setup validate -c .\windows\machine_setup.yaml
+machine_setup install -c .\windows\machine_setup.yaml
+```
+
+The Windows config installs 7-Zip, Adobe Creative Cloud, Discord, LibreOffice, PowerToys, Steam, MSI Afterburner, Chrome Dev, [UniGetUI](https://github.com/devolutions/unigetui), and the Riot client through VALORANT (EU). Follow installer prompts, including Creative Cloud's interactive setup. Complete VALORANT download and sign-in in the Riot client when prompted; change the `RiotGames.Valorant.EU` package ID in the config if you need another region.
+
+Finish these manually:
+
+- Sign in to Creative Cloud and install Lightroom.
+- Setup opens the registration form for the latest stable free Windows x64 [DaVinci Resolve](https://www.blackmagicdesign.com/products/davinciresolve) release. Complete registration, download the installer in your browser, then extract and install it.
+
+machine_setup's task history skips completed tasks on later runs. To reopen the Resolve form for the latest release, run in the same PowerShell session:
+
+```powershell
+machine_setup install -c .\windows\machine_setup.yaml -t davinci_resolve_download_page --force
+```
+
 ## Workflows & agent harness
 
 - [`WORKFLOWS.md`](WORKFLOWS.md) — flow graph + session cost / routing telemetry
