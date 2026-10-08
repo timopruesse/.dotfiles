@@ -3,9 +3,6 @@ default_shell: zsh
 parallel: true
 num_threads: null
 check_for_updates: true
-secrets:
-  default_provider: onepassword
-  ssh_agent: true
 tasks:
   homebrew:
     commands:
@@ -20,23 +17,8 @@ tasks:
         env: {}
         quiet: false
         os: macos
-    - run:
-        commands:
-        - wget -O $TMP_INSTALL_PATH https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
-        - chmod u+x $TMP_INSTALL_PATH
-        - $TMP_INSTALL_PATH
-        - rm $TMP_INSTALL_PATH
-        - rm -rf "/home/linuxbrew/.linuxbrew/Homebrew/Library/Taps/homebrew/homebrew-core"
-        - brew tap homebrew/core
-        - eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        install: []
-        update: []
-        uninstall: []
-        shell: null
-        env:
-          TMP_INSTALL_PATH: /tmp/install-brew.sh
-        quiet: false
-        os: linux
+    os:
+    - macos
   zsh:
     commands:
     - run:
@@ -143,7 +125,7 @@ tasks:
     commands:
     - copy:
         src: ./etc/wslconfig
-        target: /mnt/c/Users/Timo/.wslconfig
+        target: /mnt/c/Users/chrom/.wslconfig
         ignore: []
         sudo: false
     os:
@@ -196,11 +178,11 @@ tasks:
         uninstall: []
         shell: bash
         env:
-          SETTINGS_PATH: /mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json
+          SETTINGS_PATH: /mnt/c/Users/chrom/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json
         quiet: false
     - copy:
         src: ./terminal
-        target: /mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState
+        target: /mnt/c/Users/chrom/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState
         ignore: []
         sudo: false
     os:
@@ -208,7 +190,7 @@ tasks:
   ssh:
     commands:
     - copy:
-        src: /mnt/c/Users/Timo/OneDrive/Dokumente/_DEV/.ssh
+        src: /mnt/c/Users/chrom/OneDrive/Dokumente/_DEV/.ssh
         target: ~/.ssh
         ignore: []
         sudo: false
@@ -492,14 +474,10 @@ tasks:
         - herdr integration install claude || true
         - herdr integration install cursor || true
         - $HOME/sync/normalize-herdr-hooks
-        - mkdir -p "$HOME/.claude/hooks"
-        - ln -sfn "$DOTFILES/home/.claude/hooks/pane-context-aws.sh" "$HOME/.claude/hooks/pane-context-aws.sh"
         update:
         - herdr integration install claude || true
         - herdr integration install cursor || true
         - $HOME/sync/normalize-herdr-hooks
-        - mkdir -p "$HOME/.claude/hooks"
-        - ln -sfn "$DOTFILES/home/.claude/hooks/pane-context-aws.sh" "$HOME/.claude/hooks/pane-context-aws.sh"
         uninstall: []
         shell: null
         env: {}
@@ -769,7 +747,7 @@ tasks:
   personal_repos:
     commands:
     - machine_setup:
-        config: $DOTFILES/personal_repositories.yaml
+        config: ./personal_repositories.yaml
         task: null
         force: false
         with_deps: false
