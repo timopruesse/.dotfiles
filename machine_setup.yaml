@@ -178,11 +178,11 @@ tasks:
         uninstall: []
         shell: bash
         env:
-          SETTINGS_PATH: /mnt/c/Users/chrom/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json
+          SETTINGS_PATH: /mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState/settings.json
         quiet: false
     - copy:
         src: ./terminal
-        target: /mnt/c/Users/chrom/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState
+        target: /mnt/c/Users/Timo/AppData/Local/Packages/Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe/LocalState
         ignore: []
         sudo: false
     os:
@@ -190,7 +190,7 @@ tasks:
   ssh:
     commands:
     - copy:
-        src: /mnt/c/Users/chrom/OneDrive/Dokumente/_DEV/.ssh
+        src: /mnt/d/OneDrive/Dokumente/_DEV/.ssh
         target: ~/.ssh
         ignore: []
         sudo: false
