@@ -125,7 +125,7 @@ tasks:
     commands:
     - copy:
         src: ./etc/wslconfig
-        target: /mnt/c/Users/chrom/.wslconfig
+        target: /mnt/c/Users/Timo/.wslconfig
         ignore: []
         sudo: false
     os:
