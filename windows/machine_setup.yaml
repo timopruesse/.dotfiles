@@ -4,6 +4,61 @@ parallel: false
 # WinGet --no-upgrade returns 0x8A150061 (-1978335135) for an existing package.
 # Treat only that already-installed result as success; propagate other failures.
 tasks:
+  meslo_fonts:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+              $fontDirectory = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Fonts'
+              $registryPath = 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
+              New-Item -ItemType Directory -Path $fontDirectory -Force | Out-Null
+              if (-not (Test-Path -LiteralPath $registryPath)) {
+                New-Item -Path $registryPath | Out-Null
+              }
+              if (-not ('MesloFontInstaller.NativeMethods' -as [type])) {
+                Add-Type -TypeDefinition @'
+              using System;
+              using System.Runtime.InteropServices;
+              namespace MesloFontInstaller {
+                public static class NativeMethods {
+                  [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+                  public static extern int AddFontResourceW(string path);
+                  [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+                  public static extern IntPtr SendMessageTimeoutW(IntPtr window, uint message,
+                    UIntPtr wParam, IntPtr lParam, uint flags, uint timeout, out UIntPtr result);
+                }
+              }
+              '@
+              }
+              foreach ($variant in @('Regular', 'Bold', 'Italic', 'Bold Italic')) {
+                $filename = "MesloLGS NF $variant.ttf"
+                $fontPath = Join-Path $fontDirectory $filename
+                if (-not (Test-Path -LiteralPath $fontPath -PathType Leaf)) {
+                  $temporaryPath = Join-Path $fontDirectory ([IO.Path]::GetRandomFileName())
+                  try {
+                    $url = 'https://raw.githubusercontent.com/romkatv/powerlevel10k-media/master/' + [Uri]::EscapeDataString($filename)
+                    Invoke-WebRequest -Uri $url -OutFile $temporaryPath -UseBasicParsing
+                    Move-Item -LiteralPath $temporaryPath -Destination $fontPath
+                  } finally {
+                    if (Test-Path -LiteralPath $temporaryPath) {
+                      Remove-Item -LiteralPath $temporaryPath -Force
+                    }
+                  }
+                }
+                if ([MesloFontInstaller.NativeMethods]::AddFontResourceW($fontPath) -eq 0) {
+                  throw "Windows could not load font: $fontPath"
+                }
+                New-ItemProperty -Path $registryPath -Name "MesloLGS NF $variant (TrueType)" -Value $fontPath -PropertyType String -Force | Out-Null
+              }
+              $result = [UIntPtr]::Zero
+              $broadcast = [MesloFontInstaller.NativeMethods]::SendMessageTimeoutW(
+                [IntPtr]0xffff, 0x001d, [UIntPtr]::Zero, [IntPtr]::Zero, 2, 5000, [ref]$result)
+              if ($broadcast -eq [IntPtr]::Zero) {
+                throw 'Windows could not broadcast the font change. Restart Windows Terminal and rerun the font task.'
+              }
   seven_zip:
     os: [windows]
     commands:
@@ -52,6 +107,16 @@ tasks:
             - |
               $ErrorActionPreference = 'Stop'
               winget install --id Microsoft.PowerToys --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
+              if ($LASTEXITCODE -eq -1978335135) { exit 0 }
+              exit $LASTEXITCODE
+  spotify:
+    os: [windows]
+    commands:
+      - run:
+          install:
+            - |
+              $ErrorActionPreference = 'Stop'
+              winget install --id Spotify.Spotify --exact --source winget --no-upgrade --accept-package-agreements --accept-source-agreements
               if ($LASTEXITCODE -eq -1978335135) { exit 0 }
               exit $LASTEXITCODE
   steam:

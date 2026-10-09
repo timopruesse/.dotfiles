@@ -44,7 +44,9 @@ machine_setup validate -c .\windows\machine_setup.yaml
 machine_setup install -c .\windows\machine_setup.yaml
 ```
 
-The Windows config installs 7-Zip, Adobe Creative Cloud, Discord, LibreOffice, PowerToys, Steam, MSI Afterburner, Chrome Dev, [UniGetUI](https://github.com/devolutions/unigetui), and the Riot client through VALORANT (EU). Follow installer prompts, including Creative Cloud's interactive setup. Complete VALORANT download and sign-in in the Riot client when prompted; change the `RiotGames.Valorant.EU` package ID in the config if you need another region.
+The Windows config installs 7-Zip, Adobe Creative Cloud, Discord, LibreOffice, PowerToys, Spotify, Steam, MSI Afterburner, Chrome Dev, [UniGetUI](https://github.com/devolutions/unigetui), and the Riot client through VALORANT (EU). Follow installer prompts, including Creative Cloud's interactive setup. Complete VALORANT download and sign-in in the Riot client when prompted; change the `RiotGames.Valorant.EU` package ID in the config if you need another region.
+
+It also installs MesloLGS NF Regular, Bold, Italic, and Bold Italic for the current Windows user without administrator rights. The font task downloads missing fonts from the Powerlevel10k font repository. Restart Windows Terminal if the fonts do not appear immediately. To repair the font registration, rerun `machine_setup install -c .\windows\machine_setup.yaml -t meslo_fonts --force`; existing font files are reused.
 
 Finish these manually:
 
