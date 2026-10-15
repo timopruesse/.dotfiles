@@ -10,7 +10,7 @@
 #   pane_context.sh parse-aws-from-command <cmdline>
 #   pane_context.sh inject-prefix <cmdline>
 #   pane_context.sh set-wt <name> [pane_id]
-#   pane_context.sh set-agent <claude|cursor|agent> [pane_id]
+#   pane_context.sh set-agent <pi|claude|codex|agy|cursor|agent> [pane_id]
 #
 # Source from zsh for functions with the same names (no .sh suffix on functions).
 
@@ -366,6 +366,15 @@ set-agent() {
   }
 
   case "$agent" in
+  pi)
+    display="Pi"
+    ;;
+  codex)
+    display="Codex"
+    ;;
+  agy)
+    display="Antigravity"
+    ;;
   claude)
     display="Claude"
     agent="claude"

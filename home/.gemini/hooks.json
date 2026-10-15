@@ -2,17 +2,8 @@
   "herdr": {
     "PreInvocation": [
       {
-        "command": "bash \"$HOME/.gemini/config/hooks/herdr-agent-state.sh\" session",
+        "command": "bash '/home/timo/.gemini/config/hooks/herdr-agent-state.sh' session",
         "timeout": 10,
-        "type": "command"
-      }
-    ]
-  },
-  "session-logger": {
-    "Stop": [
-      {
-        "command": "bash \"$HOME/.gemini/hooks/log-session.sh\"",
-        "timeout": 15,
         "type": "command"
       }
     ]

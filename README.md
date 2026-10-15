@@ -6,7 +6,7 @@ Declarative, YAML-driven dotfiles for WSL2 Ubuntu and macOS. Applied by [machine
 
 Neovim with [Lazy.nvim](https://github.com/folke/lazy.nvim) and [Catppuccin Mocha](https://github.com/catppuccin/nvim). Zsh, [zcomet](https://github.com/agkozak/zcomet), and [Oh My Posh](https://ohmyposh.dev). [Ghostty](https://ghostty.org) on macOS, [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) on WSL, [Herdr](https://herdr.dev) for multiplexing. Targets WSL2 on Windows and macOS on Apple Silicon.
 
-Coding agents: Claude Code on work repos, Codex on personal ones (default), with Cursor Agent CLI as a secondary override. Same entry points in zsh, Herdr, and Neovim — see [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md), and [workflows](#workflows--agent-harness) below for the spine and routing details.
+Coding agent: **Pi** by default across repositories, with native sessions, skills, and prompt templates. Same entry points in zsh, Herdr, and Neovim; explicit legacy client overrides remain available. See [`docs/PI.md`](docs/PI.md), [`ALIASES.md`](ALIASES.md), and [`KEYBINDS.md`](KEYBINDS.md).
 
 For prompt icons, run `oh-my-posh font install meslo` (machine_setup handles this). On WSL you also need that font installed on Windows, or Windows Terminal shows broken glyphs.
 
@@ -59,10 +59,11 @@ machine_setup's task history skips completed tasks on later runs. To reopen the 
 machine_setup install -c .\windows\machine_setup.yaml -t davinci_resolve_download_page --force
 ```
 
-## Workflows & agent harness
+## Coding workflow
 
-- [`WORKFLOWS.md`](WORKFLOWS.md) — flow graph + session cost / routing telemetry
-- [`CONTEXT.md`](CONTEXT.md) — glossary (agents, tiers, spine, sync)
+- [`docs/PI.md`](docs/PI.md) — Pi setup, model defaults, plugins, and resource ownership
+- [`docs/PI-WORKFLOW-MIGRATION.md`](docs/PI-WORKFLOW-MIGRATION.md) — command/skill keep-or-migrate decisions
+- [`CONTEXT.md`](CONTEXT.md) — configuration and workflow glossary
 - [`ALIASES.md`](ALIASES.md) — zsh aliases and functions
 - [`KEYBINDS.md`](KEYBINDS.md) — Herdr and Neovim keybinds
 
@@ -82,6 +83,6 @@ Platform-specific shell bits live in `home/.config/zsh/{wsl,linux,macos}.zsh`. E
 
 Installed via [`machine_setup.yaml`](machine_setup.yaml) — Homebrew on macOS ([`Brewfile`](Brewfile)), apt and curl on WSL:
 
-Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go. Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh. ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI. Docker CE on WSL; Colima + Docker on macOS. AWS CLI. Codex, Claude Code, Antigravity (agy), and Cursor Agent CLI.
+Rust (nightly + rustfmt/clippy/rust-analyzer), Node.js (fnm), Bun, Python (pipx), Go. Neovim (nightly on Linux, HEAD on macOS), Herdr, lazygit, Oh My Posh. ripgrep, fd, bat, git-delta, eza, zoxide, fzf, atuin, GitHub CLI. Docker CE on WSL; Colima + Docker on macOS. AWS CLI. Pi (default), plus the retained Codex, Claude Code, Antigravity (agy), and Cursor Agent CLI tasks.
 
 Google Chrome on both platforms for the Chrome DevTools MCP server. WSL also installs win32yank for clipboard integration, and a systemd unit (`etc/wslg-x11-socket.service`) that keeps the WSLg X11 socket reachable at `/tmp/.X11-unix/X0` after systemd's `tmp.mount` shadows it, so `DISPLAY=:0` clipboard access (xclip, image paste) works.

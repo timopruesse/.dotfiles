@@ -3,7 +3,7 @@
 # Adapters (bind.sh, zsh c*, nvim) stay thin.
 #
 # Usage:
-#   coding_agent_herdr.sh <layout> [resume|continue] [--claude|--codex|--agent|--cursor|--agy]
+#   coding_agent_herdr.sh <layout> [resume|continue] [--pi|--claude|--codex|--agent|--cursor|--agy]
 #                         [--prompt-file PATH] [extra launch args...]
 #
 # layout: right|down|tab  (aliases: hsplit→right, vsplit→down, window→tab)

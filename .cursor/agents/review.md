@@ -1,1 +1,0 @@
-../../home/.cursor/agents/review.md

@@ -8,19 +8,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "opus",
   "hooks": {
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$HOME/.claude/hooks/log-session.sh\"",
-            "timeout": 15
-          }
-        ]
-      }
-    ],
     "SessionStart": [
       {
         "matcher": "*",
@@ -28,6 +16,16 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "^(startup|resume|clear|compact|fork)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/home/timo/.claude/hooks/herdr-agent-state.sh' session",
             "timeout": 10
           }
         ]

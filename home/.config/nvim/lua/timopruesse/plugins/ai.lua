@@ -12,6 +12,9 @@ return {
 			local basename = vim.fs.basename(vim.uv.cwd() or "")
 
 			local function provider_for_cli(cli)
+				if cli == "pi" then
+					return require("timopruesse.pi_provider")
+				end
 				if cli == "claude" then
 					return _99.Providers.ClaudeCodeProvider
 				end
@@ -21,8 +24,8 @@ return {
 				return _99.Providers.CursorAgentProvider
 			end
 
-			-- Match shell/herdr/Neovim <leader>z* routing: chewielabs → Claude,
-			-- otherwise Codex. Re-apply on DirChanged so project switches
+			-- Match Pi-first shell/herdr/Neovim <leader>z* routing.
+			-- Re-apply on DirChanged so project switches
 			-- pick up the right CLI (manual <leader>9p still works until then).
 			local function apply_resolved_provider()
 				local provider = provider_for_cli(coding_agent.resolve_cli(vim.fn.getcwd()))

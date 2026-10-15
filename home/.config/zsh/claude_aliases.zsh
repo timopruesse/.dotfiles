@@ -1,8 +1,6 @@
-# coding-agent aliases: path/remote-aware launcher for Claude Code vs Codex (Cursor and Antigravity overrides).
+# Coding-agent aliases: Pi by default, with explicit legacy CLI overrides.
 # Resolve + herdr split/tab live in ~/.config/herdr/scripts/coding_agent_herdr.sh
-#   chewielabs (remote or ~/github/chewielabs) → claude
-#   personal / everything else → codex
-# Override: CODING_AGENT=claude|codex|agent|cursor|agy, or pass --claude / --codex / --agent / --cursor / --agy to c/ch/cv/cr/cpi.
+# Override: CODING_AGENT=pi|claude|codex|agent|cursor|agy or --pi / --claude / --codex / --agent / --cursor / --agy.
 
 _CODING_AGENT_SCRIPTS="${HOME}/.config/herdr/scripts"
 
@@ -56,7 +54,7 @@ function cpi() {
   local prompt_parts=()
   for arg in "$@"; do
     case "$arg" in
-      --claude|--codex|--agent|--cursor|--agy) force_flags+=("$arg") ;;
+      --pi|--claude|--codex|--agent|--cursor|--agy) force_flags+=("$arg") ;;
       *) prompt_parts+=("$arg") ;;
     esac
   done

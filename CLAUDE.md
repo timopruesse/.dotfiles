@@ -22,15 +22,12 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 
 ```
 home/             # Symlinked to ~ — contains all user config files
-  agents/         # Shared subagent sources (tier + prompts); run home/sync/sync
-  commands/       # Shared slash-command sources; run home/sync/sync
-  skills/         # Orchestrator skills (route-agents, improve-codebase-architecture, …)
-  protocols/      # Shared HANDOFF + LOOP + AGENT-ROUTING + MODEL-FALLBACK (→ ~/protocols)
-  sync/           # Deep sync conveyor (Claude/Cursor pins + agent-routing rules)
-  session_log/    # Shared session JSONL core (hooks are adapters)
-  .claude/        # Claude Code config (generated agents/ + commands/, protocol symlinks)
-  .cursor/        # Cursor pins (agents/, commands/, rules/ incl. agent-routing.mdc, protocols/, cli-config.json) — NOT bulk-symlinked; sync live-installs into ~/.cursor
-  .codex/         # Codex config (generated agents/ + AGENTS.md via sync)
+  .pi/agent/      # Active Pi instructions + prompt templates (resources only)
+  setup_pi.py     # Links resources + merges managed defaults; preserves other state
+  skills/         # Portable Herdr and architecture skills
+  .claude/        # Independent client preferences + Herdr/AWS hooks
+  .cursor/        # Independent client preferences, MCP + Herdr/AWS hooks
+  .gemini/        # Independent client preferences, MCP + Herdr hooks
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)
   .config/herdr/  # Herdr config + coding_agent_resolve/herdr/launch scripts
   .config/ohmyposh/ # Oh My Posh theme (Catppuccin); Meslo via `oh-my-posh font install meslo`
@@ -39,7 +36,7 @@ home/             # Symlinked to ~ — contains all user config files
   *.sh            # Utility scripts (lazygit installer, etc.)
 terminal/         # Windows Terminal settings (copied, not symlinked)
 etc/              # System config (wsl.conf — requires copy with sudo)
-CONTEXT.md                   # Domain glossary (agents, tiers, spine, sync)
+CONTEXT.md                   # Active configuration and workflow glossary
 machine_setup.yaml           # Main setup orchestration
 personal_repositories.yaml   # Clones personal repos after setup
 ```
@@ -73,10 +70,20 @@ Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
 [`coding_agent_launch.sh`](home/.config/herdr/scripts/coding_agent_launch.sh)
 (direct CLI launch).
 
-Precedence: `CODING_AGENT=claude|codex|agy|agent|cursor` → git remote org → path
-(`~/github/chewielabs` → Claude Code; everything else → Codex). Cursor Agent CLI
-(`agent`) is available via override (`--agent` / `--cursor` / `CODING_AGENT=agent`).
-Per-call overrides: `--claude` / `--codex` / `--agy` / `--agent` / `--cursor`.
+Pi is the default everywhere. `CODING_AGENT=pi|claude|codex|agy|agent|cursor`
+overrides it (cursor normalizes to agent). Per-call overrides: `--pi` / `--claude` /
+`--codex` / `--agy` / `--agent` / `--cursor`. Git identity routing is independent.
+The `dotfiles` task runs `python3 $HOME/setup_pi.py` to link Pi resources and apply
+GPT 6.1 Sol (`openai/gpt-6.1-sol`) with medium thinking as the startup default.
+All approved Pi plugins must be declared in `machine_setup.yaml`'s `pi_packages`
+task for both install and update. Workflow migration decisions are tracked in
+[`docs/PI-WORKFLOW-MIGRATION.md`](docs/PI-WORKFLOW-MIGRATION.md).
+See [`docs/PI.md`](docs/PI.md) for native workflow commands and ownership.
+Use available Pi tools directly, or native `pi-subagents` delegation for the approved
+workflow commands. There is no generated specialist roster, tier-routing layer,
+or custom subagent runtime. The local [`home/pi-workbench/`](home/pi-workbench/)
+package adds verification contracts, artifact-first handoffs, and explicit Herdr
+visibility/navigation around native `pi-subagents`; it never launches workers.
 
 The `claude`, `codex`, `agy`, and `agent` binaries (and herdr/nvim launches) run in
 the current checkout; pass `--worktree` for an isolated git worktree (`-w` is CLI-specific).
@@ -89,10 +96,9 @@ Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 - Aliases: [`ALIASES.md`](ALIASES.md)
 - Keybinds: [`KEYBINDS.md`](KEYBINDS.md)
 - Glossary: [`CONTEXT.md`](CONTEXT.md)
-- Flow graph + session telemetry: [`WORKFLOWS.md`](WORKFLOWS.md)
-- Host routing (generated): [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md)
-- Spine/loop contracts: [`home/protocols/`](home/protocols/)
-- Whom-table: [`home/skills/route-agents/`](home/skills/route-agents/)
+- Active Pi setup: [`docs/PI.md`](docs/PI.md)
+- Personal Pi instructions: [`home/.pi/agent/AGENTS.md`](home/.pi/agent/AGENTS.md)
+- Portable skills: [`home/skills/`](home/skills/)
 
 ## Key Behaviors
 

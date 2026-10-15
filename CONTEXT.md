@@ -1,72 +1,19 @@
 # Domain context
 
-Glossary for the agent/command/protocol spine in this dotfiles repo. Architecture
-reviews and sync tooling should use these names.
-
-## Core modules
+Terms used by the active dotfiles setup:
 
 | Term | Meaning |
 | --- | --- |
-| **agent** (subagent) | A pinned specialist prompt under `home/agents/`, generated into Claude + Cursor + Antigravity trees. Abstract `tier:` only in sources. Each agent source defines its own terminal result contract. |
-| **command** (slash command / orchestrator) | A protocol router under `home/commands/` that gathers, gates, spawns agents, and hands off. |
-| **skill** | Orchestrator-facing procedure pack under `home/skills/` (`*/SKILL.md`). **Only** managed skill source. Managed-name collisions replace files, directories, or foreign symlinks without backup. Live-install always points `~/.cursor/skills/<name>`, `~/.claude/skills/<name>`, and `~/.agents/skills/<name>` at this tree (reclaim if a foreign path won). For parent routing / env workflows — not a substitute for agent prompts. Architecture-review packs vendor design vocabulary in-tree; they do not depend on missing `/codebase-design` / `/grilling` / `/domain-modeling` names. |
-| **protocol** | Shared contract in `home/protocols/` — `HANDOFF-PROTOCOL` (spine + land path), `LOOP-PROTOCOL` (shepherd/hub loops), `AGENT-ROUTING` (hard must-nots), **model-fallback** (Cursor pin retry / boba escalate). **sync** emits host adapters from these; do not author that prose in Python. |
-| **tier** | Abstract cost/capability band: `cheap` \| `mid` \| `strong`. Mapped to host model slugs by `model-map.yaml`. |
-| **model-map** | `home/agents/model-map.yaml` — single source of truth for tier → Claude/Cursor/Agy pins. |
-| **sync** | Deep module `home/sync/` — one conveyor interface: `home/sync/sync`. Always generate agents+commands → catalog emit (including WORKFLOWS agent roster) → full live-install → **project-agents** for this dotfiles checkout. Humans and `machine_setup` share that interface. No `--no-live`, no partial live flags, no public `sync-agents` / `sync-commands` / `live-install` CLIs. |
-| **agent-routing** | Hard always-apply contract authored in `home/protocols/` and emitted by **sync** into Cursor rules + Claude host prose: subagents spawned via the host's own native subagent tool by pinned name (default engine); `/herdr` splits/tabs are opt-in, only on explicit terminal-management intent (visible pane or worktree/tab), never merely because a specialist is async; locate → `scout`/`scout-explain` (never builtin Explore/`generalPurpose`); commit → `committer` or `/land` by default; an unavailable specialist permits parent execution within existing authorization; missing terminal contract → treat as `HALT`. Soft skill `route-agents` remains the whom-table; agent-routing is the must-not layer. |
-| **model-fallback** | Protocol in `home/protocols/` for Cursor subagent pin retry (`auto` once) and `/watch-boba` cheap→strong carve-outs. **sync** catalog emits `subagent-model-fallback.mdc` from this source (not a string in `catalog.py`). |
-| **parent-commit-on-quota** | Cursor-only always-apply rule (`home/.cursor/rules/parent-commit-on-quota.mdc`): if `committer` is quota/rate-limit blocked after the `auto` retry, the Cursor parent may `git commit` (and push when asked). **Not** emitted for Claude Code — Claude keeps parent-never-commits. |
-| **live-install** | Internal **sync** adapter (not a public CLI): owns managed links through source-root checks, preflight, and pruning; preserves unrelated links. Managed skill names alone are reclaimed without backups. Installs agents/commands/skills/hooks/rules and merges CLI prefs into `~/.cursor`, `~/.claude`, `~/.gemini/config`, and `~/.agents` without replacing those trees. Always full after generate. |
-| **session-log** | `home/session_log/` — deep JSONL module: append/error/query, Claude **pricing**, and record assembly. Claude, Cursor, and Antigravity hooks are thin adapters (host JSON → core). Subagent **kind** is derived here from spawn type — `pinned` \| `builtin` \| `unknown` — never assigned by host adapters. Injected slash **command** names are drawn from the authored command set (not a parallel stem list). `/session-cost` rolls up Claude USD estimates, Cursor duration/counts, and Antigravity duration/counts (never fabricated USD); optional routing-audit mode flags builtin explorer spawns. Cursor scratch start/stop stays in the Cursor adapter. |
-| **coding-agent resolve** | `home/.config/herdr/scripts/coding_agent_resolve.sh` — picks `claude` (work) vs `codex` (personal default) for shared zsh/herdr/Neovim launchers (env → remote org → path). Cursor `agent` is a secondary override. Same work/personal split as git identity. |
-| **herdr host** | The herdr multiplexer (config, panes, tabs, integrations). Thin keybind surface in `home/.config/herdr/config.toml`; not the place for coding-agent policy. |
-| **coding-agent herdr launch** | Deep module `home/.config/herdr/scripts/coding_agent_herdr.sh` — owns split/tab, pane-id parse, and `herdr pane run` → `coding_agent_launch.sh`. Launch owns host parsing, Cursor-only preparation, and agent/worktree pane metadata. Uses `coding_agent_space.sh` to keep new panes/tabs in the caller’s live space. Thin adapters: `coding_agent_bind.sh`, zsh `c*`/`_coding_agent_herdr`, nvim `coding_agent_herdr.lua`. |
-| **coding-agent herdr subagent** | Deep module `home/.config/herdr/scripts/coding_agent_subagent.sh` — spawns and communicates with a subagent in a visible Herdr split/tab, for explicit terminal-management intent only; the host's native subagent tool is the default engine (see **agent-routing**). |
-| **coding-agent launch policy** | `coding_agent_launch.sh` invokes the resolved CLI directly. Sleep prevention is configured in the respective CLIs. Worktree isolation is opt-in via `-w` / `--worktree`. |
-| **pane context** | Env/display signals owned by a single herdr pane, e.g. AWS profile. Mirrored to herdr chrome via the pane-context reporter. May use a pane-keyed side file when an agent TUI blocks live `export`. Not session- or workspace-scoped. _Avoid_: session profile, “active tab” when the signal is per-pane. |
-| **pane-context reporter** | Deep module under `home/.config/herdr/scripts/` that mirrors pane context into the herdr host via `report-metadata` (sidebar tokens, state labels). Thin adapters: `awsp`/`awsu`, coding-agent launch, and agent shell hooks (Bash/`!` profile detection). |
-| **signal egress** | Deep module that delivers out-of-session attention pings. Interface is event verbs (`halt`, `changes`, `triage`) — not a generic notify. Spine/shepherd/hub prose shells out explicitly to `home/.config/herdr/scripts/signal_egress.sh`. v1 adapters: macOS + WSL/Linux OS banners. Chat adapters (e.g. WhatsApp) are demand-only later ports — do not stub. Optional herdr chrome is also deferred. Not pane context. |
-| **project-agents** | Cursor Task/`subagent_type` discovery for pinned agents via `<git-root>/.cursor/agents/` (CLI often ignores `~/.cursor/agents/`). Ensured by `home/sync/ensure-project-agents`; this repo commits links to `home/.cursor/agents/`. Missing pin in the Task enum → report the error and let the parent continue authorized work; never substitute builtin Explore/`generalPurpose`. |
+| **machine setup** | External `timopruesse/machine_setup` tool interpreting `machine_setup.yaml`; installs tools and applies dotfiles. |
+| **Pi** | Default coding harness, using its native tools, model selection, sessions, skills, and prompt templates. |
+| **Pi resources** | Instructions and prompts in `home/.pi/agent/`, plus portable skills in `home/skills/`. Installed selectively by `home/setup_pi.py`. |
+| **agent directory** | Machine-local `~/.pi/agent`: includes credentials, preferences, trust decisions, releases, and saved sessions. Never bulk-symlinked or committed. |
+| **prompt template** | Markdown under `home/.pi/agent/prompts/`, invoked as a Pi slash command. Expands into model-followed instructions, not a deterministic runtime; approved workflows can invoke `pi-subagents`. |
+| **pi-subagents** | Approved native Pi package providing builtin worker/reviewer roles and delegation tools; no custom role/tier router. |
+| **skill** | Directory under `home/skills/` with a `SKILL.md` entry point and optional supporting files. Loaded on demand. |
+| **coding-agent launcher** | Shared shell/Herdr/Neovim entry point; defaults to Pi, accepts explicit alternative CLI overrides. Independent of Git identity. |
+| **Herdr** | Terminal multiplexer. The official Pi integration reports pane state and native session references. Not an implicit subagent runtime. |
+| **pane context** | Per-pane metadata such as AWS profile, working-tree label, and agent label; owned by `pane_context.sh`. |
+| **99 provider** | Neovim adapter invoking `pi --print --no-session` for one-off editor requests. |
 
-## Read agents (locate / explain / research)
-
-| Term | Meaning |
-| --- | --- |
-| **scout** | Cheap read-only **locate** — `file:line` pins and compact gathers. Not a subsystem walkthrough. |
-| **scout-explain** | Mid read-only **explain** — architecture/data-flow walkthrough of existing code. Descriptive, not critique. |
-| **researcher** | Cheap read-only **research / spike prep** — external + undecided (web/`gh`/ticket comments) → ranked hypotheses and open questions. Not locate dumps, not codebase explain. Opt-in before `/dispatch`; never a Mode-B auto path. Ends `ADVANCE → parent` or `HALT:`. |
-| **security-triage** | Cheap read-only **classifier** for push-time PR findings (allowlisted security bots). Spawned by `/triage-security`. Ends `ADVANCE → parent` or `HALT:`. |
-
-## Workflow vocabulary
-
-| Term | Meaning |
-| --- | --- |
-| **spine** | Auto-chaining PR lifecycle from `/dispatch` through mergeable/merged (`HANDOFF-PROTOCOL`). |
-| **Mode A / Mode B** | Mode A pauses at preview gates; Mode B (`/ship` / `--auto`) auto-approves deterministic gates. |
-| **shepherd** | Converging loop (`/babysit-pr`, `/babysit-fleet`, `/watch-boba`) driven by `STATUS:` + `ScheduleWakeup`. |
-| **hub** | Non-converging ambient loop (`/my-work watch`) — re-fire only, no `STATUS:`. |
-| **Boba** | External Jira→PR pipeline (`boba_fetch`); `/dispatch` may label, `/watch-boba` shepherds until a PR opens. |
-| **ADVANCE / HALT** | Terminal line every spine step emits for the handoff contract. Parent treats a missing terminal line as `HALT: missing terminal contract`. |
-| **land path** | Behavior-changing work → `/land` (verifier → committer → handoff). Risk-gate and obvious-BREAKS taxonomy live in **HANDOFF**; `/land` applies them. Docs/types/renames/formatting only → spawn `committer` directly. An unavailable specialist permits the parent to continue authorized work, including commits; disclose fallback and do not claim independent verification. Verifier picks an **exercise surface** by claim (CLI / HTTP / browser via Playwright) — prompt contract only until a second browser stack justifies a skill adapter. |
-| **wrap-up** | Standalone command `/wrap-up` — manual re-entry into the spine when work was done free-form outside `/dispatch`. Closes the branch and opens the PR without making the user re-invoke `/land` then `/open-pr`. |
-| **security triage** | Hub lane + command `/triage-security` for *push-time* PR findings (allowlisted bots: Bugbot, security-guidance, Dependabot security, GitHub code scanning — not CodeRabbit-style nits). Cheap **security-triage** agent classifies → babysit / ignore / needs you; command applies and may `signal_egress triage`. Must not reopen the PR-opening gate. Local pre-PR diff review (`code-review` / `review`) stays outside this seam. |
-
-## Authoring rules
-
-- Edit **sources** under `home/agents/`, `home/commands/`, `home/protocols/`,
-  `home/skills/` — never the generated `.claude`/`.cursor`/`.agents` trees.
-- Prefer **tier** language in shared prose; use `{{pin:cheap|mid|strong}}` in command bodies when a concrete slug must appear — sync expands it per host.
-- Classifier agents still embed the `STATUS:` enum in their own prompts (isolated spawn context); `LOOP-PROTOCOL.md` remains authoritative.
-- Domain names here trump file nicknames when discussing seams and deepening.
-- Run **sync** (`home/sync/sync`) after source edits. Do not hand-edit generated
-  trees, live skill links, or the WORKFLOWS agent roster (catalog emit).
-
-## Where to read next
-
-- Flow graph: [`WORKFLOWS.md`](WORKFLOWS.md)
-- Hard must-nots (**agent-routing**): generated in [`home/.claude/CLAUDE.md`](home/.claude/CLAUDE.md) / `~/.cursor/rules/agent-routing.mdc`
-- Whom-table: [`home/skills/route-agents/`](home/skills/route-agents/)
-- Session cost / telemetry: [`WORKFLOWS.md` § Telemetry](WORKFLOWS.md#telemetry--session-cost)
-- Shell / herdr / Neovim launchers: [`ALIASES.md`](ALIASES.md), [`KEYBINDS.md`](KEYBINDS.md)
-- Repo setup: [`CLAUDE.md`](CLAUDE.md)
+Configuration and workflow: [`docs/PI.md`](docs/PI.md).

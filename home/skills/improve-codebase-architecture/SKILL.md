@@ -19,11 +19,10 @@ This command is _informed_ by the project's domain model and built on a shared d
 
 Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first.
 
-Then spawn the pinned **`scout-explain`** agent (mid) — or **`scout`** (cheap) for
-pinpoint locate/gather only — to walk the codebase. Do **not** use builtin
-`Explore` / `generalPurpose` / untyped Task for this step; those inherit the
-strong/orchestrator model and violate agent-routing. From the spawn report (and
-your own reading of glossary/ADRs), note where you experience friction:
+Walk the codebase directly with the available read/search tools. If the host
+explicitly provides a suitable read-only specialist, delegation is optional; do
+not assume pinned roles, tiers, or a subagent runtime exist. From your investigation
+and reading of glossary/ADRs, note where you experience friction:
 
 - Where does understanding one concept require bouncing between many small modules?
 - Where are modules **shallow** — interface nearly as complex as the implementation?

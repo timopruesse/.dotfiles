@@ -2,12 +2,11 @@
 # Launch the path-appropriate coding agent directly.
 # Used by coding_agent_herdr.sh / herdr keybinds (cwd already set on the pane).
 #
-# Usage: coding_agent_launch.sh [resume|continue] [--claude|--codex|--agent|--cursor|--agy]
+# Usage: coding_agent_launch.sh [resume|continue] [--pi|--claude|--codex|--agent|--cursor|--agy]
 #                               [--print] [--prompt-file PATH] [extra args...]
 
 scripts=${0:A:h}
 source "$scripts/coding_agent_resolve.sh"
-source "$scripts/coding_agent_ensure.sh"
 
 mode=
 force=
@@ -18,6 +17,10 @@ while (( $# )); do
   case "$1" in
   resume | continue)
     mode=$1
+    shift
+    ;;
+  --pi)
+    force=pi
     shift
     ;;
   --claude)
@@ -86,11 +89,6 @@ command -v "$cli" >/dev/null 2>&1 || {
   sleep 2
   exit 1
 }
-
-# Host preparation belongs here, in the actual target pane and checkout.
-if [[ "$cli" == "agent" ]]; then
-  coding_agent_ensure_project_agents "$PWD"
-fi
 
 pane_context="$scripts/pane_context.sh"
 if [[ "${HERDR_ENV:-}" == 1 && -n "${HERDR_PANE_ID:-}" && -x "$pane_context" ]]; then

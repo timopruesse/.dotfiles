@@ -1,0 +1,10 @@
+extends: default
+
+rules:
+  # machine_setup.yaml uses indentless sequences throughout.
+  indentation:
+    spaces: 2
+    indent-sequences: false
+  # Shell commands and URLs are deliberately kept as single lines.
+  line-length: disable
+  document-start: disable

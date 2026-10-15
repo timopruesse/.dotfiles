@@ -212,13 +212,13 @@ tasks:
     - run:
         commands: []
         install:
-        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev xdg-utils
+        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev libicu-dev xdg-utils
         - curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
         - sudo locale-gen en_US.UTF-8
         update:
         - sudo apt-get update
         - sudo apt-get upgrade -y
-        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev wslu xdg-utils
+        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev libicu-dev wslu xdg-utils
         uninstall: []
         shell: null
         env: {}
@@ -340,15 +340,17 @@ tasks:
         - .codex
         - .gemini
         - .agents
+        - .claude
+        - .pi
         force: true
         sudo: false
         backup: true
     - run:
         commands: []
         install:
-        - $HOME/sync/sync
+        - python3 $HOME/setup_pi.py
         update:
-        - $HOME/sync/sync
+        - python3 $HOME/setup_pi.py
         uninstall: []
         shell: null
         env: {}
@@ -471,13 +473,11 @@ tasks:
     - run:
         commands: []
         install:
-        - herdr integration install claude || true
-        - herdr integration install cursor || true
-        - $HOME/sync/normalize-herdr-hooks
+        - herdr integration install pi
+        - herdr integration install opencode
         update:
-        - herdr integration install claude || true
-        - herdr integration install cursor || true
-        - $HOME/sync/normalize-herdr-hooks
+        - herdr integration install pi
+        - herdr integration install opencode
         uninstall: []
         shell: null
         env: {}
@@ -485,6 +485,7 @@ tasks:
     depends_on:
     - tools
     - dotfiles
+    - pi_cli
     auto_update:
       at: 08:00
       cron: null
@@ -661,6 +662,60 @@ tasks:
     - linux
     depends_on:
     - tools
+  pi_cli:
+    commands:
+    - run:
+        commands: []
+        install:
+        - curl -fsSL https://pi.dev/install.sh | sh
+        update:
+        - $HOME/.local/bin/pi update
+        # Keep credentials, sessions, and user configuration on uninstall.
+        uninstall:
+        - rm -f $HOME/.local/bin/pi
+        - rm -rf $HOME/.pi/agent/bin $HOME/.pi/agent/install
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    - macos
+    auto_update:
+      at: 08:00
+      cron: null
+  pi_packages:
+    # Declare every approved Pi package here, on install AND update.
+    # Pin registry versions; the local workbench follows this dotfiles checkout.
+    commands:
+    - run:
+        commands: []
+        install:
+        - $HOME/.local/bin/pi install npm:pi-web-access@0.41.0
+        - $HOME/.local/bin/pi install npm:pi-subagents@0.78.0
+        - $HOME/.local/bin/pi install npm:pi-lens@4.4.3
+        - $HOME/.local/bin/pi install npm:pi-impeccable@0.1.0
+        - $HOME/.local/bin/pi install "$HOME/pi-workbench"
+        update:
+        - $HOME/.local/bin/pi install npm:pi-web-access@0.41.0
+        - $HOME/.local/bin/pi install npm:pi-subagents@0.78.0
+        - $HOME/.local/bin/pi install npm:pi-lens@4.4.3
+        - $HOME/.local/bin/pi install npm:pi-impeccable@0.1.0
+        - $HOME/.local/bin/pi install "$HOME/pi-workbench"
+        uninstall:
+        - $HOME/.local/bin/pi remove "$HOME/pi-workbench"
+        - $HOME/.local/bin/pi remove npm:pi-impeccable
+        - $HOME/.local/bin/pi remove npm:pi-lens
+        - $HOME/.local/bin/pi remove npm:pi-subagents
+        - $HOME/.local/bin/pi remove npm:pi-web-access
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    - macos
+    depends_on:
+    - pi_cli
+    - dotfiles
   claude_cli:
     commands:
     - run:

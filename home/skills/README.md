@@ -1,30 +1,15 @@
-# Shared skills (orchestrator)
+# Portable skills
 
-Edit skill packs here (`*/SKILL.md`), then run:
+Author skills here as directories containing `SKILL.md` and supporting files.
+`python3 home/setup_pi.py` links the supported skills into `~/.pi/agent/skills/`
+without replacing personal resources. The same installer reapplies the managed
+Pi model defaults while preserving unrelated settings.
 
-```bash
-./home/sync/sync
-```
-
-That links each skill into:
-
-- `~/.cursor/skills/<name>/` — Cursor personal skills
-- `~/.claude/skills/<name>/` — Claude Code skills
-
-Skills are for the **parent / orchestrator** (routing, env workflows). Do not
-rely on them inside pinned subagents — those get an isolated spawn context;
-put always-on procedure in the agent prompt (or sync-time includes) instead.
-
-## Packs in this tree
-
-| Skill | Role |
+| Skill | Purpose |
 | --- | --- |
-| [`route-agents`](route-agents/) | Whom-table — which pinned agent / command to spawn |
-| [`improve-codebase-architecture`](improve-codebase-architecture/) | Architecture review HTML report + grill loop; fans out via `scout` / `scout-explain` (never Explore) |
-| [`herdr`](herdr/) | Herdr multiplexer control & opt-in visible-pane/worktree subagent runs (native subagent tools are the default) |
+| [`herdr`](herdr/) | Explicit terminal, pane, tab, and workspace management. |
+| [`improve-codebase-architecture`](improve-codebase-architecture/) | Architectural investigation, visual candidates, and interactive design discussion. |
 
-Hard rules: generated **agent-routing** (see [`CONTEXT.md`](../../CONTEXT.md)).
-Flow graph: [`WORKFLOWS.md`](../../WORKFLOWS.md).
-
-`machine_setup` runs **sync**. Sources under `home/skills/` also
-land at `~/skills/` via the home symlink (same pattern as `agents/`).
+Skills use the available Pi tools directly. They do not require generated roles,
+model tiers, orchestration protocols, or a separate subagent runtime.
+See [`docs/PI.md`](../../docs/PI.md) for setup and prompt templates.

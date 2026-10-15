@@ -13,14 +13,15 @@ The Neovim config uses **Lazy.nvim** and is organized under `lua/timopruesse/`:
 - `lsp.lua` — LSP server configuration (via mason.nvim + nvim-lspconfig)
 - `telescope.lua` — fuzzy finder setup
 - `keymaps/` — keybindings split by context (lsp, rust, node, navigation, coding-agent, etc.)
-- `coding_agent_herdr.lua` — herdr panes for Claude Code / Codex (`<leader>z*`); calls `coding_agent_herdr.sh`
+- `coding_agent_herdr.lua` — herdr panes for Pi (with legacy CLI overrides) (`<leader>z*`); calls `coding_agent_herdr.sh`
 - `coding_agent.lua` — shared `resolve_cli()` used by 99 (and anything that only needs resolve)
-- `plugins/ai.lua` — ThePrimeagen/99; provider auto-picks Claude vs Codex from cwd
+- `plugins/ai.lua` — ThePrimeagen/99; Pi print provider by default; follows explicit CLI overrides
 - `snippets/` — LuaSnip snippets per language (js, rust, lua, svelte)
 - `autocommands/` — filetype-specific auto-commands
 - `helpers/` — shared utilities (keymap helper, run_on_save)
 
-`<leader>9*` (99) and `<leader>z*` (herdr panes) both follow coding-agent routing.
+`<leader>9*` (99) and `<leader>z*` (herdr panes) both default to Pi.
+`pi_provider.lua` invokes `pi --print --no-session` and inherits the user's model.
 Full keybind table: [`KEYBINDS.md`](../../../KEYBINDS.md).
 
 Formatting on save is handled by **conform.nvim**:

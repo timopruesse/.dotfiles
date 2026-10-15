@@ -89,15 +89,13 @@ Pane-scoped via `pane_context.sh` (see `docs/adr/0001-pane-context-per-pane.md`)
 
 ## Coding agent (`claude_aliases.zsh`)
 
-`c` / `ch` / `cv` / `cr` / `cpi` pick **Claude Code** (work) vs **Codex** (personal
-default) from the cwd. Cursor Agent CLI is a secondary override. Same rules as
-git identity — see `~/.config/herdr/scripts/coding_agent_resolve.sh`:
+`c` / `ch` / `cv` / `cr` / `cpi` use **Pi** in every checkout. Git identity
+routing is unchanged but no longer selects the coding agent. See [`docs/PI.md`](docs/PI.md).
 
-1. `CODING_AGENT=claude|codex|agy|agent|cursor` env override (cursor normalizes to agent)
-2. Git remote org: `chewielabs` → `claude`, `timopruesse` → `codex`
-3. Path: `~/github/chewielabs/*` → `claude`, everything else → `codex`
+`CODING_AGENT=pi|claude|codex|agy|agent|cursor` overrides the default
+(cursor normalizes to agent).
 
-Per-invocation override: pass `--claude`, `--codex`, `--agy`, or `--agent` / `--cursor` to any of the
+Per-invocation override: pass `--pi`, `--claude`, `--codex`, `--agy`, or `--agent` / `--cursor` to any of the
 launchers (e.g. `c --claude`, `c --agy`, `ch --agent "fix the flaky test"`).
 
 Launchers run inside herdr (`HERDR_ENV=1`): they call

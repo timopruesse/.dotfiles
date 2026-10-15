@@ -44,16 +44,16 @@ Agent status lives in herdr’s native sidebar (install integrations with
 
 | Key | Action |
 | --- | --- |
-| `prefix+shift+S` | Coding agent resume (new tab; Claude work / Codex personal by cwd) |
+| `prefix+shift+S` | Pi session picker (new tab) |
 | `prefix+shift+R` | Coding agent continue (new tab) |
 | `prefix+shift+H` | Coding agent in vertical split |
 | `prefix+shift+V` | Coding agent in horizontal split |
 
-Launch binds resolve Claude Code vs Codex via
+Launch binds default to Pi via
 `~/.config/herdr/scripts/coding_agent_resolve.sh` and launch through
 `coding_agent_herdr.sh` → `coding_agent_launch.sh`, which runs the CLI directly.
 Sleep prevention is configured in the respective CLIs. Override with
-`CODING_AGENT=claude|codex|agy|agent|cursor` or `--claude` / `--codex` / `--agy` / `--agent` on the launch script.
+`CODING_AGENT=pi|claude|codex|agy|agent|cursor` or `--pi` / `--claude` / `--codex` / `--agy` / `--agent` on the launch script. See [`docs/PI.md`](docs/PI.md).
 
 ### Pane navigation
 
@@ -298,9 +298,9 @@ panes** at the edges (`herdr-navigator.nvim`).
 
 ### 99 (AI Agent — inline)
 
-Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99). Provider follows
-the same cwd routing as coding-agent launchers (`ClaudeCodeProvider` for
-chewielabs, `CodexProvider` otherwise); re-syncs on `DirChanged`. Override
+Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99). Uses
+`PiProvider` by default (`pi --print --no-session`), inheriting Pi's configured
+model. Follows explicit coding-agent overrides on `DirChanged`; select a provider
 temporarily with `<leader>9p`.
 
 | Key          | Mode   | Action                                          |
@@ -316,9 +316,9 @@ temporarily with `<leader>9p`.
 
 ### Coding agent (Herdr Integration)
 
-Same cwd routing and launch policy as the shell aliases / herdr binds (env →
-remote org → path; chewielabs → Claude Code, otherwise Codex, with Cursor Agent via override). Opens go
-through `coding_agent_herdr.sh` (ensure project-agents + direct CLI launch).
+Same Pi-first launch policy as the shell aliases and Herdr binds. Explicit
+`CODING_AGENT` overrides select another client. Opens go through
+`coding_agent_herdr.sh` → `coding_agent_launch.sh`, without role injection.
 
 | Key          | Mode   | Action                                             |
 | ------------ | ------ | -------------------------------------------------- |
