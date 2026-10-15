@@ -716,6 +716,26 @@ tasks:
     depends_on:
     - pi_cli
     - dotfiles
+  pi_mcp:
+    # Register endpoints only; OAuth sign-in stays interactive and machine-local.
+    commands:
+    - run:
+        commands: []
+        install:
+        - $HOME/.local/bin/pi mcp add higgsfield --url https://mcp.higgsfield.ai/mcp --exposure deferred --description 'Higgsfield image, video, and audio generation; ask for approval before spending credits.'
+        update:
+        - $HOME/.local/bin/pi mcp add higgsfield --url https://mcp.higgsfield.ai/mcp --exposure deferred --description 'Higgsfield image, video, and audio generation; ask for approval before spending credits.'
+        uninstall:
+        - $HOME/.local/bin/pi mcp remove higgsfield
+        shell: null
+        env: {}
+        quiet: false
+    os:
+    - linux
+    - macos
+    depends_on:
+    - pi_cli
+    - dotfiles
   claude_cli:
     commands:
     - run:

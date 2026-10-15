@@ -76,6 +76,30 @@ boundary is an instruction, **not an OS sandbox**. Personal/project extensions
 and configuration remain trusted code. See the
 [workflow decision record](PI-WORKFLOW-MIGRATION.md) for the approved policies.
 
+## Higgsfield MCP
+
+The `pi_mcp` task registers the official Higgsfield HTTP MCP server on install
+and update, using deferred tool loading. It requires no MarketingAgents package
+or Higgsfield CLI. To register it manually:
+
+```sh
+pi mcp add higgsfield --url https://mcp.higgsfield.ai/mcp --exposure deferred --description 'Higgsfield image, video, and audio generation; ask for approval before spending credits.'
+pi mcp login higgsfield
+pi mcp list
+```
+
+Provisioning registers the endpoint but does not initiate browser sign-in. Complete
+`pi mcp login higgsfield` on each machine, then `/reload` in an existing Pi session.
+The endpoint configuration lives in `~/.pi/agent/mcp.json`; OAuth credentials stay
+in `~/.pi/agent/mcp-auth.json`. Neither file is symlinked or committed. Uninstall
+removes the server registration; use `pi mcp logout higgsfield` first to clear its
+stored credentials if desired.
+
+An active paid Higgsfield subscription is required. Generations spend credits;
+ask for explicit approval before generating or making other paid changes. The
+server description is guidance, not an enforced spending limit. See the
+[official connection guide](https://higgsfield.ai/creator-hub/help-center/integrations/how-do-i-connect-higgsfield-to-ai-agent).
+
 ## Workbench contracts and thin context
 
 `/dispatch`, `/review`, `/ship`, and `/babysit-pr` load the `workbench` skill.
