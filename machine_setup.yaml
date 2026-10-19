@@ -723,10 +723,13 @@ tasks:
         commands: []
         install:
         - $HOME/.local/bin/pi mcp add higgsfield --url https://mcp.higgsfield.ai/mcp --exposure deferred --description 'Higgsfield image, video, and audio generation; ask for approval before spending credits.'
+        - $HOME/.local/bin/pi mcp add openrouter --url https://mcp.openrouter.ai/mcp --exposure deferred --description 'Live OpenRouter models, pricing, credits, rankings, and docs; ask for approval before billable inference or submitting feedback.'
         update:
         - $HOME/.local/bin/pi mcp add higgsfield --url https://mcp.higgsfield.ai/mcp --exposure deferred --description 'Higgsfield image, video, and audio generation; ask for approval before spending credits.'
+        - $HOME/.local/bin/pi mcp add openrouter --url https://mcp.openrouter.ai/mcp --exposure deferred --description 'Live OpenRouter models, pricing, credits, rankings, and docs; ask for approval before billable inference or submitting feedback.'
         uninstall:
         - $HOME/.local/bin/pi mcp remove higgsfield
+        - $HOME/.local/bin/pi mcp remove openrouter
         shell: null
         env: {}
         quiet: false

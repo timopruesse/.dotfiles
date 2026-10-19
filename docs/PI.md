@@ -100,6 +100,33 @@ ask for explicit approval before generating or making other paid changes. The
 server description is guidance, not an enforced spending limit. See the
 [official connection guide](https://higgsfield.ai/creator-hub/help-center/integrations/how-do-i-connect-higgsfield-to-ai-agent).
 
+## OpenRouter MCP
+
+The `pi_mcp` task also registers the official remote OpenRouter MCP server on
+install and update with deferred tool loading. No local server or API key in
+configuration is required. To register it manually:
+
+```sh
+pi mcp add openrouter --url https://mcp.openrouter.ai/mcp --exposure deferred --description 'Live OpenRouter models, pricing, credits, rankings, and docs; ask for approval before billable inference or submitting feedback.'
+pi mcp login openrouter
+pi mcp list
+```
+
+Provisioning only registers the endpoint. Run `pi mcp login openrouter` on each
+machine to approve browser OAuth, then `/reload` in an existing Pi session.
+Configuration and credentials stay in machine-local `~/.pi/agent/mcp.json` and
+`~/.pi/agent/mcp-auth.json`, respectively; neither is symlinked or committed.
+OpenRouter issues a dedicated key with a 7-day expiry and a default $10 spending
+cap, editable during approval. Reauthenticate when it expires.
+
+Tools provide live models, pricing, credits, rankings, benchmarks, and docs.
+`send-message` and `generate-image` make billable inference calls; `send-feedback`
+submits feedback to OpenRouter. Ask for explicit approval before those actions.
+The description is guidance, not an enforced permission gate or spending limit.
+Uninstall removes the registration; run `pi mcp logout openrouter` first if you
+also want to remove stored credentials. See the
+[official MCP guide](https://openrouter.ai/docs/guides/overview/mcp-server).
+
 ## Workbench contracts and thin context
 
 `/dispatch`, `/review`, `/ship`, and `/babysit-pr` load the `workbench` skill.
