@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Open in WSL Chrome, or the default Windows browser when Chrome is absent."""
+"""Open links and local files with the default Windows browser from WSL."""
 import base64
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -22,15 +21,6 @@ def windows_target(target):
 
 
 def open_browser(target):
-    for name in ('google-chrome', 'google-chrome-stable'):
-        chrome = shutil.which(name)
-        if chrome:
-            # A fresh Chrome process stays running; do not block the caller.
-            subprocess.Popen([chrome, target], stdin=subprocess.DEVNULL,
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                             start_new_session=True)
-            return 0
-
     # Encode a quoted literal, not raw -Command arguments: paths/URLs may contain
     # spaces, quotes, Unicode, or PowerShell metacharacters.
     target = windows_target(target).replace("'", "''")

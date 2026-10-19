@@ -35,7 +35,7 @@ class WslBrowserConfigTests(unittest.TestCase):
         self.assertEqual(self.defaults(), [str(OPENER), 'X-Generic'])
         self.assertTrue(os.access(OPENER, os.X_OK))
 
-    def test_replaces_inherited_browser_to_enforce_order(self):
+    def test_replaces_inherited_browser_to_use_windows(self):
         self.assertEqual(self.defaults(BROWSER='old-browser'), [str(OPENER), 'X-Generic'])
 
     def test_explicit_desktop_preserved(self):
@@ -46,27 +46,15 @@ class WslBrowserConfigTests(unittest.TestCase):
 
 
 class WslBrowserRoutingTests(unittest.TestCase):
-    def test_chrome_preferred_without_invoking_windows(self):
-        with patch.object(browser.shutil, 'which', return_value='/usr/bin/google-chrome') as which, \
-                patch.object(browser.subprocess, 'Popen') as spawn, \
-                patch.object(browser.subprocess, 'run') as run:
-            self.assertEqual(browser.open_browser('/home/test/test file.html'), 0)
-            which.assert_called_once_with('google-chrome')
-            self.assertEqual(spawn.call_args.args[0],
-                             ['/usr/bin/google-chrome', '/home/test/test file.html'])
-            self.assertTrue(spawn.call_args.kwargs['start_new_session'])
-            run.assert_not_called()
-
-    def test_stable_binary_supported(self):
-        with patch.object(browser.shutil, 'which', side_effect=[None, '/bin/google-chrome-stable']), \
+    def test_windows_used_even_when_linux_chrome_is_available(self):
+        with patch.object(shutil, 'which', return_value='/usr/bin/google-chrome'), \
                 patch.object(browser.subprocess, 'Popen') as spawn:
-            browser.open_browser('https://example.com')
-            self.assertEqual(spawn.call_args.args[0],
-                             ['/bin/google-chrome-stable', 'https://example.com'])
+            script = self.windows_command('https://example.com')
+            self.assertIn("Start-Process -FilePath 'https://example.com'", script)
+            spawn.assert_not_called()
 
     def windows_command(self, target):
-        with patch.object(browser.shutil, 'which', return_value=None), \
-                patch.object(browser.subprocess, 'run') as run:
+        with patch.object(browser.subprocess, 'run') as run:
             self.assertEqual(browser.open_browser(target), 0)
             args = run.call_args.args[0]
             self.assertEqual(args[:4], ['powershell.exe', '-NoProfile', '-NonInteractive',
@@ -110,8 +98,7 @@ class WslBrowserRoutingTests(unittest.TestCase):
         self.assertIn('Browser opening failed', result.stderr)
 
     def test_windows_launch_failure_propagates(self):
-        with patch.object(browser.shutil, 'which', return_value=None), \
-                patch.object(browser.subprocess, 'run',
+        with patch.object(browser.subprocess, 'run',
                              side_effect=subprocess.CalledProcessError(1, 'powershell.exe')), \
                 self.assertRaises(subprocess.CalledProcessError):
             browser.open_browser('https://example.com')

@@ -441,10 +441,10 @@ tasks:
         commands: []
         install:
         - if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi
-        - source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli
+        - source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli shuck-cli
         update:
         - if command -v cargo-binstall >/dev/null 2>&1; then echo "cargo-binstall already installed"; else curl -L --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash; fi
-        - source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli
+        - source $HOME/.cargo/env && cargo binstall -y cargo-tarpaulin tree-sitter-cli shuck-cli
         uninstall: []
         shell: null
         env: {}

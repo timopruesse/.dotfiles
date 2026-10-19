@@ -48,6 +48,9 @@ run Pi's native package installer for every approved plugin:
   read-before-edit checks and automatic formatting/autofixes of edited files.
   Language-server/tool availability determines coverage; use `/lens-tools` and
   `/lens-health` to inspect it. Partial or unavailable checks are not clean results.
+  The `rust` task installs `shuck-cli` (the `shuck` executable) for Zsh LSP support.
+  If Lens reports `LSP Failed: shuck`, check that `shuck` is on `PATH`; install it
+  with `cargo binstall -y shuck-cli`, then restart Pi to retry a failed server.
 - `npm:pi-impeccable@0.1.0`: Impeccable design commands and opt-in non-blocking
   browser-feedback live mode. Requires Node.js >=24. Package installation does
   not install project skills or start live mode. `/impeccable install` explicitly
