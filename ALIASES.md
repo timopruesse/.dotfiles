@@ -124,7 +124,7 @@ the CLI directly. Sleep prevention is configured in the respective CLIs. Herdr
 | `mermaid <file.md>` | — | Render every ` ```mermaid ` block in a markdown file |
 | `… \| mermaid` | — | Render from stdin (also `mermaid -`) |
 
-Renders diagrams with the same `mermaid.js` engine GitHub uses (loaded from a CDN), so the preview matches what GitHub will show — handy for eyeballing a diagram before pushing. Opens in the default browser (`open` on macOS, `$BROWSER`/`wslview` on WSL, `xdg-open` on Linux). Needs a browser + internet on first load.
+Renders diagrams with the same `mermaid.js` engine GitHub uses (loaded from a CDN), so the preview matches what GitHub will show — handy for eyeballing a diagram before pushing. Opens in the default browser (`open` on macOS, `$BROWSER` (WSL Chrome if installed, otherwise the default Windows browser) on WSL, `xdg-open` on Linux). Needs a browser + internet on first load.
 
 ## Shell tooling
 

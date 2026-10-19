@@ -218,7 +218,7 @@ tasks:
         update:
         - sudo apt-get update
         - sudo apt-get upgrade -y
-        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev libicu-dev jq wslu xdg-utils
+        - sudo apt-get install -y git fuse ripgrep fzf fd-find bat git-delta unzip apt-transport-https lsb-release ca-certificates wget software-properties-common keychain xclip libssl-dev cmake pkg-config build-essential eza fswatch luarocks libclang-dev libicu-dev jq xdg-utils
         uninstall: []
         shell: null
         env: {}

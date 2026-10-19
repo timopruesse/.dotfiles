@@ -91,7 +91,7 @@ HTML
   if command -v open >/dev/null 2>&1; then
     open "$out"                         # macOS
   elif [[ -n "$BROWSER" ]]; then
-    "$BROWSER" "$out"                   # WSL (wslview) / explicit preference
+    "$BROWSER" "$out"                   # WSL Chrome / explicit preference
   elif command -v xdg-open >/dev/null 2>&1; then
     xdg-open "$out"                     # Linux
   else
