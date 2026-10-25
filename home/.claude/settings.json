@@ -29,6 +29,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ ! -f '/home/timo/.claude/skills/impeccable/scripts/impeccable' ] || '/home/timo/.claude/skills/impeccable/scripts/impeccable' hook",
+            "timeout": 5,
+            "statusMessage": "Preparing build session"
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -53,6 +63,17 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ ! -f '/home/timo/.claude/skills/impeccable/scripts/impeccable' ] || '/home/timo/.claude/skills/impeccable/scripts/impeccable' hook",
+            "timeout": 5,
+            "statusMessage": "Checking UI changes"
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
@@ -63,6 +84,18 @@
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/pane-context-aws.sh\" post-failure",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ ! -f '/home/timo/.claude/skills/impeccable/scripts/impeccable' ] || '/home/timo/.claude/skills/impeccable/scripts/impeccable' hook",
+            "timeout": 30,
+            "statusMessage": "Design deep pass"
           }
         ]
       }
@@ -109,5 +142,6 @@
   "theme": "auto",
   "editorMode": "vim",
   "crossSessionInbound": "accept",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "description": "Impeccable design detector: immediate-tier checks after Edit/Write on UI files, full-rule deep pass on Stop."
 }
