@@ -1,5 +1,33 @@
 # Workflow migration decisions
 
+## Current decision: full Poteto Mode
+
+The user requested full Poteto Mode and removal/replacement of `pi-subagents`.
+Use `npm:pi-pstack@0.1.0`, with all skills and its own isolated-process subagent,
+todo, session, and model-configuration tools. Removing the old runtime eliminates
+the tool-name collision that previously made skills-only installation preferable.
+`@casualjim/pi-pstack@0.1.22` is not selected: its `pi-herdr-agents` integration
+requires Herdr and assumes task/recall tools absent from this setup.
+
+Both install and update remove pi-subagents and the local workbench registration
+before installing pstack. Workbench source, saved contracts, and legacy user
+settings are preserved, but no active command depends on their APIs. Personal
+instructions make Poteto the default coding workflow. `/poteto-mode` additionally
+activates sticky session state; `/poteto-mode off` opts out. Provisioning does
+not select paid models or disable confirmations.
+
+Existing command authority remains: `/dispatch` local-only, `/review` findings
+only, `/ship` scoped parent delivery/merge, `/babysit-pr` scoped repairs with merge
+only when authorized. Keep exact-patch validation, unrelated-index preservation,
+fresh read-only review, and the 60-minute/3-round monitoring budget. The single
+managed `pstack-reviewer` Markdown role selects only read/search tools; package
+Poteto agents handle implementation. Runtime confirmation prompts still apply
+even to pre-authorized delivery commands. No Herdr workers or hidden fallbacks.
+
+The sections below are the historical decisions superseded by this runtime and
+workflow replacement. Their delivery/safety limits remain where stated above.
+See [PI.md](PI.md) and active prompt templates for current usage.
+
 Review the former commands and skills one at a time with the user. Do not restore
 behavior or enable unattended writes merely because it existed before. Record
 keep/drop/replace decisions here, then implement only approved migrations.

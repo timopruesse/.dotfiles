@@ -685,27 +685,40 @@ tasks:
       cron: null
   pi_packages:
     # Declare every approved Pi package here, on install AND update.
-    # Pin registry versions; the local workbench follows this dotfiles checkout.
+    # Pin registry versions. Remove the retired runtime before loading pstack.
     commands:
     - run:
         commands: []
         install:
+        - >-
+          packages=$($HOME/.local/bin/pi list) &&
+          if printf '%s\n' "$packages" | grep -Eq '^  npm:pi-subagents(@[^ ]+)?$'; then
+          $HOME/.local/bin/pi remove npm:pi-subagents; fi
+        - >-
+          packages=$($HOME/.local/bin/pi list) &&
+          if printf '%s\n' "$packages" | grep -Fxq "    $HOME/pi-workbench"; then
+          $HOME/.local/bin/pi remove "$HOME/pi-workbench"; fi
+        - $HOME/.local/bin/pi install npm:pi-pstack@0.1.0
         - $HOME/.local/bin/pi install npm:pi-web-access@0.41.0
-        - $HOME/.local/bin/pi install npm:pi-subagents@0.78.0
         - $HOME/.local/bin/pi install npm:pi-lens@4.4.3
         - $HOME/.local/bin/pi install npm:pi-impeccable@0.1.0
-        - $HOME/.local/bin/pi install "$HOME/pi-workbench"
         update:
+        - >-
+          packages=$($HOME/.local/bin/pi list) &&
+          if printf '%s\n' "$packages" | grep -Eq '^  npm:pi-subagents(@[^ ]+)?$'; then
+          $HOME/.local/bin/pi remove npm:pi-subagents; fi
+        - >-
+          packages=$($HOME/.local/bin/pi list) &&
+          if printf '%s\n' "$packages" | grep -Fxq "    $HOME/pi-workbench"; then
+          $HOME/.local/bin/pi remove "$HOME/pi-workbench"; fi
+        - $HOME/.local/bin/pi install npm:pi-pstack@0.1.0
         - $HOME/.local/bin/pi install npm:pi-web-access@0.41.0
-        - $HOME/.local/bin/pi install npm:pi-subagents@0.78.0
         - $HOME/.local/bin/pi install npm:pi-lens@4.4.3
         - $HOME/.local/bin/pi install npm:pi-impeccable@0.1.0
-        - $HOME/.local/bin/pi install "$HOME/pi-workbench"
         uninstall:
-        - $HOME/.local/bin/pi remove "$HOME/pi-workbench"
         - $HOME/.local/bin/pi remove npm:pi-impeccable
         - $HOME/.local/bin/pi remove npm:pi-lens
-        - $HOME/.local/bin/pi remove npm:pi-subagents
+        - $HOME/.local/bin/pi remove npm:pi-pstack
         - $HOME/.local/bin/pi remove npm:pi-web-access
         shell: null
         env: {}

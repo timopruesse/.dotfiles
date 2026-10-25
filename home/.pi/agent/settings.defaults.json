@@ -4,14 +4,5 @@
   "defaultThinkingLevel": "medium",
   "modelThinkingLevels": {
     "openai/gpt-6.1-sol": "medium"
-  },
-  "subagents": {
-    "agentOverrides": {
-      "reviewer": {
-        "tools": ["read", "grep", "find", "ls", "watchdog_diff", "contact_supervisor"],
-        "acceptanceRole": "read-only",
-        "defaultContext": "fresh"
-      }
-    }
   }
 }

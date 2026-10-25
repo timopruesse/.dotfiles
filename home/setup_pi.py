@@ -57,6 +57,7 @@ def install(home=None, source=None):
     resources = source / '.pi/agent'
     links = [(resources / 'AGENTS.md', agent / 'AGENTS.md')]
     links.extend((p, agent / 'prompts' / p.name) for p in sorted((resources / 'prompts').glob('*.md')))
+    links.extend((p, agent / 'agents' / p.name) for p in sorted((resources / 'agents').glob('*.md')))
     links.extend((source / 'skills' / name, agent / 'skills' / name)
                  for name in ('herdr', 'improve-codebase-architecture'))
 

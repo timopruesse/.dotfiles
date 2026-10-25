@@ -19,7 +19,8 @@ The installer links version-controlled instructions and prompt templates from
 It preflights resource-name collisions and refuses to replace personal files.
 Move or merge a conflicting file, then rerun. It recursively merges managed defaults
 from `home/.pi/agent/settings.defaults.json` into machine-local settings: medium
-thinking for `openai/gpt-6.1-sol` and a fresh/read-only reviewer tool allowlist.
+thinking for `openai/gpt-6.1-sol`. It also links the read-only `pstack-reviewer`
+agent definition; package-provided Poteto agents stay in the package.
 Malformed managed settings sections fail before installing resources. Unrelated
 settings, package registrations, credentials, and sessions are preserved.
 Reapplying setup restores
@@ -31,8 +32,8 @@ Select credentials with `/login`, models with `/model`, and preferences with
 `/settings`. Project trust stays at Pi's default (ask); Pi tools are not sandboxed.
 
 Herdr's official `herdr integration install pi` manages pane state and session
-references. The local workbench adds explicit display-only metadata/navigation,
-not a lifecycle hook adapter, role generator, or replacement subagent runtime.
+references. Pstack children run as isolated local Pi processes, not Herdr panes.
+No workbench or Herdr subagent runtime is loaded.
 
 ## Packages
 
@@ -40,9 +41,12 @@ The `pi_packages` task depends on `pi_cli` and `dotfiles`. Both install and upda
 run Pi's native package installer for every approved plugin:
 
 - `npm:pi-web-access@0.41.0`: web search, URL fetching, and document extraction.
-- `npm:pi-subagents@0.78.0`: native workers, independent reviewers, and package
-  guidance. Roles inherit the parent model unless configured otherwise; native
-  role-specific thinking defaults remain (the builtin reviewer uses high).
+- `npm:pi-pstack@0.1.0`: all 44 bundled pstack skills, sticky Poteto Mode,
+  isolated subagents, `pstack_todo`, `pstack_sessions`, and `pstack_config`.
+  Replaces `pi-subagents` and the local workbench integration. Install/update
+  removes their package registrations first, without deleting saved state.
+  Do not install `@casualjim/pi-pstack` alongside it; that fork targets a
+  different runtime (`pi-herdr-agents`).
 - `npm:pi-lens@4.4.3`: LSP diagnostics/navigation, language-aware linting,
   structural analysis, and bundled skills. Uses upstream defaults, including
   read-before-edit checks and automatic formatting/autofixes of edited files.
@@ -58,10 +62,6 @@ run Pi's native package installer for every approved plugin:
   can also install them if absent. `/impeccable live` starts the background bridge;
   `/impeccable live stop` stops it. The extension version is pinned, but its
   upstream `impeccable` dependency is floating (`*`), not fully reproducible.
-- `$HOME/pi-workbench` (local `pi-workbench@0.1.0`): persistent verification
-  contracts, artifact-first native handoffs, and explicit Herdr status/navigation.
-  Source and usage: [`home/pi-workbench/README.md`](../home/pi-workbench/README.md).
-  No Agent Fleet dependency or package is installed.
 
 Versions are pinned for repeatable provisioning. Add future approved plugins to
 both lists in `machine_setup.yaml`, not just to a local Pi installation. Package
@@ -70,14 +70,13 @@ does not upgrade or remove unrelated personal packages. Web-access provider keys
 and optional configuration belong in `~/.pi/agent/web-search.json`, never Git.
 Browser-cookie access and remote curator access stay disabled by default.
 
-Delegation uses the package's builtin roles and native completion handling, not
-custom agent pins, tiers, Herdr panes, or fallback CLIs. The custom workflow prompts
-inspect resolved roles in user scope before use. The reviewer is limited to read,
-search, diff inspection, and supervisor contact; no shell, edits, or posting.
-Workers need shell access for local tests: their no-delivery/no-external-write
-boundary is an instruction, **not an OS sandbox**. Personal/project extensions
-and configuration remain trusted code. See the
-[workflow decision record](PI-WORKFLOW-MIGRATION.md) for the approved policies.
+Delegation uses pstack's bundled `poteto-agent` with bundled scope and fresh
+local processes. The managed `pstack-reviewer` uses user scope and only `read`,
+`grep`, `find`, and `ls`; it consumes a parent-prepared exact-patch packet.
+No shell, mutation, network tools, or nested delegation are selected for review.
+Workers need shell access for tests. Tool selection and no-delivery instructions
+are **not an OS sandbox**. Personal/project extensions remain trusted code.
+See the [workflow decision record](PI-WORKFLOW-MIGRATION.md) for approved policies.
 
 ## Higgsfield MCP
 
@@ -130,29 +129,48 @@ Uninstall removes the registration; run `pi mcp logout openrouter` first if you
 also want to remove stored credentials. See the
 [official MCP guide](https://openrouter.ai/docs/guides/overview/mcp-server).
 
-## Workbench contracts and thin context
+## Full Poteto Mode
 
-`/dispatch`, `/review`, `/ship`, and `/babysit-pr` load the `workbench` skill.
-The parent creates/reuses a task contract and uses `workbench` to prepare native
-`pi-subagents` handoffs with fresh context and file-only outputs. Full reports
-stay on disk; concise summaries, explicit blockers, and artifact references
-return to the parent. Native subagents still own execution/completion/cancellation;
-workbench never launches workers or conceals native failure output.
+Personal `AGENTS.md` makes the installed `poteto-mode` skill the default coding
+workflow. It directs the model to read the full skill and matching playbooks,
+track multi-step work with `pstack_todo`, and use deliberate fresh delegates.
+This is instruction-driven, not an automatic extension-state toggle.
 
-Contracts/evidence live below `~/.pi/agent/workbench/`, separated by canonical
-checkout path and task UUID, not in repository progress files. Revisions prevent
-lost updates, only the owning Pi session may mutate a contract, and history is
-append-only through the API. Evidence hashes detect changed reports, not changed
-source: parent must revalidate the exact patch/checks and reset affected criteria.
-Recorded readiness is an assessment, not a proof or delivery authorization.
+For the extension's sticky session state and status indicator, run:
 
-`/workbench` shows selected-task status; `/workbench list` and
-`/workbench select <id>` inspect/restore task selection. Selection follows the
-Pi session branch. `/workbench herdr` explicitly publishes a separate display
-`$workbench` token for 60 seconds; add it to a Herdr sidebar row if desired.
-`/workbench herdr clear` removes only that session's custom tokens.
-`/workbench focus [id]` validates the live owning Pi session before focusing its
-pane. No timer, daemon, terminal worker, or automatic focus/pane creation exists.
+```text
+/poteto-mode <task>
+/poteto-mode off
+```
+
+Mode state and todos persist on the current session branch. New sessions do not
+inherit that extension toggle; the personal default still applies unless the
+user opts out. An explicit opt-out must not be silently re-enabled.
+
+Use `/setup-pstack` to map pstack roles to authenticated Pi models, or use
+`pstack_config`. Configuration stays in `~/.pi/agent/pstack/models.json` (under
+`PI_CODING_AGENT_DIR` if set), never Git. Unconfigured roles inherit the parent
+model. No model pools or paid provider calls are configured by provisioning.
+
+Pstack's `subagent` supports single, parallel `tasks` (up to eight tasks, four
+running at once), and sequential `chain` calls. It returns completed results,
+not pi-subagents run handles. Children use fresh `--no-session` local processes.
+Do not assume persistent child sessions, async run IDs, workbench file-only
+handoffs, resume, or a read-only sandbox.
+
+The external-action guard stays enabled. Recognized pushes, PR mutations,
+merges, deployments, infrastructure writes, and recursive deletion prompt for
+confirmation in interactive Pi and are blocked in non-interactive children.
+This is a regex guardrail, not a shell security boundary. Even an authorized
+`/ship` can still need a runtime confirmation. Keep delivery in the parent.
+Upstream playbooks can mention Graphite, Bun, GitHub authentication, or other
+project-specific tools; installing pstack does not install those dependencies
+or authorize their external actions. Local command limits take precedence.
+
+The local workbench package is retired from provisioning and commands. Its
+source and private saved contracts remain untouched for recovery. Legacy
+`settings.json.subagents` preferences remain inert rather than deleting
+user-owned configuration. Fresh setup no longer creates those preferences.
 
 ## Entry points
 
@@ -185,8 +203,9 @@ pane. No timer, daemon, terminal worker, or automatic focus/pane creation exists
 These are native prompt templates, not deterministic automation or background
 services. Invoking them supplies workflow instructions to the model. Neither
 setup nor a discussion about `/ship` authorizes shipping the current changes.
-`pi-subagents` also exposes its own native commands/prompts; those are not aliases
-for this repo's delivery policies.
+Pstack's skill commands remain available, for example `/skill:how`,
+`/skill:architect`, `/skill:swarm`, and `/skill:unslop`. Their broader playbooks
+are not permission to bypass this repo's delivery limits.
 
 Delivery stays in the current feature-branch checkout: no automatic branch,
 worktree, or ticket scaffolding. Preserve unrelated work and index content.

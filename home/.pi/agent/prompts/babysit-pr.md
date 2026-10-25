@@ -11,12 +11,13 @@ invocation authorization (`--merge` or an unambiguous request to merge); plain
 `/babysit-pr` never merges. When used as `/ship`'s monitoring phase, `/ship` itself
 supplies merge authorization. Never expand to a fleet or unrelated tickets.
 
-Load the installed `workbench` skill. Create/reuse a contract for this exact PR;
-when entered from `/ship`, retain that task's contract. Persist criteria, native
-file-only repair/review handoffs, terminal receipts, evidence and blockers.
-Record the fixed monitoring deadline and repair count in contract assessment
-notes; never reset them on resume. Assessment records do not replace native
-completion or fresh exact-head validation. Missing workbench is a blocker.
+Read the installed `poteto-mode` skill and Babysit playbook. Use `pstack_todo`
+for this PR's criteria, actual repair/review results, evidence, and blockers.
+When entered from `/ship`, retain its checklist. Record the fixed monitoring
+deadline and repair count in the checklist; never reset them on resume.
+Todo completion is not proof. Local authority/budget limits below take precedence
+over broader upstream playbook suggestions. Keep pstack's external-action guard
+and its confirmations enabled, including during pre-authorized delivery.
 
 ## Preflight and shared budget
 
@@ -48,8 +49,8 @@ completion or fresh exact-head validation. Missing workbench is a blocker.
    not permission to infer success or retry indefinitely.
 2. If a concrete in-scope fix is needed, increment the repair count before starting.
    Read sibling `dispatch.md` and `review.md` for native child mechanics. Use
-   one local `pi-subagents` worker with user scope, fresh context, current cwd,
-   and `worktree: false`. Give precise failing checks/thread IDs, acceptance
+   one local pstack `poteto-agent` with bundled scope and explicit current cwd.
+   Each call starts a fresh process. Give precise failing checks/thread IDs, acceptance
    criteria, existing-edit boundaries, remaining time, and no-delivery/no-Jira
    instructions. Do not run overlapping writers or hide delivery in a child.
 3. The parent inspects the delta, validates relevant behavior, and obtains a fresh

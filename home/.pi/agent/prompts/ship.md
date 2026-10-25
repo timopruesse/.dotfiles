@@ -6,17 +6,17 @@ Ship this scoped work end-to-end: $@
 
 Invoking `/ship` authorizes the parent to implement/validate, commit scoped
 changes, push the current feature branch, create/update its PR, monitor it, and
-merge when safe. No extra `--merge` flag or final confirmation is needed. This
+merge when safe. No extra `--merge` flag is needed. Pstack's runtime confirmations
+still apply to recognized external commands; never bypass the guard. This
 is not authority to bypass checks/approvals, mutate Jira, discard unrelated work,
 force-push, change branches, or create worktrees/ticket scaffolding.
 
-Load the installed `workbench` skill. Create/reuse one verification contract for
-this exact task across implementation, review, delivery, and monitoring. Track
-criteria/evidence, native file-only handoffs and terminal receipts, blockers,
-and exact assessed patch/head. Reuse the same contract when following sibling
-phase instructions. Reset affected assertions after source changes. Recorded
-readiness never substitutes for fresh required checks or merge authorization.
-If the package is unavailable, stop and report it; do not fake persistence.
+Read the installed `poteto-mode` skill in full. Select the matching playbooks
+and use `pstack_todo` across implementation, review, delivery, and monitoring.
+Track criteria, actual checks/results, blockers, and exact assessed patch/head.
+Reset affected checks after source changes. Todo completion never substitutes
+for fresh validation or merge authorization. Local delivery limits below take
+precedence over upstream suggestions to open PRs or change branches/worktrees.
 
 ## Establish scope and implementation
 
@@ -31,8 +31,8 @@ If the package is unavailable, stop and report it; do not fake persistence.
   `review.md` for independent-review mechanics. Follow them as phases of this
   command, not recursive slash invocations. The parent retains `/ship` delivery
   authority; children get implementation/review authority only.
-- If implementation is needed, use one fresh local `pi-subagents` worker in the
-  current cwd with `worktree: false`, user scope, and a concrete brief. Do not
+- If implementation is needed, use one fresh local pstack `poteto-agent` in the
+  current cwd with bundled scope and a concrete no-delivery brief. Do not
   bypass required delegation. Existing finished changes can proceed directly to
   validation/review; do not fabricate a worker task just for ceremony.
 
@@ -40,7 +40,7 @@ If the package is unavailable, stop and report it; do not fake persistence.
 
 1. Inspect the scoped patch and run relevant focused tests/checks in the parent.
    Missing/failed required checks are blockers, not passing evidence.
-2. Launch a fresh, read-only `reviewer` using the sibling review instructions;
+2. Launch a fresh, read-only `pstack-reviewer` using the sibling review instructions;
    provide the task, exact patch, changed files, and validation evidence. Wait
    for the completed result. No forked implementation chat or resumed reviewer.
 3. Route actionable findings to a worker, then revalidate and obtain another

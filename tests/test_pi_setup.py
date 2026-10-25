@@ -1,6 +1,7 @@
 """Pi setup tests: no network, credentials, or agent requests."""
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -50,15 +51,8 @@ class PiSetupTests(unittest.TestCase):
         self.assertEqual(loaded['defaultThinkingLevel'], 'medium')
         self.assertEqual(loaded['modelThinkingLevels'],
                          {'openai/gpt-6.1-sol': 'medium', 'other/model': 'low'})
-        subagents = loaded['subagents']
-        self.assertTrue(subagents['customSetting'])
-        self.assertEqual(subagents['agentOverrides']['worker'], {'model': 'personal/model'})
-        reviewer = subagents['agentOverrides']['reviewer']
-        self.assertEqual(reviewer['model'], 'personal/reviewer')
-        self.assertEqual(reviewer['acceptanceRole'], 'read-only')
-        self.assertEqual(reviewer['defaultContext'], 'fresh')
-        self.assertEqual(set(reviewer['tools']),
-                         {'read', 'grep', 'find', 'ls', 'watchdog_diff', 'contact_supervisor'})
+        # Retired runtime settings are user-owned and inert, not migration targets.
+        self.assertEqual(loaded['subagents'], original['subagents'])
         self.assertFalse(settings.is_symlink())
         self.assertEqual(settings.stat().st_mode & 0o777, 0o600)
         for relative in ('auth.json', 'sessions/saved.jsonl', 'extensions/personal.ts',
@@ -66,7 +60,7 @@ class PiSetupTests(unittest.TestCase):
             self.assertEqual((self.agent / relative).read_text(), 'user-owned')
         for relative in ('AGENTS.md', 'prompts/plan.md', 'prompts/review.md',
                          'prompts/dispatch.md', 'prompts/ship.md',
-                         'prompts/babysit-pr.md', 'skills/herdr',
+                         'prompts/babysit-pr.md', 'agents/pstack-reviewer.md', 'skills/herdr',
                          'skills/improve-codebase-architecture'):
             self.assertTrue((self.agent / relative).is_symlink())
             self.assertTrue((self.agent / relative).exists())
@@ -84,6 +78,16 @@ class PiSetupTests(unittest.TestCase):
         self.assertFalse((self.agent / 'AGENTS.md').exists())
         self.assertFalse((self.agent / 'settings.json').exists())
 
+    def test_reviewer_collision_preflights_all_links(self):
+        collision = self.agent / 'agents/pstack-reviewer.md'
+        collision.parent.mkdir()
+        collision.write_text('personal role')
+        with self.assertRaisesRegex(RuntimeError, 'collision'):
+            self.install()
+        self.assertEqual(collision.read_text(), 'personal role')
+        self.assertFalse((self.agent / 'AGENTS.md').exists())
+        self.assertFalse((self.agent / 'settings.json').exists())
+
     def test_broken_foreign_symlink_is_a_collision(self):
         (self.agent / 'AGENTS.md').symlink_to('missing-personal-file')
         with self.assertRaisesRegex(RuntimeError, 'collision'):
@@ -91,9 +95,7 @@ class PiSetupTests(unittest.TestCase):
 
     def test_invalid_settings_fail_before_resource_install(self):
         settings = self.agent / 'settings.json'
-        for text in ('not json', '[]', '{"modelThinkingLevels": []}',
-                     '{"subagents": []}', '{"subagents": {"agentOverrides": []}}',
-                     '{"subagents": {"agentOverrides": {"reviewer": null}}}'):
+        for text in ('not json', '[]', '{"modelThinkingLevels": []}'):
             with self.subTest(text=text):
                 settings.write_text(text)
                 with self.assertRaises((ValueError, RuntimeError)):
@@ -118,6 +120,7 @@ class PiSetupTests(unittest.TestCase):
         self.assertEqual(loaded['defaultModel'], 'gpt-6.1-sol')
         self.assertEqual(loaded['defaultThinkingLevel'], 'medium')
         self.assertNotIn('packages', loaded)
+        self.assertNotIn('subagents', loaded)
 
 
 class PiResourceTests(unittest.TestCase):
@@ -132,24 +135,75 @@ class PiResourceTests(unittest.TestCase):
 
     def test_approved_packages_declared_for_install_and_update(self):
         config = (ROOT / 'machine_setup.yaml').read_text()
-        for package in ('npm:pi-web-access@0.41.0', 'npm:pi-subagents@0.78.0',
+        for package in ('npm:pi-web-access@0.41.0', 'npm:pi-pstack@0.1.0',
                         'npm:pi-lens@4.4.3', 'npm:pi-impeccable@0.1.0'):
             self.assertEqual(config.count('pi install ' + package + '\n'), 2)
             name = package.rsplit('@', 1)[0]
             self.assertEqual(config.count('pi remove ' + name + '\n'), 1)
-        self.assertEqual(config.count('pi install "$HOME/pi-workbench"\n'), 2)
-        self.assertEqual(config.count('pi remove "$HOME/pi-workbench"\n'), 1)
+        self.assertNotIn('pi install npm:pi-subagents', config)
+        self.assertNotIn('pi install "$HOME/pi-workbench"', config)
+        section = config.split('  pi_packages:', 1)[1].split('  pi_mcp:', 1)[0]
+        for phase in ('install', 'update'):
+            commands = section.split(f'        {phase}:\n', 1)[1].split(
+                '        update:' if phase == 'install' else '        uninstall:', 1)[0]
+            self.assertLess(commands.index('pi remove npm:pi-subagents'),
+                            commands.index('pi install npm:pi-pstack'))
+            self.assertLess(commands.index('pi remove "$HOME/pi-workbench"'),
+                            commands.index('pi install npm:pi-pstack'))
 
-    def test_workbench_manifest_and_workflow_integration(self):
-        package = ROOT / 'home/pi-workbench'
-        manifest = json.loads((package / 'package.json').read_text())
-        self.assertEqual(manifest['name'], 'pi-workbench')
-        self.assertTrue(manifest['private'])
-        self.assertEqual(manifest['pi']['extensions'], ['./index.ts'])
-        self.assertTrue((package / 'skills/workbench/SKILL.md').exists())
-        for name in ('dispatch', 'review', 'ship', 'babysit-pr'):
-            prompt = ROOT / f'home/.pi/agent/prompts/{name}.md'
-            self.assertIn('workbench', prompt.read_text())
+    def test_retired_package_removal_is_repeatable_and_fails_closed(self):
+        config = (ROOT / 'machine_setup.yaml').read_text()
+        phase = config.split('  pi_packages:', 1)[1].split('        update:', 1)[0]
+        commands = [' '.join(line.strip() for line in
+                             block.split('        - ', 1)[0].splitlines())
+                    for block in phase.split('        - >-\n')[1:]]
+        self.assertEqual(len(commands), 2)
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            pi = home / '.local/bin/pi'
+            pi.parent.mkdir(parents=True)
+            pi.write_text('''#!/bin/sh
+if [ "$1" = list ]; then
+    [ "$FAIL_LIST" = 1 ] && exit 9
+    printf '%s\\n' "$PACKAGE_LIST"
+else
+    [ "$FAIL_REMOVE" = 1 ] && exit 8
+    printf '%s\\n' "$*" >> "$HOME/calls"
+fi
+''')
+            pi.chmod(0o755)
+            env = {**os.environ, 'HOME': str(home), 'PACKAGE_LIST': '',
+                   'FAIL_LIST': '0', 'FAIL_REMOVE': '0'}
+            for command in commands:
+                self.assertEqual(subprocess.run(['sh', '-c', command], env=env).returncode, 0)
+            self.assertFalse((home / 'calls').exists())
+            env['PACKAGE_LIST'] = ('User packages:\n  npm:pi-subagents@0.78.0\n'
+                                   f'  ../../pi-workbench\n    {home}/pi-workbench\n')
+            for command in commands:
+                self.assertEqual(subprocess.run(['sh', '-c', command], env=env).returncode, 0)
+            self.assertEqual((home / 'calls').read_text().splitlines(),
+                             ['remove npm:pi-subagents', f'remove {home}/pi-workbench'])
+            for flag, code in (('FAIL_LIST', 9), ('FAIL_REMOVE', 8)):
+                for command in commands:
+                    self.assertEqual(subprocess.run(
+                        ['sh', '-c', command], env={**env, flag: '1'}).returncode, code)
+
+    def test_poteto_workflow_and_read_only_reviewer(self):
+        role = (ROOT / 'home/.pi/agent/agents/pstack-reviewer.md').read_text()
+        self.assertIn('name: pstack-reviewer', role)
+        self.assertIn('tools: read, grep, find, ls\n', role)
+        instructions = (ROOT / 'home/.pi/agent/AGENTS.md').read_text()
+        self.assertIn('default unless the user disables Poteto Mode', instructions)
+        for name in ('dispatch', 'ship', 'babysit-pr'):
+            prompt = (ROOT / f'home/.pi/agent/prompts/{name}.md').read_text()
+            self.assertIn('poteto-mode', prompt)
+            self.assertIn('pstack_todo', prompt)
+            self.assertNotIn('Load the installed `workbench`', prompt)
+            self.assertNotIn('`pi-subagents` worker', prompt)
+        review = (ROOT / 'home/.pi/agent/prompts/review.md').read_text()
+        self.assertIn('agentScope: "user"', review)
+        self.assertIn('pstack-reviewer', review)
+        self.assertIn('exact patch/head', review)
 
 
 class PiProviderTests(unittest.TestCase):

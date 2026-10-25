@@ -1,5 +1,10 @@
 # pi-workbench
 
+> Retired from the active dotfiles workflow in favor of full `pi-pstack` Poteto
+> Mode. Provisioning removes this package registration but preserves its source
+> and private saved contracts. The pi-subagents integration below is historical;
+> do not reinstall it alongside pstack without explicitly revisiting the design.
+
 A private local Pi package: verification contracts, thin-context native handoffs,
 and **explicit Herdr visibility/navigation**. No Agent Fleet dependency, new
 subagent runtime, system-prompt replacement, automatic delegation, or pane workers.

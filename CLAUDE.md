@@ -79,11 +79,13 @@ All approved Pi plugins must be declared in `machine_setup.yaml`'s `pi_packages`
 task for both install and update. Workflow migration decisions are tracked in
 [`docs/PI-WORKFLOW-MIGRATION.md`](docs/PI-WORKFLOW-MIGRATION.md).
 See [`docs/PI.md`](docs/PI.md) for native workflow commands and ownership.
-Use available Pi tools directly, or native `pi-subagents` delegation for the approved
-workflow commands. There is no generated specialist roster, tier-routing layer,
-or custom subagent runtime. The local [`home/pi-workbench/`](home/pi-workbench/)
-package adds verification contracts, artifact-first handoffs, and explicit Herdr
-visibility/navigation around native `pi-subagents`; it never launches workers.
+Full Poteto Mode from `pi-pstack@0.1.0` is the coding workflow. Use its bundled
+skills, `pstack_todo`, model-role configuration, and isolated local `subagent`
+processes. The package replaces `pi-subagents` and the active workbench layer.
+The local `home/pi-workbench/` source and saved contracts remain for recovery,
+but provisioning no longer loads it. A managed read-only `pstack-reviewer` agent
+preserves exact-patch independent review for the delivery commands. Herdr stays
+terminal management, not a subagent runtime. Keep external-action confirmations.
 
 The `claude`, `codex`, `agy`, and `agent` binaries (and herdr/nvim launches) run in
 the current checkout; pass `--worktree` for an isolated git worktree (`-w` is CLI-specific).
