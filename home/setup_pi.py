@@ -50,6 +50,28 @@ def write_settings(path, text):
             os.unlink(temporary)
 
 
+def patch_pstack(agent):
+    """Repair the command API call in pinned pi-pstack 0.1.0 until upstream fixes it."""
+    package = agent / 'npm/node_modules/pi-pstack'
+    if not package.exists():
+        return
+    try:
+        manifest = json.loads((package / 'package.json').read_text())
+    except (OSError, ValueError) as error:
+        raise RuntimeError(f'Cannot read pi-pstack package manifest: {package}') from error
+    if not isinstance(manifest, dict) or (manifest.get('name'), manifest.get('version')) != ('pi-pstack', '0.1.0'):
+        raise RuntimeError('Review pi-pstack command patch for the installed package version')
+    path = package / 'extensions/pstack/index.ts'
+    text = path.read_text()
+    old = 'await ctx.sendUserMessage(`/skill:poteto-mode${args.trim() ? ` ${args.trim()}` : ""}`);'
+    new = 'pi.sendUserMessage(`/skill:poteto-mode${args.trim() ? ` ${args.trim()}` : ""}`, { expandPromptTemplates: true });'
+    counts = (text.count(old), text.count(new))
+    if counts not in ((1, 0), (0, 1)):
+        raise RuntimeError(f'Unexpected pi-pstack command source: {path}')
+    if counts == (1, 0):
+        path.write_text(text.replace(old, new))
+
+
 def install(home=None, source=None):
     home = Path(home) if home is not None else Path.home()
     source = Path(source) if source is not None else Path(__file__).resolve().parent
@@ -70,6 +92,7 @@ def install(home=None, source=None):
             raise RuntimeError(f'Pi resource collision: {dest}; move or merge it first')
     settings_path = agent / 'settings.json'
     settings_text = prepare_settings(settings_path, resources / 'settings.defaults.json')
+    patch_pstack(agent)
 
     agent.mkdir(parents=True, exist_ok=True)
     for src, dest in links:

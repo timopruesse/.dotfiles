@@ -15,6 +15,27 @@ setup_pi = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(setup_pi)
 
 
+PSTACK_COMMAND = '''\
+let potetoMode = false;
+const MODE_ENTRY = "pstack-mode";
+pi.registerCommand("poteto-mode", {
+  handler: async (args, ctx) => {
+    if (/^(off|disable|stop)$/i.test(args.trim())) {
+      potetoMode = false;
+      pi.appendEntry(MODE_ENTRY, { enabled: false });
+      ctx.ui.setStatus("pstack-mode", undefined);
+      ctx.ui.notify("Poteto Mode disabled for this session.", "info");
+      return;
+    }
+    potetoMode = true;
+    pi.appendEntry(MODE_ENTRY, { enabled: true });
+    ctx.ui.setStatus("pstack-mode", "pstack: poteto mode");
+    await ctx.sendUserMessage(`/skill:poteto-mode${args.trim() ? ` ${args.trim()}` : ""}`);
+  },
+});
+'''
+
+
 class PiSetupTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -25,6 +46,77 @@ class PiSetupTests(unittest.TestCase):
 
     def install(self):
         setup_pi.install(self.home, ROOT / 'home')
+
+    def pstack_fixture(self, text=PSTACK_COMMAND, version='0.1.0'):
+        package = self.agent / 'npm/node_modules/pi-pstack'
+        package.mkdir(parents=True)
+        (package / 'package.json').write_text(json.dumps({'name': 'pi-pstack', 'version': version}))
+        path = package / 'extensions/pstack/index.ts'
+        path.parent.mkdir(parents=True)
+        path.write_text(text)
+        return path
+
+    def test_pstack_patch_survives_reinstall_and_is_idempotent(self):
+        path = self.pstack_fixture()
+        self.install()
+        patched = path.read_text()
+        self.assertNotIn('ctx.sendUserMessage', patched)
+        self.assertIn('pi.sendUserMessage', patched)
+        self.assertIn('expandPromptTemplates: true', patched)
+        before = path.stat().st_mtime_ns
+        self.install()
+        self.assertEqual(path.stat().st_mtime_ns, before)
+        path.write_text(PSTACK_COMMAND)
+        self.install()
+        self.assertEqual(path.read_text(), patched)
+
+    def test_pstack_patch_rejects_unknown_source_before_installing_resources(self):
+        path = self.pstack_fixture(text='unexpected upstream code')
+        with self.assertRaisesRegex(RuntimeError, 'Unexpected pi-pstack command source'):
+            self.install()
+        self.assertEqual(path.read_text(), 'unexpected upstream code')
+        self.assertFalse((self.agent / 'AGENTS.md').exists())
+        self.assertFalse((self.agent / 'settings.json').exists())
+
+    def test_pstack_patch_rejects_unreviewed_version(self):
+        path = self.pstack_fixture(version='0.2.0')
+        with self.assertRaisesRegex(RuntimeError, 'installed package version'):
+            self.install()
+        self.assertEqual(path.read_text(), PSTACK_COMMAND)
+
+    @unittest.skipUnless(shutil.which('node'), 'Node.js is not installed')
+    def test_pstack_command_uses_api_owner_and_expands_skill(self):
+        path = self.pstack_fixture()
+        self.install()
+        script = '''
+import assert from 'node:assert/strict';
+let handler;
+const entries = [], messages = [], statuses = [], notices = [];
+const pi = {
+  registerCommand: (name, command) => { handler = command.handler; },
+  appendEntry: (type, data) => entries.push([type, data]),
+  sendUserMessage: (content, options) => messages.push([content, options]),
+};
+const ctx = { ui: {
+  setStatus: (key, value) => statuses.push([key, value]),
+  notify: (message, level) => notices.push([message, level]),
+} };
+''' + path.read_text() + '''
+assert.equal(ctx.sendUserMessage, undefined);
+await handler('', ctx);
+await handler('  fix tests  ', ctx);
+await handler('off', ctx);
+assert.deepEqual(messages, [
+  ['/skill:poteto-mode', { expandPromptTemplates: true }],
+  ['/skill:poteto-mode fix tests', { expandPromptTemplates: true }],
+]);
+assert.deepEqual(entries.map(([, data]) => data.enabled), [true, true, false]);
+assert.deepEqual(statuses.map(([, value]) => value), ['pstack: poteto mode', 'pstack: poteto mode', undefined]);
+assert.deepEqual(notices, [['Poteto Mode disabled for this session.', 'info']]);
+'''
+        result = subprocess.run(['node', '--input-type=module'], input=script,
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_preserves_state_settings_and_unrelated_resources(self):
         original = {'defaultProvider': 'personal', 'defaultModel': 'chosen',
@@ -146,6 +238,8 @@ class PiResourceTests(unittest.TestCase):
         for phase in ('install', 'update'):
             commands = section.split(f'        {phase}:\n', 1)[1].split(
                 '        update:' if phase == 'install' else '        uninstall:', 1)[0]
+            self.assertIn('pi install npm:pi-pstack@0.1.0\n'
+                          '        - python3 $HOME/setup_pi.py\n', commands)
             self.assertLess(commands.index('pi remove npm:pi-subagents'),
                             commands.index('pi install npm:pi-pstack'))
             self.assertLess(commands.index('pi remove "$HOME/pi-workbench"'),

@@ -699,6 +699,7 @@ tasks:
           if printf '%s\n' "$packages" | grep -Fxq "    $HOME/pi-workbench"; then
           $HOME/.local/bin/pi remove "$HOME/pi-workbench"; fi
         - $HOME/.local/bin/pi install npm:pi-pstack@0.1.0
+        - python3 $HOME/setup_pi.py
         - $HOME/.local/bin/pi install npm:pi-web-access@0.41.0
         - $HOME/.local/bin/pi install npm:pi-lens@4.4.3
         - $HOME/.local/bin/pi install npm:pi-impeccable@0.1.0
@@ -712,6 +713,7 @@ tasks:
           if printf '%s\n' "$packages" | grep -Fxq "    $HOME/pi-workbench"; then
           $HOME/.local/bin/pi remove "$HOME/pi-workbench"; fi
         - $HOME/.local/bin/pi install npm:pi-pstack@0.1.0
+        - python3 $HOME/setup_pi.py
         - $HOME/.local/bin/pi install npm:pi-web-access@0.41.0
         - $HOME/.local/bin/pi install npm:pi-lens@4.4.3
         - $HOME/.local/bin/pi install npm:pi-impeccable@0.1.0
