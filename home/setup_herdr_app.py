@@ -1,11 +1,30 @@
 #!/usr/bin/env python3
-"""Merge managed Herdr app preferences without owning app state."""
+"""Install managed Herdr app preferences and resources, never app state."""
 import json
 import os
 import shutil
 import sys
 import tempfile
 from pathlib import Path
+
+OWNED_RESOURCES = (
+    'mods/dotfiles-spaces/grouping.js',
+    'mods/dotfiles-spaces/mod.json',
+    'mods/dotfiles-spaces/main.js',
+    'layouts/dotfiles-main.json',
+)
+
+
+def validate_path(path):
+    for parent in (path, *path.parents):
+        if parent.is_symlink():
+            raise ValueError(f'Herdr app managed paths must not be symlinks: {parent}')
+        if parent.exists():
+            if parent == path:
+                if not parent.is_file():
+                    raise ValueError(f'Expected regular file: {parent}')
+            elif not parent.is_dir():
+                raise ValueError(f'Expected directory: {parent}')
 
 
 def merge_preferences(existing, managed, location):
@@ -52,21 +71,32 @@ def write_preferences(path, text):
 
 def install():
     source = Path(__file__).resolve().parent / 'herdr-app'
-    target = Path(os.environ.get('HERDR_APP_HOME') or Path.home() / '.config/herdr-app')
+    target = Path(os.environ.get('HERDR_APP_HOME') or Path.home() / '.config/herdr-app').absolute()
     pending = []
     for name in ('settings.json', 'keys.json'):
         path = target / name
-        if path.is_symlink():
-            raise ValueError(f'Herdr app preferences must not be symlinks: {path}')
+        validate_path(path)
+        validate_path(source / name)
         existing = read_object(path) if path.exists() else {}
         merged = merge_preferences(existing, read_object(source / name), str(path))
         if json.dumps(merged, sort_keys=True) != json.dumps(existing, sort_keys=True):
             pending.append((path, json.dumps(merged, indent=2) + '\n'))
-    if pending:
-        target.mkdir(parents=True, exist_ok=True)
-        for path, text in pending:
-            write_preferences(path, text)
-    print(f'Herdr app preferences applied in {target}')
+    for name in OWNED_RESOURCES:
+        path = target / name
+        resource = source / name
+        validate_path(path)
+        validate_path(resource)
+        text = resource.read_text(encoding='utf-8')
+        if not text.strip():
+            raise ValueError(f'Empty Herdr app resource: {resource}')
+        if resource.suffix == '.json':
+            read_object(resource)
+        if not path.exists() or path.read_bytes() != text.encode('utf-8'):
+            pending.append((path, text))
+    for path, text in pending:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        write_preferences(path, text)
+    print(f'Herdr app preferences and owned resources applied in {target}')
 
 
 if __name__ == '__main__':
