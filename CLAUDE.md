@@ -99,6 +99,7 @@ Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 - Keybinds: [`KEYBINDS.md`](KEYBINDS.md)
 - Glossary: [`CONTEXT.md`](CONTEXT.md)
 - Active Pi setup: [`docs/PI.md`](docs/PI.md)
+- Native Herdr app preferences: [`docs/HERDR-APP.md`](docs/HERDR-APP.md)
 - Personal Pi instructions: [`home/.pi/agent/AGENTS.md`](home/.pi/agent/AGENTS.md)
 - Portable skills: [`home/skills/`](home/skills/)
 
