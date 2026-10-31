@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  },
   "permissions": {
     "deny": [
       "Bash(git config user.name:*)",
@@ -8,6 +11,90 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "fable",
+  "deniedMcpServers": [
+    {
+      "serverName": "claude.ai Ahref"
+    },
+    {
+      "serverName": "claude.ai Asana"
+    },
+    {
+      "serverName": "claude.ai Atlassian MCP"
+    },
+    {
+      "serverName": "claude.ai Attio"
+    },
+    {
+      "serverName": "claude.ai Claude Docs"
+    },
+    {
+      "serverName": "claude.ai Coda"
+    },
+    {
+      "serverName": "claude.ai Customer.io"
+    },
+    {
+      "serverName": "claude.ai Docusign"
+    },
+    {
+      "serverName": "claude.ai Gmail"
+    },
+    {
+      "serverName": "claude.ai Google Calendar"
+    },
+    {
+      "serverName": "claude.ai Google Docs"
+    },
+    {
+      "serverName": "claude.ai Google Sheets"
+    },
+    {
+      "serverName": "claude.ai Google Slides"
+    },
+    {
+      "serverName": "claude.ai Granola"
+    },
+    {
+      "serverName": "claude.ai Hex"
+    },
+    {
+      "serverName": "claude.ai Linear"
+    },
+    {
+      "serverName": "claude.ai Microsoft 365"
+    },
+    {
+      "serverName": "claude.ai Mill Snowflake MCP"
+    },
+    {
+      "serverName": "claude.ai Mill Snowflake MCP Staging"
+    },
+    {
+      "serverName": "claude.ai Mixpanel"
+    },
+    {
+      "serverName": "claude.ai NetSuite"
+    },
+    {
+      "serverName": "claude.ai Ramp"
+    },
+    {
+      "serverName": "claude.ai Sentry"
+    },
+    {
+      "serverName": "claude.ai Shopify"
+    },
+    {
+      "serverName": "claude.ai Slack"
+    },
+    {
+      "serverName": "claude.ai Stripe"
+    },
+    {
+      "serverName": "claude.ai claude_security"
+    }
+  ],
   "hooks": {
     "SessionStart": [
       {
@@ -107,7 +194,7 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "chrome-devtools-mcp@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": false,
     "lua-lsp@claude-plugins-official": true,
     "vercel@claude-plugins-official": true,
@@ -143,5 +230,34 @@
   "editorMode": "vim",
   "crossSessionInbound": "accept",
   "skipAutoPermissionPrompt": true,
-  "description": "Impeccable design detector: immediate-tier checks after Edit/Write on UI files, full-rule deep pass on Stop."
+  "description": "Impeccable design detector: immediate-tier checks after Edit/Write on UI files, full-rule deep pass on Stop.",
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: chewielabs (GitHub org; repo `chewielabs/boba_fetch`)",
+      "**Cloud provider(s)**: AWS (ECS Fargate, ECR, CDK/IAM/SSM per infra/); Vercel (SvelteKit orchestration layer)",
+      "**Repository visibility**: internal (chewielabs/boba_fetch, per gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: Env vars validated via per-subsystem Zod schemas (BOBA_* secrets, ANTHROPIC_API_KEY, STORYBLOK_MANAGEMENT_TOKEN, FIGMA_CLIENT_SECRET/REFRESH_TOKEN, GitHub App private key); `.env`/`.env.*`/`secrets.env` gitignored, `.env.example` is the template only",
+      "**Default / protected branches**: `main` is the default branch and is protected (rulesets `1 Approval required- All repos` and `protect-default-branch-all-repos`, both active; classic protected-branches list also shows `main`)",
+      "**CI/CD deploy targets**: AWS ECS Fargate via `bun run deploy:agent` (build+tag+ECR push) and CDK (`infra/`: `npx cdk diff` / `npx cdk deploy`); Vercel for the SvelteKit layer (`bun run build`)",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: chewielabs/boba_fetch (origin: github.com:chewielabs/boba_fetch.git) and its remote(s) only, scoped internal per gh visibility",
+      "**Trusted internal domains**: chewielabs.atlassian.net (Jira instance referenced in .env.example as BOBA_JIRA_BASE_URL)",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: Jira (chewielabs.atlassian.net, service-account Basic auth + webhook shared secret), GitHub App (RS256 JWT → installation tokens, repo clone/push/PR), Storyblok Management API, Figma OAuth",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: `.env`, `.env.*` (excluding `.env.example`), `secrets.env`, `src/cli/secrets.ts`/`secrets.test.ts`, `src/mcp-servers/shared/secrets.ts`/`secrets-file.ts`/`secrets.test.ts`, `.boba/docs/guides/audit-internal-endpoint-shared-secret.md` — share only with audiences cleared at the named+specifics bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources under `infra/` (AWS CDK stack: VPC, ECS cluster, Fargate task def, ECR, IAM, SSM params); anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (AI agent orchestration: SvelteKit/Vercel + AWS ECS Fargate, per CLAUDE.md)",
+      "**Trusted repo**: chewielabs/boba_fetch (working directory) and its origin remote (github.com:chewielabs/boba_fetch.git), internal visibility",
+      "**Org-specific CLIs**: bun (primary package manager/build tool, not npm/pnpm); `npx cdk` for infra; `npx tsc` for Fargate type-check",
+      "**Routine under this repo**: bun install/dev/build/check, npx cdk diff/deploy under infra/, bun run deploy:agent for ECR image push"
+    ]
+  }
 }
