@@ -158,11 +158,42 @@ not pi-subagents run handles. Children use fresh `--no-session` local processes.
 Do not assume persistent child sessions, async run IDs, workbench file-only
 handoffs, resume, or a read-only sandbox.
 
-The external-action guard stays enabled. Recognized pushes, PR mutations,
-merges, deployments, infrastructure writes, and recursive deletion prompt for
-confirmation in interactive Pi and are blocked in non-interactive children.
-This is a regex guardrail, not a shell security boundary. Even an authorized
-`/ship` can still need a runtime confirmation. Keep delivery in the parent.
+The external-action guard stays enabled. Standing authorization lets the parent
+push the current task branch to its configured remote without repeated approval.
+It does not authorize automatic commits, unrelated external actions, or delivery
+from headless children.
+
+The runtime exemption applies only when `ctx.hasUI` is true and the entire bash
+command matches one of these standalone forms:
+
+```text
+git push
+git push REMOTE
+git push REMOTE BRANCH
+git push -u REMOTE BRANCH
+git push --set-upstream REMOTE BRANCH
+```
+
+REMOTE matches `[a-zA-Z0-9][a-zA-Z0-9._-]*`. BRANCH matches
+`[a-zA-Z0-9][a-zA-Z0-9._/-]*`, including `HEAD`, `main`, and `feature/foo`.
+Leading, trailing, and repeated spaces are allowed. Tabs, newlines, and other
+control characters are not. The exemption rejects wrappers, shell operators,
+substitutions, quoted tokens, remote URLs, colon or `+` refspecs, and all other
+options, including force, delete, mirror, prune, and abbreviated options.
+
+Other recognized pushes, PR mutations, merges, deployments, infrastructure writes,
+and recursive deletion still prompt in interactive Pi. Non-interactive children
+still block all recognized external actions, including ordinary pushes.
+`home/setup_pi.py` applies a version-checked, idempotent source patch to
+`pi-pstack@0.1.0`, alongside its command API repair. It checks every expected
+fragment before writing and refuses unexpected versions or guard source.
+Package install/update reapplies the patch. Run `/reload` or restart Pi after
+applying setup so an existing session loads the changed extension.
+
+The guard is a command-text heuristic, not a sandbox or a shell parser. It does
+not inspect Git configuration or hooks; an ordinary push can still run configured
+hooks or follow configured remote and push behavior. Keep delivery in the parent.
+Even an authorized `/ship` can still need confirmation for other guarded actions.
 Upstream playbooks can mention Graphite, Bun, GitHub authentication, or other
 project-specific tools; installing pstack does not install those dependencies
 or authorize their external actions. Local command limits take precedence.

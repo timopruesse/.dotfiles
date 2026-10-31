@@ -27,6 +27,16 @@ the blocker rather than claiming checks that did not run.
   merging additionally requires `--merge` or explicit invocation authorization.
   `/dispatch` implements/validates only; `/review` reports only. Jira is read-only.
   Stage only relevant changes and use conventional commit messages.
+- Standing authorization permits the parent to make ordinary non-forced pushes
+  of the current task branch to its configured remote without asking again.
+  This does not authorize automatic commits, pushes by headless children, or
+  unrelated external actions. Use a standalone `git push`, `git push REMOTE`,
+  or `git push REMOTE BRANCH`; `-u` or `--set-upstream` is allowed only immediately
+  after `push`, with both REMOTE and BRANCH. REMOTE matches
+  `[a-zA-Z0-9][a-zA-Z0-9._-]*`; BRANCH matches
+  `[a-zA-Z0-9][a-zA-Z0-9._/-]*`. Use spaces only, with no newlines, control
+  characters, wrappers, shell operators, substitutions, URLs, or other options.
+  Colon and `+` refspecs are not exempt. Other guarded actions still confirm.
 - Keep delivery authority with the parent. Reviewers are fresh, independent,
   read-only children bound to the exact patch. Use the managed `pstack-reviewer`
   role with `agentScope: "user"`; implementation uses bundled scope. Reviewers
@@ -36,7 +46,8 @@ the blocker rather than claiming checks that did not run.
 - Keep one writer per checkout. No automatic branch/worktree scaffolding.
   Monitoring stops after 60 minutes or 3 repair rounds. Local command-specific
   limits override broader upstream playbook suggestions. The pstack external
-  action guard stays enabled; a workflow grant does not bypass its confirmations.
+  action guard stays enabled. Only the interactive ordinary-push exception above
+  skips confirmation; workflow grants do not bypass other confirmations.
 - Use Herdr only for explicit terminal-management requests, not as a subagent
   runtime. Pi model selection is independent of repository identity.
 - Keep secrets and machine-local credentials out of dotfiles and session exports.

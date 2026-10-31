@@ -51,7 +51,6 @@ def write_settings(path, text):
 
 
 def patch_pstack(agent):
-    """Repair the command API call in pinned pi-pstack 0.1.0 until upstream fixes it."""
     package = agent / 'npm/node_modules/pi-pstack'
     if not package.exists():
         return
@@ -60,16 +59,47 @@ def patch_pstack(agent):
     except (OSError, ValueError) as error:
         raise RuntimeError(f'Cannot read pi-pstack package manifest: {package}') from error
     if not isinstance(manifest, dict) or (manifest.get('name'), manifest.get('version')) != ('pi-pstack', '0.1.0'):
-        raise RuntimeError('Review pi-pstack command patch for the installed package version')
+        raise RuntimeError('Review pi-pstack patches for the installed package version')
     path = package / 'extensions/pstack/index.ts'
     text = path.read_text()
     old = 'await ctx.sendUserMessage(`/skill:poteto-mode${args.trim() ? ` ${args.trim()}` : ""}`);'
     new = 'pi.sendUserMessage(`/skill:poteto-mode${args.trim() ? ` ${args.trim()}` : ""}`, { expandPromptTemplates: true });'
-    counts = (text.count(old), text.count(new))
-    if counts not in ((1, 0), (0, 1)):
-        raise RuntimeError(f'Unexpected pi-pstack command source: {path}')
-    if counts == (1, 0):
-        path.write_text(text.replace(old, new))
+    detector = r'''function knownExternalWrite(command: string): string | undefined {
+  const patterns: Array<[RegExp, string]> = [
+    [/\bgit\s+push\b/, "git push"],
+    [/\bgh\s+pr\s+(create|edit|merge|close)\b/, "GitHub pull-request mutation"],
+    [/\bgt\s+(submit|merge|create)\b/, "Graphite mutation"],
+    [/\b(terraform|tofu)\s+(apply|destroy)\b/, "infrastructure mutation"],
+    [/\bkubectl\s+(apply|delete|rollout)\b/, "Kubernetes mutation"],
+    [/\b(vercel|flyctl|railway)\s+(deploy|promote)\b/, "deployment"],
+    [/\brm\s+(-[A-Za-z]*r|--recursive)/, "recursive deletion"],
+  ];
+  return patterns.find(([pattern]) => pattern.test(command))?.[1];
+}'''
+    guard = r'''  pi.on("tool_call", async (event, ctx) => {
+    if (event.toolName !== "bash") return;
+    const input = event.input as { command?: string };
+    const operation = input.command ? knownExternalWrite(input.command) : undefined;
+    if (!operation) return;
+    if (!ctx.hasUI) return { block: true, reason: `${operation} requires explicit user confirmation; non-interactive Pi cannot request it.` };
+    const approved = await ctx.ui.confirm("Confirm external or irreversible action", `Allow ${operation}?\n\n${input.command}`);
+    if (!approved) return { block: true, reason: `User declined ${operation}.` };
+  });'''
+    exemption = r'''    if (input.command && !/[\x00-\x1f\x7f-\x9f\u2028\u2029]/.test(input.command) &&
+        /^ *git +push(?: +(?:-u|--set-upstream) +[a-zA-Z0-9][a-zA-Z0-9._-]* +[a-zA-Z0-9][a-zA-Z0-9._/-]*| +[a-zA-Z0-9][a-zA-Z0-9._-]*(?: +[a-zA-Z0-9][a-zA-Z0-9._/-]*)?)? *$/.test(input.command)) return;
+'''
+    patched_guard = guard.replace('    const approved =', exemption + '    const approved =')
+    patches = [('command', old, new), ('guard', guard, patched_guard)]
+    for label, original, patched in patches:
+        if (text.count(original), text.count(patched)) not in ((1, 0), (0, 1)):
+            raise RuntimeError(f'Unexpected pi-pstack {label} source: {path}')
+    if text.count(detector) != 1:
+        raise RuntimeError(f'Unexpected pi-pstack guard detector source: {path}')
+    updated = text
+    for _, original, patched in patches:
+        updated = updated.replace(original, patched)
+    if updated != text:
+        path.write_text(updated)
 
 
 def install(home=None, source=None):

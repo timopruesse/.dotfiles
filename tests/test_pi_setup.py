@@ -36,6 +36,33 @@ pi.registerCommand("poteto-mode", {
 '''
 
 
+PSTACK_GUARD = r'''
+function knownExternalWrite(command: string): string | undefined {
+  const patterns: Array<[RegExp, string]> = [
+    [/\bgit\s+push\b/, "git push"],
+    [/\bgh\s+pr\s+(create|edit|merge|close)\b/, "GitHub pull-request mutation"],
+    [/\bgt\s+(submit|merge|create)\b/, "Graphite mutation"],
+    [/\b(terraform|tofu)\s+(apply|destroy)\b/, "infrastructure mutation"],
+    [/\bkubectl\s+(apply|delete|rollout)\b/, "Kubernetes mutation"],
+    [/\b(vercel|flyctl|railway)\s+(deploy|promote)\b/, "deployment"],
+    [/\brm\s+(-[A-Za-z]*r|--recursive)/, "recursive deletion"],
+  ];
+  return patterns.find(([pattern]) => pattern.test(command))?.[1];
+}
+
+  pi.on("tool_call", async (event, ctx) => {
+    if (event.toolName !== "bash") return;
+    const input = event.input as { command?: string };
+    const operation = input.command ? knownExternalWrite(input.command) : undefined;
+    if (!operation) return;
+    if (!ctx.hasUI) return { block: true, reason: `${operation} requires explicit user confirmation; non-interactive Pi cannot request it.` };
+    const approved = await ctx.ui.confirm("Confirm external or irreversible action", `Allow ${operation}?\n\n${input.command}`);
+    if (!approved) return { block: true, reason: `User declined ${operation}.` };
+  });
+'''
+PSTACK_SOURCE = PSTACK_COMMAND + PSTACK_GUARD
+
+
 class PiSetupTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -47,7 +74,7 @@ class PiSetupTests(unittest.TestCase):
     def install(self):
         setup_pi.install(self.home, ROOT / 'home')
 
-    def pstack_fixture(self, text=PSTACK_COMMAND, version='0.1.0'):
+    def pstack_fixture(self, text=PSTACK_SOURCE, version='0.1.0'):
         package = self.agent / 'npm/node_modules/pi-pstack'
         package.mkdir(parents=True)
         (package / 'package.json').write_text(json.dumps({'name': 'pi-pstack', 'version': version}))
@@ -66,7 +93,7 @@ class PiSetupTests(unittest.TestCase):
         before = path.stat().st_mtime_ns
         self.install()
         self.assertEqual(path.stat().st_mtime_ns, before)
-        path.write_text(PSTACK_COMMAND)
+        path.write_text(PSTACK_SOURCE)
         self.install()
         self.assertEqual(path.read_text(), patched)
 
@@ -82,7 +109,7 @@ class PiSetupTests(unittest.TestCase):
         path = self.pstack_fixture(version='0.2.0')
         with self.assertRaisesRegex(RuntimeError, 'installed package version'):
             self.install()
-        self.assertEqual(path.read_text(), PSTACK_COMMAND)
+        self.assertEqual(path.read_text(), PSTACK_SOURCE)
 
     @unittest.skipUnless(shutil.which('node'), 'Node.js is not installed')
     def test_pstack_command_uses_api_owner_and_expands_skill(self):
@@ -90,9 +117,11 @@ class PiSetupTests(unittest.TestCase):
         self.install()
         script = '''
 import assert from 'node:assert/strict';
+import { stripTypeScriptTypes } from 'node:module';
 let handler;
 const entries = [], messages = [], statuses = [], notices = [];
 const pi = {
+  on: () => {},
   registerCommand: (name, command) => { handler = command.handler; },
   appendEntry: (type, data) => entries.push([type, data]),
   sendUserMessage: (content, options) => messages.push([content, options]),
@@ -101,7 +130,7 @@ const ctx = { ui: {
   setStatus: (key, value) => statuses.push([key, value]),
   notify: (message, level) => notices.push([message, level]),
 } };
-''' + path.read_text() + '''
+''' + 'new Function("pi", stripTypeScriptTypes(' + json.dumps(path.read_text()) + '))(pi);' + '''
 assert.equal(ctx.sendUserMessage, undefined);
 await handler('', ctx);
 await handler('  fix tests  ', ctx);
@@ -113,6 +142,109 @@ assert.deepEqual(messages, [
 assert.deepEqual(entries.map(([, data]) => data.enabled), [true, true, false]);
 assert.deepEqual(statuses.map(([, value]) => value), ['pstack: poteto mode', 'pstack: poteto mode', undefined]);
 assert.deepEqual(notices, [['Poteto Mode disabled for this session.', 'info']]);
+'''
+        result = subprocess.run(['node', '--input-type=module'], input=script,
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_pstack_patch_accepts_existing_command_api_repair(self):
+        path = self.pstack_fixture()
+        self.install()
+        expected = path.read_text()
+        repaired_command = expected.split(PSTACK_GUARD.splitlines()[1], 1)[0]
+        path.write_text(repaired_command + PSTACK_GUARD.lstrip('\n'))
+        self.install()
+        self.assertEqual(path.read_text(), expected)
+
+    def test_pstack_patch_preflights_all_fragments_before_writing(self):
+        for source in (
+            PSTACK_COMMAND,
+            PSTACK_SOURCE.replace('if (!ctx.hasUI)', 'if (ctx.mode !== "tui")'),
+            PSTACK_SOURCE.replace('patterns.find', 'patterns.filter'),
+            PSTACK_SOURCE + PSTACK_GUARD,
+        ):
+            with self.subTest(source=source):
+                package = self.agent / 'npm/node_modules/pi-pstack'
+                if package.exists():
+                    shutil.rmtree(package)
+                path = self.pstack_fixture(text=source)
+                with self.assertRaisesRegex(RuntimeError, 'Unexpected pi-pstack guard'):
+                    self.install()
+                self.assertEqual(path.read_text(), source)
+                self.assertFalse((self.agent / 'AGENTS.md').exists())
+                self.assertFalse((self.agent / 'settings.json').exists())
+
+    @unittest.skipUnless(shutil.which('node'), 'Node.js is not installed')
+    def test_pstack_guard_runs_patched_handler(self):
+        path = self.pstack_fixture()
+        self.install()
+        script = '''
+import assert from 'node:assert/strict';
+import { stripTypeScriptTypes } from 'node:module';
+let handler;
+const pi = {
+  registerCommand: () => {},
+  on: (name, callback) => { assert.equal(name, 'tool_call'); handler = callback; },
+};
+''' + 'new Function("pi", stripTypeScriptTypes(' + json.dumps(path.read_text()) + '))(pi);' + r'''
+const ordinary = [
+  'git push', 'git push origin', 'git push origin HEAD', 'git push origin main',
+  'git push origin feature/foo', 'git push -u origin branch',
+  'git push --set-upstream origin feature/foo', '  git  push origin main  ',
+  'git push upstream-2 feature/foo.bar_1',
+];
+const restricted = [
+  'git push --force', 'git push -f origin main', 'git push --force-with-lease origin main',
+  'git push --delete origin main', 'git push -d origin main', 'git push --mirror',
+  'git push --prune', 'git push --all', 'git push --tags', 'git push --dry-run',
+  'git push --set-up origin main', 'git push --unknown origin main',
+  'git push origin +main', 'git push origin main:main', 'git push origin :main',
+  'git push https://example.com/repo main', 'git push git@example.com:repo main',
+  'git push ../repo main', 'git push origin/path main', 'git push /tmp/repo main',
+  'git push origin main other', 'git push -u', 'git push -u origin',
+  'git push origin --set-upstream main', 'git push origin "main"',
+  'git push origin main; echo done', 'git push && echo done', 'git push || true',
+  'git push | tee log', 'git push &', 'git push > log', 'git push < input',
+  'git push $(echo origin) main', 'git push `echo origin` main', 'git push $REMOTE main',
+  'env git push', 'command git push', 'sudo git push', 'sh -c "git push"',
+  '(git push)', 'git push\n', '\ngit push', 'git\tpush', 'git push\r',
+  'git push\u0000', 'git push\u001b', 'git push\u007f', 'git push\u0085',
+  'git push\u2028', 'git push\u2029',
+  'git push; gh pr create', 'git push && vercel deploy', 'git push; rm -rf tmp',
+  'gh pr create', 'gh pr edit 1', 'gh pr merge 1', 'gh pr close 1',
+  'gt submit', 'terraform apply', 'tofu destroy', 'kubectl apply -f app.yaml',
+  'kubectl delete pod x', 'vercel deploy', 'flyctl deploy', 'railway promote',
+  'rm -rf tmp', 'rm --recursive tmp',
+];
+let confirmations = 0;
+let approval = false;
+const interactive = { hasUI: true, ui: { confirm: async () => { confirmations++; return approval; } } };
+const headless = { hasUI: false, ui: { confirm: () => { throw new Error('headless confirmation'); } } };
+for (const command of ordinary) {
+  assert.equal(await handler({ toolName: 'bash', input: { command } }, interactive), undefined, command);
+  assert.equal(confirmations, 0, command);
+  const blocked = await handler({ toolName: 'bash', input: { command } }, headless);
+  assert.equal(blocked?.block, true, command);
+  assert.match(blocked.reason, /non-interactive Pi/);
+}
+for (const command of restricted) {
+  const event = { toolName: 'bash', input: { command } };
+  const before = confirmations;
+  approval = false;
+  assert.equal((await handler(event, interactive))?.block, true, command);
+  assert.equal(confirmations, before + 1, command);
+  approval = true;
+  assert.equal(await handler(event, interactive), undefined, command);
+  assert.equal(confirmations, before + 2, command);
+  assert.equal((await handler(event, headless))?.block, true, command);
+}
+for (const command of ['git status', 'git diff', 'echo hello', '']) {
+  const before = confirmations;
+  assert.equal(await handler({ toolName: 'bash', input: { command } }, interactive), undefined);
+  assert.equal(await handler({ toolName: 'bash', input: { command } }, headless), undefined);
+  assert.equal(confirmations, before);
+}
+assert.equal(await handler({ toolName: 'read', input: { command: 'git push --force' } }, headless), undefined);
 '''
         result = subprocess.run(['node', '--input-type=module'], input=script,
                                 capture_output=True, text=True, timeout=15)
