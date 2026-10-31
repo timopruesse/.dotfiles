@@ -129,6 +129,33 @@ execute fold callbacks and verify per-machine visibility and saved state.
 Visual and live-interaction checks have not been performed as part of the
 non-activating implementation.
 
+## Open WSL desktop web links in Windows
+
+After linking the dotfiles, register the Windows browser bridge:
+
+```sh
+python3 "$HOME/setup_wsl_browser.py"
+```
+
+The `dotfiles` task runs this installer on install and update. Outside WSL,
+it does nothing. In WSL, it writes `dotfiles-wsl-browser.desktop` under
+`${XDG_DATA_HOME:-$HOME/.local/share}/applications` and sets the HTTP and HTTPS
+defaults with `xdg-mime`. GIO also recognizes these defaults without
+`update-desktop-database`.
+
+The installer symlinks `~/.local/bin/dotfiles-wsl-browser` to the executable
+bridge. The desktop entry uses `Exec=dotfiles-wsl-browser %u` because generic
+`xdg-open` does not handle quoted executable arguments like GIO does. The symlink
+keeps checkout paths with spaces or `%` out of `Exec`. GUI applications need
+`~/.local/bin` on their `PATH`. Repeated installs keep the correct symlink,
+replace stale symlinks, and refuse to overwrite an unrelated regular file.
+
+This covers Linux GUI applications that use desktop URI associations, including
+native Herdr app links. Applications with their own browser settings can bypass
+these defaults. Local HTML, PDF, and `file:` associations stay unchanged. The
+existing `home/.config/zsh/wsl_browser.py` bridge selects the Windows default
+browser; this installer does not change its routing or launch a browser.
+
 ## Limits
 
 The app config directory is never symlinked. App-owned state, shipped mods,

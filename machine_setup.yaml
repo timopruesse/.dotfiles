@@ -350,9 +350,11 @@ tasks:
         install:
         - python3 $HOME/setup_pi.py
         - python3 $HOME/setup_herdr_app.py
+        - python3 "$HOME/setup_wsl_browser.py"
         update:
         - python3 $HOME/setup_pi.py
         - python3 $HOME/setup_herdr_app.py
+        - python3 "$HOME/setup_wsl_browser.py"
         uninstall: []
         shell: null
         env: {}
