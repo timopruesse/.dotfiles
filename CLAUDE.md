@@ -23,6 +23,8 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 ```
 home/             # Symlinked to ~ — contains all user config files
   .pi/agent/      # Active Pi instructions + prompt templates (resources only)
+  .config/herdr-core/templates/  # hc worker/reviewer templates for sub-agents
+  herdr-app/      # Owned native Herdr app resources (grouped sidebar, tab bar, PR panel)
   setup_pi.py     # Links resources + merges managed defaults; preserves other state
   skills/         # Portable Herdr and architecture skills
   .claude/        # Independent client preferences + Herdr/AWS hooks
@@ -80,12 +82,14 @@ task for both install and update. Workflow migration decisions are tracked in
 [`docs/PI-WORKFLOW-MIGRATION.md`](docs/PI-WORKFLOW-MIGRATION.md).
 See [`docs/PI.md`](docs/PI.md) for native workflow commands and ownership.
 Full Poteto Mode from `pi-pstack@0.1.0` is the coding workflow. Use its bundled
-skills, `pstack_todo`, model-role configuration, and isolated local `subagent`
-processes. The package replaces `pi-subagents` and the active workbench layer.
-The local `home/pi-workbench/` source and saved contracts remain for recovery,
-but provisioning no longer loads it. A managed read-only `pstack-reviewer` agent
-preserves exact-patch independent review for the delivery commands. Herdr stays
-terminal management, not a subagent runtime. Keep external-action confirmations.
+skills and `pstack_todo`. Sub-agents run through herdr-core: `hc run --bg` with
+the managed `worker` and `reviewer` templates in
+[`home/.config/herdr-core/templates/`](home/.config/herdr-core/templates/), so
+children show up as sub-agents in the native Herdr app. Pstack's `subagent`
+tool, `pi --print` children, and legacy `herdr` pane workers are not used. The
+package replaces `pi-subagents` and the active workbench layer. The local
+`home/pi-workbench/` source and saved contracts remain for recovery, but
+provisioning no longer loads it. Keep external-action confirmations.
 
 The `claude`, `codex`, `agy`, and `agent` binaries (and herdr/nvim launches) run in
 the current checkout; pass `--worktree` for an isolated git worktree (`-w` is CLI-specific).
@@ -99,7 +103,7 @@ Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 - Keybinds: [`KEYBINDS.md`](KEYBINDS.md)
 - Glossary: [`CONTEXT.md`](CONTEXT.md)
 - Active Pi setup: [`docs/PI.md`](docs/PI.md)
-- Native Herdr app preferences: [`docs/HERDR-APP.md`](docs/HERDR-APP.md)
+- Native Herdr app preferences and PR panel: [`docs/HERDR-APP.md`](docs/HERDR-APP.md)
 - Personal Pi instructions: [`home/.pi/agent/AGENTS.md`](home/.pi/agent/AGENTS.md)
 - Portable skills: [`home/skills/`](home/skills/)
 

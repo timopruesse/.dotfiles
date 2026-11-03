@@ -95,7 +95,7 @@
           },
           "window_drag": true,
           "content": {
-            "mod": "tabs"
+            "mod": "dotfiles-tabs"
           }
         },
         {
@@ -160,6 +160,13 @@
                       "type": "block",
                       "content": {
                         "mod": "changes"
+                      }
+                    },
+                    {
+                      "id": "prs",
+                      "type": "block",
+                      "content": {
+                        "mod": "dotfiles-prs"
                       }
                     }
                   ]

@@ -6,8 +6,9 @@ description: "Control Herdr panes, tabs, and workspaces on explicit terminal-man
 # Herdr terminal management
 
 Use this skill only when the user asks to inspect or manage terminals, workspaces,
-visible agents, or worktree tabs. Do not create panes merely to delegate coding
-work. Pi has no assumed specialist roster or subagent runtime.
+visible agents, or worktree tabs in legacy `herdr`. Do not create panes merely to
+delegate coding work: sub-agents run through herdr-core (`hc run --bg` with the
+managed `worker`/`reviewer` templates; see `hc --skill` and personal `AGENTS.md`).
 
 ## Verify caller context
 

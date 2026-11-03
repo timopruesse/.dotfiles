@@ -426,10 +426,20 @@ fi
             self.assertIn('pstack_todo', prompt)
             self.assertNotIn('Load the installed `workbench`', prompt)
             self.assertNotIn('`pi-subagents` worker', prompt)
+            self.assertIn('hc', prompt)
+            self.assertNotIn('`subagent`', prompt.replace("pstack's `subagent` tool", ''))
+        self.assertIn('hc run --bg', instructions)
+        self.assertIn('hc --skill', instructions)
         review = (ROOT / 'home/.pi/agent/prompts/review.md').read_text()
-        self.assertIn('agentScope: "user"', review)
-        self.assertIn('pstack-reviewer', review)
+        self.assertIn('hc run --bg --name review', review)
+        self.assertIn('--tools read,grep,find,ls', review)
         self.assertIn('exact patch/head', review)
+        for name in ('worker', 'reviewer'):
+            template = (ROOT / f'home/.config/herdr-core/templates/{name}.md').read_text()
+            self.assertTrue(template.startswith(f'---\nname: {name}\n'))
+            self.assertIn('command: pi --no-session', template)
+            self.assertIn('hc send', template)
+        self.assertIn('--tools read,grep,find,ls', (ROOT / 'home/.config/herdr-core/templates/reviewer.md').read_text())
 
 
 class PiProviderTests(unittest.TestCase):

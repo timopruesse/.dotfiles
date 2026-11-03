@@ -27,12 +27,12 @@ precedence over upstream suggestions to open PRs or change branches/worktrees.
 - Remain in the current checkout. Stop if detached, on the default/protected
   branch, targeting the wrong PR/repository, or unable to separate unrelated
   staged/working changes. Do not create a feature branch as a hidden fallback.
-- Read the sibling `dispatch.md` template for native worker launch mechanics and
+- Read the sibling `dispatch.md` template for `hc` worker launch mechanics and
   `review.md` for independent-review mechanics. Follow them as phases of this
   command, not recursive slash invocations. The parent retains `/ship` delivery
   authority; children get implementation/review authority only.
-- If implementation is needed, use one fresh local pstack `poteto-agent` in the
-  current cwd with bundled scope and a concrete no-delivery brief. Do not
+- If implementation is needed, use one fresh `hc` child from the `worker`
+  template in the current cwd with a concrete no-delivery brief. Do not
   bypass required delegation. Existing finished changes can proceed directly to
   validation/review; do not fabricate a worker task just for ceremony.
 
@@ -40,7 +40,7 @@ precedence over upstream suggestions to open PRs or change branches/worktrees.
 
 1. Inspect the scoped patch and run relevant focused tests/checks in the parent.
    Missing/failed required checks are blockers, not passing evidence.
-2. Launch a fresh, read-only `pstack-reviewer` using the sibling review instructions;
+2. Launch a fresh, read-only `reviewer` child using the sibling review instructions;
    provide the task, exact patch, changed files, and validation evidence. Wait
    for the completed result. No forked implementation chat or resumed reviewer.
 3. Route actionable findings to a worker, then revalidate and obtain another

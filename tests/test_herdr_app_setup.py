@@ -54,6 +54,11 @@ class HerdrAppSetupTests(unittest.TestCase):
             'keys.json', 'settings.json', 'layouts/dotfiles-main.json',
             'mods/dotfiles-spaces/main.js', 'mods/dotfiles-spaces/mod.json',
             'mods/dotfiles-spaces/grouping.js',
+            'mods/dotfiles-tabs/main.js', 'mods/dotfiles-tabs/mod.json',
+            'mods/dotfiles-tabs/win-close.svg', 'mods/dotfiles-tabs/win-max.svg',
+            'mods/dotfiles-tabs/win-min.svg', 'mods/dotfiles-tabs/win-restore.svg',
+            'mods/dotfiles-prs/main.js', 'mods/dotfiles-prs/mod.json',
+            'mods/dotfiles-prs/prs.js', 'mods/dotfiles-prs/pr.svg',
         })
 
     def test_preserves_nested_settings_keys_and_app_state_with_backups(self):
@@ -181,7 +186,7 @@ class HerdrAppSetupTests(unittest.TestCase):
                 self.run_setup(script=script, success=False)
                 self.assertFalse(self.target.exists())
 
-    def test_layout_keeps_native_nodes_and_only_replaces_spaces_mod(self):
+    def test_layout_keeps_native_nodes_and_replaces_only_owned_mods(self):
         layout = json.loads((RESOURCES / 'layouts/dotfiles-main.json').read_text())
         mods = []
         def visit(node):
@@ -190,12 +195,26 @@ class HerdrAppSetupTests(unittest.TestCase):
             for child in node.get('children', []):
                 visit(child)
         visit(layout)
-        self.assertIn('dotfiles-spaces', mods)
-        self.assertNotIn('spaces', mods)
-        for mod in ('workspace-chrome', 'agents', 'tabs', 'files', 'changes', 'workspace-status'):
+        for owned, shipped in (('dotfiles-spaces', 'spaces'), ('dotfiles-tabs', 'tabs')):
+            self.assertIn(owned, mods)
+            self.assertNotIn(shipped, mods)
+        for mod in ('workspace-chrome', 'agents', 'files', 'changes', 'dotfiles-prs', 'workspace-status'):
             self.assertIn(mod, mods)
-        meta = json.loads((RESOURCES / 'mods/dotfiles-spaces/mod.json').read_text())
-        self.assertEqual(meta['place'], 'none')
+        panel = None
+        def find(node, wanted):
+            nonlocal panel
+            if node.get('id') == wanted:
+                panel = node
+            for child in node.get('children', []):
+                find(child, wanted)
+        find(layout, 'panel-body')
+        self.assertEqual([c['id'] for c in panel['children']], ['files', 'changes', 'prs'])
+        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs'):
+            meta = json.loads((RESOURCES / f'mods/{name}/mod.json').read_text())
+            self.assertEqual(meta['place'], 'none')
+        tabs = (RESOURCES / 'mods/dotfiles-tabs/main.js').read_text()
+        self.assertIn('panelButton("prs", "PRs", "mods/dotfiles-prs/pr.svg")', tabs)
+        self.assertNotIn('mods/tabs/', tabs)
 
     def test_documented_home_override(self):
         self.target = self.home / 'alternate-app-home'

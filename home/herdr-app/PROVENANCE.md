@@ -13,7 +13,25 @@ The original SHA-256 hashes are:
 | `mods/spaces/mod.json` | `8357ce89d375376872b6db414b9555b26936b2e9d61e44275dc2e2bfe2a5783e` |
 | `layouts/main.json` | `b4438dafcf1aa379b0d08b62a97af37b31bb63b9ff9e5537d1848a8f221bea7f` |
 
-The layout changes only clone provenance and the spaces mod reference. The
+`mods/dotfiles-tabs/` is an owned snapshot of the shipped `mods/tabs/` from
+herdr-app 0.1.12 (`main.js`, `mod.json`, and the four `win-*.svg` icons):
+
+| Shipped file | SHA-256 |
+| --- | --- |
+| `mods/tabs/main.js` | `12d4ecc89dbf864d5a889f240adaea25590812e0be1835bbdb3e636fe14f51d3` |
+| `mods/tabs/mod.json` | `bd2a09edf56933dd318e75ce134b2c48aed56010b825f3c936f92a995e686c4d` |
+| `mods/tabs/win-close.svg` | `bc46f314ea68818459856618e10f694e53cccd947b3069286f1988927e8a1fac` |
+| `mods/tabs/win-max.svg` | `d8f2df2b1c3b3416ab765be0ad0b6f453f4c89e0c01ac01e4e10bd12e01b109a` |
+| `mods/tabs/win-min.svg` | `c2f8d7d1e117f99b73970816877a926becb3da102cd706fd0f0ce1780259cd52` |
+| `mods/tabs/win-restore.svg` | `69ccde33c78d83ce39972ef129e158dd09fb19d3002bd709047801802fbad51d` |
+
+Its only changes are the header comment, its own `win-*.svg` asset paths, an
+always-offered `prs` panel, and the PRs button beside Files and Changes.
+`mods/dotfiles-prs/` is original code modeled on the shipped `changes` mod,
+not a clone of it.
+
+The layout changes are clone provenance, the spaces and tabs mod references,
+and a third `prs` child in the `panel-body` stack. The
 mod retains shipped Git refresh, machine state, worktree nesting, rows,
 menus, dragging, compact numbering, and shared colors. Its additions are
 `grouping.js`, row location fields, and collapsible owner section rendering.

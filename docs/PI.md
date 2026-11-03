@@ -19,8 +19,9 @@ The installer links version-controlled instructions and prompt templates from
 It preflights resource-name collisions and refuses to replace personal files.
 Move or merge a conflicting file, then rerun. It recursively merges managed defaults
 from `home/.pi/agent/settings.defaults.json` into machine-local settings: medium
-thinking for `openai/gpt-6.1-sol`. It also links the read-only `pstack-reviewer`
-agent definition; package-provided Poteto agents stay in the package.
+thinking for `openai/gpt-6.1-sol`. It also links the `pstack-reviewer` agent
+definition, kept only for pstack's own `/skill:*` playbooks; the managed
+commands review through `hc` instead.
 Malformed managed settings sections fail before installing resources. Unrelated
 settings, package registrations, credentials, and sessions are preserved.
 Reapplying setup restores
@@ -32,8 +33,8 @@ Select credentials with `/login`, models with `/model`, and preferences with
 `/settings`. Project trust stays at Pi's default (ask); Pi tools are not sandboxed.
 
 Herdr's official `herdr integration install pi` manages pane state and session
-references. Pstack children run as isolated local Pi processes, not Herdr panes.
-No workbench or Herdr subagent runtime is loaded.
+references. Sub-agents are herdr-core child terminals (see
+[Delegation through hc](#delegation-through-hc)). No workbench runtime is loaded.
 
 ## Packages
 
@@ -42,7 +43,8 @@ run Pi's native package installer for every approved plugin:
 
 - `npm:pi-web-access@0.41.0`: web search, URL fetching, and document extraction.
 - `npm:pi-pstack@0.1.0`: all 44 bundled pstack skills, sticky Poteto Mode,
-  isolated subagents, `pstack_todo`, `pstack_sessions`, and `pstack_config`.
+  `pstack_todo`, `pstack_sessions`, and `pstack_config`. Its `subagent` tool
+  stays installed but unused; delegation goes through `hc`.
   Replaces `pi-subagents` and the local workbench integration. Install/update
   removes their package registrations first, without deleting saved state.
   Do not install `@casualjim/pi-pstack` alongside it; that fork targets a
@@ -70,13 +72,31 @@ does not upgrade or remove unrelated personal packages. Web-access provider keys
 and optional configuration belong in `~/.pi/agent/web-search.json`, never Git.
 Browser-cookie access and remote curator access stay disabled by default.
 
-Delegation uses pstack's bundled `poteto-agent` with bundled scope and fresh
-local processes. The managed `pstack-reviewer` uses user scope and only `read`,
-`grep`, `find`, and `ls`; it consumes a parent-prepared exact-patch packet.
-No shell, mutation, network tools, or nested delegation are selected for review.
-Workers need shell access for tests. Tool selection and no-delivery instructions
-are **not an OS sandbox**. Personal/project extensions remain trusted code.
-See the [workflow decision record](PI-WORKFLOW-MIGRATION.md) for approved policies.
+## Delegation through hc
+
+Every sub-agent is an interactive child terminal of herdr-core, started with
+`hc run --bg --name <role> --cwd <checkout> <template> "<task>"`. Children show
+up under their parent in the native Herdr app's Agents list, where the user can
+peek, attach, and steer them. `hc --skill` is the authoritative manual; personal
+`AGENTS.md` summarizes the launch, wait (`hc wait`), read, and cleanup rules.
+
+The managed templates live in `home/.config/herdr-core/templates/` and are
+symlinked to `~/.config/herdr-core/templates/` by the `dotfiles` task:
+
+- `worker`: `pi --no-session`, scoped implementation with shell access for
+  tests; no delivery, no external writes, no nested agents.
+- `reviewer`: `pi --no-session --tools read,grep,find,ls`, a fresh read-only
+  review of a parent-prepared exact-patch packet; findings only.
+
+Templates combine their body with the task into the child's first message, and
+children report back with `hc send <parent>`. Tool selection and no-delivery
+instructions are **not an OS sandbox**. Both templates inherit the default Pi
+model; copy a template and add `--model` to its command for a different
+authenticated reviewer model. Pstack's `subagent` tool, `pi --print` children,
+and legacy `herdr` pane workers are not used; a missing `hc`, `HC_TERMINAL_ID`,
+or template is a reported blocker. Personal/project extensions remain trusted
+code. See the [workflow decision record](PI-WORKFLOW-MIGRATION.md) for approved
+policies.
 
 ## Higgsfield MCP
 
@@ -152,9 +172,8 @@ Use `/setup-pstack` to map pstack roles to authenticated Pi models, or use
 `PI_CODING_AGENT_DIR` if set), never Git. Unconfigured roles inherit the parent
 model. No model pools or paid provider calls are configured by provisioning.
 
-Pstack's `subagent` supports single, parallel `tasks` (up to eight tasks, four
-running at once), and sequential `chain` calls. It returns completed results,
-not pi-subagents run handles. Children use fresh `--no-session` local processes.
+Pstack's `subagent` tool (headless `pi --print` children) is superseded by
+`hc` child terminals; see [Delegation through hc](#delegation-through-hc).
 Do not assume persistent child sessions, async run IDs, workbench file-only
 handoffs, resume, or a read-only sandbox.
 

@@ -14,7 +14,8 @@ python3 "$HOME/setup_herdr_app.py"
 The `dotfiles` task runs this command on install and update. The installer
 resolves its resources beside the real script, so a symlinked script works.
 It merges `home/herdr-app/settings.json` and `home/herdr-app/keys.json` into
-`~/.config/herdr-app/` and copies the four owned sidebar resources below.
+`~/.config/herdr-app/` and copies the owned sidebar, tab bar, and PR panel
+resources below.
 `HERDR_APP_HOME` overrides the destination. It never selects a layout.
 
 The installer manages these preferences:
@@ -46,12 +47,15 @@ The installer copies only these owned resources:
 - `mods/dotfiles-spaces/main.js`
 - `mods/dotfiles-spaces/grouping.js`
 - `mods/dotfiles-spaces/mod.json`
+- `mods/dotfiles-tabs/main.js`, `mod.json`, and `win-*.svg`
+- `mods/dotfiles-prs/main.js`, `prs.js`, `mod.json`, and `pr.svg`
 - `layouts/dotfiles-main.json`
 
-The custom layout is a snapshot of the shipped main layout. Only its spaces
-block uses the custom mod. Agents, tabs, menus, pane headers, files, changes,
-and window chrome continue to use the shipped mods. The custom mod has
-`place: "none"`, so installation does not dock another sidebar.
+The custom layout is a snapshot of the shipped main layout. Its spaces block
+uses the grouped sidebar mod, its tab bar uses the owned tab bar clone, and its
+side panel stack has a third `prs` child. Agents, menus, pane headers, files,
+changes, and window chrome continue to use the shipped mods. The custom mods
+have `place: "none"`, so installation does not dock another sidebar.
 
 After installing, check the mod and explicitly select the custom layout:
 
@@ -118,7 +122,9 @@ python3 -m unittest discover -s tests -p 'test_herdr_app_setup.py' -v
 node --test tests/test_herdr_app_*.mjs
 stage=$(mktemp -d)
 HERDR_APP_HOME="$stage" python3 home/setup_herdr_app.py
-HERDR_APP_HOME="$stage" herdr-app check "$stage/mods/dotfiles-spaces"
+for mod in dotfiles-spaces dotfiles-tabs dotfiles-prs; do
+  HERDR_APP_HOME="$stage" herdr-app check "$stage/mods/$mod"
+done
 ```
 
 The native check validates loading and an initial render, not painting,
@@ -128,6 +134,57 @@ restore, worktrees, menus, drag behavior, and numeric selection. Adapter tests
 execute fold callbacks and verify per-machine visibility and saved state.
 Visual and live-interaction checks have not been performed as part of the
 non-activating implementation.
+
+## Pull requests panel
+
+The owned tab bar adds a **PRs** button beside Files and Changes. It opens the
+`dotfiles-prs` panel for the shown space's repository, resolved like Changes
+from the focused pane's folder (remote spaces run `gh` on their machine). The
+panel needs the GitHub CLI (`gh`) signed in; without it, or outside a GitHub
+repository, it shows the error instead of a list.
+
+The top list shows the open pull requests (up to 50): number, title, a `draft`
+chip, a `review` chip when you or one of your teams is asked to review, else
+the review decision (`Approved`, `Changes`, `Review`), a checks dot (green ok,
+yellow pending, red failed), and age. The checkout's own PR comes first, then
+ones waiting on you, then yours, newest first. The header counts how many wait
+on you. The list refreshes every minute and on the refresh button.
+
+Picking a PR loads its review details through GraphQL:
+
+- **Pending review**: your own unsubmitted review, with its summary and draft
+  comments. Nobody else can see it until it is submitted. Approve, Comment, or
+  Request changes submit it (the message bar becomes its summary); Discard
+  deletes it. Without a pending review, the same buttons create and submit a
+  review directly; Comment then needs a message.
+- **Threads**: review threads, open ones first, with path, line, author, and
+  the first comment stripped of bot markup. Click a thread to select it; the
+  bar then offers Reply (message required), Resolve or Unresolve, and Back.
+- **Reviews** and **Checks**: the latest review per reviewer, and check counts
+  with failing check names.
+
+Every outward-facing action (submit, discard, reply, resolve, checkout, merge)
+arms first: the bar shows the question with Confirm and Cancel, and nothing is
+sent until Confirm is clicked. Open shows the PR in the browser through `gh pr
+view --web`. Checkout runs `gh pr checkout` in the space's checkout.
+
+**Merge** runs `gh pr merge --<method> --match-head-commit <sha>` with the head
+the panel last showed, so a push that lands in between fails the merge instead
+of merging unseen commits. The armed row offers Squash (default), Merge, and
+Rebase. The button is disabled for drafts, conflicting PRs, and unknown heads;
+branch protection, required checks, and approvals are enforced by GitHub, and a
+refusal is shown as the error text. The detail header shows GitHub's merge
+state (`clean`, `blocked`, `behind`, `dirty`, ...) and the list marks
+conflicting PRs. Editing PR metadata and starting a pending review are not
+offered; use `gh` or the browser for those.
+
+Verification so far: `herdr-app check` passes for both owned mods, the helper
+module has node tests (`tests/test_herdr_app_prs.mjs`) covering row flags,
+sorting, detail parsing, and the exact `gh` arguments of every action including the guarded merge, and the
+list, detail, and pending-review states were inspected live with `herdr-app
+shot` against a temporary private pending review on a personal PR. The submit,
+discard, reply, resolve, checkout, and merge clicks were not exercised in the
+app; only their `gh` argument construction is tested.
 
 ## Open WSL desktop web links in Windows
 
@@ -160,10 +217,18 @@ browser; this installer does not change its routing or launch a browser.
 
 The app config directory is never symlinked. App-owned state, shipped mods,
 shipped layouts, and layout click state remain outside this setup's scope.
-The app applies preference files live. The owned clone does not receive
-upstream sidebar fixes automatically. Its baseline and refresh procedure are
-recorded in [Grouped sidebar source](../home/herdr-app/PROVENANCE.md).
+The app applies preference files live. The owned clones do not receive
+upstream sidebar or tab bar fixes automatically. Their baselines and refresh
+procedure are recorded in [Grouped sidebar source](../home/herdr-app/PROVENANCE.md).
 
 Legacy shell aliases, Herdr launch scripts, and Neovim's `herdr-navigator`
 still use old `herdr`, not `hc` or the native app. These preferences do not
 migrate those integrations, transfer sessions, or restore live layouts.
+
+## Sub-agents in the Agents list
+
+Pi delegates through `hc run --bg` with the `worker` and `reviewer` templates
+from `home/.config/herdr-core/templates/` (see [`PI.md`](PI.md)). herdr-core
+records the starting terminal as each child's parent, so the shipped Agents
+mod nests them under the parent agent, where they can be peeked at, kept as a
+pane, or attached to.

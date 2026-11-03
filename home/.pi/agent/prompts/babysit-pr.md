@@ -48,16 +48,16 @@ and its confirmations enabled, including during pre-authorized delivery.
    authentication, missing-rule evidence, or ambiguous state failures are blockers,
    not permission to infer success or retry indefinitely.
 2. If a concrete in-scope fix is needed, increment the repair count before starting.
-   Read sibling `dispatch.md` and `review.md` for native child mechanics. Use
-   one local pstack `poteto-agent` with bundled scope and explicit current cwd.
-   Each call starts a fresh process. Give precise failing checks/thread IDs, acceptance
+   Read sibling `dispatch.md` and `review.md` for `hc` child mechanics. Use
+   one `worker` child in the explicit current cwd. Each launch is a fresh
+   process. Give precise failing checks/thread IDs, acceptance
    criteria, existing-edit boundaries, remaining time, and no-delivery/no-Jira
    instructions. Do not run overlapping writers or hide delivery in a child.
 3. The parent inspects the delta, validates relevant behavior, and obtains a fresh
    independent read-only review **before pushing**. A repair round includes the
    worker, validation, and review; failed review/validation needs another repair
    round within the same budget. No extra unbounded inner repair loop. Stop if
-   any prerequisite remains unverified or the native delegate path fails.
+   any prerequisite remains unverified or the `hc` delegate path fails.
 4. Commit only scoped, validated/reviewed changes with a conventional message;
    preserve unrelated index content and verify the actual commit diff. Push
    normally to the verified feature branch. Do not force-push, disable hooks,

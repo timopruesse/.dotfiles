@@ -219,3 +219,16 @@ commands and a verified local owner binding; no automatic terminal orchestration
 **Drop ticket/worktree scaffolding entirely** (user selected option 3).
 Do not migrate `/start` or hide its scaffolding inside `/dispatch`. This does not
 prohibit creating a branch or worktree when the user explicitly requests one.
+
+## Sub-agents through herdr-core (2026-11-03)
+
+**Decided:** every delegated child runs as an interactive herdr-core terminal
+(`hc run --bg` with the managed `worker`/`reviewer` templates in
+`home/.config/herdr-core/templates/`), not as a pstack `subagent` (`pi --print`)
+process. Children are visible and steerable as sub-agents in the native Herdr
+app, report with `hc send`, and are waited on with `hc wait`. Pstack's skills,
+`pstack_todo`, and model-role configuration stay; its `subagent` tool and the
+`pstack-reviewer` user agent are no longer used by `/dispatch`, `/review`,
+`/ship`, or `/babysit-pr`. Authority, index-preservation, review, and monitoring
+limits are unchanged. A missing `hc`, `HC_TERMINAL_ID`, or template is a
+reported blocker, not permission to fall back to another runtime.

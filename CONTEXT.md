@@ -9,10 +9,11 @@ Terms used by the active dotfiles setup:
 | **Pi resources** | Instructions and prompts in `home/.pi/agent/`, plus portable skills in `home/skills/`. Installed selectively by `home/setup_pi.py`. |
 | **agent directory** | Machine-local `~/.pi/agent`: includes credentials, preferences, trust decisions, releases, and saved sessions. Never bulk-symlinked or committed. |
 | **prompt template** | Markdown under `home/.pi/agent/prompts/`, invoked as a Pi slash command. Expands into model-followed instructions, not a deterministic runtime; Poteto playbooks can invoke pstack delegates. |
-| **pi-pstack** | Approved full Poteto package providing skills, sticky mode, task tracking, model-role configuration, and isolated local subagents. Replaces pi-subagents/workbench. |
+| **pi-pstack** | Approved full Poteto package providing skills, sticky mode, task tracking, and model-role configuration. Its `subagent` tool is not used; delegation goes through `hc`. Replaces pi-subagents/workbench. |
+| **hc** | herdr-core CLI. Runs sub-agents as interactive child terminals (`hc run --bg` with the `worker`/`reviewer` templates in `home/.config/herdr-core/templates/`), visible under their parent in the native Herdr app. |
 | **skill** | Directory under `home/skills/` with a `SKILL.md` entry point and optional supporting files. Loaded on demand. |
 | **coding-agent launcher** | Shared shell/Herdr/Neovim entry point; defaults to Pi, accepts explicit alternative CLI overrides. Independent of Git identity. |
-| **Herdr** | Terminal multiplexer. The official Pi integration reports pane state and native session references. Not an implicit subagent runtime. |
+| **Herdr** | Legacy terminal multiplexer (`herdr`) and the native app (`herdr-app`) over herdr-core. The official Pi integration reports pane state and native session references. Legacy pane commands are terminal management only. |
 | **pane context** | Per-pane metadata such as AWS profile, working-tree label, and agent label; owned by `pane_context.sh`. |
 | **99 provider** | Neovim adapter invoking `pi --print --no-session` for one-off editor requests. |
 

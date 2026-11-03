@@ -11,6 +11,16 @@ OWNED_RESOURCES = (
     'mods/dotfiles-spaces/grouping.js',
     'mods/dotfiles-spaces/mod.json',
     'mods/dotfiles-spaces/main.js',
+    'mods/dotfiles-tabs/mod.json',
+    'mods/dotfiles-tabs/main.js',
+    'mods/dotfiles-tabs/win-close.svg',
+    'mods/dotfiles-tabs/win-max.svg',
+    'mods/dotfiles-tabs/win-min.svg',
+    'mods/dotfiles-tabs/win-restore.svg',
+    'mods/dotfiles-prs/mod.json',
+    'mods/dotfiles-prs/main.js',
+    'mods/dotfiles-prs/prs.js',
+    'mods/dotfiles-prs/pr.svg',
     'layouts/dotfiles-main.json',
 )
 
