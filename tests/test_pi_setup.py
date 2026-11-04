@@ -285,7 +285,7 @@ assert.equal(await handler({ toolName: 'read', input: { command: 'git push --for
         for relative in ('AGENTS.md', 'prompts/plan.md', 'prompts/review.md',
                          'prompts/dispatch.md', 'prompts/ship.md',
                          'prompts/babysit-pr.md', 'agents/pstack-reviewer.md', 'skills/herdr',
-                         'skills/improve-codebase-architecture'):
+                         'skills/improve-codebase-architecture', 'extensions/hc-session-label.ts'):
             self.assertTrue((self.agent / relative).is_symlink())
             self.assertTrue((self.agent / relative).exists())
         before = settings.stat().st_mtime_ns

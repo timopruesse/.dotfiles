@@ -63,12 +63,14 @@ The installer copies only these owned resources:
 - `mods/dotfiles-spaces/mod.json`
 - `mods/dotfiles-tabs/main.js`, `mod.json`, and `win-*.svg`
 - `mods/dotfiles-prs/main.js`, `prs.js`, `mod.json`, and `pr.svg`
+- `mods/dotfiles-outputs/main.js`, `outputs.js`, `mod.json`, and `outputs.svg`
 - `layouts/dotfiles-main.json`
 
 The custom layout is a snapshot of the shipped main layout. Its spaces block
 uses the grouped sidebar mod, its agents block uses the owned agents clone
 (the shipped list plus the Alt+digit key commands), its tab bar uses the
-owned tab bar clone, and its side panel stack has a third `prs` child.
+owned tab bar clone, and its side panel stack has `prs` and `outputs` children
+after Files and Changes.
 Menus, pane headers, files, changes, and window chrome continue to use the
 shipped mods. The custom mods
 have `place: "none"`, so installation does not dock another sidebar.
@@ -138,7 +140,7 @@ python3 -m unittest discover -s tests -p 'test_herdr_app_setup.py' -v
 node --test tests/test_herdr_app_*.mjs
 stage=$(mktemp -d)
 HERDR_APP_HOME="$stage" python3 home/setup_herdr_app.py
-for mod in dotfiles-agents dotfiles-spaces dotfiles-tabs dotfiles-prs; do
+for mod in dotfiles-agents dotfiles-spaces dotfiles-tabs dotfiles-prs dotfiles-outputs; do
   HERDR_APP_HOME="$stage" herdr-app check "$stage/mods/$mod"
 done
 ```
@@ -204,6 +206,44 @@ list, detail, and pending-review states were inspected live with `herdr-app
 shot` against a temporary private pending review on a personal PR. The submit,
 discard, reply, resolve, checkout, and merge clicks were not exercised in the
 app; only their `gh` argument construction is tested.
+
+## Outputs panel
+
+The owned tab bar adds an **Outputs** button after PRs. It lists what the
+focused pane's agent session wrote: files it created or edited and artifacts it
+published, newest first, one row per path with how often it was touched. Click
+a file for a read-only preview (the Files panel's reader); click an artifact to
+open its `claude.ai` page through the system browser (the WSL bridge below).
+
+The panel reads the session transcript named by the terminal's
+`agent.transcript` label, with `agent.kind` (`claude` or `pi`) and
+`agent.session` beside it. Two small hooks set those labels through `hc label`
+on the terminal in `HC_TERMINAL_ID`, so they are exact per pane and survive
+`clear` and resume:
+
+- Claude Code: `~/.claude/hooks/hc-session-label.sh`, a `SessionStart` hook in
+  `.claude/settings.json`. It ignores sub-agents and never fails the session.
+- Pi: `~/.pi/agent/extensions/hc-session-label.ts`, linked by `setup_pi.py`,
+  on `session_start` and `agent_start`. Sessions without a file
+  (`pi --no-session`, the hc worker and reviewer templates) are skipped.
+
+Outside an hc terminal nothing is labelled and the panel says so. The
+transcript is narrowed with `grep` on the pane's machine before parsing, so
+remote spaces work through the same `exec` path as Changes; transcripts on a
+Windows host are not read yet. Claude Code rows come from the `Write`, `Edit`,
+`MultiEdit`, and `NotebookEdit` tool records and from `Artifact` publish
+results; Pi rows from its `write` and `edit` tool calls. Files changed through
+shell commands (heredocs, `sed`) do not appear; Changes covers those inside
+the repository.
+
+Verification so far: `herdr-app check` passes for the mod, node tests
+(`tests/test_herdr_app_outputs.mjs`) cover the label reader, the grep filter
+against real-shaped transcript lines, the parser for both agents, and the
+rendered panel (empty states, rows, preview click, artifact open, errors), and
+`tests/test_hc_session_label.py` runs the Claude hook against a fake `hc`. The
+panel was opened live with this checkout's own session labelled through the
+hook and showed the Claude Code header with its empty state; a transcript with
+rows was not inspected visually in the app.
 
 ## Open WSL desktop web links in Windows
 

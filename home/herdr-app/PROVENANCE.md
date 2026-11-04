@@ -25,8 +25,9 @@ herdr-app 0.1.12 (`main.js`, `mod.json`, and the four `win-*.svg` icons):
 | `mods/tabs/win-min.svg` | `c2f8d7d1e117f99b73970816877a926becb3da102cd706fd0f0ce1780259cd52` |
 | `mods/tabs/win-restore.svg` | `69ccde33c78d83ce39972ef129e158dd09fb19d3002bd709047801802fbad51d` |
 
-Its only changes are the header comment, its own `win-*.svg` asset paths, an
-always-offered `prs` panel, and the PRs button beside Files and Changes.
+Its only changes are the header comment, its own `win-*.svg` asset paths, the
+always-offered `prs` and `outputs` panels, and their buttons beside Files and
+Changes.
 
 `mods/dotfiles-agents/` is an owned snapshot of the shipped `mods/agents/`
 from herdr-app 0.1.12 (`main.js` and `mod.json`):
@@ -42,10 +43,11 @@ in `init`, a `command()` method that maps `focus1` .. `focus9` to
 `setAgentOrder` in `render`, and the sort menu overlay opening
 `dotfiles-agents` instead of `agents`. The layout's agents block points at it.
 `mods/dotfiles-prs/` is original code modeled on the shipped `changes` mod,
-not a clone of it.
+not a clone of it. `mods/dotfiles-outputs/` is original code; its preview
+reader mirrors the shipped `files` mod's.
 
 The layout changes are clone provenance, the spaces, agents, and tabs mod
-references, and a third `prs` child in the `panel-body` stack. The
+references, and the `prs` and `outputs` children in the `panel-body` stack. The
 mod retains shipped Git refresh, machine state, worktree nesting, rows,
 menus, dragging, compact numbering, and shared colors. Its additions are
 `grouping.js`, row location fields, and collapsible owner section rendering.

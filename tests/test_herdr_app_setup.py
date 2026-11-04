@@ -60,6 +60,8 @@ class HerdrAppSetupTests(unittest.TestCase):
             'mods/dotfiles-tabs/win-min.svg', 'mods/dotfiles-tabs/win-restore.svg',
             'mods/dotfiles-prs/main.js', 'mods/dotfiles-prs/mod.json',
             'mods/dotfiles-prs/prs.js', 'mods/dotfiles-prs/pr.svg',
+            'mods/dotfiles-outputs/main.js', 'mods/dotfiles-outputs/mod.json',
+            'mods/dotfiles-outputs/outputs.js', 'mods/dotfiles-outputs/outputs.svg',
         })
 
     def test_preserves_nested_settings_keys_and_app_state_with_backups(self):
@@ -200,7 +202,8 @@ class HerdrAppSetupTests(unittest.TestCase):
                                ('dotfiles-agents', 'agents')):
             self.assertIn(owned, mods)
             self.assertNotIn(shipped, mods)
-        for mod in ('workspace-chrome', 'files', 'changes', 'dotfiles-prs', 'workspace-status'):
+        for mod in ('workspace-chrome', 'files', 'changes', 'dotfiles-prs', 'dotfiles-outputs',
+                    'workspace-status'):
             self.assertIn(mod, mods)
         panel = None
         def find(node, wanted):
@@ -210,8 +213,8 @@ class HerdrAppSetupTests(unittest.TestCase):
             for child in node.get('children', []):
                 find(child, wanted)
         find(layout, 'panel-body')
-        self.assertEqual([c['id'] for c in panel['children']], ['files', 'changes', 'prs'])
-        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs', 'dotfiles-agents'):
+        self.assertEqual([c['id'] for c in panel['children']], ['files', 'changes', 'prs', 'outputs'])
+        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs', 'dotfiles-outputs', 'dotfiles-agents'):
             meta = json.loads((RESOURCES / f'mods/{name}/mod.json').read_text())
             self.assertEqual(meta['place'], 'none')
         agents = (RESOURCES / 'mods/dotfiles-agents/main.js').read_text()
@@ -223,6 +226,7 @@ class HerdrAppSetupTests(unittest.TestCase):
             self.assertEqual(keys[f'alt-{n}'], f'dotfiles-agents.focus{n}')
         tabs = (RESOURCES / 'mods/dotfiles-tabs/main.js').read_text()
         self.assertIn('panelButton("prs", "PRs", "mods/dotfiles-prs/pr.svg")', tabs)
+        self.assertIn('panelButton("outputs", "Outputs", "mods/dotfiles-outputs/outputs.svg")', tabs)
         self.assertNotIn('mods/tabs/', tabs)
 
     def test_documented_home_override(self):

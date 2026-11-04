@@ -22,12 +22,12 @@ To apply dotfiles changes: the `home/` directory contents are symlinked to `~`, 
 
 ```
 home/             # Symlinked to ~ — contains all user config files
-  .pi/agent/      # Active Pi instructions + prompt templates (resources only)
+  .pi/agent/      # Active Pi instructions, prompt templates, hc-session-label extension
   .config/herdr-core/templates/  # hc worker/reviewer templates for sub-agents
-  herdr-app/      # Owned native Herdr app resources (grouped sidebar, tab bar, PR panel)
+  herdr-app/      # Owned native Herdr app resources (grouped sidebar, tab bar, PR + Outputs panels)
   setup_pi.py     # Links resources + merges managed defaults; preserves other state
   skills/         # Portable Herdr and architecture skills
-  .claude/        # Independent client preferences + Herdr/AWS hooks
+  .claude/        # Independent client preferences + Herdr/AWS hooks (hc-session-label labels the pane)
   .cursor/        # Independent client preferences, MCP + Herdr/AWS hooks
   .gemini/        # Independent client preferences, MCP + Herdr hooks
   .config/nvim/   # Neovim config (Lua, Lazy.nvim-based)

@@ -1,5 +1,5 @@
-// Owned clone of the shipped `tabs` mod (herdr-app 0.1.12): adds the PRs panel
-// button beside Files and Changes. Keep local changes to that boundary.
+// Owned clone of the shipped `tabs` mod (herdr-app 0.1.12): adds the PRs and Outputs
+// panel buttons beside Files and Changes. Keep local changes to that boundary.
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
 import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings } from "herdr";
@@ -79,8 +79,8 @@ export default class Tabs extends View {
       ? Math.max(10, (root.traffic_lights[0] + 64) / settings().zoom - (sidebar?.hidden ? 0 : sidebar?.size?.px ?? 0))
       : 10;
     const panel = find(root, "panel"), body = find(root, "panel-body");
-    // The PRs panel is always offered; the welcome screen only knows Files and Changes.
-    const enabled = [...new Set([...(shared("workspace.panels") ?? ["files", "changes"]), "prs"])];
+    // The PRs and Outputs panels are always offered; the welcome screen only knows Files and Changes.
+    const enabled = [...new Set([...(shared("workspace.panels") ?? ["files", "changes"]), "prs", "outputs"])];
     this.syncPanel(space, panel, body, enabled);
     const panelButton = (id, label, icon) => {
       const on = panel && !panel.hidden && body?.active === id;
@@ -100,6 +100,7 @@ export default class Tabs extends View {
       .when(enabled.includes("files"), el => el.child(panelButton("files", "Files", "mods/files/file.svg")))
       .when(enabled.includes("changes"), el => el.child(panelButton("changes", "Changes", "mods/changes/changes.svg")))
       .when(enabled.includes("prs"), el => el.child(panelButton("prs", "PRs", "mods/dotfiles-prs/pr.svg")))
+      .when(enabled.includes("outputs"), el => el.child(panelButton("outputs", "Outputs", "mods/dotfiles-outputs/outputs.svg")))
       .when(w?.buttons, el => el.child(button("minimize", w.platform === "windows" ? svg("mods/dotfiles-tabs/win-min.svg").size(16) : "−", () => run("window.minimize")))
         .child(button("maximize", w.platform === "windows" ? svg(`mods/dotfiles-tabs/${w.maximized ? "win-restore" : "win-max"}.svg`).size(16) : "□", () => run("window.maximize")))
         .child(button("close-window", w.platform === "windows" ? svg("mods/dotfiles-tabs/win-close.svg").size(16) : svg("mods/pane/close.svg").size(13), () => run("window.close"))));

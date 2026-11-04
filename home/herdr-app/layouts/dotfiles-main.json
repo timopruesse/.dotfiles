@@ -168,6 +168,13 @@
                       "content": {
                         "mod": "dotfiles-prs"
                       }
+                    },
+                    {
+                      "id": "outputs",
+                      "type": "block",
+                      "content": {
+                        "mod": "dotfiles-outputs"
+                      }
                     }
                   ]
                 }

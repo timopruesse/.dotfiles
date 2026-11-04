@@ -23,6 +23,10 @@ OWNED_RESOURCES = (
     'mods/dotfiles-prs/main.js',
     'mods/dotfiles-prs/prs.js',
     'mods/dotfiles-prs/pr.svg',
+    'mods/dotfiles-outputs/mod.json',
+    'mods/dotfiles-outputs/main.js',
+    'mods/dotfiles-outputs/outputs.js',
+    'mods/dotfiles-outputs/outputs.svg',
     'layouts/dotfiles-main.json',
 )
 
