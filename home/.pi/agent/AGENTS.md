@@ -68,5 +68,8 @@ switching runtimes or claiming checks that did not run.
 - Legacy `herdr` pane commands are for explicit terminal-management requests
   only; sub-agents run through `hc`. Pi model selection is independent of
   repository identity.
+- Herdr changes target the native app first (`home/herdr-app/`, see
+  `docs/HERDR-APP.md`); the TUI config in `home/.config/herdr/` is the
+  fallback and only mirrors features the TUI also has.
 - Keep secrets and machine-local credentials out of dotfiles and session exports.
 - Be concise. Show file paths clearly when discussing changes.

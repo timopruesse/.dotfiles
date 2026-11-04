@@ -1,7 +1,10 @@
 # Native Herdr app preferences
 
-The native `herdr-app` window uses herdr-core (`hc`). It is separate from
-legacy `herdr` and its configuration in `home/.config/herdr/`.
+The native `herdr-app` window uses herdr-core (`hc`). It is the default Herdr
+in these dotfiles; the legacy `herdr` TUI and its configuration in
+`home/.config/herdr/` are the fallback. New behaviour (keys, layout, sidebar,
+panels, agent handling) is built and verified here first and mirrored into the
+TUI config only where the TUI offers the same feature.
 
 ## Apply preferences
 

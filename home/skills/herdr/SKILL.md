@@ -5,6 +5,11 @@ description: "Control Herdr panes, tabs, and workspaces on explicit terminal-man
 
 # Herdr terminal management
 
+This skill drives the legacy `herdr` TUI, the fallback. The native app
+(`herdr-app`) is the default Herdr: changes to keys, layouts, or mods belong in
+`home/herdr-app/` (see `docs/HERDR-APP.md`), and from inside the app use
+`herdr-app --skill` / `hc --skill` instead of these commands.
+
 Use this skill only when the user asks to inspect or manage terminals, workspaces,
 visible agents, or worktree tabs in legacy `herdr`. Do not create panes merely to
 delegate coding work: sub-agents run through herdr-core (`hc run --bg` with the

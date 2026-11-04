@@ -97,6 +97,22 @@ Spaces: picker `prefix+w`, new `prefix+shift+N`. Agents: goto
 (`prefix+g` / `prefix+C`) or sidebar (`prefix+a`); `clist` wraps
 `herdr agent list`. Last pane: `prefix+Tab`.
 
+## Herdr: native app first, TUI as fallback
+
+Herdr exists here twice: the native app (`herdr-app` over herdr-core, resources in
+`home/herdr-app/`, applied by `home/setup_herdr_app.py`, documented in
+[`docs/HERDR-APP.md`](docs/HERDR-APP.md)) and the legacy TUI (`herdr`, configured in
+`home/.config/herdr/config.toml`). The native app is the default. Any change to how
+Herdr looks or behaves (keybinds, layouts, sidebars, panels, agent handling) is made
+for the app first: its `keys.json`/`settings.json` preferences, the owned layout, or an
+owned mod (clone a shipped mod rather than editing it). Verify with the installer
+tests, `herdr-app check`, and `herdr-app do` before relying on it.
+
+The TUI is the backup for when the app is unavailable. Mirror a change into
+`config.toml` only when the TUI has the same feature, keep the two consistent where
+they overlap, and never add behaviour to the TUI alone unless the app cannot do it.
+Note which of the two a change was verified in; they share herdr-core, not config.
+
 ## Where to read
 
 - Aliases: [`ALIASES.md`](ALIASES.md)

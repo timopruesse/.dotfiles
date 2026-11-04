@@ -4,7 +4,7 @@ Declarative, YAML-driven dotfiles for WSL2 Ubuntu and macOS. Applied by [machine
 
 ## What's in here
 
-Neovim with [Lazy.nvim](https://github.com/folke/lazy.nvim) and [Catppuccin Mocha](https://github.com/catppuccin/nvim). Zsh, [zcomet](https://github.com/agkozak/zcomet), and [Oh My Posh](https://ohmyposh.dev). [Ghostty](https://ghostty.org) on macOS, [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) on WSL, [Herdr](https://herdr.dev) for multiplexing. Targets WSL2 on Windows and macOS on Apple Silicon.
+Neovim with [Lazy.nvim](https://github.com/folke/lazy.nvim) and [Catppuccin Mocha](https://github.com/catppuccin/nvim). Zsh, [zcomet](https://github.com/agkozak/zcomet), and [Oh My Posh](https://ohmyposh.dev). [Ghostty](https://ghostty.org) on macOS, [Windows Terminal Preview](https://github.com/timopruesse/.dotfiles/blob/main/terminal/settings.json) on WSL, [Herdr](https://herdr.dev) for multiplexing (the native app by default, the TUI as fallback). Targets WSL2 on Windows and macOS on Apple Silicon.
 
 Coding agent: **Pi** by default across repositories, with native sessions, skills, and prompt templates. Same entry points in zsh, Herdr, and Neovim; explicit legacy client overrides remain available. See [`docs/PI.md`](docs/PI.md), [`ALIASES.md`](ALIASES.md), and [`KEYBINDS.md`](KEYBINDS.md).
 

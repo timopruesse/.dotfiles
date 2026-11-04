@@ -13,7 +13,7 @@ Terms used by the active dotfiles setup:
 | **hc** | herdr-core CLI. Runs sub-agents as interactive child terminals (`hc run --bg` with the `worker`/`reviewer` templates in `home/.config/herdr-core/templates/`), visible under their parent in the native Herdr app. |
 | **skill** | Directory under `home/skills/` with a `SKILL.md` entry point and optional supporting files. Loaded on demand. |
 | **coding-agent launcher** | Shared shell/Herdr/Neovim entry point; defaults to Pi, accepts explicit alternative CLI overrides. Independent of Git identity. |
-| **Herdr** | Legacy terminal multiplexer (`herdr`) and the native app (`herdr-app`) over herdr-core. The official Pi integration reports pane state and native session references. Legacy pane commands are terminal management only. |
+| **Herdr** | The native app (`herdr-app`, default; owned resources in `home/herdr-app/`) and the legacy TUI (`herdr`, fallback; `home/.config/herdr/config.toml`), both over herdr-core. Changes target the app first and are mirrored into the TUI only where it has the same feature. The official Pi integration reports pane state and native session references. Legacy pane commands are terminal management only. |
 | **pane context** | Per-pane metadata such as AWS profile, working-tree label, and agent label; owned by `pane_context.sh`. |
 | **99 provider** | Neovim adapter invoking `pi --print --no-session` for one-off editor requests. |
 

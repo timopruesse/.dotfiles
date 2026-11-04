@@ -4,6 +4,23 @@
 
 ## Herdr
 
+The native app (`herdr-app`) is the default Herdr; the TUI (`herdr`) is the
+fallback. Changes to keys go to the app first (`home/herdr-app/keys.json`,
+applied by `setup_herdr_app.py`, see [`docs/HERDR-APP.md`](docs/HERDR-APP.md))
+and are mirrored into the TUI config only where the TUI has the same feature.
+
+### Native app
+
+The app has no prefix key. The dotfiles manage these global bindings; the rest
+are the app's defaults (`ctrl-shift-/` shows them).
+
+| Key | Action |
+| --- | --- |
+| `ctrl+1` … `ctrl+9` | Jump to space 1–9 (app's global space order) |
+| `alt+1` … `alt+9` | Jump to agent 1–9 (agents list order: pinned first, then the chosen sort) |
+
+### TUI (fallback)
+
 Prefix key: **Ctrl+Space**
 
 Config: `~/.config/herdr/config.toml` (from `home/.config/herdr/`).
@@ -35,7 +52,7 @@ jump agents via goto / sidebar.
 | `prefix g` / `prefix C` | Goto picker (spaces / agents / panes) — also the jump-to-agent path |
 | `prefix a` | Toggle agent/space sidebar |
 | `ctrl+1` … `ctrl+9` | Jump to space 1–9 (sidebar order, top to bottom) |
-| `alt+1` … `alt+9` | Jump to agent 1–9 (agent panel order; in the native app via the owned agents mod) |
+| `alt+1` … `alt+9` | Jump to agent 1–9 (agent panel order) |
 
 Agent status lives in herdr’s native sidebar (install integrations with
 `herdr integration install claude` / `cursor`). No custom harpoon or fzf picker.
