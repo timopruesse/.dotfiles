@@ -22,13 +22,23 @@ The installer manages these preferences:
 
 - `settings.json` sets `sounds.enabled` to `false` and `appearance` to `"dark"`.
 - `keys.json` binds global `ctrl-1` through `ctrl-9` to `space.select:1`
-  through `space.select:9`.
+  through `space.select:9`, and global `alt-1` through `alt-9` to
+  `dotfiles-agents.focus1` through `dotfiles-agents.focus9`.
 
 Existing fonts, other sound settings, and unrelated keys stay intact.
-Existing Alt+1 through Alt+9 space bindings stay intact too. Both shortcuts
-can select the same spaces. Ctrl+digits no longer reach the terminal when
-these global bindings apply. A more specific terminal, layout, or mod binding
-can override a global binding.
+The app ships Alt+1 through Alt+9 as space bindings; the installer replaces
+them, so Ctrl+digits select spaces and Alt+digits select agents, as in the
+TUI. Alt+digits only act while the `dotfiles-main` layout shows the owned
+agents mod; on the shipped layout they do nothing. Ctrl+digits and
+Alt+digits no longer reach the terminal when these global bindings apply.
+A more specific terminal, layout, or mod binding can override a global
+binding.
+
+Alt+n shows the nth top-level agent in the order the agents list draws it:
+pinned agents first, then the chosen sort (priority or grouped by space).
+That is the number the narrow rail prints beside each row. Sub-agents are
+not counted. The key does what clicking the row does (`pane.focus`), so it
+also switches to the agent's space and tab.
 
 The installer preflights preferences and owned resources before writing.
 Invalid JSON, non-object roots, non-object managed preference sections,
@@ -44,6 +54,7 @@ not across the whole install. Rerun setup after an interrupted install.
 
 The installer copies only these owned resources:
 
+- `mods/dotfiles-agents/main.js` and `mod.json`
 - `mods/dotfiles-spaces/main.js`
 - `mods/dotfiles-spaces/grouping.js`
 - `mods/dotfiles-spaces/mod.json`
@@ -52,9 +63,11 @@ The installer copies only these owned resources:
 - `layouts/dotfiles-main.json`
 
 The custom layout is a snapshot of the shipped main layout. Its spaces block
-uses the grouped sidebar mod, its tab bar uses the owned tab bar clone, and its
-side panel stack has a third `prs` child. Agents, menus, pane headers, files,
-changes, and window chrome continue to use the shipped mods. The custom mods
+uses the grouped sidebar mod, its agents block uses the owned agents clone
+(the shipped list plus the Alt+digit key commands), its tab bar uses the
+owned tab bar clone, and its side panel stack has a third `prs` child.
+Menus, pane headers, files, changes, and window chrome continue to use the
+shipped mods. The custom mods
 have `place: "none"`, so installation does not dock another sidebar.
 
 After installing, check the mod and explicitly select the custom layout:
@@ -122,13 +135,16 @@ python3 -m unittest discover -s tests -p 'test_herdr_app_setup.py' -v
 node --test tests/test_herdr_app_*.mjs
 stage=$(mktemp -d)
 HERDR_APP_HOME="$stage" python3 home/setup_herdr_app.py
-for mod in dotfiles-spaces dotfiles-tabs dotfiles-prs; do
+for mod in dotfiles-agents dotfiles-spaces dotfiles-tabs dotfiles-prs; do
   HERDR_APP_HOME="$stage" herdr-app check "$stage/mods/$mod"
 done
 ```
 
 The native check validates loading and an initial render, not painting,
-remote asynchronous states, or later interactions. After authorized activation,
+remote asynchronous states, or later interactions. The agents clone has node
+tests (`tests/test_herdr_app_agents.mjs`) that render the actual list and
+check that `focus<n>` picks the nth drawn agent in both sorts, before the
+first render, and through the `nextCommand()` loop. After authorized activation,
 inspect expanded and narrow sidebars, local and remote spaces, owner folds and
 restore, worktrees, menus, drag behavior, and numeric selection. Adapter tests
 execute fold callbacks and verify per-machine visibility and saved state.

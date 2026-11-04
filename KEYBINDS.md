@@ -35,7 +35,7 @@ jump agents via goto / sidebar.
 | `prefix g` / `prefix C` | Goto picker (spaces / agents / panes) — also the jump-to-agent path |
 | `prefix a` | Toggle agent/space sidebar |
 | `ctrl+1` … `ctrl+9` | Jump to space 1–9 (sidebar order, top to bottom) |
-| `alt+1` … `alt+9` | Jump to agent 1–9 (agent panel order) |
+| `alt+1` … `alt+9` | Jump to agent 1–9 (agent panel order; in the native app via the owned agents mod) |
 
 Agent status lives in herdr’s native sidebar (install integrations with
 `herdr integration install claude` / `cursor`). No custom harpoon or fzf picker.

@@ -8,6 +8,8 @@ import tempfile
 from pathlib import Path
 
 OWNED_RESOURCES = (
+    'mods/dotfiles-agents/mod.json',
+    'mods/dotfiles-agents/main.js',
     'mods/dotfiles-spaces/grouping.js',
     'mods/dotfiles-spaces/mod.json',
     'mods/dotfiles-spaces/main.js',

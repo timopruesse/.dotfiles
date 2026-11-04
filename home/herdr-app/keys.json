@@ -8,6 +8,15 @@
     "ctrl-6": "space.select:6",
     "ctrl-7": "space.select:7",
     "ctrl-8": "space.select:8",
-    "ctrl-9": "space.select:9"
+    "ctrl-9": "space.select:9",
+    "alt-1": "dotfiles-agents.focus1",
+    "alt-2": "dotfiles-agents.focus2",
+    "alt-3": "dotfiles-agents.focus3",
+    "alt-4": "dotfiles-agents.focus4",
+    "alt-5": "dotfiles-agents.focus5",
+    "alt-6": "dotfiles-agents.focus6",
+    "alt-7": "dotfiles-agents.focus7",
+    "alt-8": "dotfiles-agents.focus8",
+    "alt-9": "dotfiles-agents.focus9"
   }
 }

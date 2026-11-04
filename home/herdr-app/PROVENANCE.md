@@ -27,11 +27,25 @@ herdr-app 0.1.12 (`main.js`, `mod.json`, and the four `win-*.svg` icons):
 
 Its only changes are the header comment, its own `win-*.svg` asset paths, an
 always-offered `prs` panel, and the PRs button beside Files and Changes.
+
+`mods/dotfiles-agents/` is an owned snapshot of the shipped `mods/agents/`
+from herdr-app 0.1.12 (`main.js` and `mod.json`):
+
+| Shipped file | SHA-256 |
+| --- | --- |
+| `mods/agents/main.js` | `8fd808ca158ac3a6861de0177ce5d07ef789c53ee5e9f827f1135f7bee27fb0d` |
+| `mods/agents/mod.json` | `9990dc9eb8ac4c956f1d6f49ff1bf1691dc7eae7a38865c82ef5b9b229839a20` |
+
+Its only changes are the header comment, the `nextCommand` import and loop
+in `init`, a `command()` method that maps `focus1` .. `focus9` to
+`pane.focus` on the nth drawn top-level agent, `this.order` recorded beside
+`setAgentOrder` in `render`, and the sort menu overlay opening
+`dotfiles-agents` instead of `agents`. The layout's agents block points at it.
 `mods/dotfiles-prs/` is original code modeled on the shipped `changes` mod,
 not a clone of it.
 
-The layout changes are clone provenance, the spaces and tabs mod references,
-and a third `prs` child in the `panel-body` stack. The
+The layout changes are clone provenance, the spaces, agents, and tabs mod
+references, and a third `prs` child in the `panel-body` stack. The
 mod retains shipped Git refresh, machine state, worktree nesting, rows,
 menus, dragging, compact numbering, and shared colors. Its additions are
 `grouping.js`, row location fields, and collapsible owner section rendering.
@@ -64,8 +78,8 @@ changed copies. It does not mirror directories or own app state.
 ## Refresh the snapshot
 
 Compare the installed shipped resources with these hashes after app
-updates. Review changes to the shipped spaces mod and main layout, then
-port relevant upstream fixes into the owned snapshot. Keep local changes
+updates. Review changes to the shipped spaces, agents, and tabs mods and the main
+layout, then port relevant upstream fixes into the owned snapshots. Keep local changes
 at the owner-group rendering boundary. Update the hashes and clone version
 after reviewing a new baseline.
 

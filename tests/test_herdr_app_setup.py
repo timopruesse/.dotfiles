@@ -52,6 +52,7 @@ class HerdrAppSetupTests(unittest.TestCase):
             self.assertFalse((self.target / name).is_symlink())
         self.assertEqual(set(self.snapshot()), {
             'keys.json', 'settings.json', 'layouts/dotfiles-main.json',
+            'mods/dotfiles-agents/main.js', 'mods/dotfiles-agents/mod.json',
             'mods/dotfiles-spaces/main.js', 'mods/dotfiles-spaces/mod.json',
             'mods/dotfiles-spaces/grouping.js',
             'mods/dotfiles-tabs/main.js', 'mods/dotfiles-tabs/mod.json',
@@ -195,10 +196,11 @@ class HerdrAppSetupTests(unittest.TestCase):
             for child in node.get('children', []):
                 visit(child)
         visit(layout)
-        for owned, shipped in (('dotfiles-spaces', 'spaces'), ('dotfiles-tabs', 'tabs')):
+        for owned, shipped in (('dotfiles-spaces', 'spaces'), ('dotfiles-tabs', 'tabs'),
+                               ('dotfiles-agents', 'agents')):
             self.assertIn(owned, mods)
             self.assertNotIn(shipped, mods)
-        for mod in ('workspace-chrome', 'agents', 'files', 'changes', 'dotfiles-prs', 'workspace-status'):
+        for mod in ('workspace-chrome', 'files', 'changes', 'dotfiles-prs', 'workspace-status'):
             self.assertIn(mod, mods)
         panel = None
         def find(node, wanted):
@@ -209,9 +211,16 @@ class HerdrAppSetupTests(unittest.TestCase):
                 find(child, wanted)
         find(layout, 'panel-body')
         self.assertEqual([c['id'] for c in panel['children']], ['files', 'changes', 'prs'])
-        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs'):
+        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs', 'dotfiles-agents'):
             meta = json.loads((RESOURCES / f'mods/{name}/mod.json').read_text())
             self.assertEqual(meta['place'], 'none')
+        agents = (RESOURCES / 'mods/dotfiles-agents/main.js').read_text()
+        self.assertIn('mod: "dotfiles-agents"', agents)
+        self.assertNotIn('mod: "agents"', agents)
+        keys = json.loads((RESOURCES / 'keys.json').read_text())['global']
+        for n in range(1, 10):
+            self.assertEqual(keys[f'ctrl-{n}'], f'space.select:{n}')
+            self.assertEqual(keys[f'alt-{n}'], f'dotfiles-agents.focus{n}')
         tabs = (RESOURCES / 'mods/dotfiles-tabs/main.js').read_text()
         self.assertIn('panelButton("prs", "PRs", "mods/dotfiles-prs/pr.svg")', tabs)
         self.assertNotIn('mods/tabs/', tabs)
