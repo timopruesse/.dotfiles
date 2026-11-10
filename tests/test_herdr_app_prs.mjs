@@ -112,3 +112,136 @@ test("age is short and never negative-looking", () => {
   assert.deepEqual([0, now, now - 5 * 60000, now - 3 * 3600000, now - 2 * 86400000, now - 70 * 86400000].map((t) => prs.age(t, now)),
     ["", "now", "5m", "3h", "2d", "2mo"]);
 });
+
+// Render the actual panel class with the native builders and host imports replaced:
+// one record per repository, kept across pane, tab and space switches.
+import vm from "node:vm";
+const main = await readFile(new URL("../home/herdr-app/mods/dotfiles-prs/main.js", import.meta.url), "utf8");
+
+function element() {
+  const node = { children: [], events: {} };
+  const builder = new Proxy(node, {
+    get(target, key) {
+      if (key === "id") return (id) => { target.id = id; return builder; };
+      if (key === "child") return (child) => { target.children.push(child); return builder; };
+      if (key === "children") return (children) => { target.children.push(...children); return builder; };
+      if (key === "when") return (condition, fn) => (condition ? fn(builder) : builder);
+      if (key.startsWith("on_")) return (...args) => { target.events[key] = args.at(-1); return builder; };
+      if (key === "data") return target;
+      return () => builder;
+    },
+  });
+  return builder;
+}
+const texts = (b) => (b && b.data ? b.data.children.flatMap(texts) : typeof b === "string" ? [b] : []);
+
+const DETAIL = JSON.stringify({ data: { viewer: { login: "timo" }, repository: { pullRequest: { reviews: { nodes: [] }, reviewThreads: { nodes: [] }, latestReviews: { nodes: [] } } } } });
+const REPOS = { "/repo-a": { name: "o/a", list: [pr(1), pr(2)] }, "/repo-b": { name: "o/b", list: [pr(7)] } };
+const rootOf = (cwd) => Object.keys(REPOS).find((root) => cwd === root || cwd.startsWith(root + "/")) ?? null;
+
+function panel(cwd = "/repo-a") {
+  const world = { cwd, pane: "p1", branch: null };
+  const execs = [];
+  const calls = (...words) => execs.filter(([cmd, args]) => cmd === words[0] && words.slice(1).every((w, i) => args[i] === w)).length;
+  const exec = (cmd, args, opts = {}) => {
+    execs.push([cmd, args, opts]);
+    const root = rootOf(opts.cwd ?? "");
+    const ok = (stdout) => Promise.resolve({ code: 0, stdout, stderr: "" });
+    if (cmd === "git") return root ? ok(root + "\n") : Promise.resolve({ code: 128, stdout: "", stderr: "fatal: not a git repository" });
+    if (args[0] === "repo") return ok(REPOS[root].name + "\n");
+    if (args[0] === "pr" && args[1] === "list") return ok(JSON.stringify(REPOS[root].list));
+    if (args[0] === "api" && args[1] === "user") return ok("timo\n");
+    if (args[0] === "api" && args[1] === "user/teams") return ok("");
+    if (args[0] === "api" && args[1] === "graphql") return ok(DETAIL);
+    throw new Error(`unexpected exec ${cmd} ${args.join(" ")}`);
+  };
+  const inputs = [];
+  const sandbox = {
+    console, View: class {}, div: element, svg: element, v_flex: element, h_flex: element,
+    Input: { new: () => element() },
+    InputState: { new: () => { const s = { v: "", on() {}, value: () => s.v, set_value: (v) => { s.v = v; inputs.push(v); } }; return s; } },
+    spaces: () => [{ id: "s1", active: true, folder: world.cwd, machine: null }],
+    panes: () => [{ pane: world.pane, cwd: world.cwd, branch: world.branch }],
+    focused: () => ({ space: "s1", tab: "tb1", pane: world.pane, terminal: "t1", cwd: world.cwd }),
+    exec, theme: () => new Proxy({}, { get: (_t, k) => k }),
+    ...prs,
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(main.replace(/^import .*;$/gm, "").replace("export default class PullRequests", "class PullRequests") + "\nglobalThis.Mod = PullRequests;", sandbox);
+  const mod = new sandbox.Mod();
+  const spawned = [];
+  const cx = { spawn: (fn) => spawned.push(fn(cx)), notify() {}, timer: { every() {} }, stop_propagation() {}, focus_handle: () => ({ focus() {} }) };
+  mod.init({}, cx);
+  const settle = async () => { while (spawned.length) await spawned.shift(); };
+  const shown = () => texts(mod.render(cx));
+  const go = (cwd, pane) => { world.cwd = cwd; world.pane = pane ?? world.pane; return shown(); };
+  return { mod, cx, calls, inputs, settle, shown, go, world };
+}
+
+test("panel: another pane in the same checkout keeps the rows and the picked PR without listing again", async () => {
+  const p = panel("/repo-a");
+  await p.settle();
+  let seen = p.shown();
+  assert.ok(seen.includes("PR 1") && seen.includes("PR 2"));
+  assert.equal(p.mod.state.open, 2, "newest open PR is picked first");
+  p.mod.pick(1, p.cx);
+  await p.settle();
+  assert.equal(p.mod.state.open, 1);
+  assert.equal(p.calls("gh", "pr", "list"), 1);
+  seen = p.go("/repo-a/src", "p2");
+  assert.ok(seen.includes("PR 1") && !seen.includes("Loading pull requests…"), "rows stay while the new folder resolves");
+  await p.settle();
+  seen = p.shown();
+  assert.ok(seen.includes("PR 1") && seen.includes("PR 2"));
+  assert.equal(p.mod.state.open, 1, "the picked PR survives the switch");
+  assert.equal(p.calls("gh", "pr", "list"), 1, "same repository, no second listing");
+  assert.equal(p.calls("gh", "repo"), 1, "a known checkout root is not looked up again");
+  assert.equal(p.calls("git"), 2);
+});
+
+test("panel: another repository gets its own record and the first comes back as it was, at once", async () => {
+  const p = panel("/repo-a");
+  await p.settle();
+  p.mod.pick(1, p.cx);
+  await p.settle();
+  p.mod.state.message = "draft for a";
+  let seen = p.go("/repo-b", "p3");
+  assert.ok(seen.includes("PR 1") && !seen.includes("Loading pull requests…"), "the old record shows until the new one is known");
+  await p.settle();
+  seen = p.shown();
+  assert.ok(seen.includes("PR 7") && !seen.includes("PR 1"));
+  assert.equal(p.mod.state.repo, "o/b");
+  assert.equal(p.mod.state.open, 7);
+  assert.equal(p.inputs.at(-1), "", "the message bar follows the record");
+  assert.equal(p.calls("gh", "pr", "list"), 2);
+  seen = p.go("/repo-a", "p1");
+  assert.ok(seen.includes("PR 1") && seen.includes("PR 2") && !seen.includes("PR 7"), "restored synchronously");
+  assert.equal(p.mod.state.open, 1);
+  assert.equal(p.mod.state.message, "draft for a");
+  assert.equal(p.inputs.at(-1), "draft for a");
+  assert.equal(p.calls("gh", "pr", "list"), 2, "a fresh record is not listed again");
+  // A record shown again after a while refreshes behind its rows instead of clearing them.
+  p.go("/repo-b", "p3");
+  await p.settle();
+  p.mod.records.get("|o/a").fetched = 1;
+  seen = p.go("/repo-a", "p1");
+  assert.ok(seen.includes("PR 1") && !seen.includes("Loading pull requests…"));
+  await p.settle();
+  assert.equal(p.calls("gh", "pr", "list"), 3);
+  assert.equal(p.mod.state.open, 1);
+});
+
+test("panel: a folder outside git shows the error, keeps nothing, and asks again on refresh", async () => {
+  const p = panel("/plain");
+  await p.settle();
+  assert.ok(p.shown().includes("Not a git repository"));
+  assert.equal(p.mod.state, null);
+  assert.equal(p.mod.places.size, 0);
+  p.mod.refresh(p.cx);
+  await p.settle();
+  assert.equal(p.calls("git"), 2);
+  const seen = p.go("/repo-a", "p1");
+  assert.ok(seen.includes("Loading pull requests…"), "a repository never listed shows the loader");
+  await p.settle();
+  assert.ok(p.shown().includes("PR 1"));
+});

@@ -171,6 +171,16 @@ yellow pending, red failed), and age. The checkout's own PR comes first, then
 ones waiting on you, then yours, newest first. The header counts how many wait
 on you. The list refreshes every minute and on the refresh button.
 
+The panel keeps one record per repository and machine: the list, the picked
+PR, its details, and the unsent message. Moving the focus to another agent,
+tab, or space switches records instead of clearing the panel, so a repository
+seen before comes back as it was, at once, and refreshes behind its rows when
+its list is older than 20 seconds. Worktrees of one repository share a record;
+actions still run in the shown checkout. A folder is resolved to its checkout
+root and repository once; the loader shows only for a repository that was never
+listed. Errors (no git repository, no GitHub remote) are not remembered, so the
+next timer tick or refresh click asks again.
+
 Picking a PR loads its review details through GraphQL:
 
 - **Pending review**: your own unsubmitted review, with its summary and draft
@@ -201,7 +211,9 @@ offered; use `gh` or the browser for those.
 
 Verification so far: `herdr-app check` passes for both owned mods, the helper
 module has node tests (`tests/test_herdr_app_prs.mjs`) covering row flags,
-sorting, detail parsing, and the exact `gh` arguments of every action including the guarded merge, and the
+sorting, detail parsing, and the exact `gh` arguments of every action including the guarded merge; the
+rendered panel is tested for keeping its record across pane switches within a
+checkout, between repositories, and after errors; and the
 list, detail, and pending-review states were inspected live with `herdr-app
 shot` against a temporary private pending review on a personal PR. The submit,
 discard, reply, resolve, checkout, and merge clicks were not exercised in the
