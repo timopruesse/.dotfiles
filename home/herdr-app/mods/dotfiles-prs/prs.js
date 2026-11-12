@@ -305,6 +305,9 @@ export function snippetOf(diff, path, line, side = "RIGHT", before = 3, after = 
   return rows.slice(Math.max(0, at - before), at + after + 1).map((r) => ({ ...r, here: r === rows[at] }));
 }
 
+// Header lines must stay one line: a path or title with a line break could forge a section.
+const oneLine = (text) => String(text ?? "").replace(/[\r\n]+/g, " ");
+
 const fenceOf = (rows) => rows.length ? ["```diff", ...rows.map((r) => r.kind === "@" || r.kind === "" ? r.text : `${r.kind}${String(r.number).padStart(5)} │ ${r.text}${r.here ? "   ◀" : ""}`), "```"] : [];
 
 // The pending review as a Markdown file for an editor: the summary, then each draft
@@ -312,14 +315,14 @@ const fenceOf = (rows) => rows.length ? ["```diff", ...rows.map((r) => r.kind ==
 // line in a fence. parseReviewFile reads it back; the fence is not part of the body.
 export function reviewFile(pending, { repo, number, title, diff } = {}) {
   const out = [
-    `<!-- Pending review on ${repo}#${number}: ${title ?? ""}`,
+    `<!-- Pending review on ${oneLine(repo)}#${number}: ${oneLine(title)}`,
     "     Change the summary and the drafts below and save; the panel applies what changed.",
     "     Keep the \"## \" headers and their ids. An emptied draft is deleted; a missing one is",
     "     left as it is. The diff fences are context only and are ignored. -->",
     "", "## Summary", "", pending?.body ?? "", "",
   ];
   for (const c of pending?.comments ?? []) {
-    out.push(`## ${c.path}${c.line ? `:${c.line}` : ""} <!-- draft ${c.id} -->`, "");
+    out.push(`## ${oneLine(c.path)}${c.line ? `:${c.line}` : ""} <!-- draft ${oneLine(c.id)} -->`, "");
     const fence = fenceOf(snippetOf(diff, c.path, c.line, c.side));
     if (fence.length) out.push(...fence, "");
     out.push(c.body ?? "", "");
@@ -329,11 +332,11 @@ export function reviewFile(pending, { repo, number, title, diff } = {}) {
 
 export function parseReviewFile(text) {
   const parsed = { summary: null, drafts: new Map() };
-  let put = null, lines = [];
+  let put = null, lines = [], seenSummary = false;
   const close = () => { if (put) put(stripFence(lines).join("\n").trim()); lines = []; };
   for (const line of String(text ?? "").split("\n")) {
     const draft = /^## .*<!-- draft (\S+) -->\s*$/.exec(line);
-    if (/^## Summary\s*$/.test(line)) { close(); put = (body) => { parsed.summary = body; }; continue; }
+    if (/^## Summary\s*$/.test(line)) { close(); put = parsed.summary === null && !seenSummary ? (body) => { parsed.summary = body; } : null; seenSummary = true; continue; }
     if (draft) { close(); put = (body) => { parsed.drafts.set(draft[1], body); }; continue; }
     if (/^## /.test(line)) { close(); put = null; continue; }
     lines.push(line);

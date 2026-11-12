@@ -545,6 +545,12 @@ test("the review file round-trips the summary and drafts and reports what change
   assert.deepEqual(prs.reviewEdits(pending, partial), [{ kind: "draft", id: "C2", path: "new.md", line: 9, body: "only this" }], "a missing section is left alone");
   assert.deepEqual(prs.reviewEdits(null, partial), []);
   assert.deepEqual(prs.parseReviewFile("## src/a.ts:2 <!-- draft C1 -->\n```diff\n+ x\n```\n").drafts.get("C1"), "", "a fence alone is an emptied draft");
+  // Headers stay one line, and only the first Summary counts, so a path cannot forge a section.
+  const odd = prs.reviewFile({ id: "R", body: "sum", comments: [{ id: "C9", path: "a\n## Summary\n", line: 1, body: "x" }] }, { repo: "o/a", number: 1, title: "t\nu" });
+  assert.match(odd, /^## a ## Summary :1 <!-- draft C9 -->$/m);
+  assert.equal(odd.split("\n## Summary").length, 2);
+  const twice = prs.parseReviewFile("## Summary\n\nfirst\n\n## Summary\n\nsecond\n");
+  assert.equal(twice.summary, "first");
 });
 
 const DRAFTS_DETAIL = JSON.stringify({ data: { viewer: { login: "timo" }, repository: { pullRequest: {
