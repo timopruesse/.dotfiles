@@ -15,3 +15,13 @@ export BROWSER="${${(%):-%x}:A:h}/wsl_browser.py"
 
 # D3D12 GPU acceleration
 export LIBVA_DRIVER_NAME=d3d12
+
+# herdr-app: render on the GPU. Ubuntu's Mesa ships no Vulkan-on-D3D12 driver,
+# so the app's wgpu renderer lands on lavapipe (CPU Vulkan). Hide Vulkan and
+# force Mesa's d3d12 OpenGL driver; wgpu then renders through WSLg's D3D12
+# path. The two log knobs silence Mesa's harmless EGL probe output.
+herdr-app() {
+  VK_DRIVER_FILES=/nonexistent GALLIUM_DRIVER=d3d12 \
+    EGL_LOG_LEVEL=fatal MESA_LOG=null \
+    command herdr-app "$@"
+}

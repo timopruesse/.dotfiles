@@ -284,6 +284,25 @@ these defaults. Local HTML, PDF, and `file:` associations stay unchanged. The
 existing `home/.config/zsh/wsl_browser.py` bridge selects the Windows default
 browser; this installer does not change its routing or launch a browser.
 
+## Render on the GPU in WSL
+
+Ubuntu's Mesa packages ship no Vulkan-on-D3D12 driver, so the app's wgpu
+renderer picks lavapipe, Mesa's CPU Vulkan device, under WSLg. Mesa's `d3d12`
+OpenGL driver does reach the GPU, and wgpu falls back to OpenGL when Vulkan
+exposes no device. `home/.config/zsh/wsl.zsh` defines a `herdr-app` shell
+function that sets `VK_DRIVER_FILES=/nonexistent` and `GALLIUM_DRIVER=d3d12`
+before the real binary, plus `EGL_LOG_LEVEL=fatal` and `MESA_LOG=null` to
+silence Mesa's harmless EGL probe warnings at startup. The `zbus::proxy`
+warnings about `org.freedesktop.portal.Desktop` remain: they come from the
+missing xdg-desktop-portal and the app's log filter ignores environment
+variables.
+
+Verified on 2026-11-12 (RTX 2080 Ti, Mesa 26.0.8): the window loads
+`libd3d12core.so` and the NVIDIA D3D12 driver instead of `libvulkan_lvp.so`,
+renders the same frame, and uses about a twentieth of the idle CPU. Only
+shell launches go through the function; `command herdr-app` bypasses it.
+Outside WSL the file returns early and nothing changes.
+
 ## Limits
 
 The app config directory is never symlinked. App-owned state, shipped mods,
