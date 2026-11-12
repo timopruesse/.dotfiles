@@ -11,8 +11,8 @@
 // clearing the panel, so a repository seen before comes back as it was, at once.
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, TextareaState, Textarea, Scrollbar, v_virtual_list, VirtualListScrollHandle } from "gpui-base";
-import { spaces, panes, focused, exec, run, nextCommand, theme, settings } from "herdr";
-import { rowsOf, sortRows, detailOf, pendingOf, reviewArgs, threadArgs, mergeArgs, draftArgs, parseDiff, diffRows, markersOf, remoteFor, reviewRefs, visibleThreads, plain, age, DETAIL_QUERY, PENDING_QUERY, DECISION, MERGE_METHODS } from "./prs.js";
+import { spaces, panes, focused, exec, run, nextCommand, theme, settings, home, readTextFile, writeTextFile, watchFolder } from "herdr";
+import { rowsOf, sortRows, detailOf, pendingOf, reviewArgs, threadArgs, mergeArgs, draftArgs, parseDiff, diffRows, markersOf, remoteFor, reviewRefs, visibleThreads, editArgs, snippetOf, reviewFile, parseReviewFile, reviewEdits, plain, age, DETAIL_QUERY, PENDING_QUERY, DECISION, MERGE_METHODS } from "./prs.js";
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();
@@ -34,6 +34,7 @@ const ACTIONS = {
   merge: { label: "Merge", title: "Merge this pull request?" },
   add: { label: "Add to review" },
   delete: { label: "Delete draft" },
+  edit: { label: "Save" },
   reply: { label: "Reply" },
   resolve: { label: "Resolve" },
   unresolve: { label: "Unresolve" },
@@ -45,7 +46,7 @@ const STATUS = { A: "ansi2", D: "ansi1", R: "ansi4", M: "blocked" };
 function record(repo, on) {
   return { repo, on, raw: [], rows: [], pendingNumbers: new Set(), detail: null, open: null, thread: null, closed: false,
     error: null, note: null, armed: null, message: "", loading: false, busy: false, fetched: 0,
-    view: "review", hideResolved: false, diff: null, diffHead: null, diffError: null, diffLoading: false, file: null, line: null };
+    view: "review", hideResolved: false, editing: null, stash: null, nvimEdit: null, diff: null, diffHead: null, diffError: null, diffLoading: false, file: null, line: null };
 }
 
 export default class PullRequests extends View {
@@ -70,7 +71,7 @@ export default class PullRequests extends View {
     this.identify(cx);
     this.sync(cx);
     cx.timer.every(60000, (cx) => this.refresh(cx));
-    // `dotfiles-prs.<command>` from keys.json or `herdr-app do`: review, files, resolved, nvim, refresh.
+    // `dotfiles-prs.<command>` from keys.json or `herdr-app do`: review, files, resolved, nvim, edit, refresh.
     cx.spawn(async (cx) => { for (;;) this.command(await nextCommand(), cx); });
   }
 
@@ -78,6 +79,7 @@ export default class PullRequests extends View {
     if (name === "review" || name === "files") this.view(name, cx);
     else if (name === "resolved") this.toggleResolved(cx);
     else if (name === "nvim") this.nvim(cx);
+    else if (name === "edit") this.editInNvim(cx);
     else if (name === "refresh") this.sync(cx, true);
   }
 
@@ -207,6 +209,7 @@ export default class PullRequests extends View {
     if (r.code !== 0) { s.detail = null; s.note = `Cannot load review details: ${plain(r.stderr || r.stdout, 200)}`; return; }
     s.detail = detailOf(JSON.parse(r.stdout));
     if (s.thread && !s.detail.threads.some((t) => t.id === s.thread)) s.thread = null;
+    if (s.editing && (!s.detail.pending || (s.editing.kind === "draft" && !s.detail.pending.comments.some((c) => c.id === s.editing.id)))) this.stopEditing(s, true);
     if (s.detail.pending) s.pendingNumbers.add(number); else s.pendingNumbers.delete(number);
     s.rows = this.rowsFor(s);
   }
@@ -218,6 +221,7 @@ export default class PullRequests extends View {
     if (!s) return;
     s.open = s.open === number ? null : number;
     s.closed = !s.open; s.detail = null; s.thread = null; s.note = null; s.armed = null;
+    if (s.editing) this.stopEditing(s, true);
     this.forget(s);
     const root = this.root, on = this.on;
     if (s.open) cx.spawn(async (cx) => {
@@ -232,25 +236,27 @@ export default class PullRequests extends View {
   loadDiff(s, cx) {
     const number = s.open;
     if (!number || s.diffLoading || (s.diff && s.diffHead === (s.rows.find((r) => r.number === number)?.headOid ?? s.diffHead))) return;
+    cx.spawn(async (cx) => { await this.fetchDiff(s, number, this.root, this.on); cx.notify(); });
+  }
+
+  async fetchDiff(s, number, root, on) {
     s.diffLoading = true; s.diffError = null;
-    const root = this.root, on = this.on, head = s.rows.find((r) => r.number === number)?.headOid ?? null;
-    cx.spawn(async (cx) => {
-      try {
-        const r = await exec("gh", ["pr", "diff", String(number)], { cwd: root, on, timeout: 60000 });
-        if (s.open !== number) return;
-        if (r.code !== 0) throw new Error(plain(r.stderr || r.stdout, 200) || "gh pr diff failed");
-        const files = parseDiff(r.stdout);
-        for (const f of files) {
-          if (f.lines.length > DIFF_LINES) { f.lines = f.lines.slice(0, DIFF_LINES); f.lines.push(`… diff cut after ${DIFF_LINES} lines; use nvim for the rest`); }
-          f.rows = diffRows(f.lines);
-          f.width = Math.max(300, ...f.rows.map((row) => (row.text.length + 1) * 7 + 60));
-        }
-        s.diff = files; s.diffHead = head;
-        if (s.file && !files.some((f) => f.path === s.file)) { s.file = null; s.line = null; }
-        if (!s.file && files.length) s.file = files[0].path;
-      } catch (e) { if (s.open === number) { s.diff = null; s.diffError = String(e?.message ?? e); } }
-      finally { if (s.open === number) s.diffLoading = false; cx.notify(); }
-    });
+    const head = s.rows.find((r) => r.number === number)?.headOid ?? null;
+    try {
+      const r = await exec("gh", ["pr", "diff", String(number)], { cwd: root, on, timeout: 60000 });
+      if (s.open !== number) return;
+      if (r.code !== 0) throw new Error(plain(r.stderr || r.stdout, 200) || "gh pr diff failed");
+      const files = parseDiff(r.stdout);
+      for (const f of files) {
+        if (f.lines.length > DIFF_LINES) { f.lines = f.lines.slice(0, DIFF_LINES); f.lines.push(`… diff cut after ${DIFF_LINES} lines; use nvim for the rest`); }
+        f.rows = diffRows(f.lines);
+        f.width = Math.max(300, ...f.rows.map((row) => (row.text.length + 1) * 7 + 60));
+      }
+      s.diff = files; s.diffHead = head;
+      if (s.file && !files.some((f) => f.path === s.file)) { s.file = null; s.line = null; }
+      if (!s.file && files.length) s.file = files[0].path;
+    } catch (e) { if (s.open === number) { s.diff = null; s.diffError = String(e?.message ?? e); } }
+    finally { if (s.open === number) s.diffLoading = false; }
   }
 
   view(name, cx) {
@@ -341,7 +347,8 @@ export default class PullRequests extends View {
       else if (action === "open") args = ["pr", "view", String(number), "--web"];
       else if (action === "reply" || action === "resolve" || action === "unresolve") args = threadArgs(action, { id: s.thread, body: s.message });
       else if (action === "add") args = draftArgs("add", { prId: s.detail?.id, pending: s.detail?.pending, headOid: s.detail?.headOid ?? row.headOid, path: s.line?.path, line: s.line?.number, side: s.line?.side, body: s.message });
-      else if (action === "delete") args = draftArgs("delete", { commentId: this.draftAt(s)?.id });
+      else if (action === "delete") args = draftArgs("delete", { commentId: s.editing?.kind === "draft" ? s.editing.id : this.draftAt(s)?.id });
+      else if (action === "edit") args = editArgs(s.editing?.kind, { commentId: s.editing?.id, pending: s.detail?.pending, body: s.message });
       else args = reviewArgs(action, { repo: s.repo, number, pending: s.detail?.pending, body: s.message });
     } catch (e) { s.note = String(e.message ?? e); cx.notify(); return; }
     s.busy = true; s.note = null;
@@ -353,7 +360,9 @@ export default class PullRequests extends View {
           s.message = "";
           if (this.state === s) this.input.set_value("");
         }
-        if (action === "merge") s.note = `Merged #${number} (${this.mergeMethod})`;
+        if (action === "delete" && s.editing?.kind === "draft") this.stopEditing(s, true);
+        if (action === "edit") { s.note = s.editing?.kind === "summary" ? "Review summary updated" : `Draft comment on ${s.editing?.path}:${s.editing?.line} updated`; this.stopEditing(s, true); }
+        else if (action === "merge") s.note = `Merged #${number} (${this.mergeMethod})`;
         else if (action === "add") s.note = `Draft comment on ${s.line?.path}:${s.line?.number} added to your pending review`;
         else if (action === "delete") s.note = "Draft comment deleted";
         else if (action !== "open") s.note = `${ACTIONS[action]?.label ?? "Done"}: #${number}`;
@@ -366,6 +375,101 @@ export default class PullRequests extends View {
       }
     });
     cx.notify();
+  }
+
+  // Puts a draft comment or the review summary into the message box to change it. The
+  // unsent text that was there comes back when the edit is saved or cancelled.
+  edit(target, cx) {
+    const s = this.state, pending = s?.detail?.pending;
+    if (!s || !pending || s.busy) return;
+    const same = s.editing && s.editing.kind === target.kind && s.editing.id === target.id;
+    if (same) { this.stopEditing(s, true); cx.notify(); return; }
+    const comment = target.kind === "draft" ? pending.comments.find((c) => c.id === target.id) : null;
+    if (target.kind === "draft" && !comment) return;
+    if (!s.editing) s.stash = s.message;
+    s.editing = target.kind === "draft" ? { kind: "draft", id: comment.id, path: comment.path, line: comment.line, side: comment.side } : { kind: "summary" };
+    s.message = target.kind === "draft" ? comment.body : pending.body;
+    if (this.state === s) this.input.set_value(s.message);
+    s.armed = null; s.thread = null;
+    if (target.kind === "draft") this.loadDiff(s, cx);
+    cx.notify();
+  }
+
+  stopEditing(s, restore) {
+    s.editing = null;
+    s.message = restore ? (s.stash ?? "") : "";
+    s.stash = null;
+    if (this.state === s) this.input.set_value(s.message);
+  }
+
+  // Hands the pending review to Neovim as a Markdown file (summary, drafts, and the diff
+  // around each draft's line) and applies every save until the PR is unpicked, the
+  // review is gone, or another hand-off starts.
+  editInNvim(cx) {
+    const s = this.state, row = s?.rows.find((r) => r.number === s.open), pending = s?.detail?.pending;
+    if (!row || !pending || s.busy || !this.root) return;
+    if (this.on) { s.note = "Edit in nvim works for repositories on this machine"; cx.notify(); return; }
+    const number = row.number, root = this.root, place = location().pane ? "right" : "tab";
+    const dir = `${home()}/.cache/herdr-app/reviews`, path = `${dir}/${s.repo.replace(/[^\w.-]+/g, "-")}-${number}.md`;
+    const session = { number, root, path, text: null };
+    s.busy = true; s.note = null; s.nvimEdit = session;
+    if (s.editing) this.stopEditing(s, true);
+    cx.spawn(async (cx) => {
+      try {
+        if (!s.diff && !s.diffLoading && !s.diffError) await this.fetchDiff(s, number, root, null);
+        const text = reviewFile(pending, { repo: s.repo, number, title: row.title, diff: s.diff });
+        const made = await exec("mkdir", ["-p", dir]);
+        if (made.code !== 0) throw new Error(plain(made.stderr, 200));
+        await writeTextFile(path, text, await readTextFile(path));
+        session.text = text;
+        run("terminal.open", { argv: ["nvim", path], folder: root, place });
+        s.note = `nvim: save ${path.replace(home(), "~")} to apply your changes`;
+      } catch (e) { s.note = `Edit in nvim failed: ${e?.message ?? e}`; s.nvimEdit = null; s.busy = false; cx.notify(); return; }
+      s.busy = false; cx.notify();
+      for (;;) {
+        await watchFolder(dir);
+        if (s.nvimEdit !== session || s.open !== number || !s.detail?.pending) { if (s.nvimEdit === session) s.nvimEdit = null; cx.notify(); return; }
+        await cx.sleep(150); // let the editor finish writing
+        const text = await readTextFile(path);
+        if (text === null || text === session.text) continue;
+        session.text = text;
+        await this.applyFile(s, session, text, cx);
+      }
+    });
+    cx.notify();
+  }
+
+  async applyFile(s, session, text, cx) {
+    const edits = reviewEdits(s.detail?.pending, parseReviewFile(text));
+    if (!edits.length) return;
+    s.busy = true; s.note = null; cx.notify();
+    const done = { summary: 0, draft: 0, delete: 0 };
+    try {
+      for (const e of edits) {
+        const args = e.kind === "delete" ? draftArgs("delete", { commentId: e.id }) : editArgs(e.kind, { commentId: e.id, pending: s.detail.pending, body: e.body });
+        const r = await exec("gh", args, { cwd: session.root, on: null });
+        if (r.code !== 0) throw new Error(`${e.kind === "summary" ? "summary" : `${e.path}:${e.line}`}: ${plain(r.stderr || r.stdout, 200)}`);
+        done[e.kind]++;
+      }
+      const parts = [done.summary ? "summary" : "", done.draft ? `${done.draft} draft${done.draft === 1 ? "" : "s"} updated` : "", done.delete ? `${done.delete} deleted` : ""].filter(Boolean);
+      s.note = `nvim: ${parts.join(", ")}`;
+    } catch (e) { s.note = `nvim: applying failed at ${e?.message ?? e}`; }
+    finally {
+      s.busy = false;
+      if (s.open === session.number) { try { await this.load(s, session.number, session.root, null); } catch {} }
+      cx.notify();
+    }
+  }
+
+  // A few diff rows around a draft's line, in the editor's font, for context.
+  snippet(t, path, line, side) {
+    const rows = snippetOf(this.state?.diff, path, line, side);
+    if (!rows.length) return null;
+    return v_flex().flex_none().rounded(6).bg(t.raised).px(8).py(4).font_family(settings().font_family ?? "JetBrains Mono").text_size(10.5)
+      .children(rows.map((r, i) => h_flex().id(`snippet-${i}`).h(16).gap(8).items_center()
+        .when(r.here, (e) => e.bg(t.accent + "33"))
+        .child(div().w(30).flex_none().text_right().text_color(r.here ? t.accent : t.dim).child(r.kind === "@" || r.kind === "" ? "" : String(r.number)))
+        .child(div().flex_1().min_w(0).truncate().text_color(r.kind === "+" ? t.ansi2 : r.kind === "-" ? t.ansi1 : r.kind === "@" ? t.dim : t.foreground).child(r.kind === "@" || r.kind === "" ? r.text : `${r.kind}${r.text}`))));
   }
 
   draftAt(s) {
@@ -463,14 +567,21 @@ export default class PullRequests extends View {
       return parts;
     }
     if (d.pending) {
-      parts.push(this.section(t, "Pending review", `${d.pending.comments.length} draft comment${d.pending.comments.length === 1 ? "" : "s"}`));
+      const summaryOn = s.editing?.kind === "summary";
+      parts.push(this.section(t, "Pending review", `${d.pending.comments.length} draft comment${d.pending.comments.length === 1 ? "" : "s"}`)
+        .child(this.tab(t, "pending-nvim", s.nvimEdit ? "nvim · watching" : "Edit in nvim", Boolean(s.nvimEdit), (cx) => this.editInNvim(cx)).h(18).px(6).text_size(10.5)));
       parts.push(v_flex().flex_none().mx(8).p(8).gap(6).rounded(8).border_1().border_color(t.blocked + "66").bg(t.blocked + "12")
-        .when(Boolean(d.pending.body.trim()), (e) => e.child(div().text_size(11).text_color(t.foreground).child(plain(d.pending.body, 400))))
-        .children(d.pending.comments.map((cm, i) => v_flex().id(`draft-${i}`).gap(1).cursor_pointer().rounded(4).hover((s) => s.bg(t.hover))
-          .on_click((_e, cx) => this.reveal(cm.path, cm.line, cm.side, cx))
-          .child(div().text_size(10.5).text_color(t.dim).truncate().child(`${cm.path}${cm.line ? `:${cm.line}` : ""}`))
-          .child(div().text_size(11).text_color(t.muted).child(plain(cm.body, 300)))))
-        .child(div().text_size(10.5).text_color(t.dim).child("Only you can see this until it is submitted. Submit it with the buttons below, or discard it. Click a draft to see its line.")));
+        .child(div().id("pending-summary").px(4).py(2).rounded(4).cursor_pointer().hover((s) => s.bg(t.hover)).when(summaryOn, (e) => e.bg(t.selected))
+          .on_click((_e, cx) => this.edit({ kind: "summary" }, cx))
+          .child(div().text_size(11).text_color(d.pending.body.trim() ? t.foreground : t.dim).child(d.pending.body.trim() ? plain(d.pending.body, 400) : "No summary yet · click to write one")))
+        .children(d.pending.comments.map((cm, i) => {
+          const on = s.editing?.kind === "draft" && s.editing.id === cm.id;
+          return v_flex().id(`draft-${i}`).px(4).py(2).gap(1).cursor_pointer().rounded(4).hover((s) => s.bg(t.hover)).when(on, (e) => e.bg(t.selected))
+            .on_click((_e, cx) => this.edit({ kind: "draft", id: cm.id }, cx))
+            .child(div().text_size(10.5).text_color(on ? t.accent : t.dim).truncate().child(`${cm.path}${cm.line ? `:${cm.line}` : ""}`))
+            .child(div().text_size(11).text_color(t.muted).child(plain(cm.body, 300)));
+        }))
+        .child(div().text_size(10.5).text_color(t.dim).child("Only you can see this until it is submitted. Click the summary or a draft to change it in the box below, or edit all of it in nvim. Submit or discard it with the buttons below.")));
     } else {
       parts.push(this.section(t, "Your review", "no pending review · comment a line in Files to start one"));
     }
@@ -571,10 +682,24 @@ export default class PullRequests extends View {
       .child(h_flex().gap(6)
         .child(this.button("confirm-yes", `Confirm ${ACTIONS[armed.action].label.toLowerCase()}`, (cx) => { const { action } = armed; s.armed = null; this.act(action, cx); }, true, ready))
         .child(this.button("confirm-no", "Cancel", (cx) => { s.armed = null; cx.notify(); })));
+    const editing = s?.editing ?? null;
+    if (editing) {
+      const draft = editing.kind === "draft";
+      return v_flex().gap(6)
+        .child(div().text_size(11).text_color(t.muted).truncate().child(draft ? `Changing the draft on ${editing.path}${editing.line ? `:${editing.line}` : ""}` : "Changing the review summary"))
+        .when(draft, (e) => e.child(this.snippet(t, editing.path, editing.line, editing.side)))
+        .child(h_flex().gap(6)
+          .child(this.button("edit-save", "Save", (cx) => this.act("edit", cx), true, ready && (hasMessage || !draft)))
+          .when(draft, (e) => e.child(this.button("edit-show", "Show diff", (cx) => this.reveal(editing.path, editing.line, editing.side, cx), false, Boolean(editing.line))))
+          .when(draft, (e) => e.child(this.button("edit-delete", "Delete draft", (cx) => this.act("delete", cx), false, ready)))
+          .child(div().flex_1())
+          .child(this.button("edit-cancel", "Cancel", (cx) => { this.stopEditing(s, true); cx.notify(); })));
+    }
     if (s?.view === "files" && s.line) {
       const draft = this.draftAt(s);
       return h_flex().gap(6)
         .child(this.button("line-add", draft ? "Add another" : "Add to review", (cx) => this.act("add", cx), true, ready && hasMessage))
+        .when(Boolean(draft), (e) => e.child(this.button("line-edit", "Edit draft", (cx) => this.edit({ kind: "draft", id: draft.id }, cx), false, ready)))
         .when(Boolean(draft), (e) => e.child(this.button("line-delete", "Delete draft", (cx) => this.act("delete", cx), false, ready)))
         .child(div().flex_1())
         .child(this.button("line-done", "Cancel", (cx) => { s.line = null; cx.notify(); }));

@@ -192,8 +192,22 @@ and `Merge`. Review details load through GraphQL:
   comments. Nobody else can see it until it is submitted. Approve, Comment, or
   Request changes submit it (the message box becomes its summary); Discard
   deletes it. Without a pending review, the same buttons create and submit a
-  review directly; Comment then needs a message. Click a draft comment to see
-  its line in Files.
+  review directly; Comment then needs a message. Click the summary or a draft
+  comment to change it: its text goes into the message box, the bar shows the
+  diff around the draft's line and offers Save, Show diff (its line in Files),
+  Delete draft, and Cancel, and whatever was in the box before comes back
+  afterwards. Save sends the change through `updatePullRequestReviewComment`
+  or `updatePullRequestReview`; the summary may be emptied, a draft may not
+  (delete it instead). **Edit in nvim** in the section header writes the whole
+  pending review as Markdown to `~/.cache/herdr-app/reviews/<owner>-<repo>-<n>.md`
+  (the summary, then each draft under a `## path:line <!-- draft id -->`
+  header with the diff around its line in a fence) and opens it in nvim
+  beside the focused pane. Every save is applied: a changed summary or draft
+  is updated, an emptied draft is deleted, a section removed from the file is
+  left alone, and the fences are ignored. The panel watches the file until the
+  PR is unpicked, the review is submitted or discarded, or another hand-off
+  starts (the header reads `nvim · watching` meanwhile). This works for
+  repositories on this machine only.
 - **Threads**: review threads, open ones first, with path, line, author, and
   the first comment stripped of bot markup. Click a thread to select it; the
   bar then offers Reply (message required), Resolve or Unresolve, Show diff
@@ -213,7 +227,8 @@ draft no side, so one on an old-file line is marked on the new-file line of the
 same number), and a count chip
 on lines with threads. Click a line to comment on it: the bar shows the line
 and any draft or thread already there, and **Add to review** puts the message
-box's text on that line as a draft comment. The first draft starts a pending
+box's text on that line as a draft comment, and **Edit draft** changes the
+line's draft as in Review. The first draft starts a pending
 review on the PR's head commit through `addPullRequestReview` with no event;
 later ones join it through `addPullRequestReviewThread`. **Delete draft**
 removes the line's draft comment. Draft comments are private until the review
@@ -235,7 +250,8 @@ The refs stay until you delete them (`git update-ref -d refs/herdr/pr/<n>`).
 
 The mod takes commands for keys.json or `herdr-app do`: `dotfiles-prs.review`,
 `dotfiles-prs.files`, `dotfiles-prs.resolved` (toggle hiding resolved threads,
-switching to Review), `dotfiles-prs.nvim`, and `dotfiles-prs.refresh`.
+switching to Review), `dotfiles-prs.nvim`, `dotfiles-prs.edit` (the pending
+review in nvim), and `dotfiles-prs.refresh`.
 
 Every outward-facing action (submit, discard, reply, resolve, checkout, merge)
 arms first: the bar shows the question with Confirm and Cancel, and nothing is

@@ -261,9 +261,10 @@ function panel(cwd = "/repo-a") {
     if (args[0] === "pr" && args[1] === "diff") return world.diffAnswer ? world.diffAnswer() : ok(DIFF);
     if (cmd === "git" && args[0] === "remote") return ok("origin\tgit@github.com:o/a.git (fetch)\norigin\tgit@github.com:o/a.git (push)\n");
     if (cmd === "git" && args[0] === "fetch") return ok("");
+    if (cmd === "mkdir") { world.dirs.push(args.at(-1)); return ok(""); }
     throw new Error(`unexpected exec ${cmd} ${args.join(" ")}`);
   };
-  world.mutations = []; world.runs = []; world.scrolls = []; world.commands = [];
+  world.mutations = []; world.runs = []; world.scrolls = []; world.commands = []; world.dirs = []; world.files = {}; world.watchers = [];
   const inputs = [];
   const sandbox = {
     console, View: class {}, div: element, svg: element, v_flex: element, h_flex: element,
@@ -275,6 +276,10 @@ function panel(cwd = "/repo-a") {
     settings: () => ({ font_family: "mono" }),
     run: (name, args) => { world.runs.push([name, args]); return null; },
     nextCommand: () => new Promise((resolve) => { world.commands.push(resolve); }),
+    home: () => "/home/t",
+    readTextFile: (path) => Promise.resolve(world.files[path] ?? null),
+    writeTextFile: (path, text, expected) => { if ((world.files[path] ?? null) !== expected) return Promise.reject(new Error("stale")); world.files[path] = text; return Promise.resolve(null); },
+    watchFolder: (dir) => new Promise((resolve) => { world.watchers.push({ dir, resolve }); }),
     spaces: () => [{ id: "s1", active: true, folder: world.cwd, machine: null }],
     panes: () => [{ pane: world.pane, cwd: world.cwd, branch: world.branch }],
     focused: () => ({ space: "s1", tab: "tb1", pane: world.pane, terminal: "t1", cwd: world.cwd }),
@@ -286,7 +291,7 @@ function panel(cwd = "/repo-a") {
   const mod = new sandbox.Mod();
   const spawned = [];
   // The command loop (the spawn that asks nextCommand at once) never ends; settle skips it.
-  const cx = { spawn: (fn) => { const waiting = world.commands.length, p = fn(cx); if (world.commands.length === waiting) spawned.push(p); }, notify() {}, timer: { every() {} }, stop_propagation() {}, focus_handle: () => ({ focus() {} }) };
+  const cx = { spawn: (fn) => { const waiting = world.commands.length, p = fn(cx); if (world.commands.length === waiting) spawned.push(p); }, notify() {}, timer: { every() {} }, sleep: (ms) => new Promise((r) => setTimeout(r, ms)), stop_propagation() {}, focus_handle: () => ({ focus() {} }) };
   mod.init({}, cx);
   const settle = async () => { while (spawned.length) await spawned.shift(); };
   const shown = () => texts(mod.render(cx));
@@ -490,6 +495,151 @@ test("panel: the header counts unsent reviews from one list query", async () => 
   const seen = p.shown();
   assert.ok(seen.includes("1 unsent") && seen.includes("unsent review"));
   assert.deepEqual(p.mod.state.rows.map((r) => r.number), [1, 2], "the PR with the unsent review sorts first");
+});
+
+test("edits change a draft's text or the review summary", () => {
+  const edit = prs.editArgs("draft", { commentId: "C1", body: " better " });
+  assert.match(edit[3], /updatePullRequestReviewComment\(input:\{pullRequestReviewCommentId:\$id,body:\$body\}\)/);
+  assert.deepEqual(edit.slice(-4), ["-f", "id=C1", "-f", "body=better"]);
+  assert.throws(() => prs.editArgs("draft", { commentId: "C1", body: " " }), /delete it instead/);
+  assert.throws(() => prs.editArgs("draft", { body: "x" }), /No draft comment/);
+  const summary = prs.editArgs("summary", { pending: { id: "R2" }, body: "LGTM" });
+  assert.match(summary[3], /updatePullRequestReview\(input:\{pullRequestReviewId:\$id,body:\$body\}\)/);
+  assert.deepEqual(summary.slice(-4), ["-f", "id=R2", "-f", "body=LGTM"]);
+  assert.deepEqual(prs.editArgs("summary", { pending: { id: "R2" }, body: "" }).slice(-2), ["-f", "body="], "a summary may be emptied");
+  assert.throws(() => prs.editArgs("summary", { body: "x" }), /No pending review/);
+  assert.throws(() => prs.editArgs("reply", {}), /Unknown edit/);
+});
+
+test("a snippet is the diff around a commented line, marking the line", () => {
+  const diff = prs.parseDiff(DIFF);
+  for (const f of diff) f.rows = prs.diffRows(f.lines);
+  const rows = prs.snippetOf(diff, "src/a.ts", 2, "RIGHT");
+  assert.deepEqual(rows.map((r) => [r.kind, r.number ?? null, r.here]), [["@", null, false], [" ", 1, false], ["-", 2, false], ["+", 2, true], ["+", 3, false], [" ", 4, false]]);
+  assert.deepEqual(prs.snippetOf(diff, "src/a.ts", 2, "LEFT", 1, 0).map((r) => [r.kind, r.here]), [[" ", false], ["-", true]]);
+  assert.deepEqual(prs.snippetOf(diff, "src/a.ts", 9, "RIGHT"), [], "a line outside the diff has no snippet");
+  assert.deepEqual(prs.snippetOf(null, "src/a.ts", 2), []);
+});
+
+test("the review file round-trips the summary and drafts and reports what changed", () => {
+  const diff = prs.parseDiff(DIFF);
+  for (const f of diff) f.rows = prs.diffRows(f.lines);
+  const pending = { id: "R2", body: "Looks ok", comments: [{ id: "C1", path: "src/a.ts", line: 2, side: "RIGHT", body: "nit here" }, { id: "C2", path: "new.md", line: 9, side: "RIGHT", body: "typo" }] };
+  const text = prs.reviewFile(pending, { repo: "o/a", number: 2, title: "PR 2", diff });
+  assert.match(text, /^<!-- Pending review on o\/a#2: PR 2/);
+  assert.match(text, /## Summary\n\nLooks ok\n/);
+  assert.match(text, /## src\/a\.ts:2 <!-- draft C1 -->\n\n```diff\n@@ -1,3 \+1,4 @@\n {5}1 │ keep\n- {4}2 │ old line\n\+ {4}2 │ new {3}◀\n/);
+  assert.match(text, /## new\.md:9 <!-- draft C2 -->\n\ntypo\n/, "a line outside the diff gets no fence");
+  const back = prs.parseReviewFile(text);
+  assert.equal(back.summary, "Looks ok");
+  assert.deepEqual([...back.drafts], [["C1", "nit here"], ["C2", "typo"]]);
+  assert.deepEqual(prs.reviewEdits(pending, back), [], "saving the file unchanged changes nothing");
+  const changed = prs.parseReviewFile(text.replace("Looks ok", "LGTM\n\nwith a second line").replace("\nnit here\n", "\n\n").replace("typo", "a typo"));
+  assert.deepEqual(prs.reviewEdits(pending, changed), [
+    { kind: "summary", body: "LGTM\n\nwith a second line" },
+    { kind: "delete", id: "C1", path: "src/a.ts", line: 2 },
+    { kind: "draft", id: "C2", path: "new.md", line: 9, body: "a typo" },
+  ]);
+  const partial = prs.parseReviewFile("## new.md:9 <!-- draft C2 -->\n\nonly this\n");
+  assert.equal(partial.summary, null);
+  assert.deepEqual(prs.reviewEdits(pending, partial), [{ kind: "draft", id: "C2", path: "new.md", line: 9, body: "only this" }], "a missing section is left alone");
+  assert.deepEqual(prs.reviewEdits(null, partial), []);
+  assert.deepEqual(prs.parseReviewFile("## src/a.ts:2 <!-- draft C1 -->\n```diff\n+ x\n```\n").drafts.get("C1"), "", "a fence alone is an emptied draft");
+});
+
+const DRAFTS_DETAIL = JSON.stringify({ data: { viewer: { login: "timo" }, repository: { pullRequest: {
+  id: "PR_1", headRefOid: "abc", reviewThreads: { nodes: [] }, latestReviews: { nodes: [] },
+  reviews: { nodes: [{ id: "R2", databaseId: 22, body: "Looks ok", author: { login: "timo" }, comments: { nodes: [
+    { id: "C1", path: "src/a.ts", line: 2, body: "nit here" }, { id: "C2", path: "new.md", line: 1, body: "typo" },
+  ] } }] },
+} } } });
+
+test("panel: a draft or the summary is changed in the message box and saved, keeping the unsent text", async () => {
+  const p = panel("/repo-a");
+  p.world.detailAnswer = DRAFTS_DETAIL;
+  await p.settle();
+  const s = p.mod.state;
+  s.message = "half-written reply";
+  find(p.mod.render(p.cx), "draft-0").data.events.on_click(null, p.cx);
+  assert.deepEqual([s.editing.kind, s.editing.id, s.editing.path, s.editing.line], ["draft", "C1", "src/a.ts", 2]);
+  assert.deepEqual([s.message, p.inputs.at(-1)], ["nit here", "nit here"], "the draft's text is in the box");
+  await p.settle();
+  let shown = p.shown();
+  assert.ok(shown.includes("Changing the draft on src/a.ts:2") && shown.includes("Save") && shown.includes("Delete draft"));
+  assert.ok(shown.includes("+new") && shown.includes("-old line"), "the diff around the line is shown");
+  s.message = "";
+  p.mod.act("edit", p.cx);
+  assert.match(s.note, /delete it instead/);
+  s.message = "nit, reworded";
+  p.mod.act("edit", p.cx);
+  await p.settle();
+  assert.match(p.world.mutations.at(-1)[0], /updatePullRequestReviewComment/);
+  assert.deepEqual(p.world.mutations.at(-1).slice(-4), ["-f", "id=C1", "-f", "body=nit, reworded"]);
+  assert.equal(s.editing, null);
+  assert.deepEqual([s.message, p.inputs.at(-1)], ["half-written reply", "half-written reply"], "the unsent text comes back");
+  assert.match(s.note, /updated/);
+  find(p.mod.render(p.cx), "pending-summary").data.events.on_click(null, p.cx);
+  assert.deepEqual([s.editing.kind, s.message], ["summary", "Looks ok"]);
+  assert.ok(p.shown().includes("Changing the review summary"));
+  find(p.mod.render(p.cx), "edit-cancel").data.events.on_click(null, p.cx);
+  assert.deepEqual([s.editing, s.message], [null, "half-written reply"]);
+  find(p.mod.render(p.cx), "pending-summary").data.events.on_click(null, p.cx);
+  s.message = "";
+  p.mod.act("edit", p.cx);
+  await p.settle();
+  assert.match(p.world.mutations.at(-1)[0], /updatePullRequestReview\(/);
+  assert.deepEqual(p.world.mutations.at(-1).slice(-4), ["-f", "id=R2", "-f", "body="], "the summary may be emptied");
+  // Delete while changing a draft removes that draft, not the picked line's.
+  find(p.mod.render(p.cx), "draft-1").data.events.on_click(null, p.cx);
+  p.mod.act("delete", p.cx);
+  await p.settle();
+  assert.match(p.world.mutations.at(-1)[0], /deletePullRequestReviewComment/);
+  assert.ok(p.world.mutations.at(-1).includes("id=C2"));
+  assert.equal(s.editing, null);
+  // From Files, Edit draft on a line with a draft enters the same mode.
+  p.mod.view("files", p.cx);
+  await p.settle();
+  p.mod.pickLine(s.diff[0].rows[3], p.cx);
+  assert.ok(p.shown().includes("Edit draft"));
+  find(p.mod.render(p.cx), "line-edit").data.events.on_click(null, p.cx);
+  assert.deepEqual([s.editing.id, s.message], ["C1", "nit here"]);
+});
+
+test("panel: Edit in nvim writes the review as Markdown with diff context, opens nvim, and applies each save", async () => {
+  const p = panel("/repo-a");
+  p.world.detailAnswer = DRAFTS_DETAIL;
+  await p.settle();
+  const s = p.mod.state;
+  s.message = "keep me";
+  find(p.mod.render(p.cx), "pending-nvim").data.events.on_click(null, p.cx);
+  await new Promise((r) => setTimeout(r, 10)); // settle would wait for the watch loop
+  const path = "/home/t/.cache/herdr-app/reviews/o-a-2.md";
+  assert.deepEqual(p.world.dirs, ["/home/t/.cache/herdr-app/reviews"]);
+  const text = p.world.files[path];
+  assert.ok(text, "the review file is written");
+  assert.match(text, /## src\/a\.ts:2 <!-- draft C1 -->\n\n```diff\n/, "the diff was fetched for context");
+  assert.deepEqual(JSON.parse(JSON.stringify(p.world.runs.at(-1))), ["terminal.open", { argv: ["nvim", path], folder: "/repo-a", place: "right" }]);
+  assert.ok(s.nvimEdit && p.shown().includes("nvim · watching"));
+  assert.match(s.note, /~\/\.cache\/herdr-app\/reviews\/o-a-2\.md/);
+  assert.equal(s.message, "keep me");
+  assert.equal(p.world.watchers.length, 1, "the folder is watched");
+  // A save with nothing changed applies nothing.
+  const save = async (newText) => { p.world.files[path] = newText; const w = p.world.watchers.shift(); w.resolve([path]); await new Promise((r) => setTimeout(r, 250)); };
+  await save(text);
+  assert.equal(p.world.mutations.length, 0);
+  assert.equal(p.world.watchers.length, 1, "still watching");
+  await save(text.replace("Looks ok", "LGTM").replace("\nnit here\n", "\n\n").replace("typo", "a typo"));
+  assert.deepEqual(p.world.mutations.map((m) => /\{(\w+)\(input/.exec(m[0])[1]), ["updatePullRequestReview", "deletePullRequestReviewComment", "updatePullRequestReviewComment"]);
+  assert.ok(p.world.mutations[2].includes("body=a typo"));
+  assert.equal(s.note, "nvim: summary, 1 draft updated, 1 deleted");
+  assert.equal(s.message, "keep me", "the box is untouched");
+  assert.equal(p.calls("gh", "api", "graphql"), 1 + 1 + 3 + 1, "detail, pending list, three edits, reload");
+  // Unpicking the PR ends the watch on its next event.
+  p.mod.pick(2, p.cx);
+  const w = p.world.watchers.shift(); w.resolve([path]);
+  await p.settle(); // the watch loop ends, so every spawned task is done
+  assert.equal(s.nvimEdit, null);
+  assert.equal(p.world.watchers.length, 0, "the watch is over");
 });
 
 const THREADS_DETAIL = JSON.stringify({ data: { viewer: { login: "timo" }, repository: { pullRequest: {

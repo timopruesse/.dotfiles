@@ -280,6 +280,90 @@ export function draftArgs(action, { prId, pending, headOid, path, line, side, bo
   return args;
 }
 
+// Changing what a pending review already holds: a draft comment's text, or the
+// review's summary. Both stay private until the review is submitted.
+export function editArgs(kind, { commentId, pending, body }) {
+  const text = (body ?? "").trim();
+  if (kind === "draft") {
+    if (!commentId) throw new Error("No draft comment to change");
+    if (!text) throw new Error("A draft comment needs a message; delete it instead");
+    return ["api", "graphql", "-f", "query=mutation($id:ID!,$body:String!){updatePullRequestReviewComment(input:{pullRequestReviewCommentId:$id,body:$body}){pullRequestReviewComment{id}}}", "-f", `id=${commentId}`, "-f", `body=${text}`];
+  }
+  if (kind === "summary") {
+    if (!pending) throw new Error("No pending review to change");
+    return ["api", "graphql", "-f", "query=mutation($id:ID!,$body:String!){updatePullRequestReview(input:{pullRequestReviewId:$id,body:$body}){pullRequestReview{id}}}", "-f", `id=${pending.id}`, "-f", `body=${text}`];
+  }
+  throw new Error(`Unknown edit ${kind}`);
+}
+
+// The diff rows around a commented line: `before` rows above it and `after` below,
+// hunk headers included, from the loaded diff. Empty when the diff or line is not there.
+export function snippetOf(diff, path, line, side = "RIGHT", before = 3, after = 2) {
+  const rows = (diff ?? []).find((f) => f.path === path)?.rows ?? [];
+  const at = rows.findIndex((r) => r.number === line && (r.side ?? "RIGHT") === (side ?? "RIGHT"));
+  if (at < 0) return [];
+  return rows.slice(Math.max(0, at - before), at + after + 1).map((r) => ({ ...r, here: r === rows[at] }));
+}
+
+const fenceOf = (rows) => rows.length ? ["```diff", ...rows.map((r) => r.kind === "@" || r.kind === "" ? r.text : `${r.kind}${String(r.number).padStart(5)} │ ${r.text}${r.here ? "   ◀" : ""}`), "```"] : [];
+
+// The pending review as a Markdown file for an editor: the summary, then each draft
+// under a header that names its line and carries its id, with the diff around the
+// line in a fence. parseReviewFile reads it back; the fence is not part of the body.
+export function reviewFile(pending, { repo, number, title, diff } = {}) {
+  const out = [
+    `<!-- Pending review on ${repo}#${number}: ${title ?? ""}`,
+    "     Change the summary and the drafts below and save; the panel applies what changed.",
+    "     Keep the \"## \" headers and their ids. An emptied draft is deleted; a missing one is",
+    "     left as it is. The diff fences are context only and are ignored. -->",
+    "", "## Summary", "", pending?.body ?? "", "",
+  ];
+  for (const c of pending?.comments ?? []) {
+    out.push(`## ${c.path}${c.line ? `:${c.line}` : ""} <!-- draft ${c.id} -->`, "");
+    const fence = fenceOf(snippetOf(diff, c.path, c.line, c.side));
+    if (fence.length) out.push(...fence, "");
+    out.push(c.body ?? "", "");
+  }
+  return out.join("\n");
+}
+
+export function parseReviewFile(text) {
+  const parsed = { summary: null, drafts: new Map() };
+  let put = null, lines = [];
+  const close = () => { if (put) put(stripFence(lines).join("\n").trim()); lines = []; };
+  for (const line of String(text ?? "").split("\n")) {
+    const draft = /^## .*<!-- draft (\S+) -->\s*$/.exec(line);
+    if (/^## Summary\s*$/.test(line)) { close(); put = (body) => { parsed.summary = body; }; continue; }
+    if (draft) { close(); put = (body) => { parsed.drafts.set(draft[1], body); }; continue; }
+    if (/^## /.test(line)) { close(); put = null; continue; }
+    lines.push(line);
+  }
+  close();
+  return parsed;
+}
+
+function stripFence(lines) {
+  const first = lines.findIndex((l) => l.trim());
+  if (first < 0 || !lines[first].startsWith("```diff")) return lines;
+  const end = lines.findIndex((l, i) => i > first && l.trim() === "```");
+  return end < 0 ? lines : [...lines.slice(0, first), ...lines.slice(end + 1)];
+}
+
+// What a saved review file changes against the pending review: the summary, draft
+// texts, and drafts emptied out (deleted). Drafts missing from the file are untouched.
+export function reviewEdits(pending, parsed) {
+  const edits = [];
+  if (!pending) return edits;
+  if (parsed.summary !== null && parsed.summary !== (pending.body ?? "").trim()) edits.push({ kind: "summary", body: parsed.summary });
+  for (const c of pending.comments ?? []) {
+    if (!parsed.drafts.has(c.id)) continue;
+    const body = parsed.drafts.get(c.id);
+    if (!body) edits.push({ kind: "delete", id: c.id, path: c.path, line: c.line });
+    else if (body !== (c.body ?? "").trim()) edits.push({ kind: "draft", id: c.id, path: c.path, line: c.line, body });
+  }
+  return edits;
+}
+
 // The remote that fetches from the repository, by `git remote -v`; origin otherwise.
 export function remoteFor(remotes, repo) {
   const want = String(repo ?? "").toLowerCase().replace(/\.git$/, "");
