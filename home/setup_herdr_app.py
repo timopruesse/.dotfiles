@@ -27,6 +27,7 @@ OWNED_RESOURCES = (
     'mods/dotfiles-outputs/main.js',
     'mods/dotfiles-outputs/outputs.js',
     'mods/dotfiles-outputs/outputs.svg',
+    'mods/dotfiles-outputs/diagram.svg',
     'layouts/dotfiles-main.json',
 )
 

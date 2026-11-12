@@ -61,7 +61,7 @@ class HerdrAppSetupTests(unittest.TestCase):
             'mods/dotfiles-prs/main.js', 'mods/dotfiles-prs/mod.json',
             'mods/dotfiles-prs/prs.js', 'mods/dotfiles-prs/pr.svg',
             'mods/dotfiles-outputs/main.js', 'mods/dotfiles-outputs/mod.json',
-            'mods/dotfiles-outputs/outputs.js', 'mods/dotfiles-outputs/outputs.svg',
+            'mods/dotfiles-outputs/outputs.js', 'mods/dotfiles-outputs/outputs.svg', 'mods/dotfiles-outputs/diagram.svg',
         })
 
     def test_preserves_nested_settings_keys_and_app_state_with_backups(self):

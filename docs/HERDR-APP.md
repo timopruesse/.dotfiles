@@ -63,7 +63,7 @@ The installer copies only these owned resources:
 - `mods/dotfiles-spaces/mod.json`
 - `mods/dotfiles-tabs/main.js`, `mod.json`, and `win-*.svg`
 - `mods/dotfiles-prs/main.js`, `prs.js`, `mod.json`, and `pr.svg`
-- `mods/dotfiles-outputs/main.js`, `outputs.js`, `mod.json`, and `outputs.svg`
+- `mods/dotfiles-outputs/main.js`, `outputs.js`, `mod.json`, `outputs.svg`, and `diagram.svg`
 - `layouts/dotfiles-main.json`
 
 The custom layout is a snapshot of the shipped main layout. Its spaces block
@@ -267,10 +267,25 @@ live; open the panel on a checkout with an open PR to see them.
 ## Outputs panel
 
 The owned tab bar adds an **Outputs** button after PRs. It lists what the
-focused pane's agent session wrote: files it created or edited and artifacts it
-published, newest first, one row per path with how often it was touched. Click
-a file for a read-only preview (the Files panel's reader); click an artifact to
-open its `claude.ai` page through the system browser (the WSL bridge below).
+focused pane's agent session produced beyond the checkout's changes, newest
+first:
+
+- **Diagrams** it drew: Mermaid, PlantUML, Graphviz (`dot`), and D2 fenced
+  blocks in its replies, the same blocks inside files it wrote, and whole
+  diagram files (`.mmd`, `.mermaid`, `.puml`, `.dot`, `.gv`, `.d2`). One row
+  per distinct diagram, named by its first line (`flowchart LR`,
+  `sequenceDiagram`, `@startuml`), with the file it lives in or "in a reply".
+  Click one to read its source; a Mermaid diagram also gets a **Render**
+  button that opens it in the Mermaid live editor (`mermaid.live`) with the
+  source carried in the URL hash, nothing uploaded.
+- **Artifacts** it published: click to open the `claude.ai` page through the
+  system browser (the WSL bridge below).
+- **Images** it wrote (`.png`, `.svg`, `.jpg`, ...): click to open with the
+  system viewer. Images on another machine are not opened.
+- **Files** it wrote or edited that Changes does not show: outside the
+  checkout, or inside it but ignored by git (`git check-ignore`, up to 300
+  paths). Click for a read-only preview (the Files panel's reader). Tracked
+  files in the checkout are left to Changes; a footer counts them.
 
 The panel reads the session transcript named by the terminal's
 `agent.transcript` label, with `agent.kind` (`claude` or `pi`) and
@@ -285,22 +300,23 @@ on the terminal in `HC_TERMINAL_ID`, so they are exact per pane and survive
   (`pi --no-session`, the hc worker and reviewer templates) are skipped.
 
 Outside an hc terminal nothing is labelled and the panel says so. The
-transcript is narrowed with `grep` on the pane's machine before parsing, so
-remote spaces work through the same `exec` path as Changes; transcripts on a
-Windows host are not read yet. Claude Code rows come from the `Write`, `Edit`,
-`MultiEdit`, and `NotebookEdit` tool records and from `Artifact` publish
-results; Pi rows from its `write` and `edit` tool calls. Files changed through
-shell commands (heredocs, `sed`) do not appear; Changes covers those inside
-the repository.
+transcript is narrowed with `grep` on the pane's machine before parsing (edit
+and publish tool records, artifact links, and assistant lines with a diagram
+fence), so remote spaces work through the same `exec` path as Changes;
+transcripts on a Windows host are not read yet. Claude Code rows come from the
+`Write`, `Edit`, `MultiEdit`, and `NotebookEdit` tool records, `Artifact`
+publish results, and assistant text; Pi rows from its `write` and `edit` tool
+calls and assistant text. Diagrams the agent only read (tool results) are not
+listed. Files changed through shell commands (heredocs, `sed`) do not appear.
 
 Verification so far: `herdr-app check` passes for the mod, node tests
 (`tests/test_herdr_app_outputs.mjs`) cover the label reader, the grep filter
-against real-shaped transcript lines, the parser for both agents, and the
-rendered panel (empty states, rows, preview click, artifact open, errors), and
-`tests/test_hc_session_label.py` runs the Claude hook against a fake `hc`. The
-panel was opened live with this checkout's own session labelled through the
-hook and showed the Claude Code header with its empty state; a transcript with
-rows was not inspected visually in the app.
+against real-shaped transcript lines (including diagram fences in replies,
+tool results, and request blobs), the parser for both agents (files, images,
+artifacts, diagrams in replies and written files, deduplication), the
+mermaid.live link, and the rendered panel (empty states, hiding tracked files
+with a count, diagram preview and Render, image open, errors), and
+`tests/test_hc_session_label.py` runs the Claude hook against a fake `hc`.
 
 ## Open WSL desktop web links in Windows
 
