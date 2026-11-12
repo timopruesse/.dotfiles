@@ -95,6 +95,15 @@ test("rows carry merge state and merge is guarded to the shown head", () => {
   assert.throws(() => prs.mergeArgs("merge", { number: 2, headOid: "" }), /No head commit/);
 });
 
+test("hiding resolved threads keeps open ones and the selected thread", () => {
+  const threads = [{ id: "T1", resolved: false }, { id: "T2", resolved: true }, { id: "T3", resolved: true }];
+  assert.equal(prs.visibleThreads(threads, false), threads);
+  assert.deepEqual(prs.visibleThreads(threads, true).map((t) => t.id), ["T1"]);
+  assert.deepEqual(prs.visibleThreads(threads, true, "T3").map((t) => t.id), ["T1", "T3"]);
+  assert.deepEqual(prs.visibleThreads(threads, true, "T1").map((t) => t.id), ["T1"]);
+  assert.deepEqual(prs.visibleThreads([], true), []);
+});
+
 test("thread actions build resolve, unresolve, and reply mutations", () => {
   assert.deepEqual(prs.threadArgs("resolve", { id: "T1" }).slice(0, 3), ["api", "graphql", "-f"]);
   assert.match(prs.threadArgs("resolve", { id: "T1" })[3], /resolveReviewThread\(input:\{threadId:\$id\}\)/);
@@ -481,6 +490,49 @@ test("panel: the header counts unsent reviews from one list query", async () => 
   const seen = p.shown();
   assert.ok(seen.includes("1 unsent") && seen.includes("unsent review"));
   assert.deepEqual(p.mod.state.rows.map((r) => r.number), [1, 2], "the PR with the unsent review sorts first");
+});
+
+const THREADS_DETAIL = JSON.stringify({ data: { viewer: { login: "timo" }, repository: { pullRequest: {
+  id: "PR_1", headRefOid: "abc", reviews: { nodes: [] }, latestReviews: { nodes: [] },
+  reviewThreads: { nodes: [
+    { id: "T1", isResolved: false, path: "src/a.ts", line: 4, comments: { totalCount: 1, nodes: [{ author: { login: "rev" }, body: "why?" }] } },
+    { id: "T2", isResolved: true, path: "src/a.ts", line: 8, comments: { totalCount: 2, nodes: [{ author: { login: "rev" }, body: "fixed nit" }] } },
+    { id: "T3", isResolved: true, path: "src/b.ts", line: 1, comments: { totalCount: 1, nodes: [{ author: { login: "rev" }, body: "stale" }] } },
+  ] },
+} } } });
+const find = (b, id) => (b && b.data ? (b.data.id === id ? b : b.data.children.map((c) => find(c, id)).find(Boolean)) : undefined);
+
+test("panel: Hide resolved lists only open threads, keeps the selected one, and toggles by command", async () => {
+  const p = panel("/repo-a");
+  p.world.detailAnswer = THREADS_DETAIL;
+  await p.settle();
+  const s = p.mod.state;
+  let shown = p.shown();
+  assert.ok(shown.includes("1 open · 2 resolved") && shown.includes("Hide resolved"));
+  assert.ok(shown.includes("rev: fixed nit") && shown.includes("rev: stale"), "resolved threads are listed by default");
+  find(p.mod.render(p.cx), "threads-resolved").data.events.on_click(null, p.cx);
+  assert.equal(s.hideResolved, true);
+  shown = p.shown();
+  assert.ok(shown.includes("rev: why?") && shown.includes("Show resolved"));
+  assert.ok(!shown.includes("rev: fixed nit") && !shown.includes("rev: stale"), "resolved threads are hidden");
+  assert.ok(shown.includes("1 open · 2 resolved"), "the counts still name the hidden ones");
+  s.thread = "T2";
+  assert.ok(p.shown().includes("rev: fixed nit"), "the selected thread stays listed while selected");
+  assert.ok(!p.shown().includes("rev: stale"));
+  s.thread = null;
+  assert.ok(!p.shown().includes("rev: fixed nit"));
+  s.view = "files";
+  const send = async (name) => { const resolve = p.world.commands.shift(); resolve(name); await new Promise((r) => setTimeout(r, 0)); };
+  await send("resolved");
+  assert.deepEqual([s.hideResolved, s.view], [false, "review"], "the command toggles and returns to Review");
+  assert.ok(p.shown().includes("rev: stale"));
+  const only = JSON.parse(THREADS_DETAIL);
+  only.data.repository.pullRequest.reviewThreads.nodes.shift();
+  p.world.detailAnswer = JSON.stringify(only);
+  p.mod.toggleResolved(p.cx);
+  p.mod.sync(p.cx, true);
+  await p.settle();
+  assert.ok(p.shown().includes("2 resolved threads hidden"), "an all-resolved list says what it hides");
 });
 
 test("panel: commands from keys or herdr-app do switch the view, open nvim, and refresh", async () => {

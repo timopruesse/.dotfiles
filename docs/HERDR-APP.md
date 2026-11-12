@@ -197,7 +197,10 @@ and `Merge`. Review details load through GraphQL:
 - **Threads**: review threads, open ones first, with path, line, author, and
   the first comment stripped of bot markup. Click a thread to select it; the
   bar then offers Reply (message required), Resolve or Unresolve, Show diff
-  (the thread's line in Files), and Back.
+  (the thread's line in Files), and Back. **Hide resolved** in the section
+  header lists only open threads (the selected thread stays listed while it
+  is selected, so resolving it does not drop it from under you); **Show
+  resolved** brings them back. The choice is kept per repository.
 - **Reviews** and **Checks**: the latest review per reviewer, and check counts
   with failing check names.
 
@@ -231,7 +234,8 @@ focused). The dotfiles Neovim config includes diffview.nvim for this
 The refs stay until you delete them (`git update-ref -d refs/herdr/pr/<n>`).
 
 The mod takes commands for keys.json or `herdr-app do`: `dotfiles-prs.review`,
-`dotfiles-prs.files`, `dotfiles-prs.nvim`, and `dotfiles-prs.refresh`.
+`dotfiles-prs.files`, `dotfiles-prs.resolved` (toggle hiding resolved threads,
+switching to Review), `dotfiles-prs.nvim`, and `dotfiles-prs.refresh`.
 
 Every outward-facing action (submit, discard, reply, resolve, checkout, merge)
 arms first: the bar shows the question with Confirm and Cancel, and nothing is

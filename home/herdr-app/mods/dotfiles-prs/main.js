@@ -12,7 +12,7 @@
 import { View, div, svg } from "gpui-kit";
 import { v_flex, h_flex, TextareaState, Textarea, Scrollbar, v_virtual_list, VirtualListScrollHandle } from "gpui-base";
 import { spaces, panes, focused, exec, run, nextCommand, theme, settings } from "herdr";
-import { rowsOf, sortRows, detailOf, pendingOf, reviewArgs, threadArgs, mergeArgs, draftArgs, parseDiff, diffRows, markersOf, remoteFor, reviewRefs, plain, age, DETAIL_QUERY, PENDING_QUERY, DECISION, MERGE_METHODS } from "./prs.js";
+import { rowsOf, sortRows, detailOf, pendingOf, reviewArgs, threadArgs, mergeArgs, draftArgs, parseDiff, diffRows, markersOf, remoteFor, reviewRefs, visibleThreads, plain, age, DETAIL_QUERY, PENDING_QUERY, DECISION, MERGE_METHODS } from "./prs.js";
 
 function location() {
   const space = spaces().find((s) => s.active), f = focused();
@@ -45,7 +45,7 @@ const STATUS = { A: "ansi2", D: "ansi1", R: "ansi4", M: "blocked" };
 function record(repo, on) {
   return { repo, on, raw: [], rows: [], pendingNumbers: new Set(), detail: null, open: null, thread: null, closed: false,
     error: null, note: null, armed: null, message: "", loading: false, busy: false, fetched: 0,
-    view: "review", diff: null, diffHead: null, diffError: null, diffLoading: false, file: null, line: null };
+    view: "review", hideResolved: false, diff: null, diffHead: null, diffError: null, diffLoading: false, file: null, line: null };
 }
 
 export default class PullRequests extends View {
@@ -70,12 +70,13 @@ export default class PullRequests extends View {
     this.identify(cx);
     this.sync(cx);
     cx.timer.every(60000, (cx) => this.refresh(cx));
-    // `dotfiles-prs.<command>` from keys.json or `herdr-app do`: review, files, nvim, refresh.
+    // `dotfiles-prs.<command>` from keys.json or `herdr-app do`: review, files, resolved, nvim, refresh.
     cx.spawn(async (cx) => { for (;;) this.command(await nextCommand(), cx); });
   }
 
   command(name, cx) {
     if (name === "review" || name === "files") this.view(name, cx);
+    else if (name === "resolved") this.toggleResolved(cx);
     else if (name === "nvim") this.nvim(cx);
     else if (name === "refresh") this.sync(cx, true);
   }
@@ -257,6 +258,15 @@ export default class PullRequests extends View {
     if (!s || s.view === name) return;
     s.view = name; s.armed = null;
     if (name === "files") this.loadDiff(s, cx);
+    cx.notify();
+  }
+
+  // Hide or show resolved threads in Review; remembered per repository like the view.
+  toggleResolved(cx) {
+    const s = this.state;
+    if (!s) return;
+    s.hideResolved = !s.hideResolved;
+    if (s.view !== "review") s.view = "review";
     cx.notify();
   }
 
@@ -464,10 +474,13 @@ export default class PullRequests extends View {
     } else {
       parts.push(this.section(t, "Your review", "no pending review · comment a line in Files to start one"));
     }
-    const open = d.threads.filter((th) => !th.resolved).length;
-    parts.push(this.section(t, "Threads", `${open} open · ${d.threads.length - open} resolved`));
+    const open = d.threads.filter((th) => !th.resolved).length, resolved = d.threads.length - open;
+    const shown = visibleThreads(d.threads, s.hideResolved, s.thread);
+    parts.push(this.section(t, "Threads", `${open} open · ${resolved} resolved`)
+      .when(resolved > 0 || s.hideResolved, (e) => e.child(this.tab(t, "threads-resolved", s.hideResolved ? "Show resolved" : "Hide resolved", s.hideResolved, (cx) => this.toggleResolved(cx)).h(18).px(6).text_size(10.5))));
     if (!d.threads.length) parts.push(div().px(12).pb(4).text_size(11).text_color(t.dim).child("No review threads"));
-    else parts.push(...d.threads.map((th) => this.threadRow(t, th)));
+    else if (!shown.length) parts.push(div().px(12).pb(4).text_size(11).text_color(t.dim).child(`${resolved} resolved thread${resolved === 1 ? "" : "s"} hidden`));
+    else parts.push(...shown.map((th) => this.threadRow(t, th)));
     parts.push(this.section(t, "Reviews", d.reviews.length ? "" : "none yet"));
     parts.push(...d.reviews.map((rv) => h_flex().id(`review-${rv.author}`).h(22).flex_none().px(12).gap(6).items_center().text_size(11)
       .child(div().flex_1().min_w(0).truncate().text_color(t.foreground).child(rv.author))

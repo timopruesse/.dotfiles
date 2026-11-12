@@ -137,6 +137,13 @@ export function detailOf(data) {
   return { id: pr.id ?? null, headOid: pr.headRefOid ?? null, pending, threads, reviews, viewer };
 }
 
+// The threads the Review view lists. With resolved ones hidden, the selected thread
+// stays listed even when resolved, so resolving it from the bar does not drop it.
+export function visibleThreads(threads, hideResolved, selected = null) {
+  if (!hideResolved) return threads;
+  return threads.filter((t) => !t.resolved || t.id === selected);
+}
+
 // `gh` arguments for each action. `pending` is the viewer's pending review, if any.
 export function reviewArgs(action, { repo, number, pending, body }) {
   const text = (body ?? "").trim();
