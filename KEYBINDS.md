@@ -284,9 +284,16 @@ panes** at the edges (`herdr-navigator.nvim`).
 
 ### Git
 
-| Key          | Mode   | Action       |
-| ------------ | ------ | ------------ |
-| `<leader>gg` | Normal | Open LazyGit |
+| Key          | Mode   | Action                                    |
+| ------------ | ------ | ----------------------------------------- |
+| `<leader>gg` | Normal | Open LazyGit                              |
+| `<leader>gd` | Normal | Diffview: working tree against HEAD       |
+| `<leader>gD` | Normal | Diffview: close                           |
+| `<leader>gh` | Normal | Diffview: history of the current file     |
+
+The native Herdr app's PR panel opens `nvim -c "DiffviewOpen <base>...<head>"`
+on fetched `refs/herdr/*` refs; `]c` / `[c` step through hunks, `<Tab>` and
+`<S-Tab>` through files (diffview.nvim defaults).
 
 ### Rust (Buffer-Local)
 

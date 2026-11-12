@@ -61,20 +61,35 @@ export function rowsOf(list, viewer, teams = new Set()) {
   }));
 }
 
-// The checkout's own PR first, then ones waiting on you, then yours, newest first.
+// The checkout's own PR first, then ones waiting on you (a review request, or a review
+// you started and have not sent), then yours, newest first.
 export function sortRows(rows, branch) {
-  const tier = (r) => (branch && r.head === branch ? 0 : r.requested ? 1 : r.mine ? 2 : 3);
+  const tier = (r) => (branch && r.head === branch ? 0 : r.requested || r.pending ? 1 : r.mine ? 2 : 3);
   return [...rows].sort((a, b) => tier(a) - tier(b) || b.updatedAt - a.updatedAt || a.number - b.number);
 }
 
 export const DETAIL_QUERY = `query($owner:String!,$name:String!,$number:Int!){
   viewer{login}
   repository(owner:$owner,name:$name){pullRequest(number:$number){
-    reviews(states:PENDING,first:5){nodes{id databaseId body author{login} comments(first:100){nodes{path line originalLine body}}}}
-    reviewThreads(first:100){nodes{id isResolved isOutdated path line originalLine comments(first:20){totalCount nodes{author{login} body createdAt}}}}
+    id headRefOid
+    reviews(states:PENDING,first:5){nodes{id databaseId body author{login} comments(first:100){nodes{id path line originalLine body}}}}
+    reviewThreads(first:100){nodes{id isResolved isOutdated path line originalLine diffSide comments(first:20){totalCount nodes{author{login} body createdAt}}}}
     latestReviews(first:30){nodes{author{login} state submittedAt}}
   }}
 }`;
+
+// Which open PRs carry an unsubmitted review of the viewer's: one query for the list.
+export const PENDING_QUERY = `query($owner:String!,$name:String!,$viewer:String!){
+  repository(owner:$owner,name:$name){pullRequests(states:OPEN,first:50,orderBy:{field:UPDATED_AT,direction:DESC}){
+    nodes{number reviews(states:PENDING,first:1,author:$viewer){totalCount}}
+  }}
+}`;
+
+// The numbers of the PRs with a pending review of the viewer's.
+export function pendingOf(data) {
+  const nodes = data?.data?.repository?.pullRequests?.nodes ?? data?.repository?.pullRequests?.nodes ?? [];
+  return new Set(nodes.filter((n) => (n.reviews?.totalCount ?? 0) > 0).map((n) => n.number));
+}
 
 // Markdown and bot HTML down to a short plain line.
 export function plain(text, max = 240) {
@@ -93,13 +108,14 @@ export function plain(text, max = 240) {
 export function detailOf(data) {
   const pr = data?.data?.repository?.pullRequest ?? data?.repository?.pullRequest;
   const viewer = data?.data?.viewer?.login ?? data?.viewer?.login ?? null;
-  if (!pr) return { pending: null, threads: [], reviews: [], viewer };
+  if (!pr) return { id: null, headOid: null, pending: null, threads: [], reviews: [], viewer };
   const pendingNode = (pr.reviews?.nodes ?? []).find((r) => !viewer || !r.author || r.author.login === viewer) ?? null;
   const pending = pendingNode ? {
     id: pendingNode.id,
     databaseId: pendingNode.databaseId,
     body: pendingNode.body ?? "",
-    comments: (pendingNode.comments?.nodes ?? []).map((c) => ({ path: c.path ?? "", line: c.line ?? c.originalLine ?? null, body: c.body ?? "" })),
+    // A review comment has no side in GraphQL (threads do); drafts are marked on the new side.
+    comments: (pendingNode.comments?.nodes ?? []).map((c) => ({ id: c.id ?? null, path: c.path ?? "", line: c.line ?? c.originalLine ?? null, side: "RIGHT", body: c.body ?? "" })),
   } : null;
   const threads = (pr.reviewThreads?.nodes ?? []).map((t) => {
     const first = t.comments?.nodes?.[0];
@@ -109,6 +125,7 @@ export function detailOf(data) {
       outdated: Boolean(t.isOutdated),
       path: t.path ?? "",
       line: t.line ?? t.originalLine ?? null,
+      side: t.diffSide ?? "RIGHT",
       author: first?.author?.login ?? "",
       body: first?.body ?? "",
       count: t.comments?.totalCount ?? (t.comments?.nodes?.length ?? 0),
@@ -117,7 +134,7 @@ export function detailOf(data) {
   });
   threads.sort((a, b) => Number(a.resolved) - Number(b.resolved));
   const reviews = (pr.latestReviews?.nodes ?? []).map((r) => ({ author: r.author?.login ?? "", state: r.state ?? "", at: Date.parse(r.submittedAt ?? "") || 0 }));
-  return { pending, threads, reviews, viewer };
+  return { id: pr.id ?? null, headOid: pr.headRefOid ?? null, pending, threads, reviews, viewer };
 }
 
 // `gh` arguments for each action. `pending` is the viewer's pending review, if any.
@@ -177,3 +194,104 @@ export const DECISION = {
   CHANGES_REQUESTED: { label: "Changes", color: "ansi1" },
   REVIEW_REQUIRED: { label: "Review", color: "ansi3" },
 };
+
+// `gh pr diff` output into one entry per file: the hunks from the first @@ on, the
+// counts, and whether the file is new, gone, renamed, or binary.
+export function parseDiff(text) {
+  const files = [];
+  let file = null;
+  for (const line of String(text ?? "").replace(/\n$/, "").split("\n")) {
+    const head = /^diff --git a\/(.*) b\/(.*)$/.exec(line);
+    if (head) { file = { path: head[2], oldPath: head[1], status: "M", binary: false, lines: [], add: 0, del: 0 }; files.push(file); continue; }
+    if (!file) continue;
+    if (!file.lines.length) {
+      if (line.startsWith("new file mode")) file.status = "A";
+      else if (line.startsWith("deleted file mode")) file.status = "D";
+      else if (line.startsWith("rename from") || line.startsWith("similarity index")) file.status = "R";
+      else if (line.startsWith("Binary files") || line.startsWith("GIT binary patch")) file.binary = true;
+      if (!line.startsWith("@@")) continue;
+    }
+    file.lines.push(line);
+    if (line.startsWith("+")) file.add++;
+    else if (line.startsWith("-")) file.del++;
+  }
+  return files;
+}
+
+// Text draws a tab as nothing: pad each to the next 4-column stop.
+const untab = (text) => text.replace(/[^\t]*\t/g, (s) => s.slice(0, -1).padEnd((s.length - 1) - (s.length - 1) % 4 + 4));
+
+// Numbers each hunk line once with the side GitHub comments on: deletions are LEFT
+// lines of the old file, additions and context are RIGHT lines of the new one.
+export function diffRows(lines) {
+  let old = 0, next = 0;
+  return (lines ?? []).map((line) => {
+    const match = /^@@ -(\d+)(?:,\d+)? \+(\d+)/.exec(line);
+    if (match) { old = +match[1]; next = +match[2]; return { kind: "@", text: line }; }
+    const kind = line[0];
+    if (kind === "-") return { kind, side: "LEFT", number: old++, text: untab(line.slice(1)) || " " };
+    if (kind === "+") return { kind, side: "RIGHT", number: next++, text: untab(line.slice(1)) || " " };
+    if (kind === " ") { old++; return { kind, side: "RIGHT", number: next++, text: untab(line.slice(1)) || " " }; }
+    return { kind: "", text: line };
+  });
+}
+
+// Draft comments and threads of one file, keyed "side:line", so a diff row can show them.
+export function markersOf(detail, path) {
+  const drafts = new Map(), threads = new Map();
+  for (const c of detail?.pending?.comments ?? []) if (c.path === path && c.line) drafts.set(`${c.side ?? "RIGHT"}:${c.line}`, c);
+  for (const t of detail?.threads ?? []) if (t.path === path && t.line) {
+    const k = `${t.side ?? "RIGHT"}:${t.line}`;
+    threads.set(k, [...(threads.get(k) ?? []), t]);
+  }
+  return { drafts, threads };
+}
+
+// `gh` arguments for draft comments. Adding one to a PR without a pending review
+// starts the review (no event, so it stays unsubmitted); otherwise it joins the
+// pending review. Deleting one removes it from the pending review.
+export function draftArgs(action, { prId, pending, headOid, path, line, side, body, commentId }) {
+  if (action === "delete") {
+    if (!commentId) throw new Error("No draft comment to delete");
+    return ["api", "graphql", "-f", "query=mutation($id:ID!){deletePullRequestReviewComment(input:{id:$id}){clientMutationId}}", "-f", `id=${commentId}`];
+  }
+  if (action !== "add") throw new Error(`Unknown draft action ${action}`);
+  const text = (body ?? "").trim();
+  if (!text) throw new Error("A review comment needs a message");
+  if (!path || !line) throw new Error("Pick a diff line to comment on");
+  const diffSide = side === "LEFT" ? "LEFT" : "RIGHT";
+  if (pending) {
+    return ["api", "graphql",
+      "-f", "query=mutation($review:ID!,$path:String!,$line:Int!,$side:DiffSide!,$body:String!){addPullRequestReviewThread(input:{pullRequestReviewId:$review,path:$path,line:$line,side:$side,body:$body}){thread{id}}}",
+      "-f", `review=${pending.id}`, "-f", `path=${path}`, "-F", `line=${line}`, "-f", `side=${diffSide}`, "-f", `body=${text}`];
+  }
+  if (!prId) throw new Error("The pull request's id is not loaded yet");
+  const args = ["api", "graphql",
+    "-f", `query=mutation($pr:ID!,$path:String!,$line:Int!,$side:DiffSide!,$body:String!${headOid ? ",$oid:GitObjectID!" : ""}){addPullRequestReview(input:{pullRequestId:$pr${headOid ? ",commitOID:$oid" : ""},threads:[{path:$path,line:$line,side:$side,body:$body}]}){pullRequestReview{id}}}`,
+    "-f", `pr=${prId}`, "-f", `path=${path}`, "-F", `line=${line}`, "-f", `side=${diffSide}`, "-f", `body=${text}`];
+  if (headOid) args.push("-f", `oid=${headOid}`);
+  return args;
+}
+
+// The remote that fetches from the repository, by `git remote -v`; origin otherwise.
+export function remoteFor(remotes, repo) {
+  const want = String(repo ?? "").toLowerCase().replace(/\.git$/, "");
+  for (const line of String(remotes ?? "").split("\n")) {
+    const m = /^(\S+)\s+(\S+)\s+\(fetch\)$/.exec(line.trim());
+    if (!m) continue;
+    const url = m[2].toLowerCase().replace(/\.git$/, "").replace(/\/$/, "");
+    if (want && (url.endsWith(`/${want}`) || url.endsWith(`:${want}`))) return m[1];
+  }
+  return "origin";
+}
+
+// Walking a PR in Neovim: fetch its head and base into refs that touch no branch or
+// worktree, then open diffview.nvim on the range (`<leader>gd` in the dotfiles config).
+export function reviewRefs(remote, { number, base }) {
+  const head = `refs/herdr/pr/${number}`, baseRef = `refs/herdr/base/${number}`;
+  return {
+    head, base: baseRef,
+    fetch: ["fetch", "--no-tags", "--quiet", remote, `+refs/pull/${number}/head:${head}`, `+refs/heads/${base}:${baseRef}`],
+    nvim: ["nvim", "-c", `DiffviewOpen ${baseRef}...${head}`],
+  };
+}

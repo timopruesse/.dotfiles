@@ -165,34 +165,73 @@ panel needs the GitHub CLI (`gh`) signed in; without it, or outside a GitHub
 repository, it shows the error instead of a list.
 
 The top list shows the open pull requests (up to 50): number, title, a `draft`
-chip, a `review` chip when you or one of your teams is asked to review, else
-the review decision (`Approved`, `Changes`, `Review`), a checks dot (green ok,
-yellow pending, red failed), and age. The checkout's own PR comes first, then
-ones waiting on you, then yours, newest first. The header counts how many wait
-on you. The list refreshes every minute and on the refresh button.
+chip, an `unsent review` chip when you have a pending review on it, a `review`
+chip when you or one of your teams is asked to review, else the review decision
+(`Approved`, `Changes`, `Review`), a checks dot (green ok, yellow pending, red
+failed), and age. The checkout's own PR comes first, then ones waiting on you
+(a review request, or a review you started and have not sent), then yours,
+newest first. The header counts how many wait on you and how many carry an
+unsent review; the unsent ones come from one GraphQL query per list refresh.
+The list refreshes every minute and on the refresh button.
 
 The panel keeps one record per repository and machine: the list, the picked
-PR, its details, and the unsent message. Moving the focus to another agent,
-tab, or space switches records instead of clearing the panel, so a repository
-seen before comes back as it was, at once, and refreshes behind its rows when
-its list is older than 20 seconds. Worktrees of one repository share a record;
-actions still run in the shown checkout. A folder is resolved to its checkout
-root and repository once; the loader shows only for a repository that was never
-listed. Errors (no git repository, no GitHub remote) are not remembered, so the
-next timer tick or refresh click asks again.
+PR, its details, its diff, and the unsent message. Moving the focus to another
+agent, tab, or space switches records instead of clearing the panel, so a
+repository seen before comes back as it was, at once, and refreshes behind its
+rows when its list is older than 20 seconds. Worktrees of one repository share
+a record; actions still run in the shown checkout. A folder is resolved to its
+checkout root and repository once; the loader shows only for a repository that
+was never listed. Errors (no git repository, no GitHub remote) are not
+remembered, so the next timer tick or refresh click asks again.
 
-Picking a PR loads its review details through GraphQL:
+Picking a PR shows its header (title, author, branches, merge state, counts),
+the **Review** / **Files** switch, and the buttons `nvim`, `Open`, `Checkout`,
+and `Merge`. Review details load through GraphQL:
 
 - **Pending review**: your own unsubmitted review, with its summary and draft
   comments. Nobody else can see it until it is submitted. Approve, Comment, or
-  Request changes submit it (the message bar becomes its summary); Discard
+  Request changes submit it (the message box becomes its summary); Discard
   deletes it. Without a pending review, the same buttons create and submit a
-  review directly; Comment then needs a message.
+  review directly; Comment then needs a message. Click a draft comment to see
+  its line in Files.
 - **Threads**: review threads, open ones first, with path, line, author, and
   the first comment stripped of bot markup. Click a thread to select it; the
-  bar then offers Reply (message required), Resolve or Unresolve, and Back.
+  bar then offers Reply (message required), Resolve or Unresolve, Show diff
+  (the thread's line in Files), and Back.
 - **Reviews** and **Checks**: the latest review per reviewer, and check counts
   with failing check names.
+
+**Files** lists the PR's changed files from `gh pr diff` (status `A`, `D`,
+`R`, `M`, counts, and chips for your drafts and open threads on the file) and
+shows the picked file's diff below: numbered lines with the side GitHub
+comments on (deletions are old-file lines, additions and context new-file
+lines), `draft` chips on lines with a draft comment of yours (GraphQL gives a
+draft no side, so one on an old-file line is marked on the new-file line of the
+same number), and a count chip
+on lines with threads. Click a line to comment on it: the bar shows the line
+and any draft or thread already there, and **Add to review** puts the message
+box's text on that line as a draft comment. The first draft starts a pending
+review on the PR's head commit through `addPullRequestReview` with no event;
+later ones join it through `addPullRequestReviewThread`. **Delete draft**
+removes the line's draft comment. Draft comments are private until the review
+is submitted from Review, so they need no confirmation. The diff is fetched
+once per PR head and dropped when the list shows new commits; files over 4,000
+diff lines are cut with a note, and a diff GitHub refuses (too many files or
+lines) shows its error. The message box is multi-line and grows up to six
+rows.
+
+**nvim** walks the PR in Neovim without touching your branches or worktree: it
+fetches `refs/pull/<n>/head` and the base branch from the remote whose fetch
+URL names the repository (`origin` otherwise) into `refs/herdr/pr/<n>` and
+`refs/herdr/base/<n>`, then runs `terminal.open` with
+`nvim -c "DiffviewOpen refs/herdr/base/<n>...refs/herdr/pr/<n>"` in the
+checkout, split to the right of the focused pane (a new tab when no pane is
+focused). The dotfiles Neovim config includes diffview.nvim for this
+(`<leader>gd`, `<leader>gD`, `<leader>gh`; see [`KEYBINDS.md`](../KEYBINDS.md)).
+The refs stay until you delete them (`git update-ref -d refs/herdr/pr/<n>`).
+
+The mod takes commands for keys.json or `herdr-app do`: `dotfiles-prs.review`,
+`dotfiles-prs.files`, `dotfiles-prs.nvim`, and `dotfiles-prs.refresh`.
 
 Every outward-facing action (submit, discard, reply, resolve, checkout, merge)
 arms first: the bar shows the question with Confirm and Cancel, and nothing is
@@ -206,18 +245,24 @@ Rebase. The button is disabled for drafts, conflicting PRs, and unknown heads;
 branch protection, required checks, and approvals are enforced by GitHub, and a
 refusal is shown as the error text. The detail header shows GitHub's merge
 state (`clean`, `blocked`, `behind`, `dirty`, ...) and the list marks
-conflicting PRs. Editing PR metadata and starting a pending review are not
-offered; use `gh` or the browser for those.
+conflicting PRs. Editing PR metadata, multi-line (range) comments, suggestions,
+and editing a draft's text are not offered; use `gh` or the browser for those.
 
-Verification so far: `herdr-app check` passes for both owned mods, the helper
-module has node tests (`tests/test_herdr_app_prs.mjs`) covering row flags,
-sorting, detail parsing, and the exact `gh` arguments of every action including the guarded merge; the
-rendered panel is tested for keeping its record across pane switches within a
-checkout, between repositories, and after errors; and the
-list, detail, and pending-review states were inspected live with `herdr-app
-shot` against a temporary private pending review on a personal PR. The submit,
-discard, reply, resolve, checkout, and merge clicks were not exercised in the
-app; only their `gh` argument construction is tested.
+Verification so far: `herdr-app check` passes for the mod; the helper module
+has node tests (`tests/test_herdr_app_prs.mjs`) covering row flags, sorting,
+detail parsing, diff parsing and row numbering, line markers, and the exact
+`gh` arguments of every action including draft comments, the guarded merge, and
+the nvim refs; the rendered panel is tested for keeping its record across pane
+switches, the Files view (diff fetched once per head, file list, lines, errors),
+line comments into a new and an existing pending review, draft deletion,
+revealing a thread's line, the nvim hand-off, the unsent-review badges, and the
+mod commands. The submit, discard, reply, resolve, checkout, and merge clicks
+were not exercised in the app; only their `gh` argument construction is tested.
+The reworked panel was inspected live in the app on a repository without open
+PRs (header, empty list, message box, and buttons render; a `"transparent"`
+background the host rejects was found and fixed there). The Files view, line
+comments, the unsent-review badges, and the nvim hand-off were not inspected
+live; open the panel on a checkout with an open PR to see them.
 
 ## Outputs panel
 

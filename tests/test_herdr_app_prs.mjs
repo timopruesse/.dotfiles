@@ -63,11 +63,11 @@ test("detail keeps only the viewer's pending review, orders open threads first, 
   } } } };
   const d = prs.detailOf(data);
   assert.equal(d.viewer, "timo");
-  assert.deepEqual(d.pending, { id: "R2", databaseId: 22, body: "**draft** summary", comments: [{ path: "a.ts", line: 7, body: "nit" }, { path: "b.ts", line: 3, body: "rename" }] });
+  assert.deepEqual(d.pending, { id: "R2", databaseId: 22, body: "**draft** summary", comments: [{ id: null, path: "a.ts", line: 7, side: "RIGHT", body: "nit" }, { id: null, path: "b.ts", line: 3, side: "RIGHT", body: "rename" }] });
   assert.deepEqual(d.threads.map((t) => [t.id, t.resolved, t.line, t.author, t.count, t.last]), [["T2", false, 9, "rev", 1, "rev"], ["T1", true, 4, "bot", 3, "timo"]]);
   assert.equal(prs.plain(d.threads[1].body), "Fix this.");
   assert.deepEqual(d.reviews.map((r) => [r.author, r.state, r.at > 0]), [["rev", "CHANGES_REQUESTED", true]]);
-  assert.deepEqual(prs.detailOf({ data: { repository: { pullRequest: null } } }), { pending: null, threads: [], reviews: [], viewer: null });
+  assert.deepEqual(prs.detailOf({ data: { repository: { pullRequest: null } } }), { id: null, headOid: null, pending: null, threads: [], reviews: [], viewer: null });
   assert.equal(prs.plain("x".repeat(300), 20).length, 20);
 });
 
@@ -113,6 +113,97 @@ test("age is short and never negative-looking", () => {
     ["", "now", "5m", "3h", "2d", "2mo"]);
 });
 
+test("rows with an unsent review rank with review requests", () => {
+  const rows = prs.rowsOf([pr(1), pr(2), pr(3, { author: { login: "timo" } })], "timo").map((r) => ({ ...r, pending: r.number === 1 }));
+  assert.deepEqual(prs.sortRows(rows, null).map((r) => r.number), [1, 3, 2]);
+  const pending = prs.pendingOf({ data: { repository: { pullRequests: { nodes: [{ number: 1, reviews: { totalCount: 1 } }, { number: 2, reviews: { totalCount: 0 } }] } } } });
+  assert.deepEqual([...pending], [1]);
+  assert.equal(prs.pendingOf({}).size, 0);
+  assert.match(prs.PENDING_QUERY, /reviews\(states:PENDING,first:1,author:\$viewer\)/);
+});
+
+test("detail carries the PR id and head, draft comment ids and sides, and thread sides", () => {
+  const data = { data: { viewer: { login: "timo" }, repository: { pullRequest: {
+    id: "PR_1", headRefOid: "abc",
+    reviews: { nodes: [{ id: "R2", databaseId: 22, body: "", author: { login: "timo" }, comments: { nodes: [{ id: "C1", path: "a.ts", line: 7, body: "nit" }] } }] },
+    reviewThreads: { nodes: [{ id: "T1", isResolved: false, path: "a.ts", line: 4, diffSide: "RIGHT", comments: { totalCount: 1, nodes: [{ author: { login: "rev" }, body: "why" }] } }] },
+    latestReviews: { nodes: [] },
+  } } } };
+  const d = prs.detailOf(data);
+  assert.deepEqual([d.id, d.headOid], ["PR_1", "abc"]);
+  assert.deepEqual(d.pending.comments, [{ id: "C1", path: "a.ts", line: 7, side: "RIGHT", body: "nit" }], "comments carry no side in GraphQL; drafts mark the new side");
+  assert.equal(d.threads[0].side, "RIGHT");
+  assert.match(prs.DETAIL_QUERY, /id headRefOid/);
+  assert.match(prs.DETAIL_QUERY, /comments\(first:100\)\{nodes\{id path line originalLine body\}\}/);
+  assert.doesNotMatch(prs.DETAIL_QUERY, /originalLine diffSide body/, "PullRequestReviewComment has no diffSide field");
+  const marks = prs.markersOf(d, "a.ts");
+  assert.deepEqual([...marks.drafts.keys()], ["RIGHT:7"]);
+  assert.deepEqual([...marks.threads.keys()], ["RIGHT:4"]);
+  assert.equal(prs.markersOf(d, "b.ts").drafts.size, 0);
+  assert.equal(prs.markersOf(null, "a.ts").threads.size, 0);
+});
+
+const DIFF = [
+  "diff --git a/src/a.ts b/src/a.ts", "index 1..2 100644", "--- a/src/a.ts", "+++ b/src/a.ts",
+  "@@ -1,3 +1,4 @@", " keep", "-old\tline", "+new", "+more", " tail",
+  "diff --git a/new.md b/new.md", "new file mode 100644", "index 0..3", "--- /dev/null", "+++ b/new.md",
+  "@@ -0,0 +1,2 @@", "+# hi", "+",
+  "diff --git a/gone.txt b/gone.txt", "deleted file mode 100644", "--- a/gone.txt", "+++ /dev/null", "@@ -1 +0,0 @@", "-bye",
+  "diff --git a/img.png b/img.png", "index 1..2 100644", "Binary files a/img.png and b/img.png differ",
+  "diff --git a/old.js b/moved.js", "similarity index 90%", "rename from old.js", "rename to moved.js", "index 1..2 100644", "--- a/old.js", "+++ b/moved.js", "@@ -2 +2 @@", "-x", "+y",
+].join("\n") + "\n";
+
+test("a PR diff splits per file with status, counts, and hunks from the first @@", () => {
+  const files = prs.parseDiff(DIFF);
+  assert.deepEqual(files.map((f) => [f.path, f.status, f.binary, f.add, f.del, f.lines.length]), [
+    ["src/a.ts", "M", false, 2, 1, 6], ["new.md", "A", false, 2, 0, 3], ["gone.txt", "D", false, 0, 1, 2], ["img.png", "M", true, 0, 0, 0], ["moved.js", "R", false, 1, 1, 3],
+  ]);
+  assert.equal(files[4].oldPath, "old.js");
+  assert.deepEqual(prs.parseDiff(""), []);
+  assert.deepEqual(prs.parseDiff("garbage\nwithout header\n"), []);
+});
+
+test("diff rows number both sides and name the side GitHub comments on", () => {
+  const rows = prs.diffRows(prs.parseDiff(DIFF)[0].lines);
+  assert.deepEqual(rows.map((r) => [r.kind, r.side, r.number, r.text]), [
+    ["@", undefined, undefined, "@@ -1,3 +1,4 @@"], [" ", "RIGHT", 1, "keep"], ["-", "LEFT", 2, "old line"], ["+", "RIGHT", 2, "new"], ["+", "RIGHT", 3, "more"], [" ", "RIGHT", 4, "tail"],
+  ]);
+  assert.deepEqual(prs.diffRows(["\\ No newline at end of file"])[0], { kind: "", text: "\\ No newline at end of file" });
+  assert.deepEqual(prs.diffRows(undefined), []);
+});
+
+test("draft comments start a pending review or join it, and delete by id", () => {
+  const add = prs.draftArgs("add", { prId: "PR_1", pending: null, headOid: "abc", path: "a.ts", line: 7, side: "LEFT", body: " nit " });
+  assert.deepEqual(add.slice(0, 3), ["api", "graphql", "-f"]);
+  assert.match(add[3], /addPullRequestReview\(input:\{pullRequestId:\$pr,commitOID:\$oid,threads:\[\{path:\$path,line:\$line,side:\$side,body:\$body\}\]\}\)/);
+  assert.deepEqual(add.slice(4), ["-f", "pr=PR_1", "-f", "path=a.ts", "-F", "line=7", "-f", "side=LEFT", "-f", "body=nit", "-f", "oid=abc"]);
+  const noHead = prs.draftArgs("add", { prId: "PR_1", pending: null, headOid: null, path: "a.ts", line: 7, side: "RIGHT", body: "x" });
+  assert.doesNotMatch(noHead[3], /commitOID/);
+  assert.ok(!noHead.includes("oid=abc"));
+  const join = prs.draftArgs("add", { prId: "PR_1", pending: { id: "R2" }, path: "a.ts", line: 3, side: "bogus", body: "rename" });
+  assert.match(join[3], /addPullRequestReviewThread\(input:\{pullRequestReviewId:\$review,path:\$path,line:\$line,side:\$side,body:\$body\}\)/);
+  assert.deepEqual(join.slice(4), ["-f", "review=R2", "-f", "path=a.ts", "-F", "line=3", "-f", "side=RIGHT", "-f", "body=rename"]);
+  const del = prs.draftArgs("delete", { commentId: "C1" });
+  assert.match(del[3], /deletePullRequestReviewComment\(input:\{id:\$id\}\)/);
+  assert.deepEqual(del.slice(-2), ["-f", "id=C1"]);
+  assert.throws(() => prs.draftArgs("add", { prId: "PR_1", path: "a.ts", line: 7, body: " " }), /needs a message/);
+  assert.throws(() => prs.draftArgs("add", { prId: "PR_1", path: "", line: 0, body: "x" }), /Pick a diff line/);
+  assert.throws(() => prs.draftArgs("add", { prId: null, pending: null, path: "a.ts", line: 1, body: "x" }), /id is not loaded/);
+  assert.throws(() => prs.draftArgs("delete", {}), /No draft comment/);
+  assert.throws(() => prs.draftArgs("edit", {}), /Unknown draft action/);
+});
+
+test("the remote is found by its fetch URL, and nvim walks refs that touch no branch", () => {
+  const remotes = "upstream\tgit@github.com:other/repo.git (fetch)\nupstream\tgit@github.com:other/repo.git (push)\nfork\thttps://github.com/Timo/Repo.git (fetch)\nfork\thttps://github.com/Timo/Repo.git (push)\n";
+  assert.equal(prs.remoteFor(remotes, "timo/repo"), "fork");
+  assert.equal(prs.remoteFor(remotes, "other/repo"), "upstream");
+  assert.equal(prs.remoteFor(remotes, "nobody/else"), "origin");
+  assert.equal(prs.remoteFor("", "timo/repo"), "origin");
+  const refs = prs.reviewRefs("fork", { number: 12, base: "main" });
+  assert.deepEqual(refs.fetch, ["fetch", "--no-tags", "--quiet", "fork", "+refs/pull/12/head:refs/herdr/pr/12", "+refs/heads/main:refs/herdr/base/12"]);
+  assert.deepEqual(refs.nvim, ["nvim", "-c", "DiffviewOpen refs/herdr/base/12...refs/herdr/pr/12"]);
+});
+
 // Render the actual panel class with the native builders and host imports replaced:
 // one record per repository, kept across pane, tab and space switches.
 import vm from "node:vm";
@@ -147,19 +238,34 @@ function panel(cwd = "/repo-a") {
     execs.push([cmd, args, opts]);
     const root = rootOf(opts.cwd ?? "");
     const ok = (stdout) => Promise.resolve({ code: 0, stdout, stderr: "" });
-    if (cmd === "git") return root ? ok(root + "\n") : Promise.resolve({ code: 128, stdout: "", stderr: "fatal: not a git repository" });
+    if (cmd === "git" && args[0] === "rev-parse") return root ? ok(root + "\n") : Promise.resolve({ code: 128, stdout: "", stderr: "fatal: not a git repository" });
     if (args[0] === "repo") return ok(REPOS[root].name + "\n");
     if (args[0] === "pr" && args[1] === "list") return ok(JSON.stringify(REPOS[root].list));
     if (args[0] === "api" && args[1] === "user") return ok("timo\n");
     if (args[0] === "api" && args[1] === "user/teams") return ok("");
-    if (args[0] === "api" && args[1] === "graphql") return ok(DETAIL);
+    if (args[0] === "api" && args[1] === "graphql") {
+      const query = args[3];
+      if (query.includes("pullRequests(states:OPEN")) return ok(world.pendingAnswer ?? JSON.stringify({ data: { repository: { pullRequests: { nodes: [] } } } }));
+      if (query.includes("mutation(")) { world.mutations.push(args.slice(3)); return world.mutationAnswer ? world.mutationAnswer() : ok("{}"); }
+      return ok(world.detailAnswer ?? DETAIL);
+    }
+    if (args[0] === "pr" && args[1] === "diff") return world.diffAnswer ? world.diffAnswer() : ok(DIFF);
+    if (cmd === "git" && args[0] === "remote") return ok("origin\tgit@github.com:o/a.git (fetch)\norigin\tgit@github.com:o/a.git (push)\n");
+    if (cmd === "git" && args[0] === "fetch") return ok("");
     throw new Error(`unexpected exec ${cmd} ${args.join(" ")}`);
   };
+  world.mutations = []; world.runs = []; world.scrolls = []; world.commands = [];
   const inputs = [];
   const sandbox = {
     console, View: class {}, div: element, svg: element, v_flex: element, h_flex: element,
-    Input: { new: () => element() },
-    InputState: { new: () => { const s = { v: "", on() {}, value: () => s.v, set_value: (v) => { s.v = v; inputs.push(v); } }; return s; } },
+    Textarea: { new: () => element() },
+    TextareaState: { new: () => { const s = { v: "", on() {}, set_auto_grow() {}, value: () => s.v, set_value: (v) => { s.v = v; inputs.push(v); } }; return s; } },
+    Scrollbar: { vertical: () => element() },
+    VirtualListScrollHandle: { new: () => ({ scroll_to_item: (i, how) => world.scrolls.push([i, how]) }) },
+    v_virtual_list: (_id, count, _size, _key, render) => element().children(render({ start: 0, end: count })),
+    settings: () => ({ font_family: "mono" }),
+    run: (name, args) => { world.runs.push([name, args]); return null; },
+    nextCommand: () => new Promise((resolve) => { world.commands.push(resolve); }),
     spaces: () => [{ id: "s1", active: true, folder: world.cwd, machine: null }],
     panes: () => [{ pane: world.pane, cwd: world.cwd, branch: world.branch }],
     focused: () => ({ space: "s1", tab: "tb1", pane: world.pane, terminal: "t1", cwd: world.cwd }),
@@ -170,7 +276,8 @@ function panel(cwd = "/repo-a") {
   vm.runInContext(main.replace(/^import .*;$/gm, "").replace("export default class PullRequests", "class PullRequests") + "\nglobalThis.Mod = PullRequests;", sandbox);
   const mod = new sandbox.Mod();
   const spawned = [];
-  const cx = { spawn: (fn) => spawned.push(fn(cx)), notify() {}, timer: { every() {} }, stop_propagation() {}, focus_handle: () => ({ focus() {} }) };
+  // The command loop (the spawn that asks nextCommand at once) never ends; settle skips it.
+  const cx = { spawn: (fn) => { const waiting = world.commands.length, p = fn(cx); if (world.commands.length === waiting) spawned.push(p); }, notify() {}, timer: { every() {} }, stop_propagation() {}, focus_handle: () => ({ focus() {} }) };
   mod.init({}, cx);
   const settle = async () => { while (spawned.length) await spawned.shift(); };
   const shown = () => texts(mod.render(cx));
@@ -196,7 +303,7 @@ test("panel: another pane in the same checkout keeps the rows and the picked PR 
   assert.equal(p.mod.state.open, 1, "the picked PR survives the switch");
   assert.equal(p.calls("gh", "pr", "list"), 1, "same repository, no second listing");
   assert.equal(p.calls("gh", "repo"), 1, "a known checkout root is not looked up again");
-  assert.equal(p.calls("git"), 2);
+  assert.equal(p.calls("git", "rev-parse"), 2);
 });
 
 test("panel: another repository gets its own record and the first comes back as it was, at once", async () => {
@@ -239,9 +346,158 @@ test("panel: a folder outside git shows the error, keeps nothing, and asks again
   assert.equal(p.mod.places.size, 0);
   p.mod.refresh(p.cx);
   await p.settle();
-  assert.equal(p.calls("git"), 2);
+  assert.equal(p.calls("git", "rev-parse"), 2);
   const seen = p.go("/repo-a", "p1");
   assert.ok(seen.includes("Loading pull requests…"), "a repository never listed shows the loader");
   await p.settle();
   assert.ok(p.shown().includes("PR 1"));
+});
+
+const PR_DETAIL = (pending) => JSON.stringify({ data: { viewer: { login: "timo" }, repository: { pullRequest: {
+  id: "PR_1", headRefOid: "abc",
+  reviews: { nodes: pending ? [{ id: "R2", databaseId: 22, body: "", author: { login: "timo" }, comments: { nodes: [{ id: "C1", path: "src/a.ts", line: 2, body: "nit here" }] } }] : [] },
+  reviewThreads: { nodes: [{ id: "T1", isResolved: false, path: "src/a.ts", line: 4, diffSide: "RIGHT", comments: { totalCount: 1, nodes: [{ author: { login: "rev" }, body: "why?" }] } }] },
+  latestReviews: { nodes: [] },
+} } } });
+
+test("panel: Files loads the diff once per head, lists the files, and shows the picked file's lines", async () => {
+  const p = panel("/repo-a");
+  await p.settle();
+  assert.ok(!p.shown().includes("src/a.ts"), "the review view has no diff");
+  p.mod.view("files", p.cx);
+  assert.ok(p.shown().includes("Loading diff…"));
+  await p.settle();
+  let seen = p.shown();
+  assert.equal(p.calls("gh", "pr", "diff"), 1);
+  assert.equal(p.mod.state.file, "src/a.ts", "the first file is picked");
+  assert.ok(seen.includes("a.ts") && seen.includes("new.md") && seen.includes("gone.txt") && seen.includes("moved.js"));
+  assert.ok(seen.includes("old line") && seen.includes("new") && seen.includes("Click a line to comment on it"));
+  assert.ok(seen.includes("Files · 5"));
+  p.mod.view("review", p.cx);
+  p.mod.view("files", p.cx);
+  await p.settle();
+  assert.equal(p.calls("gh", "pr", "diff"), 1, "switching views keeps the diff");
+  // New commits on the PR drop the diff; the next refresh lists them and Files fetches again.
+  REPOS["/repo-a"].list = [pr(1), pr(2, { headRefOid: "def" })];
+  p.mod.state.fetched = 0;
+  p.mod.refresh(p.cx, true);
+  await p.settle();
+  assert.equal(p.mod.state.diff, null);
+  p.mod.loadDiff(p.mod.state, p.cx);
+  await p.settle();
+  assert.equal(p.calls("gh", "pr", "diff"), 2);
+  REPOS["/repo-a"].list = [pr(1), pr(2)];
+  // A failing diff shows the reason and keeps the file list empty.
+  p.world.diffAnswer = () => Promise.resolve({ code: 1, stdout: "", stderr: "diff exceeded the maximum number of lines" });
+  p.mod.pick(1, p.cx);
+  p.mod.view("files", p.cx);
+  await p.settle();
+  assert.ok(p.shown().some((x) => x.includes("Cannot load the diff: diff exceeded")));
+});
+
+test("panel: a clicked line takes a draft comment into a new pending review, then into the existing one, and deletes it", async () => {
+  const p = panel("/repo-a");
+  p.world.detailAnswer = PR_DETAIL(false);
+  await p.settle();
+  p.mod.view("files", p.cx);
+  await p.settle();
+  const s = p.mod.state;
+  assert.ok(p.shown().includes("1"), "the thread on line 4 is marked");
+  const rows = s.diff[0].rows;
+  p.mod.pickLine(rows[3], p.cx); // "+new", RIGHT 2
+  assert.deepEqual([s.line.path, s.line.number, s.line.side], ["src/a.ts", 2, "RIGHT"]);
+  assert.ok(p.shown().includes("src/a.ts:2") && p.shown().includes("Add to review"));
+  p.mod.pickLine(rows[0], p.cx);
+  assert.equal(s.line.number, 2, "hunk headers are not lines");
+  s.message = "";
+  p.mod.act("add", p.cx);
+  assert.match(s.note, /needs a message/);
+  assert.equal(p.world.mutations.length, 0);
+  s.message = "nit here";
+  p.world.detailAnswer = PR_DETAIL(true);
+  p.mod.act("add", p.cx);
+  await p.settle();
+  assert.equal(p.world.mutations.length, 1);
+  assert.match(p.world.mutations[0][0], /addPullRequestReview\(input:\{pullRequestId:\$pr,commitOID:\$oid/);
+  assert.deepEqual(p.world.mutations[0].slice(1), ["-f", "pr=PR_1", "-f", "path=src/a.ts", "-F", "line=2", "-f", "side=RIGHT", "-f", "body=nit here", "-f", "oid=abc"]);
+  assert.equal(s.message, "", "the box is cleared");
+  assert.ok(s.detail.pending, "the detail is reloaded with the new pending review");
+  assert.ok(s.pendingNumbers.has(2));
+  let seen = p.shown();
+  assert.ok(seen.includes("draft") && seen.includes("Delete draft") && seen.includes("Add another") && seen.includes("unsent review"));
+  assert.ok(seen.includes("Review · 1 draft"));
+  s.message = "and this";
+  p.mod.act("add", p.cx);
+  await p.settle();
+  assert.match(p.world.mutations[1][0], /addPullRequestReviewThread/);
+  assert.ok(p.world.mutations[1].includes("review=R2"));
+  p.mod.act("delete", p.cx);
+  await p.settle();
+  assert.match(p.world.mutations[2][0], /deletePullRequestReviewComment/);
+  assert.ok(p.world.mutations[2].includes("id=C1"));
+  // Picking another line, or Cancel, leaves the line; the bar offers the review again.
+  p.mod.pickLine(rows[3], p.cx);
+  assert.equal(s.line, null, "clicking the picked line again unpicks it");
+  assert.ok(p.shown().includes("Approve"));
+});
+
+test("panel: a thread's Show diff and a draft's click reveal the line in Files and scroll to it", async () => {
+  const p = panel("/repo-a");
+  p.world.detailAnswer = PR_DETAIL(true);
+  await p.settle();
+  const s = p.mod.state;
+  assert.ok(p.shown().includes("Review · 1 draft"));
+  p.mod.reveal("src/a.ts", 4, "RIGHT", p.cx);
+  assert.equal(s.view, "files");
+  assert.equal(s.line, null, "no diff yet: nothing to pick");
+  await p.settle();
+  p.mod.reveal("src/a.ts", 4, "RIGHT", p.cx);
+  assert.deepEqual([s.file, s.line.number, s.line.kind], ["src/a.ts", 4, " "]);
+  assert.deepEqual(p.world.scrolls.at(-1), [5, "center"]);
+  assert.ok(p.shown().includes("open thread"));
+  p.mod.reveal("src/a.ts", 2, "RIGHT", p.cx);
+  assert.ok(p.shown().includes("nit here"), "the draft on the line is shown");
+  p.mod.reveal("missing.ts", 1, "RIGHT", p.cx);
+  assert.equal(s.line, null);
+  assert.equal(s.file, "missing.ts");
+});
+
+test("panel: nvim fetches the PR's refs into refs/herdr and opens diffview beside the focused pane", async () => {
+  const p = panel("/repo-a");
+  await p.settle();
+  p.mod.nvim(p.cx);
+  assert.ok(p.mod.state.busy);
+  await p.settle();
+  assert.equal(p.calls("git", "fetch"), 1);
+  assert.deepEqual(JSON.parse(JSON.stringify(p.world.runs)), [["terminal.open", { argv: ["nvim", "-c", "DiffviewOpen refs/herdr/base/2...refs/herdr/pr/2"], folder: "/repo-a", place: "right" }]]);
+  assert.match(p.mod.state.note, /^nvim: base\/2…pr\/2$/);
+  assert.ok(!p.mod.state.busy);
+});
+
+test("panel: the header counts unsent reviews from one list query", async () => {
+  const p = panel("/repo-a");
+  p.world.pendingAnswer = JSON.stringify({ data: { repository: { pullRequests: { nodes: [{ number: 1, reviews: { totalCount: 1 } }] } } } });
+  await p.settle();
+  const seen = p.shown();
+  assert.ok(seen.includes("1 unsent") && seen.includes("unsent review"));
+  assert.deepEqual(p.mod.state.rows.map((r) => r.number), [1, 2], "the PR with the unsent review sorts first");
+});
+
+test("panel: commands from keys or herdr-app do switch the view, open nvim, and refresh", async () => {
+  const p = panel("/repo-a");
+  await p.settle();
+  assert.equal(p.world.commands.length, 1, "the command loop waits");
+  const send = async (name) => { const resolve = p.world.commands.shift(); resolve(name); await new Promise((r) => setTimeout(r, 0)); };
+  await send("files");
+  assert.equal(p.mod.state.view, "files");
+  await p.settle();
+  await send("review");
+  assert.equal(p.mod.state.view, "review");
+  await send("nvim");
+  await p.settle();
+  assert.equal(p.world.runs.length, 1);
+  await send("refresh");
+  await p.settle();
+  assert.equal(p.calls("gh", "pr", "list"), 2);
+  assert.equal(p.world.commands.length, 1, "the loop keeps waiting");
 });
