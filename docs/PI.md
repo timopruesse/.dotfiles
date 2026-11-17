@@ -2,7 +2,7 @@
 
 Pi is the default coding harness on Linux/WSL and macOS. Git identity still varies
 by repository; the agent CLI does not. The managed startup model is
-**OpenAI GPT 6.1 Sol (`gpt-6.1-sol`), medium thinking**.
+**OpenAI GPT 6.2 Sol (`gpt-6.2-sol`), medium thinking**.
 
 ## Install and configure
 
@@ -19,7 +19,7 @@ The installer links version-controlled instructions and prompt templates from
 It preflights resource-name collisions and refuses to replace personal files.
 Move or merge a conflicting file, then rerun. It recursively merges managed defaults
 from `home/.pi/agent/settings.defaults.json` into machine-local settings: medium
-thinking for `openai/gpt-6.1-sol`. It also links the `pstack-reviewer` agent
+thinking for `openai/gpt-6.2-sol`. It also links the `pstack-reviewer` agent
 definition, kept only for pstack's own `/skill:*` playbooks; the managed
 commands review through `hc` instead.
 Malformed managed settings sections fail before installing resources. Unrelated

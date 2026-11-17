@@ -253,7 +253,8 @@ assert.equal(await handler({ toolName: 'read', input: { command: 'git push --for
     def test_preserves_state_settings_and_unrelated_resources(self):
         original = {'defaultProvider': 'personal', 'defaultModel': 'chosen',
                     'defaultThinkingLevel': 'high',
-                    'modelThinkingLevels': {'openai/gpt-6.1-sol': 'high', 'other/model': 'low'},
+                    'modelThinkingLevels': {'openai/gpt-6.2-sol': 'high', 'openai/gpt-6.1-sol': 'high',
+                                            'other/model': 'low'},
                     'packages': ['npm:example'], 'skills': ['~/custom-skills'], 'theme': 'dark',
                     'subagents': {'customSetting': True, 'agentOverrides': {
                         'worker': {'model': 'personal/model'},
@@ -271,10 +272,11 @@ assert.equal(await handler({ toolName: 'read', input: { command: 'git push --for
         for key in ('packages', 'skills', 'theme'):
             self.assertEqual(loaded[key], original[key])
         self.assertEqual(loaded['defaultProvider'], 'openai')
-        self.assertEqual(loaded['defaultModel'], 'gpt-6.1-sol')
+        self.assertEqual(loaded['defaultModel'], 'gpt-6.2-sol')
         self.assertEqual(loaded['defaultThinkingLevel'], 'medium')
         self.assertEqual(loaded['modelThinkingLevels'],
-                         {'openai/gpt-6.1-sol': 'medium', 'other/model': 'low'})
+                         {'openai/gpt-6.2-sol': 'medium', 'openai/gpt-6.1-sol': 'high',
+                          'other/model': 'low'})
         # Retired runtime settings are user-owned and inert, not migration targets.
         self.assertEqual(loaded['subagents'], original['subagents'])
         self.assertFalse(settings.is_symlink())
@@ -341,8 +343,9 @@ assert.equal(await handler({ toolName: 'read', input: { command: 'git push --for
         settings = self.agent / 'settings.json'
         self.assertEqual(settings.stat().st_mode & 0o777, 0o600)
         loaded = json.loads(settings.read_text())
-        self.assertEqual(loaded['defaultModel'], 'gpt-6.1-sol')
+        self.assertEqual(loaded['defaultModel'], 'gpt-6.2-sol')
         self.assertEqual(loaded['defaultThinkingLevel'], 'medium')
+        self.assertEqual(loaded['modelThinkingLevels'], {'openai/gpt-6.2-sol': 'medium'})
         self.assertNotIn('packages', loaded)
         self.assertNotIn('subagents', loaded)
 

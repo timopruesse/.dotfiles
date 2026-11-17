@@ -1,8 +1,8 @@
 {
   "defaultProvider": "openai",
-  "defaultModel": "gpt-6.1-sol",
+  "defaultModel": "gpt-6.2-sol",
   "defaultThinkingLevel": "medium",
   "modelThinkingLevels": {
-    "openai/gpt-6.1-sol": "medium"
+    "openai/gpt-6.2-sol": "medium"
   }
 }

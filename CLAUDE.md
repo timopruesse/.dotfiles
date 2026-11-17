@@ -76,7 +76,7 @@ Pi is the default everywhere. `CODING_AGENT=pi|claude|codex|agy|agent|cursor`
 overrides it (cursor normalizes to agent). Per-call overrides: `--pi` / `--claude` /
 `--codex` / `--agy` / `--agent` / `--cursor`. Git identity routing is independent.
 The `dotfiles` task runs `python3 $HOME/setup_pi.py` to link Pi resources and apply
-GPT 6.1 Sol (`openai/gpt-6.1-sol`) with medium thinking as the startup default.
+GPT 6.2 Sol (`openai/gpt-6.2-sol`) with medium thinking as the startup default.
 All approved Pi plugins must be declared in `machine_setup.yaml`'s `pi_packages`
 task for both install and update. Workflow migration decisions are tracked in
 [`docs/PI-WORKFLOW-MIGRATION.md`](docs/PI-WORKFLOW-MIGRATION.md).
