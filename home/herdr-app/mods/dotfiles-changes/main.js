@@ -1,6 +1,6 @@
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input, Scrollbar, v_virtual_list } from "gpui-base";
-import { spaces, panes, focused, exec, readTextFile, watchFolder, theme, settings } from "herdr";
+import { spaces, panes, focused, exec, run, readTextFile, watchFolder, theme, settings } from "herdr";
 import { diffRows, displayColumns, diffPalette } from "./diff.js";
 
 function location() {
@@ -146,6 +146,10 @@ export default class Changes extends View {
     cx.notify();
   }
 
+  canEdit(context) {
+    return Boolean(context && this.current(context) && this.root && this.files.length && !this.error);
+  }
+
   commit(cx) {
     if (!this.message.trim() || !this.root || this.busy || this.loading || this.context?.key !== key()) return;
     const root = this.root, on = this.on, context = this.context, message = this.message.trim();
@@ -181,7 +185,7 @@ export default class Changes extends View {
     if (key() !== this.context?.key) this.refresh(cx);
     const t = theme(), size = settings().font_size, add = this.files.reduce((n, f) => n + f.add, 0), del = this.files.reduce((n, f) => n + f.del, 0);
     const enabled = Boolean(this.message.trim() && this.root && !this.busy && !this.loading);
-    const palette = diffPalette(t);
+    const context = this.context, canEdit = this.canEdit(context), palette = diffPalette(t);
     return v_flex().id("changes").size_full().min_h(0).rounded(10).overflow_hidden().bg(t.background).border_1().border_color(t.border).text_color(t.foreground).text_size(13).track_focus(this.handle)
       .on_key_down((e, cx) => {
         if (e.key === "escape" && this.typing) { this.typing = false; this.handle.focus(); cx.stop_propagation(); cx.notify(); }
@@ -189,7 +193,12 @@ export default class Changes extends View {
       .child(h_flex().h(42).flex_none().px(14).gap(8).items_center().border_b(1).border_color(t.border)
         .child(div().font_semibold().child("Changes"))
         .child(div().px(5).py(1).rounded(4).border_1().border_color(t.border).text_size(10).text_color(t.muted).child(`${this.files.length} files`))
-        .child(div().flex_1()).child(div().text_size(11).text_color(t.ansi2).child(`+${add}`)).child(div().text_size(11).text_color(t.ansi1).child(`−${del}`)))
+        .child(div().flex_1()).child(div().text_size(11).text_color(t.ansi2).child(`+${add}`)).child(div().text_size(11).text_color(t.ansi1).child(`−${del}`))
+        .child(div().id("changes-nvim").flex_none().px(8).py(4).rounded(6).text_size(11).bg(t.raised)
+          .text_color(canEdit ? t.foreground : t.dim).child("Edit in Neovim")
+          .when(canEdit, (e) => e.cursor_pointer().hover((s) => s.bg(t.hover)).on_click(() => {
+            if (this.canEdit(context)) run("dotfiles-tabs.nvim");
+          }))))
       // overflow_y_scrollbar() wraps the list, so its flex sizing never reached the panel's layout.
       .child(div().flex_1().min_h(44).max_h(this.files.length * 28 + 12).relative().border_b(1).border_color(t.border)
         .child(v_flex().id("changes-list").absolute().inset_0().overflow_y_scroll().p(6).children(this.files.map((f) => {

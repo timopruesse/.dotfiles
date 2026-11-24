@@ -1,8 +1,8 @@
-// Owned clone of the shipped `tabs` mod (herdr-app 0.1.12): adds the PRs and Outputs
-// panel buttons beside Files and Changes. Keep local changes to that boundary.
+// Owned clone of the shipped `tabs` mod (herdr-app 0.1.12): adds PRs and Outputs
+// panel buttons and hosts the Changes shortcut even when its panel is hidden.
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings } from "herdr";
+import { spaces, panes, focused, exec, run, nextCommand, notify, openOverlay, theme, window, shared, layout, settings } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -13,10 +13,42 @@ function find(node, id) {
   return null;
 }
 
+function location() {
+  const space = spaces().find(s => s.active), f = focused();
+  const pane = f?.pane ? panes().find(p => p.pane === f.pane) : null;
+  let on = space?.machine ?? null;
+  if (f?.pane === null) on = f.terminal?.includes("/") ? f.terminal.split("/")[0] : null;
+  return { cwd: pane?.cwd || f?.cwd || space?.folder, on, pane: f?.pane, space: space?.id, tab: f?.tab, terminal: f?.terminal };
+}
+
 export default class Tabs extends View {
-  init() {
+  init(_props, cx) {
     this.pressed = null;
-    this.panels = JSON.parse(localStorage.getItem("panels") ?? "{}");
+    try { this.panels = JSON.parse(localStorage.getItem("panels") ?? "{}"); }
+    catch { this.panels = {}; }
+    cx.spawn(async (cx) => {
+      for (;;) if (await nextCommand() === "nvim") cx.spawn(async () => this.nvim());
+    });
+  }
+
+  async nvim() {
+    const here = location(), { cwd, on, pane } = here;
+    if (!cwd) return;
+    const key = JSON.stringify(here), current = () => JSON.stringify(location()) === key;
+    try {
+      const top = await exec("git", ["rev-parse", "--show-toplevel"], { cwd, on });
+      const root = top.code === 0 ? top.stdout.trim() : "";
+      if (!root || !current()) return;
+      const head = await exec("git", ["rev-parse", "--verify", "HEAD"], { cwd: root, on });
+      if (!current()) return;
+      run("terminal.open", {
+        argv: ["nvim", "-c", head.code === 0 ? "DiffviewOpen HEAD" : "DiffviewOpen"],
+        folder: root,
+        place: pane ? "right" : "tab",
+      });
+    } catch (e) {
+      if (current()) notify({ title: "Cannot open Neovim", body: String(e?.message ?? e), level: "error" });
+    }
   }
 
   // The side panel is remembered per space: switching shows that space's choice

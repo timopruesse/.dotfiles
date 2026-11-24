@@ -363,7 +363,8 @@ class PiResourceTests(unittest.TestCase):
     def test_approved_packages_declared_for_install_and_update(self):
         config = (ROOT / 'machine_setup.yaml').read_text()
         for package in ('npm:pi-web-access@0.41.0', 'npm:pi-pstack@0.1.0',
-                        'npm:pi-lens@4.4.3', 'npm:pi-impeccable@0.1.0'):
+                        'npm:pi-lens@4.4.3', 'npm:pi-impeccable@0.1.0',
+                        'npm:pi-nvim-context@0.4.0'):
             self.assertEqual(config.count('pi install ' + package + '\n'), 2)
             name = package.rsplit('@', 1)[0]
             self.assertEqual(config.count('pi remove ' + name + '\n'), 1)
@@ -373,12 +374,15 @@ class PiResourceTests(unittest.TestCase):
         for phase in ('install', 'update'):
             commands = section.split(f'        {phase}:\n', 1)[1].split(
                 '        update:' if phase == 'install' else '        uninstall:', 1)[0]
+            self.assertIn('pi install npm:pi-nvim-context@0.4.0\n', commands)
             self.assertIn('pi install npm:pi-pstack@0.1.0\n'
                           '        - python3 $HOME/setup_pi.py\n', commands)
             self.assertLess(commands.index('pi remove npm:pi-subagents'),
                             commands.index('pi install npm:pi-pstack'))
             self.assertLess(commands.index('pi remove "$HOME/pi-workbench"'),
                             commands.index('pi install npm:pi-pstack'))
+        uninstall = section.split('        uninstall:\n', 1)[1].split('        shell:', 1)[0]
+        self.assertIn('pi remove npm:pi-nvim-context\n', uninstall)
 
     def test_retired_package_removal_is_repeatable_and_fails_closed(self):
         config = (ROOT / 'machine_setup.yaml').read_text()
@@ -445,25 +449,34 @@ fi
         self.assertIn('--tools read,grep,find,ls', (ROOT / 'home/.config/herdr-core/templates/reviewer.md').read_text())
 
 
-class PiProviderTests(unittest.TestCase):
+class PiNvimContextTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which('nvim'), 'Neovim is not installed')
-    def test_99_pi_provider_commands(self):
-        provider = ROOT / 'home/.config/nvim/lua/timopruesse/pi_provider.lua'
+    def test_nvim_spec_matches_provisioned_bridge_and_preserves_tab(self):
+        config = (ROOT / 'machine_setup.yaml').read_text()
+        version = config.split('pi install npm:pi-nvim-context@', 1)[1].splitlines()[0]
+        spec = ROOT / 'home/.config/nvim/lua/timopruesse/plugins/ai.lua'
         lua = '''
-package.preload['99.providers'] = function() return { BaseProvider = {} } end
-local provider = dofile(PROVIDER_PATH)
-assert(provider._get_provider_name() == 'PiProvider')
-assert(provider._get_default_model() == 'default')
-assert(vim.deep_equal(provider._build_command(nil, '--literal prompt', {model='default'}),
-    {'pi', '--print', '--no-session', '--', '--literal prompt'}))
-assert(vim.deep_equal(provider._build_command(nil, 'query', {model='provider/model'}),
-    {'pi', '--print', '--no-session', '--model', 'provider/model', '--', 'query'}))
-'''.replace('PROVIDER_PATH', json.dumps(str(provider)))
-        result = subprocess.run(
-            ['nvim', '--headless', '-u', 'NONE', '-i', 'NONE',
-             '-c', 'lua ' + lua, '-c', 'qa!'], capture_output=True, text=True, timeout=15)
+local plugin = dofile(arg[1])[1]
+assert(plugin[1] == 'omaclaren/pi-nvim-context')
+assert(plugin.tag == arg[2], 'Neovim tag must match the npm pin')
+assert(plugin.main == 'pi-nvim-context')
+assert(plugin.opts.accept_with_tab == false, 'Pi must leave Tab alone')
+assert(vim.deep_equal(plugin.opts.keymaps, {
+    prefix = '<leader>i', pick = '<leader>ip', file = '<leader>if',
+    location = '<leader>il', selection = '<leader>is', selection_comment = '<leader>iS',
+    diagnostics = '<leader>id', buffer = '<leader>ib', status = '<leader>ii',
+    suggest = '<leader>ic', rewrite = '<leader>ir', accept = '<leader>ia',
+    dismiss = '<leader>ix', preview = '<leader>iv',
+    annotation_header = false, guided = false, again = false,
+}), 'All Pi mappings must be relocated or disabled to preserve <leader>p')
+'''
+        with tempfile.TemporaryDirectory() as temporary:
+            script = Path(temporary) / 'check.lua'
+            script.write_text(lua)
+            result = subprocess.run(
+                ['nvim', '--headless', '-u', 'NONE', '-i', 'NONE', '-l',
+                 str(script), str(spec), f'v{version}'], capture_output=True, text=True, timeout=15)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertNotIn('Error', result.stderr)
 
 
 if __name__ == '__main__':

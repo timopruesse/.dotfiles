@@ -165,6 +165,16 @@ by filename and reads each diff line independently. Unknown file types and
 very dense lines display as plain text. The scroll and preview limits are
 unchanged.
 
+After Pi finishes, click **Edit in Neovim** in Changes or press `Ctrl+Shift+D`
+in the `dotfiles-main` layout. The shortcut also works with Changes hidden.
+Herdr opens Diffview in the current checkout, to the right of the focused pane
+or in a new tab if no pane is focused. The left side shows `HEAD`. In a repo
+with no commits, Herdr opens Diffview's default view instead.
+
+Edit the working file on the right and save with `:w`. Opening Diffview does
+not stage changes or send a message to Pi. The diff includes all checkout
+changes, not just Pi's edits.
+
 ## Pull requests panel
 
 The owned tab bar adds a **PRs** button beside Files and Changes. It opens the

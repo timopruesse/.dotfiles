@@ -15,6 +15,6 @@ Terms used by the active dotfiles setup:
 | **coding-agent launcher** | Shared shell/Herdr/Neovim entry point; defaults to Pi, accepts explicit alternative CLI overrides. Independent of Git identity. |
 | **Herdr** | The native app (`herdr-app`, default; owned resources in `home/herdr-app/`) and the legacy TUI (`herdr`, fallback; `home/.config/herdr/config.toml`), both over herdr-core. Changes target the app first and are mirrored into the TUI only where it has the same feature. The official Pi integration reports pane state and native session references. Legacy pane commands are terminal management only. |
 | **pane context** | Per-pane metadata such as AWS profile, working-tree label, and agent label; owned by `pane_context.sh`. |
-| **99 provider** | Neovim adapter invoking `pi --print --no-session` for one-off editor requests. |
+| **pi-nvim-context** | Matched Neovim plugin and Pi extension. Links the editor to an interactive Pi session to add context to its draft and request explicit editor suggestions. |
 
 Configuration and workflow: [`docs/PI.md`](docs/PI.md).

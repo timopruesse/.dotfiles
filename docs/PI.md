@@ -64,6 +64,9 @@ run Pi's native package installer for every approved plugin:
   can also install them if absent. `/impeccable live` starts the background bridge;
   `/impeccable live stop` stops it. The extension version is pinned, but its
   upstream `impeccable` dependency is floating (`*`), not fully reproducible.
+- `npm:pi-nvim-context@0.4.0`: bridges an interactive Pi session and Neovim.
+  The Neovim plugin uses the matching Git tag `v0.4.0` in `plugins/ai.lua`.
+  Update both pins together and restart Pi and Neovim after updating.
 
 Versions are pinned for repeatable provisioning. Add future approved plugins to
 both lists in `machine_setup.yaml`, not just to a local Pi installation. Package
@@ -229,8 +232,13 @@ user-owned configuration. Fresh setup no longer creates those preferences.
 - `cr`: continue the latest Pi session for the checkout (`--continue`).
 - `cpi`: prompt and optional piped input, using Pi print mode in a Herdr tab.
 - Herdr `prefix+shift+H/V/R/S`: split / continue / resume via the same launcher.
-- Neovim `<leader>z*`: the same Herdr launcher; 99 (`<leader>9*`) uses Pi's print
-  provider without saving one-off sessions, inheriting the configured model.
+- Neovim `<leader>z*`: the same Herdr launcher.
+- Neovim `<leader>i*`: pi-nvim-context. Use `<leader>ip` to link Neovim to a
+  running interactive Pi session in the same working directory. Context bindings
+  add text to Pi's editable draft without submitting it. Explicit completion and
+  rewrite requests use the linked session's model. Review the result before
+  accepting it with `<leader>ia`; `Tab` keeps its existing behavior. See
+  [Neovim keybindings](../KEYBINDS.md) for the full list.
 - `CODING_AGENT=pi|claude|codex|agy|agent|cursor` or per-call `--pi`, `--claude`,
   `--codex`, `--agy`, `--agent`, `--cursor`: explicit alternative-client override.
   These launch clients directly, without generated roles or project-agent injection.

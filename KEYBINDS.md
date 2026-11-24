@@ -11,13 +11,14 @@ and are mirrored into the TUI config only where the TUI has the same feature.
 
 ### Native app
 
-The app has no prefix key. The dotfiles manage these global bindings; the rest
-are the app's defaults (`ctrl-shift-/` shows them).
+The app has no prefix key. The dotfiles manage these bindings. Press
+`ctrl-shift-/` to see the app's defaults.
 
 | Key | Action |
 | --- | --- |
 | `ctrl+1` … `ctrl+9` | Jump to space 1–9 (app's global space order) |
 | `alt+1` … `alt+9` | Jump to agent 1–9 (agents list order: pinned first, then the chosen sort) |
+| `ctrl+shift+d` | Open the checkout's editable diff in Neovim in the `dotfiles-main` layout |
 
 ### TUI (fallback)
 
@@ -287,7 +288,7 @@ panes** at the edges (`herdr-navigator.nvim`).
 | Key          | Mode   | Action                                    |
 | ------------ | ------ | ----------------------------------------- |
 | `<leader>gg` | Normal | Open LazyGit                              |
-| `<leader>gd` | Normal | Diffview: working tree against HEAD       |
+| `<leader>gd` | Normal | Diffview: unstaged and staged changes in separate groups |
 | `<leader>gD` | Normal | Diffview: close                           |
 | `<leader>gh` | Normal | Diffview: history of the current file     |
 
@@ -320,23 +321,27 @@ on fetched `refs/herdr/*` refs; `]c` / `[c` step through hunks, `<Tab>` and
 | `<leader>pi` | Normal | Install package        |
 | `<leader>pc` | Normal | Change package version |
 
-### 99 (AI Agent — inline)
+### Pi context
 
-Provided by [ThePrimeagen/99](https://github.com/ThePrimeagen/99). Uses
-`PiProvider` by default (`pi --print --no-session`), inheriting Pi's configured
-model. Follows explicit coding-agent overrides on `DirChanged`; select a provider
-temporarily with `<leader>9p`.
+[pi-nvim-context](https://github.com/omaclaren/pi-nvim-context) links Neovim to a
+running interactive Pi session. Context goes into Pi's draft without submitting
+it. Completion and rewrite requests run only when you invoke them.
 
-| Key          | Mode   | Action                                          |
-| ------------ | ------ | ----------------------------------------------- |
-| `<leader>9v` | Visual | Send selection with prompt; replace with result |
-| `<leader>9s` | Normal | Search the project with a prompt (quickfix)    |
-| `<leader>9o` | Normal | Open last result (quickfix / tutorial window)   |
-| `<leader>9x` | Normal | Stop all in-flight requests                     |
-| `<leader>9c` | Normal | Clear previous requests                         |
-| `<leader>9l` | Normal | View logs                                       |
-| `<leader>9m` | Normal | Telescope: select model                         |
-| `<leader>9p` | Normal | Telescope: select provider                      |
+| Key | Mode | Action |
+| --- | --- | --- |
+| `<leader>ip` | Normal or Visual | Pick the Pi session |
+| `<leader>if` | Normal | Add the current file path |
+| `<leader>il` | Normal | Add the cursor location and line |
+| `<leader>is` | Visual | Add the selection |
+| `<leader>iS` | Visual | Add the selection with a comment |
+| `<leader>id` | Normal | Add buffer diagnostics |
+| `<leader>ib` | Normal | Add the buffer, including unsaved edits |
+| `<leader>ii` | Normal | Show bridge status |
+| `<leader>ic` | Normal | Request a cursor completion |
+| `<leader>ir` | Visual | Request a rewrite of the selection |
+| `<leader>iv` | Normal | Focus the preview |
+| `<leader>ia` | Normal | Apply the preview without saving the file |
+| `<leader>ix` | Normal | Cancel or dismiss the preview |
 
 ### Coding agent (Herdr Integration)
 

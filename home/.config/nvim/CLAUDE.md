@@ -14,14 +14,15 @@ The Neovim config uses **Lazy.nvim** and is organized under `lua/timopruesse/`:
 - `telescope.lua` — fuzzy finder setup
 - `keymaps/` — keybindings split by context (lsp, rust, node, navigation, coding-agent, etc.)
 - `coding_agent_herdr.lua` — herdr panes for Pi (with legacy CLI overrides) (`<leader>z*`); calls `coding_agent_herdr.sh`
-- `coding_agent.lua` — shared `resolve_cli()` used by 99 (and anything that only needs resolve)
-- `plugins/ai.lua` — ThePrimeagen/99; Pi print provider by default; follows explicit CLI overrides
+- `coding_agent.lua` exposes `resolve_cli()` through the shared shell resolver.
+- `plugins/ai.lua` configures pi-nvim-context. Keep its Git tag in sync with the npm package in `machine_setup.yaml`.
 - `snippets/` — LuaSnip snippets per language (js, rust, lua, svelte)
 - `autocommands/` — filetype-specific auto-commands
 - `helpers/` — shared utilities (keymap helper, run_on_save)
 
-`<leader>9*` (99) and `<leader>z*` (herdr panes) both default to Pi.
-`pi_provider.lua` invokes `pi --print --no-session` and inherits the user's model.
+`<leader>i*` links to a running interactive Pi session. Context goes into Pi's draft without
+submitting it. Completion and rewrite require explicit requests and accept actions.
+`<leader>z*` still launches coding agents through Herdr and accepts CLI overrides.
 Full keybind table: [`KEYBINDS.md`](../../../KEYBINDS.md).
 
 Formatting on save is handled by **conform.nvim**:

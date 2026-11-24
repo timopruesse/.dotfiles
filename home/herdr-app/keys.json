@@ -18,5 +18,8 @@
     "alt-7": "dotfiles-agents.focus7",
     "alt-8": "dotfiles-agents.focus8",
     "alt-9": "dotfiles-agents.focus9"
+  },
+  "layout:dotfiles-main": {
+    "ctrl-shift-d": "dotfiles-tabs.nvim"
   }
 }

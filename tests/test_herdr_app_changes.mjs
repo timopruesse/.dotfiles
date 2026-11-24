@@ -5,7 +5,10 @@ import vm from "node:vm";
 import { diffRows, displayColumns, diffPalette } from "../home/herdr-app/mods/dotfiles-changes/diff.js";
 
 const main = await readFile(new URL("../home/herdr-app/mods/dotfiles-changes/main.js", import.meta.url), "utf8");
+const keys = JSON.parse(await readFile(new URL("../home/herdr-app/keys.json", import.meta.url), "utf8"));
+const tabsMain = await readFile(new URL("../home/herdr-app/mods/dotfiles-tabs/main.js", import.meta.url), "utf8");
 const source = main.replace(/^import .*;$/gm, "").replace("export default class Changes", "class Changes");
+const tabsSource = tabsMain.replace(/^import .*;$/gm, "").replace("export default class Tabs", "class Tabs");
 const spans = (text, path) => diffRows([`+${text}`], path)[0].spans;
 const colored = (text, path) => spans(text, path).filter(s => s.role !== "plain").map(s => [s.role, s.text]);
 
@@ -78,6 +81,7 @@ function element() {
   const builder = new Proxy(node, { get(target, key) {
     if (key === "child") return child => { target.children.push(child); return builder; };
     if (key === "children") return children => { target.children.push(...children); return builder; };
+    if (key === "when") return (condition, apply) => condition ? apply(builder) : builder;
     if (key === "inspect") return target;
     return value => { target[key] = value ?? true; return builder; };
   } });
@@ -122,4 +126,128 @@ test("tracked previews pass their filename to the lexer and retain shipped limit
   assert.equal(view.rows[1].spans[0].role, "keyword");
   assert.ok(view.rows[2].text.endsWith("… (line truncated)"));
   assert.equal(view.rows[2].text.slice(0, -"… (line truncated)".length).length, 3999);
+});
+
+async function changesFixture({ status = " M a.js\0", valid = true } = {}) {
+  const world = { cwd: "/worktree/src", runs: [], git: [] }, tasks = [];
+  const cx = { focus_handle: () => ({}), notify() {}, timer: { every() {} }, spawn(fn) { tasks.push(fn(this)); } };
+  const view = viewFixture({
+    spaces: () => [{ active: true, folder: world.cwd }],
+    panes: () => [{ pane: "p1", cwd: world.cwd, status: "working" }],
+    focused: () => ({ pane: "p1" }),
+    theme: () => dark, settings: () => ({ font_size: 11 }),
+    v_flex: element, v_virtual_list: element, Scrollbar: { vertical: element },
+    InputState: { new: () => ({ on() {}, set_value() {} }) }, Input: { new: element },
+    watchFolder: () => new Promise(() => {}),
+    run: name => { world.runs.push(name); },
+    exec: async (name, args, opts) => {
+      world.git.push([name, args, opts]);
+      if (args.includes("--show-toplevel")) return { code: valid ? 0 : 1, stdout: opts.cwd.replace(/\/src$/, "") + "\n" };
+      if (args.includes("--porcelain=v1")) return { code: 0, stdout: status };
+      if (args.includes("--verify")) return { code: 0 };
+      if (args.includes("diff")) return { code: 0, stdout: "" };
+      assert.fail(`Unexpected git call: ${args.join(" ")}`);
+    },
+  });
+  view.init({}, cx);
+  await tasks[0];
+  const button = () => view.render(cx).inspect.children[0].inspect.children.at(-1).inspect;
+  return { world, button, refresh: () => { const i = tasks.length; view.refresh(cx); return tasks[i]; } };
+}
+
+const shortcut = keys["layout:dotfiles-main"]["ctrl-shift-d"];
+
+test("the header click sends the same command as the shortcut without making a git call", async () => {
+  const p = await changesFixture();
+  const button = p.button(), gitCalls = p.world.git.length;
+  assert.equal(button.id, "changes-nvim");
+  assert.equal(button.children[0], "Edit in Neovim");
+  button.on_click();
+  assert.deepEqual(p.world.runs, [shortcut]);
+  assert.equal(p.world.git.length, gitCalls);
+});
+
+test("an old header click cannot act on a different worktree", async () => {
+  const p = await changesFixture();
+  const oldButton = p.button();
+  p.world.cwd = "/other-worktree/src";
+  oldButton.on_click();
+  await p.refresh();
+  oldButton.on_click();
+  assert.deepEqual(p.world.runs, []);
+  p.button().on_click();
+  assert.deepEqual(p.world.runs, [shortcut]);
+});
+
+test("the button is disabled for clean folders and non-repositories", async () => {
+  for (const opts of [{ status: "" }, { valid: false }]) {
+    const p = await changesFixture(opts);
+    assert.equal(p.button().on_click, undefined);
+  }
+});
+
+function tabsFixture({ machine = null, pane = "p1", hasHead = true, valid = true, beforeResult = async () => {} } = {}) {
+  const world = { machine, pane, cwd: "/worktree/src", runs: [], git: [] };
+  let deliver;
+  const ctx = {
+    View: class {}, localStorage: { getItem: () => null },
+    spaces: () => [{ id: "s1", active: true, machine: world.machine, folder: "/worktree" }],
+    panes: () => world.pane ? [{ pane: world.pane, cwd: world.cwd }] : [],
+    focused: () => world.pane ? { pane: world.pane, tab: "tb1" } : null,
+    nextCommand: () => new Promise(resolve => { deliver = resolve; }),
+    notify: n => assert.fail(n.body),
+    run: (name, args) => { world.runs.push([name, JSON.parse(JSON.stringify(args))]); },
+    exec: async (name, args, opts) => {
+      world.git.push([name, Array.from(args), opts.cwd, opts.on]);
+      await beforeResult(args.at(-1));
+      if (args.includes("--show-toplevel")) return { code: valid ? 0 : 1, stdout: "/worktree\n" };
+      if (args.includes("--verify")) return { code: hasHead ? 0 : 1 };
+      assert.fail(`Unexpected git call: ${args.join(" ")}`);
+    },
+  };
+  const Tabs = vm.runInNewContext(`${tabsSource}\nTabs`, ctx);
+  new Tabs().init({}, { spawn(fn) { fn(this); } });
+  return { world, command: async name => { deliver(name); await new Promise(resolve => setImmediate(resolve)); } };
+}
+
+const launch = (place, diff = "DiffviewOpen HEAD") => ["terminal.open", { argv: ["nvim", "-c", diff], folder: "/worktree", place }];
+
+test("the always-mounted tabs command resolves remote checkout and native placement without Changes", async () => {
+  const [mod, command] = shortcut.split(".");
+  assert.equal(mod, "dotfiles-tabs");
+  for (const pane of ["p1", null]) {
+    const p = tabsFixture({ machine: "remote", pane, hasHead: Boolean(pane) });
+    await p.command("unknown");
+    assert.deepEqual(p.world.git, []);
+    await p.command(command);
+    assert.deepEqual(p.world.git, [
+      ["git", ["rev-parse", "--show-toplevel"], pane ? "/worktree/src" : "/worktree", "remote"],
+      ["git", ["rev-parse", "--verify", "HEAD"], "/worktree", "remote"],
+    ]);
+    assert.deepEqual(p.world.runs, [pane ? launch("right") : launch("tab", "DiffviewOpen")]);
+  }
+});
+
+test("the shortcut ignores non-repositories", async () => {
+  const p = tabsFixture({ valid: false });
+  await p.command("nvim");
+  assert.equal(p.world.git.length, 1);
+  assert.deepEqual(p.world.runs, []);
+});
+
+test("changing pane, cwd, or machine during either git probe cancels the launch", async () => {
+  for (const [field, value] of [["pane", "p2"], ["cwd", "/other-worktree/src"], ["machine", "remote"]]) {
+    for (const pauseAt of ["--show-toplevel", "HEAD"]) {
+      let resume;
+      const pause = new Promise(resolve => { resume = resolve; });
+      const p = tabsFixture({ beforeResult: async arg => { if (arg === pauseAt) await pause; } });
+      await p.command("nvim");
+      assert.equal(p.world.git.at(-1)[1].at(-1), pauseAt);
+      p.world[field] = value;
+      resume();
+      await new Promise(resolve => setImmediate(resolve));
+      assert.equal(p.world.git.length, pauseAt === "HEAD" ? 2 : 1);
+      assert.deepEqual(p.world.runs, []);
+    }
+  }
 });

@@ -70,7 +70,7 @@ return {
 			wk.setup({})
 			wk.add({
 				{ "<leader>v", group = "LSP" },
-				{ "<leader>9", group = "99 (AI)" },
+				{ "<leader>i", group = "Pi context", mode = { "n", "x" } },
 				{ "<leader>p", group = "Search/Package" },
 				{ "<leader>b", group = "Buffers" },
 				{ "<leader>t", group = "Todo/Test" },

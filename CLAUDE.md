@@ -64,8 +64,8 @@ When adding new work contexts, add matching `includeIf` blocks and an identity f
 
 ## Coding agent routing
 
-Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), herdr binds (`prefix+shift+H`/`V`/`R`/`S`),
-Neovim `<leader>z*`, and 99 (`<leader>9*`) share one resolver:
+Shell aliases (`c`/`ch`/`cv`/`cr`/`cpi`), Herdr binds (`prefix+shift+H`/`V`/`R`/`S`),
+and Neovim `<leader>z*` share one resolver:
 [`home/.config/herdr/scripts/coding_agent_resolve.sh`](home/.config/herdr/scripts/coding_agent_resolve.sh).
 (Neovim also exposes it as `timopruesse.coding_agent`.) Herdr launches go through
 [`coding_agent_herdr.sh`](home/.config/herdr/scripts/coding_agent_herdr.sh) →
@@ -78,7 +78,10 @@ overrides it (cursor normalizes to agent). Per-call overrides: `--pi` / `--claud
 The `dotfiles` task runs `python3 $HOME/setup_pi.py` to link Pi resources and apply
 GPT 6.2 Sol (`openai/gpt-6.2-sol`) with medium thinking as the startup default.
 All approved Pi plugins must be declared in `machine_setup.yaml`'s `pi_packages`
-task for both install and update. Workflow migration decisions are tracked in
+task for both install and update. Neovim `<leader>i*` uses pi-nvim-context to link to
+an interactive Pi session, independently of the launcher and its CLI overrides.
+Keep the Neovim plugin tag and the provisioned npm package version in sync.
+Workflow migration decisions are tracked in
 [`docs/PI-WORKFLOW-MIGRATION.md`](docs/PI-WORKFLOW-MIGRATION.md).
 See [`docs/PI.md`](docs/PI.md) for native workflow commands and ownership.
 Full Poteto Mode from `pi-pstack@0.1.0` is the coding workflow. Use its bundled

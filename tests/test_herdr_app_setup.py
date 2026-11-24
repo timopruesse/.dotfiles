@@ -75,6 +75,7 @@ class HerdrAppSetupTests(unittest.TestCase):
             'global': {'alt-1': 'space.select:1', 'ctrl-1': 'tab.select:1', 'ctrl-shift-t': 'tab.new'},
             'terminal': {'ctrl-9': 'terminal'},
             'layout:terminals': {'ctrl-p': 'app.palette'},
+            'layout:dotfiles-main': {'ctrl-p': 'app.palette'},
         })
         state = self.put('view.json', {'space': 'keep-me'})
         originals = {p: p.read_bytes() for p in (settings, keys, state)}
@@ -84,7 +85,9 @@ class HerdrAppSetupTests(unittest.TestCase):
         expected_settings['appearance'] = 'dark'
         self.assertEqual(self.read('settings.json'), expected_settings)
         expected_keys = json.loads(originals[keys])
-        expected_keys['global'].update(json.loads((RESOURCES / 'keys.json').read_text())['global'])
+        managed_keys = json.loads((RESOURCES / 'keys.json').read_text())
+        for section, bindings in managed_keys.items():
+            expected_keys.setdefault(section, {}).update(bindings)
         self.assertEqual(self.read('keys.json'), expected_keys)
         self.assertEqual(state.read_bytes(), originals[state])
         for path in (settings, keys):
