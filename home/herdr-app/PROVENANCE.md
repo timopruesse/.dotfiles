@@ -1,4 +1,4 @@
-# Grouped sidebar source
+# Native Herdr source snapshots
 
 `mods/dotfiles-spaces/` and `layouts/dotfiles-main.json` are owned snapshots
 of the native Herdr app 0.1.7 resources. They were copied from the installed
@@ -42,13 +42,26 @@ in `init`, a `command()` method that maps `focus1` .. `focus9` to
 `pane.focus` on the nth drawn top-level agent, `this.order` recorded beside
 `setAgentOrder` in `render`, and the sort menu overlay opening
 `dotfiles-agents` instead of `agents`. The layout's agents block points at it.
+
+`mods/dotfiles-changes/` is an owned snapshot of the shipped `mods/changes/`
+from herdr-app 0.1.17 (`main.js` and `mod.json`):
+
+| Shipped file | SHA-256 |
+| --- | --- |
+| `mods/changes/main.js` | `4862e73feea587aa767de33de0ccfd3b82900eaf9f7f95304c858871db34eacb` |
+| `mods/changes/mod.json` | `e8e0a91d23a0addf19f9f4dab48f597f252a1d44e5063e4d6ae884a88cbf735d` |
+
+Its local changes add `diff.js` for numbered rows, syntax spans, and the diff
+palette, and render those spans and change markers in the virtualized rows.
+The layout keeps the `changes` child ID, and the tab bar uses the shipped icon.
+
 `mods/dotfiles-prs/` is original code modeled on the shipped `changes` mod,
 not a clone of it. `mods/dotfiles-outputs/` is original code; its preview
 reader mirrors the shipped `files` mod's.
 
-The layout changes are clone provenance, the spaces, agents, and tabs mod
-references, and the `prs` and `outputs` children in the `panel-body` stack. The
-mod retains shipped Git refresh, machine state, worktree nesting, rows,
+The layout points to the owned spaces, agents, tabs, and Changes mods and adds
+`prs` and `outputs` children to the `panel-body` stack. The grouped sidebar
+retains shipped Git refresh, machine state, worktree nesting, rows,
 menus, dragging, compact numbering, and shared colors. Its additions are
 `grouping.js`, row location fields, and collapsible owner section rendering.
 Owner folds persist as machine-owner pairs under `owners.folded`, separate
@@ -74,22 +87,21 @@ source-rewriting installer.
 
 The useful part retained from the generator proposal is explicit source
 provenance. Hashes document the baseline; they do not gate installation.
-The installer owns an explicit list of four resource files and backs up
-changed copies. It does not mirror directories or own app state.
+The installer owns an explicit list of resource files and backs up changed
+copies. It does not mirror directories or own app state.
 
 ## Refresh the snapshot
 
 Compare the installed shipped resources with these hashes after app
-updates. Review changes to the shipped spaces, agents, and tabs mods and the main
-layout, then port relevant upstream fixes into the owned snapshots. Keep local changes
-at the owner-group rendering boundary. Update the hashes and clone version
-after reviewing a new baseline.
+updates. Review changes to the shipped spaces, agents, tabs, and Changes mods
+and the main layout. Port relevant upstream fixes to the owned snapshots.
+Update the hashes and clone version after reviewing a new baseline.
 
 The adapter tests execute owner and machine fold callbacks, check independent
 visibility and original indices, and restore saved folds through the actual
 mod initializer. They also cover malformed owner-fold storage.
 
-Run the Python installer tests and both JavaScript test files listed in
+Run the Python installer and JavaScript tests listed in
 [Native Herdr app preferences](../../docs/HERDR-APP.md). Install into a
 temporary app home and run `herdr-app check` there. A passing check does
 not verify painting or later interactions. Review the actual sidebar after

@@ -58,6 +58,7 @@ class HerdrAppSetupTests(unittest.TestCase):
             'mods/dotfiles-tabs/main.js', 'mods/dotfiles-tabs/mod.json',
             'mods/dotfiles-tabs/win-close.svg', 'mods/dotfiles-tabs/win-max.svg',
             'mods/dotfiles-tabs/win-min.svg', 'mods/dotfiles-tabs/win-restore.svg',
+            'mods/dotfiles-changes/main.js', 'mods/dotfiles-changes/mod.json', 'mods/dotfiles-changes/diff.js',
             'mods/dotfiles-prs/main.js', 'mods/dotfiles-prs/mod.json',
             'mods/dotfiles-prs/prs.js', 'mods/dotfiles-prs/pr.svg',
             'mods/dotfiles-outputs/main.js', 'mods/dotfiles-outputs/mod.json',
@@ -199,22 +200,25 @@ class HerdrAppSetupTests(unittest.TestCase):
                 visit(child)
         visit(layout)
         for owned, shipped in (('dotfiles-spaces', 'spaces'), ('dotfiles-tabs', 'tabs'),
-                               ('dotfiles-agents', 'agents')):
+                               ('dotfiles-agents', 'agents'), ('dotfiles-changes', 'changes')):
             self.assertIn(owned, mods)
             self.assertNotIn(shipped, mods)
-        for mod in ('workspace-chrome', 'files', 'changes', 'dotfiles-prs', 'dotfiles-outputs',
+        for mod in ('workspace-chrome', 'files', 'dotfiles-prs', 'dotfiles-outputs',
                     'workspace-status'):
             self.assertIn(mod, mods)
-        panel = None
         def find(node, wanted):
-            nonlocal panel
             if node.get('id') == wanted:
-                panel = node
+                return node
             for child in node.get('children', []):
-                find(child, wanted)
-        find(layout, 'panel-body')
+                if found := find(child, wanted):
+                    return found
+            return None
+        panel = find(layout, 'panel-body')
+        assert panel is not None
         self.assertEqual([c['id'] for c in panel['children']], ['files', 'changes', 'prs', 'outputs'])
-        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs', 'dotfiles-outputs', 'dotfiles-agents'):
+        self.assertEqual(panel['children'][1]['content']['mod'], 'dotfiles-changes')
+        for name in ('dotfiles-spaces', 'dotfiles-tabs', 'dotfiles-prs', 'dotfiles-outputs',
+                     'dotfiles-agents', 'dotfiles-changes'):
             meta = json.loads((RESOURCES / f'mods/{name}/mod.json').read_text())
             self.assertEqual(meta['place'], 'none')
         agents = (RESOURCES / 'mods/dotfiles-agents/main.js').read_text()
@@ -225,6 +229,7 @@ class HerdrAppSetupTests(unittest.TestCase):
             self.assertEqual(keys[f'ctrl-{n}'], f'space.select:{n}')
             self.assertEqual(keys[f'alt-{n}'], f'dotfiles-agents.focus{n}')
         tabs = (RESOURCES / 'mods/dotfiles-tabs/main.js').read_text()
+        self.assertIn('panelButton("changes", "Changes", "mods/changes/changes.svg")', tabs)
         self.assertIn('panelButton("prs", "PRs", "mods/dotfiles-prs/pr.svg")', tabs)
         self.assertIn('panelButton("outputs", "Outputs", "mods/dotfiles-outputs/outputs.svg")', tabs)
         self.assertNotIn('mods/tabs/', tabs)

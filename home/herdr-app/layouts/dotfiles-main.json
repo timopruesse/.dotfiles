@@ -159,7 +159,7 @@
                       "id": "changes",
                       "type": "block",
                       "content": {
-                        "mod": "changes"
+                        "mod": "dotfiles-changes"
                       }
                     },
                     {

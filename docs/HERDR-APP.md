@@ -17,7 +17,7 @@ python3 "$HOME/setup_herdr_app.py"
 The `dotfiles` task runs this command on install and update. The installer
 resolves its resources beside the real script, so a symlinked script works.
 It merges `home/herdr-app/settings.json` and `home/herdr-app/keys.json` into
-`~/.config/herdr-app/` and copies the owned sidebar, tab bar, and PR panel
+`~/.config/herdr-app/` and copies the owned sidebar, tab bar, and panel
 resources below.
 `HERDR_APP_HOME` overrides the destination. It never selects a layout.
 
@@ -62,6 +62,7 @@ The installer copies only these owned resources:
 - `mods/dotfiles-spaces/grouping.js`
 - `mods/dotfiles-spaces/mod.json`
 - `mods/dotfiles-tabs/main.js`, `mod.json`, and `win-*.svg`
+- `mods/dotfiles-changes/main.js`, `diff.js`, and `mod.json`
 - `mods/dotfiles-prs/main.js`, `prs.js`, `mod.json`, and `pr.svg`
 - `mods/dotfiles-outputs/main.js`, `outputs.js`, `mod.json`, `outputs.svg`, and `diagram.svg`
 - `layouts/dotfiles-main.json`
@@ -69,11 +70,10 @@ The installer copies only these owned resources:
 The custom layout is a snapshot of the shipped main layout. Its spaces block
 uses the grouped sidebar mod, its agents block uses the owned agents clone
 (the shipped list plus the Alt+digit key commands), its tab bar uses the
-owned tab bar clone, and its side panel stack has `prs` and `outputs` children
-after Files and Changes.
-Menus, pane headers, files, changes, and window chrome continue to use the
-shipped mods. The custom mods
-have `place: "none"`, so installation does not dock another sidebar.
+owned tab bar clone, and its side panel stack uses the owned Changes panel
+and adds `prs` and `outputs` after it. Menus, pane headers, Files, and window
+chrome continue to use the shipped mods. The custom mods have `place: "none"`,
+so installation does not dock another sidebar.
 
 After installing, check the mod and explicitly select the custom layout:
 
@@ -126,8 +126,8 @@ a cross-section move still renders under its classified section.
 
 Installation does not switch the live layout, modify selection state, or
 start/restart the app or core. Once this layout is selected, later setup runs
-can hot-reload changed owned resources. Local edits to these four installed
-files are backed up and replaced. Edit the dotfiles sources to keep changes.
+can hot-reload changed owned resources. Local edits to installed owned files
+are backed up and replaced. Edit the dotfiles sources to keep changes.
 Unlisted files inside the custom mod directory remain untouched.
 
 ## Verify without activating
@@ -140,7 +140,7 @@ python3 -m unittest discover -s tests -p 'test_herdr_app_setup.py' -v
 node --test tests/test_herdr_app_*.mjs
 stage=$(mktemp -d)
 HERDR_APP_HOME="$stage" python3 home/setup_herdr_app.py
-for mod in dotfiles-agents dotfiles-spaces dotfiles-tabs dotfiles-prs dotfiles-outputs; do
+for mod in dotfiles-agents dotfiles-spaces dotfiles-tabs dotfiles-changes dotfiles-prs dotfiles-outputs; do
   HERDR_APP_HOME="$stage" herdr-app check "$stage/mods/$mod"
 done
 ```
@@ -155,6 +155,15 @@ restore, worktrees, menus, drag behavior, and numeric selection. Adapter tests
 execute fold callbacks and verify per-machine visibility and saved state.
 Visual and live-interaction checks have not been performed as part of the
 non-activating implementation.
+
+## Changes panel
+
+The Changes tab keeps its shipped icon and Git behavior. Its diff uses `+` and
+`-` beside the line numbers, with row tints and a separate accent for hunk
+headers. Syntax colors adapt to light and dark themes. The lexer selects rules
+by filename and reads each diff line independently. Unknown file types and
+very dense lines display as plain text. The scroll and preview limits are
+unchanged.
 
 ## Pull requests panel
 
@@ -389,8 +398,8 @@ Outside WSL the file returns early and nothing changes.
 The app config directory is never symlinked. App-owned state, shipped mods,
 shipped layouts, and layout click state remain outside this setup's scope.
 The app applies preference files live. The owned clones do not receive
-upstream sidebar or tab bar fixes automatically. Their baselines and refresh
-procedure are recorded in [Grouped sidebar source](../home/herdr-app/PROVENANCE.md).
+upstream fixes automatically. Their baselines and refresh procedure are
+recorded in [Native Herdr source snapshots](../home/herdr-app/PROVENANCE.md).
 
 Legacy shell aliases, Herdr launch scripts, and Neovim's `herdr-navigator`
 still use old `herdr`, not `hc` or the native app. These preferences do not
